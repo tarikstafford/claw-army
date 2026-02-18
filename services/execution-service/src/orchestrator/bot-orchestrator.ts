@@ -12,7 +12,7 @@ import {
   getActiveBotCount,
   getBotsForExecution,
 } from './bot-registry';
-import { publishBotStarted, publishBotStopped } from '../events/publisher';
+import { publishBotStarted, publishBotStopped, publishGuardrailTriggered } from '../events/publisher';
 import { queueConnection, TASK_QUEUE_NAME, type TaskJobData } from '../queue/task-queue';
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -303,6 +303,15 @@ export function startIdleChecker(): NodeJS.Timeout {
         });
         try {
           await stopBot(entry.botId, 'idle_timeout');
+          // GARD-05 + GARD-06: emit guardrail_triggered event for idle timeout
+          await publishGuardrailTriggered({
+            type: 'guardrail_triggered',
+            botId: entry.botId,
+            executionId: entry.executionId,
+            reason: 'idle_timeout',
+            action: 'terminated',
+            timestamp: new Date().toISOString(),
+          });
         } catch (err) {
           console.error('[bot-orchestrator] Failed to stop idle bot:', {
             botId: entry.botId,
