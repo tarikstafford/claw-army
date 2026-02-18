@@ -8,6 +8,9 @@
     "start": "NODE_OPTIONS=\"--conditions @claw/source\" tsx src/main.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.45",
+    "@ai-sdk/google": "^3.0.29",
+    "@ai-sdk/openai": "^3.0.29",
     "@claw/db": "workspace:*",
     "@claw/event-schemas": "workspace:*",
     "@claw/tool-contracts": "workspace:*",
@@ -15,6 +18,7 @@
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@sinclair/typebox": "^0.34.48",
+    "ai": "^6.0.90",
     "dotenv": "^16.4.0",
     "drizzle-orm": "^0.45.1",
     "fastify": "^5.7.4",
