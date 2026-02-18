@@ -2,6 +2,7 @@ import { db, tasks, executions } from '@claw/db';
 import { eq, and, notInArray, count } from 'drizzle-orm';
 import { transitionExecution } from '../services/execution.service';
 import { publishExecutionStatusChanged, publishBillingEvent } from '../events/publisher';
+import { runPerformancePipeline } from '../performance/performance-engine';
 
 /**
  * Check if all tasks for an execution are in a terminal state (completed or failed).
@@ -50,6 +51,12 @@ export async function checkExecutionCompletion(executionId: string): Promise<boo
       });
 
       console.log('[completion-checker] Execution completed:', { executionId });
+
+      // Phase 5: Fire-and-forget performance scoring pipeline
+      // Must NOT block or roll back the completed status
+      runPerformancePipeline(executionId).catch((err) => {
+        console.error('[performance-engine] Pipeline error (non-fatal):', err);
+      });
     }
 
     return transitioned;

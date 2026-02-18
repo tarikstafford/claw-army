@@ -15,6 +15,13 @@
       "when": 1771415499027,
       "tag": "0001_cooing_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771425330768,
+      "tag": "0002_melted_black_widow",
+      "breakpoints": true
     }
   ]
 }

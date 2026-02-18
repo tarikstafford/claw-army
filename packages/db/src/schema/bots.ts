@@ -3,6 +3,7 @@ import {
   uuid,
   varchar,
   integer,
+  numeric,
   timestamp,
   pgEnum,
   index,
@@ -34,12 +35,15 @@ export const bots = pgTable(
     tasksClaimed: integer('tasks_claimed').notNull().default(0),
     tasksCompleted: integer('tasks_completed').notNull().default(0),
     tasksFailed: integer('tasks_failed').notNull().default(0),
+    compositeScore: numeric('composite_score', { precision: 5, scale: 2 }),
+    tier: varchar('tier', { length: 10 }),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
   (t) => [
     index('bots_execution_id_idx').on(t.executionId),
     index('bots_status_idx').on(t.status),
+    index('bots_composite_score_idx').on(t.compositeScore),
   ],
 );
 
