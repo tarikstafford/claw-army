@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 4 — Realtime and Observability (NEXT)
+**Current focus:** Phase 4 — Control Plane Services (IN PROGRESS)
 
 ## Current Position
 
-Phase: 3 of 6 (Bot Runtime and Tool Gateway) — COMPLETE
-Plan: 4 of 4 in current phase — COMPLETE
-Status: Phase 3 fully proven — Tool Gateway Dockerfile, dual-network isolation, network isolation test, and Phase 3 E2E integration tests all passing
-Last activity: 2026-02-18 — Phase 3 Plan 4 complete. Tool Gateway Dockerfile with ca-certificates. docker-compose.dev.yml with bot-internal(internal:true) + tool-gateway dual-network. Network isolation test confirms SC#1. Phase 3 E2E test confirms SC#2-SC#5 with full audit log verification.
+Phase: 4 of 6 (Control Plane Services) — IN PROGRESS
+Plan: 1 of 4 in current phase — COMPLETE
+Status: Phase 4 Plan 1 complete — Pub/Sub topic name alignment, billing/guardrail publish functions, and Redis budget cap initialization ready
+Last activity: 2026-02-18 — Phase 4 Plan 1 complete. publisher.ts updated with 8 publish functions using 5 Terraform-aligned env-configurable topic names. publishBillingEvent, publishBudgetExceeded, publishGuardrailTriggered added. execution.service.ts initializes budget:cap and budget:spend Redis keys on execution creation (non-fatal try/catch, TTL = runtimeLimitSeconds + 24h).
 
-Progress: [████████████] 52%
+Progress: [█████████████] 54%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 6.5 min
-- Total execution time: 113 min
+- Total plans completed: 13
+- Average duration: 6.3 min
+- Total execution time: 115 min
 
 **By Phase:**
 
@@ -30,10 +30,11 @@ Progress: [████████████] 52%
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
+| 04-control-plane-services | 1/4 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (25 min), 03-02 (4 min), 03-03 (7 min), 03-04 (17 min)
-- Trend: Phase 3 complete at 53 min total (4 plans). Plans with Docker integration, network testing, and E2E test infrastructure take longer due to debugging Docker networking and SSL behavior.
+- Last 5 plans: 03-02 (4 min), 03-03 (7 min), 03-04 (17 min), 04-01 (2 min)
+- Trend: Phase 4 started. Plan 04-01 was minimal config/plumbing — 2 min. No blocking issues.
 
 *Updated after each plan completion*
 
@@ -92,6 +93,10 @@ Recent decisions affecting current work:
 - [Phase 03-bot-runtime-and-tool-gateway/03-04]: Rate limiter fail-open on Redis connection errors — non-RateLimiterRes errors return allowed:true with console.error, never 500
 - [Phase 03-bot-runtime-and-tool-gateway/03-04]: Test bot container: install curl/nslookup on default network before switching to bot-internal — apk cannot download on internal network
 - [Phase 03-bot-runtime-and-tool-gateway/03-04]: Docker Desktop VPN-Kit intercepts HTTPS — use host-based gateway for E2E tests (system CAs work), not containerized gateway
+- [Phase 04-control-plane-services/04-01]: Pub/Sub topic env vars default to Terraform naming without env suffix — emulator auto-creates topics on first publish, local dev works without suffix
+- [Phase 04-control-plane-services/04-01]: IORedis singleton in execution.service.ts uses enableOfflineQueue: true (default) — write-path should queue on slow Redis, not fail fast (contrast: rate-limiter uses enableOfflineQueue:false for fail-fast)
+- [Phase 04-control-plane-services/04-01]: Budget key initialization is non-fatal (try/catch, log only) — billing engine handles missing keys gracefully (no cap = allow all spending per GARD-01 Lua script design)
+- [Phase 04-control-plane-services/04-01]: budget:spend initialized explicitly to 0 — ensures monitoring key exists before any spend occurs; INCRBY would create on non-existent key but explicit SET is clearer
 
 ### Pending Todos
 
@@ -107,5 +112,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-04-PLAN.md — Tool Gateway Dockerfile, dual-network docker-compose, network isolation test (SC#1), and Phase 3 E2E integration test (SC#2-SC#5). 2 tasks, 3 commits. Phase 3 fully proven with all success criteria tested. Ready for Phase 4 (real-time and observability).
+Stopped at: Completed 04-01-PLAN.md — Pub/Sub topic name alignment (5 Terraform-aligned env-configurable topic constants), 3 new publish functions (publishBillingEvent, publishBudgetExceeded, publishGuardrailTriggered), and Redis budget cap initialization on execution creation. 2 tasks, 2 commits. Ready for 04-02 (Guardrail Watchdog).
 Resume file: None
