@@ -7,7 +7,14 @@ import {
 } from '../services/execution.service';
 import { planObjective } from '../services/planner.service';
 import { addTaskToQueue } from '../queue/task-queue';
-import { db, tasks } from '@claw/db';
+import { db, tasks, bots } from '@claw/db';
+import { eq } from 'drizzle-orm';
+import {
+  spawnBotsForExecution,
+  startIdleChecker,
+  startQueueEventListener,
+} from '../orchestrator/bot-orchestrator';
+import { startCompletionPoller } from '../orchestrator/completion-checker';
 
 export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // POST /executions — create a new execution
@@ -59,7 +66,6 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         // If BullMQ add fails, the task stays 'pending' — a reconciler can re-enqueue.
         // This prevents orphan queue jobs with no corresponding DB record.
         for (const planned of plannedTasks) {
-          // Write to Postgres (create task row with status 'pending')
           const taskResult = await db
             .insert(tasks)
             .values({
@@ -71,7 +77,6 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
           if (taskResult.length > 0) {
             const taskRow = taskResult[0]!;
-            // Write to BullMQ queue
             await addTaskToQueue({
               taskId: taskRow.id,
               executionId,
@@ -81,16 +86,31 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         }
 
         // 3. Transition execution from 'queued' to 'running'
-        await transitionExecution(executionId, 'queued', 'running');
+        const transitioned = await transitionExecution(executionId, 'queued', 'running');
+        if (!transitioned) {
+          fastify.log.error({ executionId }, 'Failed to transition to running');
+          return;
+        }
 
+        // 4. Spawn bots for this execution
+        await spawnBotsForExecution(executionId, maxBots);
         fastify.log.info(
-          { executionId, taskCount: plannedTasks.length },
-          'Planning complete, execution running',
+          { executionId, botCount: maxBots, taskCount: plannedTasks.length },
+          'Bots spawned, execution running',
         );
+
+        // 5. Start QueueEvents listener to keep lastTaskClaimedAt fresh
+        // This prevents the idle checker from killing bots that are actively processing tasks.
+        startQueueEventListener();
+
+        // 6. Start idle checker and completion polling
+        startIdleChecker();
+        startCompletionPoller(executionId);
       } catch (err) {
-        fastify.log.error({ err, executionId }, 'Failed to plan and queue tasks');
-        // Transition to failed on planning error so the execution doesn't stay stuck in 'queued'
+        fastify.log.error({ err, executionId }, 'Failed during execution pipeline');
+        // Attempt to transition to failed so the execution doesn't stay stuck
         await transitionExecution(executionId, 'queued', 'failed').catch(() => {});
+        await transitionExecution(executionId, 'running', 'failed').catch(() => {});
       }
     });
 
@@ -136,5 +156,102 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     }
 
     return reply.code(200).send(execution);
+  });
+
+  // GET /executions/:id/tasks — get all tasks for an execution (debug/visibility)
+  fastify.get('/:id/tasks', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Array(
+          Type.Object({
+            id: Type.String({ format: 'uuid' }),
+            executionId: Type.String({ format: 'uuid' }),
+            status: Type.Union([
+              Type.Literal('pending'),
+              Type.Literal('claimed'),
+              Type.Literal('completed'),
+              Type.Literal('failed'),
+            ]),
+            description: Type.String(),
+            result: Type.Union([Type.String(), Type.Null()]),
+            claimedByBotId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
+            attemptCount: Type.Integer(),
+            createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+            updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+          }),
+        ),
+        404: Type.Object({
+          error: Type.String(),
+        }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    // Verify execution exists
+    const execution = await getExecution(id);
+    if (!execution) {
+      return reply.code(404).send({ error: 'Execution not found' });
+    }
+
+    const taskList = await db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.executionId, id));
+
+    return reply.code(200).send(taskList);
+  });
+
+  // GET /executions/:id/bots — get all bots for an execution (debug/visibility)
+  fastify.get('/:id/bots', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Array(
+          Type.Object({
+            id: Type.String({ format: 'uuid' }),
+            executionId: Type.String({ format: 'uuid' }),
+            status: Type.Union([
+              Type.Literal('spawning'),
+              Type.Literal('idle'),
+              Type.Literal('working'),
+              Type.Literal('stopping'),
+              Type.Literal('stopped'),
+              Type.Literal('failed'),
+            ]),
+            containerId: Type.Union([Type.String(), Type.Null()]),
+            imageTag: Type.String(),
+            tasksClaimed: Type.Integer(),
+            tasksCompleted: Type.Integer(),
+            tasksFailed: Type.Integer(),
+            createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+            updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+          }),
+        ),
+        404: Type.Object({
+          error: Type.String(),
+        }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    // Verify execution exists
+    const execution = await getExecution(id);
+    if (!execution) {
+      return reply.code(404).send({ error: 'Execution not found' });
+    }
+
+    const botList = await db
+      .select()
+      .from(bots)
+      .where(eq(bots.executionId, id));
+
+    return reply.code(200).send(botList);
   });
 };
