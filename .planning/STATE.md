@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 3 of 6 (Bot Runtime and Tool Gateway) — IN PROGRESS
-Plan: 1 of 3 in current phase — COMPLETE
-Status: Phase 3 Plan 1 complete — Tool Gateway enforcement pipeline live
-Last activity: 2026-02-18 — Phase 3 Plan 1 complete. Tool Gateway (POST /tool.invoke) with JWT auth, allowlist enforcement, rate limiting, Zod validation, audit logging to tool_invocations table.
+Plan: 2 of 3 in current phase — COMPLETE
+Status: Phase 3 Plan 2 complete — Tool handler implementations live (llm_call, fetch_url, write_file)
+Last activity: 2026-02-18 — Phase 3 Plan 2 complete. Three tool handlers implemented (llm_call via Vercel AI SDK 6 with multi-provider routing, fetch_url with hostname-based allowlist, write_file with path traversal protection). Wired into POST /tool.invoke replacing 501 stubs.
 
-Progress: [█████████░] 40%
+Progress: [██████████] 43%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 6.4 min
-- Total execution time: 85 min
+- Total plans completed: 10
+- Average duration: 6.1 min
+- Total execution time: 89 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [█████████░] 40%
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
-| 03-bot-runtime-and-tool-gateway | 1/3 | 25 min | 25 min |
+| 03-bot-runtime-and-tool-gateway | 2/3 | 29 min | 14.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (5 min), 02-03 (6 min), 02-04 (15 min), 03-01 (25 min)
-- Trend: 03-01 was higher than average due to scaffolding an entirely new service + DB schema + migration.
+- Last 5 plans: 02-03 (6 min), 02-04 (15 min), 03-01 (25 min), 03-02 (4 min)
+- Trend: 03-02 was fast (4 min) — implementation plan with clear specs, no scaffolding overhead.
 
 *Updated after each plan completion*
 
@@ -80,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 03-bot-runtime-and-tool-gateway/03-01]: consume-after-return pattern for token rate limiting — checkTokenRateLimit does zero-cost pre-check, consumeTokens called post-dispatch in Plan 03-02
 - [Phase 03-bot-runtime-and-tool-gateway/03-01]: Audit log failures swallowed (console.error only) to never crash the request handler
 - [Phase 03-bot-runtime-and-tool-gateway/03-01]: @claw/tool-contracts only exports via main entry (no sub-path exports) — import from '@claw/tool-contracts' not '@claw/tool-contracts/src/llm-call'
+- [Phase 03-bot-runtime-and-tool-gateway/03-02]: AI SDK 6 usage fields are inputTokens/outputTokens (not promptTokens/completionTokens) — mapped to contract names at executeLlmCall boundary
+- [Phase 03-bot-runtime-and-tool-gateway/03-02]: URL.hostname (not .host) for fetch_url allowlist — .host includes port, enabling bypass via credentialed URL injection
+- [Phase 03-bot-runtime-and-tool-gateway/03-02]: path.basename() for write_file path sanitization — strips all directory components regardless of OS separator
+- [Phase 03-bot-runtime-and-tool-gateway/03-02]: consume-after-return TOKEN_RATE_LIMIT is swallowed in route handler — current llm_call already returned; next call blocked by pre-check
 
 ### Pending Todos
 
@@ -95,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-01-PLAN.md — Tool Gateway service with POST /tool.invoke (JWT auth, allowlist, rate limiting, Zod validation, audit log to tool_invocations). 2 tasks, 2 commits. Phase 3 Plan 1 complete. Ready for Phase 3 Plan 2 (tool implementations).
+Stopped at: Completed 03-02-PLAN.md — Tool handler implementations (llm_call, fetch_url, write_file) wired into POST /tool.invoke. 2 tasks, 2 commits. Phase 3 Plan 2 complete. Ready for Phase 3 Plan 3 (bot runtime integration).
 Resume file: None
