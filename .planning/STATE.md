@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 6 of 6 (UI Command Center) — IN PROGRESS
-Plan: 2 of 5 in current phase — COMPLETE
-Status: Phase 6 Plan 2 complete — SvelteKit SPA scaffolded with adapter-static (ssr=false), app shell nav bar, typed API client (8 endpoints), SSE helper (EventSource with 8 event types and cleanup), and New Execution form with Deploy Crew submission.
-Last activity: 2026-02-19 — Phase 6 Plan 2 complete. Created services/ui/ SvelteKit SPA (svelte.config.js, vite.config.ts, tsconfig.json, app shell), src/lib/types.ts (9 interfaces), src/lib/api.ts (8 typed fetch wrappers), src/lib/sse.ts (connectSSE with cleanup), src/routes/new-execution/+page.svelte (UI-01/UI-02 form). TypeScript clean. 3 tasks, 3 commits (1c540ed, d4500ad, 436a6e6).
+Plan: 3 of 5 in current phase — COMPLETE
+Status: Phase 6 Plan 3 complete — Live Execution View at /executions/[id] with SSE activity feed, 5s polled metrics panel (active bots/bot-hours/budget remaining/estimated cost), color-coded status banner, and red-border guardrail event distinction.
+Last activity: 2026-02-19 — Phase 6 Plan 3 complete. Created services/ui/src/routes/executions/[id]/+page.svelte (392 lines). TypeScript clean (316 files, 0 errors). 1 task, 1 commit (5d75e99).
 
-Progress: [█████████████████████] 86%
+Progress: [██████████████████████] 88%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20
-- Average duration: 5.3 min
-- Total execution time: 136 min
+- Total plans completed: 21
+- Average duration: 5.2 min
+- Total execution time: 139 min
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [█████████████████████] 86%
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
-| 06-ui-command-center | 2/5 | 6 min | 3 min |
+| 06-ui-command-center | 3/5 | 9 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (1 min), 05-03 (4 min), 06-01 (3 min), 06-02 (3 min)
-- Trend: Consistent 3 min per plan — SvelteKit scaffold + API/SSE modules + New Execution form all in 3 min.
+- Last 5 plans: 05-03 (4 min), 06-01 (3 min), 06-02 (3 min), 06-03 (3 min)
+- Trend: Consistent 3 min per plan — SvelteKit UI components and routes completing in ~3 min each.
 
 *Updated after each plan completion*
 
@@ -126,6 +126,9 @@ Recent decisions affecting current work:
 - [Phase 06-ui-command-center/06-02]: UI self-contained types: types.ts defines its own interfaces instead of importing from @claw/shared-types — avoids workspace resolution complexity in Vite/SvelteKit build
 - [Phase 06-ui-command-center/06-02]: Svelte 5 event handlers: onchange/onsubmit attributes instead of deprecated on:change/on:submit directives — consistent with Svelte 5 runes mode
 - [Phase 06-ui-command-center/06-02]: SPA mode via +layout.js ssr=false + adapter-static 200.html fallback — handles client-side routing without per-route SSR opt-out
+- [Phase 06-ui-command-center/06-03]: page.params.id ?? '' null-coalescing required until svelte-kit sync runs and generates [id] route types — sync must run before svelte-check passes for dynamic routes
+- [Phase 06-ui-command-center/06-03]: Dual $effect pattern (separate effects for SSE vs polling) instead of single effect — enables independent cleanup and avoids re-establishing SSE on every metrics poll update
+- [Phase 06-ui-command-center/06-03]: Terminal state guard in SSE and polling effects — prevents reconnecting SSE or re-enabling polling for already-completed/failed/stopped executions
 
 ### Pending Todos
 
@@ -142,5 +145,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 06-02-PLAN.md — SvelteKit SPA scaffold (adapter-static, ssr=false), app shell nav bar (New Execution + Billing), src/lib/types.ts (9 interfaces), src/lib/api.ts (8 typed fetch wrappers via VITE_API_URL), src/lib/sse.ts (connectSSE with 8 event types + cleanup), src/routes/new-execution/+page.svelte (UI-01/UI-02 form: objective/maxBots/budgetCap/allowedTools + Deploy Crew). 3 tasks, 3 commits (1c540ed, d4500ad, 436a6e6). TypeScript clean. Phase 6 Plan 2 of 5 complete.
+Stopped at: Completed 06-03-PLAN.md — Live Execution View at /executions/[id]: SSE activity feed (connectSSE, newest-first, max 100 events), 5s polled metrics panel (active bots, bot-hours, budget remaining, estimated cost), color-coded status banner (running/completed/failed/paused/queued), red-border guardrail event distinction, terminal-state guard stops polling/SSE. 1 task, 1 commit (5d75e99). TypeScript clean (316 files, 0 errors). Phase 6 Plan 3 of 5 complete.
 Resume file: None
