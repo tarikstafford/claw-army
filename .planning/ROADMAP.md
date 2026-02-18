@@ -110,12 +110,12 @@ Plans:
   4. Every billing-relevant action — bot_started, bot_stopped, tool_invoked, execution_completed, budget_exceeded — produces a structured event on the Pub/Sub event bus with enough data to reconstruct the full cost of any execution from events alone.
   5. Calculated bot-hours (sum of wall-clock runtimes from bot_started/bot_stopped pairs) and estimated cost (bot-hours × rate + provider-reported LLM token actuals) for a completed test execution match expected values within a 1% margin.
 
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 04-01: GCP Cloud Pub/Sub event bus setup — topic/subscription definitions, canonical event type payloads, publisher/subscriber client wiring
-- [ ] 04-02: Guardrail Watchdog — async Pub/Sub subscriber, rate violation detection, loop/thrash detection, bot revocation via Redis deny list, guardrail event emission
-- [ ] 04-03: Billing Engine — bot lifecycle event consumption, bot-hour accumulation, LLM token cost calculation using provider-reported actuals, atomic Redis budget cap enforcement
+- [ ] 04-01-PLAN.md — Event bus topic name alignment, billing + guardrail publisher functions, budget cap Redis key initialization (Wave 1)
+- [ ] 04-02-PLAN.md — Guardrail Watchdog: rate violation detection, loop detection, bot revocation via Redis deny-list, Tool Gateway deny-list enforcement, guardrail event emission (Wave 2)
+- [ ] 04-03-PLAN.md — Billing Engine: atomic Redis budget cap enforcement (Lua script), billing event persistence, bot-hours calculation, cost estimation, Tool Gateway billing event publishing, Phase 4 E2E test (Wave 3)
 
 ---
 
