@@ -1,0 +1,392 @@
+<script lang="ts">
+  import { page } from '$app/state';
+  import { browser } from '$app/environment';
+  import { getExecution, getExecutionMetrics } from '$lib/api';
+  import { connectSSE } from '$lib/sse';
+  import type { Execution, ExecutionMetrics, ActivityEvent } from '$lib/types';
+
+  const executionId = $derived(page.params.id ?? '');
+
+  let execution = $state<Execution | null>(null);
+  let metrics = $state<ExecutionMetrics | null>(null);
+  let activityFeed = $state<ActivityEvent[]>([]);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
+
+  // Initial load
+  $effect(() => {
+    if (!browser) return;
+    getExecution(executionId)
+      .then(data => { execution = data; loading = false; })
+      .catch(err => { error = (err as Error).message; loading = false; });
+  });
+
+  // Metrics polling — fetch immediately and then every 5 seconds
+  $effect(() => {
+    if (!browser) return;
+    const isTerminal =
+      execution?.status === 'completed' ||
+      execution?.status === 'failed' ||
+      execution?.status === 'stopped';
+
+    // Fetch immediately on mount / when execution changes
+    getExecutionMetrics(executionId).then(m => { metrics = m; }).catch(() => {});
+
+    if (isTerminal) return; // Don't poll for completed executions
+
+    const interval = setInterval(() => {
+      getExecutionMetrics(executionId).then(m => { metrics = m; }).catch(() => {});
+    }, 5000);
+
+    return () => clearInterval(interval);
+  });
+
+  // SSE activity feed
+  $effect(() => {
+    if (!browser) return;
+    const isTerminal =
+      execution?.status === 'completed' ||
+      execution?.status === 'failed' ||
+      execution?.status === 'stopped';
+    if (isTerminal) return;
+
+    const cleanup = connectSSE(executionId, (event) => {
+      // Keep last 100 events, newest first
+      activityFeed = [event, ...activityFeed].slice(0, 100);
+
+      // If execution status changed, update local state
+      if (event.type === 'execution_status_changed' && event['toStatus']) {
+        execution = execution
+          ? { ...execution, status: event['toStatus'] as Execution['status'] }
+          : execution;
+      }
+    });
+
+    return cleanup ?? undefined;
+  });
+
+  function formatEventType(type: string): string {
+    return type
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  function formatEventDetail(event: ActivityEvent): string {
+    const botId = event['botId'] as string | undefined;
+    const short = botId ? botId.slice(0, 8) : 'unknown';
+    const reason = event['reason'] as string | undefined;
+
+    switch (event.type) {
+      case 'task_claimed':
+        return `Bot ${short} claimed task`;
+      case 'task_completed':
+        return `Task completed by bot ${short}`;
+      case 'bot_started':
+        return `Bot ${short} started`;
+      case 'bot_stopped':
+        return `Bot ${short} stopped${reason ? ` (${reason})` : ''}`;
+      case 'guardrail_triggered':
+        return `Bot ${short}: ${reason ?? 'guardrail triggered'}`;
+      case 'budget_exceeded':
+        return 'Budget exceeded for execution';
+      default: {
+        const { type: _type, executionId: _eid, timestamp: _ts, isAlert: _ia, ...rest } = event;
+        const detail = JSON.stringify(rest);
+        return detail.length > 120 ? detail.slice(0, 117) + '...' : detail;
+      }
+    }
+  }
+
+  function statusClass(status: string): string {
+    switch (status) {
+      case 'running': return 'status-running';
+      case 'completed': return 'status-completed';
+      case 'failed': return 'status-failed';
+      case 'paused':
+      case 'stopped': return 'status-paused';
+      default: return 'status-queued';
+    }
+  }
+</script>
+
+<svelte:head>
+  <title>Execution {executionId.slice(0, 8)} | Claw Army</title>
+</svelte:head>
+
+<div class="page">
+  {#if loading}
+    <p class="loading">Loading execution...</p>
+  {:else if error}
+    <div class="error-banner">
+      <strong>Error:</strong> {error}
+    </div>
+  {:else if execution}
+    <!-- Status banner (UI-03) -->
+    <div class="status-banner {statusClass(execution.status)}">
+      <h2>Status: {execution.status.toUpperCase()}</h2>
+      <p class="objective">{execution.objective}</p>
+    </div>
+
+    <!-- Metrics panel (UI-04, METR-04) -->
+    <section class="metrics-panel">
+      <h3>Live Metrics</h3>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Active Bots</span>
+          <span class="metric-value">{metrics?.activeBotCount ?? '-'}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Bot-Hours</span>
+          <span class="metric-value">{metrics?.totalBotHours != null ? metrics.totalBotHours.toFixed(2) : '-'}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Budget Remaining</span>
+          <span class="metric-value">${((metrics?.remainingCents ?? 0) / 100).toFixed(2)}</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Estimated Cost</span>
+          <span class="metric-value">${((metrics?.estimatedCostCents ?? 0) / 100).toFixed(2)}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Link to report when completed -->
+    {#if execution.status === 'completed'}
+      <div class="report-link">
+        <a href="/executions/{executionId}/report" class="btn-report">View Report</a>
+      </div>
+    {/if}
+
+    <!-- Activity feed (UI-05) -->
+    <section class="activity-section">
+      <h3>Activity Feed</h3>
+      {#if activityFeed.length === 0}
+        <p class="empty-feed">No events yet. Waiting for activity...</p>
+      {:else}
+        <div class="activity-feed">
+          {#each activityFeed as event (event.timestamp + event.type + (event['botId'] ?? ''))}
+            <div class="event" class:alert={event.isAlert}>
+              <span class="event-type">{formatEventType(event.type)}</span>
+              <span class="event-detail">{formatEventDetail(event)}</span>
+              <span class="event-time">{new Date(event.timestamp).toLocaleTimeString()}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </section>
+  {:else}
+    <p class="loading">Execution not found.</p>
+  {/if}
+</div>
+
+<style>
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    font-family: system-ui, sans-serif;
+  }
+
+  .loading {
+    color: #666;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .error-banner {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    color: #b91c1c;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Status banner */
+  .status-banner {
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .status-banner h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .status-banner .objective {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 0.9rem;
+  }
+
+  .status-running {
+    background: #dbeafe;
+    border-left: 4px solid #2563eb;
+    color: #1d4ed8;
+  }
+
+  .status-completed {
+    background: #dcfce7;
+    border-left: 4px solid #16a34a;
+    color: #15803d;
+  }
+
+  .status-failed {
+    background: #fef2f2;
+    border-left: 4px solid #dc2626;
+    color: #b91c1c;
+  }
+
+  .status-paused {
+    background: #fefce8;
+    border-left: 4px solid #ca8a04;
+    color: #92400e;
+  }
+
+  .status-queued {
+    background: #f3f4f6;
+    border-left: 4px solid #9ca3af;
+    color: #374151;
+  }
+
+  /* Metrics panel */
+  .metrics-panel {
+    margin-bottom: 1.5rem;
+  }
+
+  .metrics-panel h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .metric-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  .metric-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* Report link */
+  .report-link {
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-report {
+    display: inline-block;
+    background: #16a34a;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .btn-report:hover {
+    background: #15803d;
+  }
+
+  /* Activity feed */
+  .activity-section h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .empty-feed {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    font-style: italic;
+    padding: 1rem 0;
+  }
+
+  .activity-feed {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .event {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875rem;
+  }
+
+  .event:last-child {
+    border-bottom: none;
+  }
+
+  /* Guardrail / alert events (UI-05) */
+  .event.alert {
+    border-left: 3px solid #dc2626;
+    background: rgba(220, 38, 38, 0.04);
+    padding-left: calc(1rem - 3px);
+  }
+
+  .event-type {
+    font-weight: 600;
+    color: #374151;
+    min-width: 150px;
+    flex-shrink: 0;
+  }
+
+  .event.alert .event-type {
+    color: #b91c1c;
+  }
+
+  .event-detail {
+    flex: 1;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .event-time {
+    color: #9ca3af;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+</style>
