@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 1 — Data Foundation
+**Current focus:** Phase 2 — Core Execution Pipeline
 
 ## Current Position
 
-Phase: 1 of 6 (Data Foundation)
-Plan: 4 of 4 in current phase (COMPLETE)
-Status: In progress
-Last activity: 2026-02-18 — Plan 01-04 complete: Bot network isolation topology validated. Docker Compose internal:true network blocks all bot egress; tool-gateway-stub reachable via container networking. All 6/6 egress tests PASS.
+Phase: 2 of 6 (Core Execution Pipeline)
+Plan: 0 of 4 in current phase
+Status: Ready to plan
+Last activity: 2026-02-18 — Phase 1 complete. All 4 plans done. GCP provisioning deferred (Terraform config committed, terraform apply pending). Ready for Phase 2.
 
 Progress: [████░░░░░░] 16%
 
@@ -69,9 +69,10 @@ None yet.
 - [Phase 3 watch]: Tool Gateway auth patterns and bot JWT rotation strategy are MEDIUM confidence. May need targeted research during Phase 3 planning.
 - [Phase 5 watch]: Composite score weighting (40/30/20/10) is a reasoned starting point, not empirically validated. Plan to iterate after first real execution data is collected.
 - [Phase 2+ watch]: Services that import @claw/event-schemas or @claw/tool-contracts will need Zod as a runtime dependency in their own package.json.
+- [Deferred]: GCP resources (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry) not yet provisioned. Terraform config is valid and committed. Run terraform apply when GCP project is ready. Does NOT block Phase 2 (Phase 2 uses local docker-compose.dev.yml).
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 01-04-PLAN.md — Bot network isolation topology validated. Docker internal:true network blocks bot egress; 6/6 egress tests PASS. Phase 01-data-foundation complete (all 4 plans done). Ready for Phase 2.
+Stopped at: Phase 1 complete. ROADMAP.md updated. GCP provisioning deferred. Ready to plan Phase 2.
 Resume file: None
