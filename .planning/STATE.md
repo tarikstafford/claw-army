@@ -10,28 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 6 (Core Execution Pipeline)
-Plan: 0 of 4 in current phase
-Status: Ready to plan
-Last activity: 2026-02-18 — Phase 1 complete. All 4 plans done. GCP provisioning deferred (Terraform config committed, terraform apply pending). Ready for Phase 2.
+Plan: 1 of 4 in current phase
+Status: Executing
+Last activity: 2026-02-18 — Phase 2 Plan 1 complete. execution-service with POST /executions and GET /executions/:id live. transitionExecution atomic state machine implemented.
 
-Progress: [████░░░░░░] 16%
+Progress: [████▒░░░░░] 20%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 8 min
-- Total execution time: 31 min
+- Total plans completed: 5
+- Average duration: 7 min
+- Total execution time: 34 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
+| 02-core-execution-pipeline | 1/4 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (7 min), 01-02 (4 min), 01-03 (5 min), 01-04 (15 min)
-- Trend: Stable (infrastructure + scripts creation; 01-04 longer due to Docker build + egress test run)
+- Last 5 plans: 01-02 (4 min), 01-03 (5 min), 01-04 (15 min), 02-01 (3 min)
+- Trend: Fast — 02-01 was lightweight service scaffold on top of established Phase 1 DB foundation
 
 *Updated after each plan completion*
 
@@ -58,6 +59,9 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation/01-04]: Python 3 http.server for gateway stub instead of nc loop -- nc has reconnect gap causing race condition in sequential test execution
 - [Phase 01-data-foundation/01-04]: Test 3 (DNS resolution) is informational only -- Docker embedded DNS resolves external names on internal:true networks but TCP connections to resolved IPs are blocked
 - [Phase 01-data-foundation/01-04]: Readiness probe added to egress-test.sh -- ensures gateway is accepting connections before tests run
+- [Phase 02-core-execution-pipeline/02-01]: NODE_OPTIONS --conditions @claw/source required in tsx scripts to resolve @claw/db via internal packages strategy (tsx falls back to default export condition ./dist/index.js which doesn't exist without build step)
+- [Phase 02-core-execution-pipeline/02-01]: transitionExecution defers transition path validation to Phase 3 -- Phase 2 only enforces atomic WHERE-clause guarding
+- [Phase 02-core-execution-pipeline/02-01]: All Phase 2 runtime deps (bullmq, dockerode, jose, ioredis) installed upfront in execution-service to avoid repeated package.json changes across plans 02-02 through 02-04
 
 ### Pending Todos
 
@@ -68,11 +72,12 @@ None yet.
 - [Phase 2 watch]: GCP bot hosting topology (Cloud Run Jobs vs GCE/dockerode) is the single most consequential unresolved architectural fork. Recommend a prototype to validate Cloud Run Jobs API latency under concurrent bot spawning before Phase 2 commits to either path.
 - [Phase 3 watch]: Tool Gateway auth patterns and bot JWT rotation strategy are MEDIUM confidence. May need targeted research during Phase 3 planning.
 - [Phase 5 watch]: Composite score weighting (40/30/20/10) is a reasoned starting point, not empirically validated. Plan to iterate after first real execution data is collected.
-- [Phase 2+ watch]: Services that import @claw/event-schemas or @claw/tool-contracts will need Zod as a runtime dependency in their own package.json.
+- [Phase 2+ watch]: Services that import @claw/event-schemas or @claw/tool-contracts will need Zod as a runtime dependency in their own package.json. execution-service already has zod installed.
+- [Phase 2+ watch]: Any new service using @claw/db or other internal packages must add NODE_OPTIONS --conditions @claw/source to its tsx scripts.
 - [Deferred]: GCP resources (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry) not yet provisioned. Terraform config is valid and committed. Run terraform apply when GCP project is ready. Does NOT block Phase 2 (Phase 2 uses local docker-compose.dev.yml).
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 1 complete. ROADMAP.md updated. GCP provisioning deferred. Ready to plan Phase 2.
+Stopped at: Completed 02-01-PLAN.md — execution-service with POST /executions and GET /executions/:id. Ready for 02-02.
 Resume file: None
