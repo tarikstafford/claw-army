@@ -60,13 +60,13 @@ Plans:
   4. An execution advances through queued → running → completed in the correct order, and a GET /executions/:id returns the accurate current state at each transition.
   5. A bot container that goes 5 minutes without claiming a task terminates automatically, and a bot_stopped lifecycle event is emitted to the event bus.
 
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 02-01: Execution Service — POST /executions, lifecycle state machine, GET /executions/:id
-- [ ] 02-02: Planner — objective-to-tasks decomposition with flat parallel split
-- [ ] 02-03: Task Queue — BullMQ lease-based claim, heartbeat, complete, and reassignment on lease expiry
-- [ ] 02-04: Bot Orchestrator — container spawn/terminate via dockerode, bot registry, max_bots enforcement, short-lived JWT injection, lifecycle event emission
+- [ ] 02-01-PLAN.md — Execution Service: Fastify scaffold, POST /executions, GET /executions/:id, lifecycle state machine (Wave 1)
+- [ ] 02-02-PLAN.md — Planner + Task Queue: stub planner, BullMQ queue with lease semantics, async planning trigger (Wave 2)
+- [ ] 02-03-PLAN.md — Bot Orchestrator: dockerode spawn/terminate, bot registry, max_bots enforcement, JWT injection, Pub/Sub lifecycle events, idle termination (Wave 2)
+- [ ] 02-04-PLAN.md — Stub Bot + Integration: stub-bot Docker container, full pipeline wiring, completion checker, E2E integration test (Wave 3)
 
 ---
 
@@ -179,7 +179,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 4/4 | Complete (GCP deferred) | 2026-02-18 |
-| 2. Core Execution Pipeline | 0/4 | Not started | - |
+| 2. Core Execution Pipeline | 0/4 | Planned | - |
 | 3. Bot Runtime and Tool Gateway | 0/4 | Not started | - |
 | 4. Control Plane Services | 0/3 | Not started | - |
 | 5. Performance Intelligence and DNA Capture | 0/3 | Not started | - |
