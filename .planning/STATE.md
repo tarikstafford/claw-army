@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 6 (Core Execution Pipeline)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-18 — Phase 2 Plan 2 complete. Stub planner (planObjective), BullMQ task queue with 30s lease semantics, and async planning loop in POST /executions writing tasks to Postgres and BullMQ.
+Last activity: 2026-02-18 — Phase 2 Plan 3 complete. Bot orchestrator (dockerode spawn/stop), in-memory bot registry, HS256 JWT minting (jose), Pub/Sub event publisher with Zod validation, idle checker, and QueueEvents listener.
 
-Progress: [█████▒░░░░] 25%
+Progress: [██████▒░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 6.5 min
-- Total execution time: 39 min
+- Total plans completed: 7
+- Average duration: 6.4 min
+- Total execution time: 45 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
-| 02-core-execution-pipeline | 2/4 | 8 min | 4 min |
+| 02-core-execution-pipeline | 3/4 | 14 min | 4.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (5 min), 01-04 (15 min), 02-01 (3 min), 02-02 (5 min)
+- Last 5 plans: 01-04 (15 min), 02-01 (3 min), 02-02 (5 min), 02-03 (6 min)
 - Trend: Fast — Phase 2 plans lightweight on top of established Phase 1 foundation
 
 *Updated after each plan completion*
@@ -65,6 +65,10 @@ Recent decisions affecting current work:
 - [Phase 02-core-execution-pipeline/02-02]: Pass plain { host, port } RedisOptions objects to BullMQ Queue/Worker instead of pre-constructed IORedis instances — avoids dual-version type conflict (bullmq@5 bundles ioredis@5.9.2, service has ioredis@5.9.3)
 - [Phase 02-core-execution-pipeline/02-02]: workerConnection uses maxRetriesPerRequest: null — mandatory for BullMQ workers to survive Redis reconnection without silently stopping
 - [Phase 02-core-execution-pipeline/02-02]: planObjective is a numbered-subtask stub (no LLM) intentionally — Phase 3 replaces with real LLM decomposition
+- [Phase 02-core-execution-pipeline/02-03]: Plain RedisOptions objects for BullMQ QueueEvents connections (spread from queueConnection) — pre-constructed IORedis instances cause TS2322 type conflict between ioredis@5.9.2 (bullmq bundled) and ioredis@5.9.3 (direct dep)
+- [Phase 02-core-execution-pipeline/02-03]: explicit Queue<TaskJobData, string, string> type params required — BullMQ 5.x ExtractNameType inference fails with plain interface DataType in strict TSC
+- [Phase 02-core-execution-pipeline/02-03]: lastTaskClaimedAt refreshed for ALL bots in execution on QueueEvents 'active' — prevents sibling bots from idle-terminating while other bots process tasks in the same execution
+- [Phase 02-core-execution-pipeline/02-03]: Zod-first publishing with console.error (no throw) — event pipeline failures must not crash the orchestrator
 
 ### Pending Todos
 
@@ -82,5 +86,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-02-PLAN.md — stub planner, BullMQ task queue, async POST /executions planning. Ready for 02-03.
+Stopped at: Completed 02-03-PLAN.md — bot orchestrator, registry, JWT, event publisher. Ready for 02-04.
 Resume file: None
