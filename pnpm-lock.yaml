@@ -129,6 +129,15 @@ importers:
 
   services/execution-service:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^3.0.45
+        version: 3.0.45(zod@4.3.6)
+      '@ai-sdk/google':
+        specifier: ^3.0.29
+        version: 3.0.29(zod@4.3.6)
+      '@ai-sdk/openai':
+        specifier: ^3.0.29
+        version: 3.0.29(zod@4.3.6)
       '@claw/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -147,6 +156,9 @@ importers:
       '@sinclair/typebox':
         specifier: ^0.34.48
         version: 0.34.48
+      ai:
+        specifier: ^6.0.90
+        version: 6.0.90(zod@4.3.6)
       bullmq:
         specifier: ^5.69.3
         version: 5.69.3

@@ -38,7 +38,7 @@ const IDLE_TIMEOUT_MS = Number(process.env.IDLE_TIMEOUT_MS ?? 5 * 60 * 1000);
 /** Default 30 seconds. Env override enables short-interval E2E testing. */
 const IDLE_CHECK_INTERVAL_MS = Number(process.env.IDLE_CHECK_INTERVAL_MS ?? 30_000);
 
-const BOT_IMAGE = process.env.BOT_IMAGE ?? 'claw-stub-bot:latest';
+const BOT_IMAGE = process.env.BOT_IMAGE ?? 'claw-bot-worker:latest';
 const BOT_NETWORK = process.env.BOT_NETWORK ?? 'bot-internal';
 const BOT_MEMORY_LIMIT = 512 * 1024 * 1024; // 512 MB
 const BOT_CPU_LIMIT = 1_000_000_000; // 1 CPU in nanocpus
@@ -52,7 +52,7 @@ const BOT_CPU_LIMIT = 1_000_000_000; // 1 CPU in nanocpus
  *
  * Lifecycle:
  * 1. Generate botId UUID
- * 2. Mint short-lived JWT (15 min) and inject into container env
+ * 2. Mint 24-hour JWT and inject into container env
  * 3. Insert bot row in Postgres with status 'spawning'
  * 4. Create container via dockerode (memory + CPU caps, no persistent filesystem)
  * 5. Start container, inspect to get stable containerId
@@ -99,6 +99,8 @@ export async function spawnBot(
         `DATABASE_URL=${process.env.DATABASE_URL ?? ''}`,
         `PUBSUB_EMULATOR_HOST=${process.env.PUBSUB_EMULATOR_HOST ?? ''}`,
         `GCP_PROJECT_ID=${process.env.GCP_PROJECT_ID ?? 'claw-local'}`,
+        `TOOL_GATEWAY_URL=${process.env.TOOL_GATEWAY_URL ?? 'http://tool-gateway:3002'}`,
+        `LLM_MODEL=${process.env.BOT_LLM_MODEL ?? 'gpt-4o-mini'}`,
       ],
       HostConfig: {
         Memory: BOT_MEMORY_LIMIT,

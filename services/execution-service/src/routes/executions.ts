@@ -58,8 +58,8 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     // guaranteeing the POST response is well within the 1-second SLA.
     setImmediate(async () => {
       try {
-        // 1. Plan tasks (stub — no LLM)
-        const plannedTasks = planObjective(objective, maxBots);
+        // 1. Plan tasks (LLM decomposition)
+        const plannedTasks = await planObjective(objective, maxBots);
 
         // 2. Dual-write: Postgres first, then BullMQ
         // Per RESEARCH.md: write to DB first so task rows always exist.

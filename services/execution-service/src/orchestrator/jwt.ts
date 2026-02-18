@@ -22,15 +22,15 @@ function getJwtSecret(): Uint8Array {
 const JWT_SECRET = getJwtSecret();
 
 /**
- * Mint a short-lived HS256 JWT for a bot to authenticate against the execution service.
+ * Mint a 24-hour HS256 JWT for a bot to authenticate against the execution service.
  *
  * Payload: { botId, executionId }
  * Subject: botId
  * Algorithm: HS256
- * Expiry: 15 minutes
+ * Expiry: 24 hours
  *
  * The token is injected into the container environment as BOT_JWT before spawn.
- * Bots present this token when claiming tasks or reporting results.
+ * Bots present this token when calling the Tool Gateway for the lifetime of the execution.
  *
  * @param botId - UUID of the bot being spawned
  * @param executionId - UUID of the execution this bot belongs to
@@ -43,7 +43,7 @@ export async function mintBotJwt(
   return new jose.SignJWT({ botId, executionId })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(botId)
-    .setExpirationTime('15m')
+    .setExpirationTime('24h')
     .setIssuedAt()
     .sign(JWT_SECRET);
 }
