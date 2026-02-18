@@ -1,6 +1,7 @@
 import fp from 'fastify-plugin';
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
+import IORedis from 'ioredis';
 import {
   llmCallRequestSchema,
   fetchUrlRequestSchema,
@@ -13,6 +14,14 @@ import { checkCallRateLimit, checkTokenRateLimit, consumeTokens } from '../middl
 import { executeLlmCall } from '../tools/llm-call';
 import { executeFetchUrl } from '../tools/fetch-url';
 import { executeWriteFile } from '../tools/write-file';
+
+/**
+ * Dedicated Redis client for deny-list checks.
+ * Separate from the rate-limiter's connection — simple GET operations only.
+ * Uses default enableOfflineQueue: true (fail-open on Redis errors below, so
+ * queuing vs. failing fast doesn't matter here; default keeps it simple).
+ */
+const redis = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379');
 
 // Loose body schema — strict enforcement is done via Zod per-tool schemas
 // All fields optional at TypeBox level so preHandler (JWT auth) fires before
@@ -54,6 +63,32 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
           success: false,
           error: 'Missing required fields: toolName, botId, executionId, invocationId',
         });
+      }
+
+      // 0. Bot deny-list check (GARD-02, GARD-03, GARD-04)
+      // If the Guardrail Watchdog has revoked this bot, reject immediately.
+      // Runs BEFORE the allowlist check — deny-list is the highest priority security gate.
+      try {
+        const isDenied = await redis.get(`guardrail:denied:${botId}`);
+        if (isDenied) {
+          await writeAuditLog({
+            executionId,
+            botId,
+            toolName,
+            invocationId,
+            rejected: true,
+            rejectionReason: 'bot_revoked',
+            requestSummary: { toolName, args },
+          });
+          return reply.status(403).send({
+            success: false,
+            error: 'Bot has been revoked by guardrail watchdog',
+          });
+        }
+      } catch (err) {
+        // Fail-open: if Redis is unavailable, allow the request
+        // (same pattern as rate-limit.ts fail-open behavior)
+        console.error('[tool-invoke] Redis error in deny-list check (fail-open):', err);
       }
 
       // 1. Allowlist check
