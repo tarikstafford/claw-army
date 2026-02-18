@@ -3,7 +3,7 @@ import { buildApp } from './app';
 import { startGuardrailWatchdog, stopGuardrailWatchdog } from './events/guardrail-watchdog';
 import { startBillingEngine } from './events/billing-engine';
 
-const app = buildApp();
+const app = await buildApp();
 const port = Number(process.env['PORT'] ?? 3001);
 
 try {
