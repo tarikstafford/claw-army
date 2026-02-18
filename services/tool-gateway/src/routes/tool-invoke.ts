@@ -6,9 +6,13 @@ import {
   fetchUrlRequestSchema,
   writeFileRequestSchema,
 } from '@claw/tool-contracts';
+import type { LlmCallRequest, FetchUrlRequest, WriteFileRequest } from '@claw/tool-contracts';
 import { checkAllowlist } from '../services/allowlist';
 import { writeAuditLog } from '../services/audit-log';
-import { checkCallRateLimit, checkTokenRateLimit } from '../middleware/rate-limit';
+import { checkCallRateLimit, checkTokenRateLimit, consumeTokens } from '../middleware/rate-limit';
+import { executeLlmCall } from '../tools/llm-call';
+import { executeFetchUrl } from '../tools/fetch-url';
+import { executeWriteFile } from '../tools/write-file';
 
 // Loose body schema — strict enforcement is done via Zod per-tool schemas
 // All fields optional at TypeBox level so preHandler (JWT auth) fires before
@@ -35,7 +39,7 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
       preHandler: [fastify.authenticate],
     },
     async (request, reply) => {
-      const startTime = Date.now();
+      const startMs = Date.now();
       const {
         toolName,
         botId,
@@ -119,7 +123,7 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
         args,
       };
 
-      let parsedArgs: unknown;
+      let parsed: LlmCallRequest | FetchUrlRequest | WriteFileRequest;
 
       if (toolName === 'llm_call') {
         const result = llmCallRequestSchema.safeParse(fullBody);
@@ -139,7 +143,7 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
             issues: result.error.issues,
           });
         }
-        parsedArgs = result.data;
+        parsed = result.data;
       } else if (toolName === 'fetch_url') {
         const result = fetchUrlRequestSchema.safeParse(fullBody);
         if (!result.success) {
@@ -158,7 +162,7 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
             issues: result.error.issues,
           });
         }
-        parsedArgs = result.data;
+        parsed = result.data;
       } else if (toolName === 'write_file') {
         const result = writeFileRequestSchema.safeParse(fullBody);
         if (!result.success) {
@@ -177,7 +181,7 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
             issues: result.error.issues,
           });
         }
-        parsedArgs = result.data;
+        parsed = result.data;
       } else {
         return reply.status(400).send({
           success: false,
@@ -185,10 +189,53 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
         });
       }
 
-      // 5. Tool dispatch (stub — Plan 03-02 plugs in real implementations)
-      void parsedArgs; // explicitly ignored for now
+      // 5. Tool dispatch — real implementations (replaces 501 stubs from 03-01)
+      let result: unknown;
+      let tokenCount: number | undefined;
 
-      const durationMs = Date.now() - startTime;
+      try {
+        if (toolName === 'llm_call') {
+          const llmResult = await executeLlmCall(parsed as LlmCallRequest);
+          result = llmResult;
+          tokenCount = llmResult.totalTokens;
+        } else if (toolName === 'fetch_url') {
+          result = await executeFetchUrl(parsed as FetchUrlRequest);
+        } else if (toolName === 'write_file') {
+          result = await executeWriteFile(parsed as WriteFileRequest);
+        }
+      } catch (err) {
+        // Tool execution failed — log and return 500
+        const durationMs = Date.now() - startMs;
+        await writeAuditLog({
+          executionId,
+          botId,
+          toolName,
+          invocationId,
+          rejected: false,
+          durationMs,
+          requestSummary: { toolName, args },
+          responseSummary: { error: (err as Error).message },
+        });
+        return reply.code(500).send({ success: false, error: (err as Error).message });
+      }
+
+      const durationMs = Date.now() - startMs;
+
+      // 6. Consume token credits after a successful llm_call (consume-after-return pattern)
+      // Per locked user decision #2: if consuming pushes over the limit, the CURRENT call
+      // still succeeds. The NEXT call will be blocked by the pre-check above.
+      if (toolName === 'llm_call' && tokenCount !== undefined) {
+        try {
+          await consumeTokens(botId, tokenCount);
+        } catch (err) {
+          // TOKEN_RATE_LIMIT from consumeTokens is intentionally swallowed here —
+          // the current call already completed. Log so we know the bot hit the limit.
+          console.error('[tool-invoke] Token rate limit hit after llm_call (next call will be blocked):', err);
+        }
+      }
+
+      // 7. Write success audit log with token counts (llm_call only)
+      const llmResult = toolName === 'llm_call' ? (result as { promptTokens: number; completionTokens: number; totalTokens: number }) : undefined;
 
       await writeAuditLog({
         executionId,
@@ -197,13 +244,14 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
         invocationId,
         rejected: false,
         durationMs,
+        promptTokens: llmResult?.promptTokens,
+        completionTokens: llmResult?.completionTokens,
+        totalTokens: llmResult?.totalTokens,
         requestSummary: { toolName, args },
+        responseSummary: result,
       });
 
-      return reply.status(501).send({
-        success: false,
-        error: 'Tool not implemented',
-      });
+      return reply.code(200).send({ success: true, result, durationMs });
     },
   );
 };
