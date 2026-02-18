@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 2 — Core Execution Pipeline (COMPLETE)
+**Current focus:** Phase 3 — Bot Runtime and Tool Gateway (IN PROGRESS)
 
 ## Current Position
 
-Phase: 2 of 6 (Core Execution Pipeline) — COMPLETE
-Plan: 4 of 4 in current phase — COMPLETE
-Status: Phase 2 Complete, ready for Phase 3
-Last activity: 2026-02-18 — Phase 2 Plan 4 complete. Stub-bot Docker container, completion checker, full execution pipeline, 6-test E2E suite passing all Phase 2 success criteria.
+Phase: 3 of 6 (Bot Runtime and Tool Gateway) — IN PROGRESS
+Plan: 1 of 3 in current phase — COMPLETE
+Status: Phase 3 Plan 1 complete — Tool Gateway enforcement pipeline live
+Last activity: 2026-02-18 — Phase 3 Plan 1 complete. Tool Gateway (POST /tool.invoke) with JWT auth, allowlist enforcement, rate limiting, Zod validation, audit logging to tool_invocations table.
 
-Progress: [████████░░] 35%
+Progress: [█████████░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6.2 min
-- Total execution time: 60 min
+- Total plans completed: 9
+- Average duration: 6.4 min
+- Total execution time: 85 min
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [████████░░] 35%
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
+| 03-bot-runtime-and-tool-gateway | 1/3 | 25 min | 25 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (3 min), 02-02 (5 min), 02-03 (6 min), 02-04 (15 min)
-- Trend: Phase 2 complete. 02-04 was the integration plan (all components wired together + E2E test) hence longer.
+- Last 5 plans: 02-02 (5 min), 02-03 (6 min), 02-04 (15 min), 03-01 (25 min)
+- Trend: 03-01 was higher than average due to scaffolding an entirely new service + DB schema + migration.
 
 *Updated after each plan completion*
 
@@ -73,6 +74,12 @@ Recent decisions affecting current work:
 - [Phase 02-core-execution-pipeline/02-04]: vitest.config.ts requires resolve.alias for @claw/* workspace packages — Vitest/Vite 7.x doesn't honor NODE_OPTIONS --conditions @claw/source for Vite module resolution
 - [Phase 02-core-execution-pipeline/02-04]: host.docker.internal injected as DATABASE_URL/REDIS_URL for bot containers — allows containers in bot-internal network to reach host postgres/redis on macOS/Windows Docker Desktop
 - [Phase 02-core-execution-pipeline/02-04]: bot-internal Docker network must be pre-created: docker network create bot-internal
+- [Phase 03-bot-runtime-and-tool-gateway/03-01]: BOT_JWT_SECRET is required at tool-gateway startup — fails hard (throws/exits) if missing, unlike execution-service which uses a dev fallback
+- [Phase 03-bot-runtime-and-tool-gateway/03-01]: Loose TypeBox body schema (Type.Partial) + strict Zod per-tool validation — enables JWT preHandler to fire before schema validation rejects body with 400
+- [Phase 03-bot-runtime-and-tool-gateway/03-01]: Dedicated ioredis connection for rate-limiter-flexible (not shared with BullMQ), enableOfflineQueue:false for fail-fast behavior
+- [Phase 03-bot-runtime-and-tool-gateway/03-01]: consume-after-return pattern for token rate limiting — checkTokenRateLimit does zero-cost pre-check, consumeTokens called post-dispatch in Plan 03-02
+- [Phase 03-bot-runtime-and-tool-gateway/03-01]: Audit log failures swallowed (console.error only) to never crash the request handler
+- [Phase 03-bot-runtime-and-tool-gateway/03-01]: @claw/tool-contracts only exports via main entry (no sub-path exports) — import from '@claw/tool-contracts' not '@claw/tool-contracts/src/llm-call'
 
 ### Pending Todos
 
@@ -80,9 +87,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 3 watch]: Tool Gateway auth patterns and bot JWT rotation strategy are MEDIUM confidence. May need targeted research during Phase 3 planning.
 - [Phase 5 watch]: Composite score weighting (40/30/20/10) is a reasoned starting point, not empirically validated. Plan to iterate after first real execution data is collected.
-- [Phase 3+ watch]: Services that import @claw/event-schemas or @claw/tool-contracts will need Zod as a runtime dependency in their own package.json. execution-service already has zod installed.
 - [Phase 3+ watch]: Any new service or Dockerfile using @claw/db or other internal packages must add NODE_OPTIONS --conditions @claw/source (ENV in Dockerfile, flag in tsx scripts).
 - [Phase 3+ watch]: E2E tests requiring Docker bots need bot-internal network pre-created and claw-stub-bot:latest image built. Document in new service READMEs.
 - [Deferred]: GCP resources (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry) not yet provisioned. Terraform config is valid and committed. Run terraform apply when GCP project is ready.
@@ -90,5 +95,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-04-PLAN.md — stub-bot Docker container, completion checker, full pipeline, 6-test E2E suite. Phase 2 complete. Ready for Phase 3.
+Stopped at: Completed 03-01-PLAN.md — Tool Gateway service with POST /tool.invoke (JWT auth, allowlist, rate limiting, Zod validation, audit log to tool_invocations). 2 tasks, 2 commits. Phase 3 Plan 1 complete. Ready for Phase 3 Plan 2 (tool implementations).
 Resume file: None
