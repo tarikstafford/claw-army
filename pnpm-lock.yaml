@@ -269,6 +269,9 @@ importers:
       '@fastify/type-provider-typebox':
         specifier: ^6.1.0
         version: 6.1.0(typebox@1.0.81)
+      '@google-cloud/pubsub':
+        specifier: ^5.2.3
+        version: 5.2.3
       '@sinclair/typebox':
         specifier: ^0.34.48
         version: 0.34.48

@@ -17,6 +17,7 @@
     "@fastify/jwt": "^9.1.0",
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/type-provider-typebox": "^6.1.0",
+    "@google-cloud/pubsub": "^5.2.3",
     "@sinclair/typebox": "^0.34.48",
     "ai": "^6.0.90",
     "dotenv": "^16.4.0",

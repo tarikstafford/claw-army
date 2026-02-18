@@ -1,7 +1,7 @@
 import { db, tasks, executions } from '@claw/db';
 import { eq, and, notInArray, count } from 'drizzle-orm';
 import { transitionExecution } from '../services/execution.service';
-import { publishExecutionStatusChanged } from '../events/publisher';
+import { publishExecutionStatusChanged, publishBillingEvent } from '../events/publisher';
 
 /**
  * Check if all tasks for an execution are in a terminal state (completed or failed).
@@ -29,12 +29,23 @@ export async function checkExecutionCompletion(executionId: string): Promise<boo
     const transitioned = await transitionExecution(executionId, 'running', 'completed');
 
     if (transitioned) {
-      // Publish execution_status_changed event
+      // Publish execution_status_changed event (execution-lifecycle topic)
       await publishExecutionStatusChanged({
         type: 'execution_status_changed',
         executionId,
         fromStatus: 'running',
         toStatus: 'completed',
+        timestamp: new Date().toISOString(),
+      });
+
+      // Publish execution_completed billing event (billing-events topic)
+      // The Billing Engine's handleBillingMessage handler listens on billing-events for this.
+      // publishExecutionStatusChanged goes to execution-lifecycle (different topic + type),
+      // so this explicit call is required for METR-01 billing event completeness.
+      await publishBillingEvent({
+        type: 'billing_event',
+        eventType: 'execution_completed',
+        executionId,
         timestamp: new Date().toISOString(),
       });
 

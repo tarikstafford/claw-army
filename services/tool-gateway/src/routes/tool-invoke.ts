@@ -2,6 +2,7 @@ import fp from 'fastify-plugin';
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import IORedis from 'ioredis';
+import { PubSub } from '@google-cloud/pubsub';
 import {
   llmCallRequestSchema,
   fetchUrlRequestSchema,
@@ -14,6 +15,33 @@ import { checkCallRateLimit, checkTokenRateLimit, consumeTokens } from '../middl
 import { executeLlmCall } from '../tools/llm-call';
 import { executeFetchUrl } from '../tools/fetch-url';
 import { executeWriteFile } from '../tools/write-file';
+
+/**
+ * Pub/Sub client for billing event publishing.
+ * When PUBSUB_EMULATOR_HOST is set, routes to the local emulator automatically.
+ */
+const billingPubsub = new PubSub({
+  projectId: process.env.GCP_PROJECT_ID ?? 'claw-local',
+});
+
+/**
+ * Calculate the cost in integer cents for an LLM call based on token usage.
+ * Uses env-var configurable rates matching those in the Billing Engine.
+ *
+ * @param totalTokens - Total token count (unused; kept for signature clarity)
+ * @param result - LLM call result containing promptTokens and completionTokens
+ * @returns Cost in integer cents (rounded to avoid float rounding errors)
+ */
+function calculateToolCost(
+  totalTokens: number,
+  result: { promptTokens: number; completionTokens: number },
+): number {
+  const inputRate = Number(process.env.LLM_INPUT_RATE_CENTS_PER_M ?? 15);
+  const outputRate = Number(process.env.LLM_OUTPUT_RATE_CENTS_PER_M ?? 60);
+  return Math.round(
+    (result.promptTokens * inputRate + result.completionTokens * outputRate) / 1_000_000,
+  );
+}
 
 /**
  * Dedicated Redis client for deny-list checks.
@@ -255,6 +283,34 @@ const toolInvokeRoutes: FastifyPluginAsyncTypebox = async function (fastify) {
       }
 
       const durationMs = Date.now() - startMs;
+
+      // 5.5 Publish billing event for this tool invocation (METR-01)
+      // The Billing Engine consumes this to track per-invocation costs and enforce budget caps.
+      // Billing event publish failure MUST NEVER crash the tool invocation — non-fatal, log only.
+      try {
+        const llmCallResult = toolName === 'llm_call'
+          ? (result as { promptTokens: number; completionTokens: number; totalTokens: number })
+          : undefined;
+
+        const billingPayload = {
+          type: 'billing_event' as const,
+          executionId,
+          botId,
+          eventType: 'tool_invoked' as const,
+          amountCents: toolName === 'llm_call' && tokenCount !== undefined && llmCallResult
+            ? calculateToolCost(tokenCount, llmCallResult)
+            : 0,
+          tokenCount: tokenCount ?? 0,
+          timestamp: new Date().toISOString(),
+        };
+
+        const data = Buffer.from(JSON.stringify(billingPayload));
+        const billingTopic = process.env.BILLING_EVENTS_TOPIC ?? 'billing-events';
+        await billingPubsub.topic(billingTopic).publishMessage({ data });
+      } catch (err) {
+        // Billing event publish failure must never crash the tool invocation
+        console.error('[tool-invoke] Failed to publish billing event (non-fatal):', err);
+      }
 
       // 6. Consume token credits after a successful llm_call (consume-after-return pattern)
       // Per locked user decision #2: if consuming pushes over the limit, the CURRENT call
