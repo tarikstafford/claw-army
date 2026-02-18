@@ -32,6 +32,7 @@ export type RateLimitResult =
 /**
  * Check and consume one call credit for the given bot.
  * Returns { allowed: false, retryAfter } if limit is exceeded.
+ * Fails open (allows the request) if Redis is temporarily unavailable.
  */
 export async function checkCallRateLimit(botId: string): Promise<RateLimitResult> {
   try {
@@ -41,7 +42,10 @@ export async function checkCallRateLimit(botId: string): Promise<RateLimitResult
     if (err instanceof RateLimiterRes) {
       return { allowed: false, retryAfter: Math.ceil(err.msBeforeNext / 1000) };
     }
-    throw err;
+    // Redis connection error: fail-open (allow the request) to avoid 500s during
+    // transient Redis unavailability. Log so ops can detect Redis issues.
+    console.error('[rate-limit] Redis error in checkCallRateLimit (fail-open):', err);
+    return { allowed: true };
   }
 }
 
@@ -71,6 +75,7 @@ export async function consumeTokens(botId: string, tokens: number): Promise<void
  * Zero-cost check to see if the bot is already over the token limit.
  * Call BEFORE dispatching the tool to avoid wasting a call.
  * Returns { allowed: false, retryAfter } if already at limit.
+ * Fails open if Redis is temporarily unavailable.
  */
 export async function checkTokenRateLimit(botId: string): Promise<RateLimitResult> {
   try {
@@ -80,6 +85,8 @@ export async function checkTokenRateLimit(botId: string): Promise<RateLimitResul
     if (err instanceof RateLimiterRes) {
       return { allowed: false, retryAfter: Math.ceil(err.msBeforeNext / 1000) };
     }
-    throw err;
+    // Redis connection error: fail-open
+    console.error('[rate-limit] Redis error in checkTokenRateLimit (fail-open):', err);
+    return { allowed: true };
   }
 }

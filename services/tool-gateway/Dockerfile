@@ -1,5 +1,9 @@
 FROM node:20-alpine AS base
 
+# Install CA certificates so Node.js native fetch can make HTTPS requests
+# (Alpine does not include system CA certs by default)
+RUN apk add --no-cache ca-certificates
+
 WORKDIR /app
 
 # Copy workspace root for pnpm
