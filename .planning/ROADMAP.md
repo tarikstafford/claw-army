@@ -85,13 +85,13 @@ Plans:
   4. A bot that exceeds its per-minute tool-call or token rate limit is blocked mid-invocation; subsequent calls within the same rate window continue to be rejected until the window resets.
   5. An llm_call, fetch_url, and write_file invocation each succeed end-to-end: the Gateway routes to the correct provider or store, applies the domain allowlist or artifact path as appropriate, and returns a structured response to the bot with the full invocation logged.
 
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 03-01: Tool Gateway service — /tool.invoke endpoint, JWT validation, allowlist enforcement, Zod schema validation, rate limiting, audit logging
-- [ ] 03-02: Tool implementations — llm_call (Vercel AI SDK multi-provider), fetch_url (domain allowlist), write_file (artifact store)
-- [ ] 03-03: Bot worker reasoning loop — LLM tool-calling loop, telemetry emission through gateway, SIGTERM flush handler
-- [ ] 03-04: Container network isolation finalization — VPC firewall rules (production), Docker bridge config (local), DNS egress block validation
+- [ ] 03-01-PLAN.md — Tool Gateway service scaffold: tool_invocations DB table, POST /tool.invoke endpoint, JWT auth, allowlist, Zod validation, rate limiting, audit logging (Wave 1)
+- [ ] 03-02-PLAN.md — Tool implementations: llm_call (Vercel AI SDK multi-provider), fetch_url (domain allowlist), write_file (artifact store), token rate limit integration (Wave 2)
+- [ ] 03-03-PLAN.md — Bot worker reasoning loop: generateText tool-calling loop, gateway proxy stubs, SIGTERM handler, execution-service planner LLM upgrade, 24h JWT (Wave 2)
+- [ ] 03-04-PLAN.md — Network isolation finalization: Tool Gateway Dockerfile, dual-network docker-compose, --internal bot network, network isolation test, Phase 3 E2E integration test (Wave 3)
 
 ---
 
@@ -180,7 +180,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 4/4 | Complete (GCP deferred) | 2026-02-18 |
 | 2. Core Execution Pipeline | 4/4 | Complete | 2026-02-18 |
-| 3. Bot Runtime and Tool Gateway | 0/4 | Not started | - |
+| 3. Bot Runtime and Tool Gateway | 0/4 | Planned | - |
 | 4. Control Plane Services | 0/3 | Not started | - |
 | 5. Performance Intelligence and DNA Capture | 0/3 | Not started | - |
 | 6. UI Command Center | 0/6 | Not started | - |
