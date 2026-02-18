@@ -1,14 +1,12 @@
 import { computeScoresForExecution } from './score-engine';
+import { identifyAndCaptureDna } from './dna-capture';
 
 /**
  * Orchestrate the full performance scoring pipeline for a completed execution.
  *
- * Current pipeline:
+ * Pipeline:
  * 1. computeScoresForExecution — metrics computation, score normalization, telemetry/bots updates
- *
- * Future extensions (Plans 05-02 and 05-03 will add):
- * 2. buildPerformanceReport (05-02)
- * 3. captureBotDna (05-03)
+ * 2. identifyAndCaptureDna — elite bot identification, PII-safe DNA extraction, versioned storage
  *
  * Called fire-and-forget from completion-checker.ts after execution transitions to 'completed'.
  * Errors are intentionally NOT thrown — the caller's .catch() handler logs them without
@@ -20,6 +18,7 @@ export async function runPerformancePipeline(executionId: string): Promise<void>
   console.log('[performance-engine] Starting pipeline for execution', executionId);
 
   await computeScoresForExecution(executionId);
+  await identifyAndCaptureDna(executionId);
 
   console.log('[performance-engine] Pipeline complete for execution', executionId);
 }
