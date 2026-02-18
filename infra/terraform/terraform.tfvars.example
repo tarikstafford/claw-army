@@ -1,0 +1,23 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# NEVER commit terraform.tfvars — it is in .gitignore.
+
+# Required: Your GCP project ID (find it in GCP Console -> Project selector)
+project_id = "your-gcp-project-id"
+
+# GCP region for all resources. Pick one close to your users.
+# Options: us-central1, us-east1, us-west1, europe-west1, asia-east1
+region = "us-central1"
+
+# Environment tag. Used in resource naming to allow multiple environments.
+# Use "dev" for development, "staging" for staging, "prod" for production.
+environment = "dev"
+
+# Cloud SQL machine tier.
+# Dev: "db-f1-micro" (cheapest, ~$7/month)
+# Prod: "db-custom-2-7680" (2 vCPU, 7.5GB RAM)
+db_tier = "db-f1-micro"
+
+# Memorystore Redis memory in GB.
+# Dev: 1 (minimum, ~$16/month)
+# Prod: 4 or higher depending on queue depth
+redis_memory_size_gb = 1

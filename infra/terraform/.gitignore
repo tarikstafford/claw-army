@@ -1,0 +1,25 @@
+# Local .terraform directory (provider binaries and state cache)
+.terraform/
+.terraform.tfstate.lock.info
+
+# State files — never commit state (contains secrets)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Variable files with actual values — never commit (contains secrets)
+terraform.tfvars
+*.auto.tfvars
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Override files (local developer overrides)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Generated plans
+*.tfplan
