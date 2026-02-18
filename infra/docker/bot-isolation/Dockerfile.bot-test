@@ -1,0 +1,5 @@
+FROM alpine:3.20
+# Install network diagnostic tools for egress testing
+RUN apk add --no-cache curl wget bind-tools netcat-openbsd
+# Keep container running for exec-based tests
+CMD ["sleep", "infinity"]

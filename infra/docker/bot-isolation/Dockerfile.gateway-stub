@@ -1,0 +1,6 @@
+FROM alpine:3.20
+RUN apk add --no-cache netcat-openbsd curl wget
+# Simple HTTP listener on port 8080 that echoes back request info
+# This simulates the Tool Gateway endpoint
+EXPOSE 8080
+CMD ["sh", "-c", "while true; do echo -e 'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nGateway OK' | nc -l -p 8080; done"]

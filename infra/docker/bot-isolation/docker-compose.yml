@@ -1,0 +1,31 @@
+services:
+  bot-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot-test
+    networks:
+      - bot-internal
+    # No ports exposed -- completely isolated
+    # CPU and memory limits simulate production bot constraints
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  tool-gateway-stub:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway-stub
+    networks:
+      - bot-internal
+      - external
+    ports:
+      - "8080:8080"
+
+networks:
+  bot-internal:
+    internal: true
+    driver: bridge
+  external:
+    driver: bridge
