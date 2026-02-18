@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 2 — Core Execution Pipeline
+**Current focus:** Phase 2 — Core Execution Pipeline (COMPLETE)
 
 ## Current Position
 
-Phase: 2 of 6 (Core Execution Pipeline)
-Plan: 3 of 4 in current phase
-Status: Executing
-Last activity: 2026-02-18 — Phase 2 Plan 3 complete. Bot orchestrator (dockerode spawn/stop), in-memory bot registry, HS256 JWT minting (jose), Pub/Sub event publisher with Zod validation, idle checker, and QueueEvents listener.
+Phase: 2 of 6 (Core Execution Pipeline) — COMPLETE
+Plan: 4 of 4 in current phase — COMPLETE
+Status: Phase 2 Complete, ready for Phase 3
+Last activity: 2026-02-18 — Phase 2 Plan 4 complete. Stub-bot Docker container, completion checker, full execution pipeline, 6-test E2E suite passing all Phase 2 success criteria.
 
-Progress: [██████▒░░░] 30%
+Progress: [████████░░] 35%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 6.4 min
-- Total execution time: 45 min
+- Total plans completed: 8
+- Average duration: 6.2 min
+- Total execution time: 60 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
-| 02-core-execution-pipeline | 3/4 | 14 min | 4.7 min |
+| 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (15 min), 02-01 (3 min), 02-02 (5 min), 02-03 (6 min)
-- Trend: Fast — Phase 2 plans lightweight on top of established Phase 1 foundation
+- Last 5 plans: 02-01 (3 min), 02-02 (5 min), 02-03 (6 min), 02-04 (15 min)
+- Trend: Phase 2 complete. 02-04 was the integration plan (all components wired together + E2E test) hence longer.
 
 *Updated after each plan completion*
 
@@ -69,6 +69,10 @@ Recent decisions affecting current work:
 - [Phase 02-core-execution-pipeline/02-03]: explicit Queue<TaskJobData, string, string> type params required — BullMQ 5.x ExtractNameType inference fails with plain interface DataType in strict TSC
 - [Phase 02-core-execution-pipeline/02-03]: lastTaskClaimedAt refreshed for ALL bots in execution on QueueEvents 'active' — prevents sibling bots from idle-terminating while other bots process tasks in the same execution
 - [Phase 02-core-execution-pipeline/02-03]: Zod-first publishing with console.error (no throw) — event pipeline failures must not crash the orchestrator
+- [Phase 02-core-execution-pipeline/02-04]: NODE_OPTIONS=--conditions @claw/source must be set via ENV in Dockerfile — tsx inside containers can't find @claw/db source without it (no dist/ in dev)
+- [Phase 02-core-execution-pipeline/02-04]: vitest.config.ts requires resolve.alias for @claw/* workspace packages — Vitest/Vite 7.x doesn't honor NODE_OPTIONS --conditions @claw/source for Vite module resolution
+- [Phase 02-core-execution-pipeline/02-04]: host.docker.internal injected as DATABASE_URL/REDIS_URL for bot containers — allows containers in bot-internal network to reach host postgres/redis on macOS/Windows Docker Desktop
+- [Phase 02-core-execution-pipeline/02-04]: bot-internal Docker network must be pre-created: docker network create bot-internal
 
 ### Pending Todos
 
@@ -76,15 +80,15 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 2 watch]: GCP bot hosting topology (Cloud Run Jobs vs GCE/dockerode) is the single most consequential unresolved architectural fork. Recommend a prototype to validate Cloud Run Jobs API latency under concurrent bot spawning before Phase 2 commits to either path.
 - [Phase 3 watch]: Tool Gateway auth patterns and bot JWT rotation strategy are MEDIUM confidence. May need targeted research during Phase 3 planning.
 - [Phase 5 watch]: Composite score weighting (40/30/20/10) is a reasoned starting point, not empirically validated. Plan to iterate after first real execution data is collected.
-- [Phase 2+ watch]: Services that import @claw/event-schemas or @claw/tool-contracts will need Zod as a runtime dependency in their own package.json. execution-service already has zod installed.
-- [Phase 2+ watch]: Any new service using @claw/db or other internal packages must add NODE_OPTIONS --conditions @claw/source to its tsx scripts.
-- [Deferred]: GCP resources (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry) not yet provisioned. Terraform config is valid and committed. Run terraform apply when GCP project is ready. Does NOT block Phase 2 (Phase 2 uses local docker-compose.dev.yml).
+- [Phase 3+ watch]: Services that import @claw/event-schemas or @claw/tool-contracts will need Zod as a runtime dependency in their own package.json. execution-service already has zod installed.
+- [Phase 3+ watch]: Any new service or Dockerfile using @claw/db or other internal packages must add NODE_OPTIONS --conditions @claw/source (ENV in Dockerfile, flag in tsx scripts).
+- [Phase 3+ watch]: E2E tests requiring Docker bots need bot-internal network pre-created and claw-stub-bot:latest image built. Document in new service READMEs.
+- [Deferred]: GCP resources (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry) not yet provisioned. Terraform config is valid and committed. Run terraform apply when GCP project is ready.
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-03-PLAN.md — bot orchestrator, registry, JWT, event publisher. Ready for 02-04.
+Stopped at: Completed 02-04-PLAN.md — stub-bot Docker container, completion checker, full pipeline, 6-test E2E suite. Phase 2 complete. Ready for Phase 3.
 Resume file: None
