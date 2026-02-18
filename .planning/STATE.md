@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 5 — Performance Intelligence and DNA Capture (IN PROGRESS)
+**Current focus:** Phase 6 — (Next Phase)
 
 ## Current Position
 
-Phase: 5 of 6 (Performance Intelligence and DNA Capture) — IN PROGRESS
-Plan: 2 of 3 in current phase — COMPLETE
-Status: Phase 5 Plan 2 complete — Execution report builder (report-builder.ts with buildExecutionReport() aggregating 11 metrics) and two new REST endpoints: GET /executions/:id/report (PERF-06) and GET /executions/:id/leaderboard (PERF-07) with TypeBox schemas, 404 guards, and leaderboard sorted by composite_score DESC NULLS LAST
-Last activity: 2026-02-18 — Phase 5 Plan 2 complete. Created report-builder.ts exporting ExecutionReport interface and buildExecutionReport(). Added /report route querying bots, telemetry, billing_events, tasks, tool_invocations. Added /leaderboard route with N+1 per-bot enrichment (acceptable for maxBots=20 cap). TypeScript clean.
+Phase: 5 of 6 (Performance Intelligence and DNA Capture) — COMPLETE
+Plan: 3 of 3 in current phase — COMPLETE
+Status: Phase 5 Plan 3 complete — Elite bot DNA capture module (dna-capture.ts with identifyAndCaptureDna()), versioned INSERT storage in dna_store, PII-safe DNA extraction (tool sequences, arg key shapes only), performance-engine.ts updated to call DNA capture after scoring, and phase5-e2e.test.ts with all 5 success criteria passing.
+Last activity: 2026-02-18 — Phase 5 Plan 3 complete. Created dna-capture.ts with 3-condition elite bot identification (DNA_ELITE_THRESHOLD, DNA_ABOVE_AVERAGE_PCT, DNA_ERROR_RATE_CEILING), PII-safe DnaPayload builder (keys only from requestSummary, tool names from invocations, timing profile, token distribution, retry strategy), MAX(version)+1 INSERT-only versioning. Updated performance-engine.ts pipeline. Created phase5-e2e.test.ts (5/5 tests pass). TypeScript clean.
 
-Progress: [██████████████████░] 78%
+Progress: [████████████████████] 83%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 5.6 min
-- Total execution time: 126 min
+- Total execution time: 130 min
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [██████████████████░] 78%
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
-| 05-performance-intelligence-and-dna-capture | 2/3 | 4 min | 2 min |
+| 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (2 min), 04-03 (7 min), 05-01 (3 min), 05-02 (1 min)
-- Trend: Report builder + 2 endpoints in 1 min — no new deps, pure aggregation queries + route additions.
+- Last 5 plans: 04-03 (7 min), 05-01 (3 min), 05-02 (1 min), 05-03 (4 min)
+- Trend: DNA capture + E2E test in 4 min — no new deps, pure DB query logic and test scaffolding.
 
 *Updated after each plan completion*
 
@@ -113,6 +113,9 @@ Recent decisions affecting current work:
 - [Phase 05-performance-intelligence-and-dna-capture/05-01]: Weights normalized to sum to 1 before composite calculation so non-100-summing env overrides work correctly
 - [Phase 05-performance-intelligence-and-dna-capture/05-02]: N+1 leaderboard enrichment is acceptable for MVP (maxBots cap is 20); production optimization deferred — use single JOIN/subquery when bot counts grow
 - [Phase 05-performance-intelligence-and-dna-capture/05-02]: sql template literal used for ORDER BY composite_score DESC NULLS LAST — Drizzle's orderBy(desc(...)) does not support NULLS LAST natively
+- [Phase 05-performance-intelligence-and-dna-capture/05-03]: Elite condition 2 uses strict > (not >=): compositeScore > executionAvgScore * (1 + DNA_ABOVE_AVERAGE_PCT/100)
+- [Phase 05-performance-intelligence-and-dna-capture/05-03]: SC#5 E2E test calls identifyAndCaptureDna directly (not runPerformancePipeline) — score-engine idempotency guard would skip re-scoring but DNA capture is version-incremented
+- [Phase 05-performance-intelligence-and-dna-capture/05-03]: argumentPatterns extraction enforces PII isolation at code level: only Object.keys(requestSummary), never values
 
 ### Pending Todos
 
@@ -129,5 +132,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 05-02-PLAN.md — Execution report builder and analytics endpoints: report-builder.ts (buildExecutionReport() aggregating 11 metrics from bots/tasks/billing_events/telemetry/tool_invocations), GET /executions/:id/report (PERF-06, TypeBox schema, 404 guard), GET /executions/:id/leaderboard (PERF-07, composite_score DESC NULLS LAST, N+1 enrichment). 1 task, 1 commit (84592c4). TypeScript clean. Ready for 05-03.
+Stopped at: Completed 05-03-PLAN.md — DNA capture module (dna-capture.ts exporting identifyAndCaptureDna(), elite bot identification via 3 conditions, PII-safe DnaPayload extraction, MAX(version)+1 INSERT versioning), performance-engine.ts updated, phase5-e2e.test.ts with 5/5 tests passing. 2 tasks, 2 commits (9dbefdc, d3ce32a). TypeScript clean. Phase 5 complete — ready for Phase 6.
 Resume file: None
