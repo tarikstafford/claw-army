@@ -1,7 +1,15 @@
 import { db, executions, executionStatusEnum } from '@claw/db';
 import { eq, and } from 'drizzle-orm';
+import IORedis from 'ioredis';
 
 type ExecutionStatus = (typeof executionStatusEnum.enumValues)[number];
+
+/**
+ * Module-level Redis singleton for budget cap key initialization.
+ * Uses queuing (default enableOfflineQueue: true) — execution creation is write-path
+ * and should queue if Redis is temporarily slow rather than fail fast.
+ */
+const redis = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379');
 
 export interface CreateExecutionInput {
   objective: string;
@@ -30,7 +38,35 @@ export async function createExecution(
     throw new Error('Failed to create execution: no row returned');
   }
 
-  return { executionId: result[0].id, status: 'queued' };
+  const executionId = result[0].id;
+
+  // Initialize Redis budget cap keys for atomic enforcement (GARD-01).
+  // The Billing Engine (04-03) uses a Lua script that reads budget:cap atomically.
+  // TTL = runtimeLimitSeconds + 24h buffer — ensures keys outlive the execution.
+  // Non-fatal: failure is logged but does NOT prevent execution creation.
+  // The billing engine handles missing keys gracefully (no cap = allow all spending).
+  try {
+    const ttlSeconds = input.runtimeLimitSeconds + 86400;
+
+    // Budget cap ceiling — the maximum spend allowed for this execution
+    await redis.setex(
+      `budget:cap:${executionId}`,
+      ttlSeconds,
+      input.budgetCapCents.toString(),
+    );
+
+    // Spend accumulator — initialized to 0; INCRBY increments atomically in the Lua script.
+    // Explicit SET ensures the key exists for monitoring even before any spend occurs.
+    await redis.setex(
+      `budget:spend:${executionId}`,
+      ttlSeconds,
+      '0',
+    );
+  } catch (err) {
+    console.error('[execution.service] Failed to initialize budget cap in Redis (non-fatal):', err);
+  }
+
+  return { executionId, status: 'queued' };
 }
 
 export async function getExecution(id: string) {
