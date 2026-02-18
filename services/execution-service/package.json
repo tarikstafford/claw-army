@@ -5,8 +5,8 @@
   "type": "module",
   "main": "src/main.ts",
   "scripts": {
-    "dev": "tsx watch src/main.ts",
-    "start": "tsx src/main.ts"
+    "dev": "NODE_OPTIONS=\"--conditions @claw/source\" tsx watch src/main.ts",
+    "start": "NODE_OPTIONS=\"--conditions @claw/source\" tsx src/main.ts"
   },
   "dependencies": {
     "fastify": "^5.7.4",
