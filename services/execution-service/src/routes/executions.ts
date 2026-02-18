@@ -3,11 +3,15 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import {
   createExecution,
   getExecution,
+  transitionExecution,
 } from '../services/execution.service';
+import { planObjective } from '../services/planner.service';
+import { addTaskToQueue } from '../queue/task-queue';
+import { db, tasks } from '@claw/db';
 
-export const executionsRoutes: FastifyPluginAsyncTypebox = async (app) => {
+export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // POST /executions — create a new execution
-  app.post('/', {
+  fastify.post('/', {
     schema: {
       body: Type.Object({
         objective: Type.String({ minLength: 1 }),
@@ -40,11 +44,61 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (app) => {
       allowedTools,
     });
 
+    const { executionId } = result;
+
+    // Trigger async planning after returning 201 (non-blocking).
+    // setImmediate ensures the reply is sent before planning begins,
+    // guaranteeing the POST response is well within the 1-second SLA.
+    setImmediate(async () => {
+      try {
+        // 1. Plan tasks (stub — no LLM)
+        const plannedTasks = planObjective(objective, maxBots);
+
+        // 2. Dual-write: Postgres first, then BullMQ
+        // Per RESEARCH.md: write to DB first so task rows always exist.
+        // If BullMQ add fails, the task stays 'pending' — a reconciler can re-enqueue.
+        // This prevents orphan queue jobs with no corresponding DB record.
+        for (const planned of plannedTasks) {
+          // Write to Postgres (create task row with status 'pending')
+          const taskResult = await db
+            .insert(tasks)
+            .values({
+              executionId,
+              description: planned.description,
+              status: 'pending',
+            })
+            .returning({ id: tasks.id });
+
+          if (taskResult.length > 0) {
+            const taskRow = taskResult[0]!;
+            // Write to BullMQ queue
+            await addTaskToQueue({
+              taskId: taskRow.id,
+              executionId,
+              description: planned.description,
+            });
+          }
+        }
+
+        // 3. Transition execution from 'queued' to 'running'
+        await transitionExecution(executionId, 'queued', 'running');
+
+        fastify.log.info(
+          { executionId, taskCount: plannedTasks.length },
+          'Planning complete, execution running',
+        );
+      } catch (err) {
+        fastify.log.error({ err, executionId }, 'Failed to plan and queue tasks');
+        // Transition to failed on planning error so the execution doesn't stay stuck in 'queued'
+        await transitionExecution(executionId, 'queued', 'failed').catch(() => {});
+      }
+    });
+
     return reply.code(201).send(result);
   });
 
   // GET /executions/:id — get a single execution by ID
-  app.get('/:id', {
+  fastify.get('/:id', {
     schema: {
       params: Type.Object({
         id: Type.String({ format: 'uuid' }),
