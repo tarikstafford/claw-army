@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 
 ## Current Position
 
-Phase: 3 of 6 (Bot Runtime and Tool Gateway) — IN PROGRESS
-Plan: 2 of 3 in current phase — COMPLETE
-Status: Phase 3 Plan 2 complete — Tool handler implementations live (llm_call, fetch_url, write_file)
-Last activity: 2026-02-18 — Phase 3 Plan 2 complete. Three tool handlers implemented (llm_call via Vercel AI SDK 6 with multi-provider routing, fetch_url with hostname-based allowlist, write_file with path traversal protection). Wired into POST /tool.invoke replacing 501 stubs.
+Phase: 3 of 6 (Bot Runtime and Tool Gateway) — COMPLETE
+Plan: 3 of 3 in current phase — COMPLETE
+Status: Phase 3 complete — bot-worker service with LLM reasoning loop, Tool Gateway proxy, upgraded planner, 24h JWTs
+Last activity: 2026-02-18 — Phase 3 Plan 3 complete. bot-worker service created with BullMQ Worker, AI SDK 6 reasoning loop (stopWhen: stepCountIs(20)), thin HTTP callGateway() proxy. planObjective() upgraded to async LLM call. JWT expiry 15m -> 24h. BOT_IMAGE default updated to claw-bot-worker:latest.
 
-Progress: [██████████] 43%
+Progress: [████████████] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 6.1 min
-- Total execution time: 89 min
+- Total execution time: 96 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [██████████] 43%
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
-| 03-bot-runtime-and-tool-gateway | 2/3 | 29 min | 14.5 min |
+| 03-bot-runtime-and-tool-gateway | 3/3 | 36 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-03 (6 min), 02-04 (15 min), 03-01 (25 min), 03-02 (4 min)
-- Trend: 03-02 was fast (4 min) — implementation plan with clear specs, no scaffolding overhead.
+- Last 5 plans: 02-04 (15 min), 03-01 (25 min), 03-02 (4 min), 03-03 (7 min)
+- Trend: Phase 3 complete at 36 min total. Plans with complex Docker/TypeScript integration (03-01, 03-03) take longer; pure implementation (03-02) very fast.
 
 *Updated after each plan completion*
 
@@ -84,6 +84,10 @@ Recent decisions affecting current work:
 - [Phase 03-bot-runtime-and-tool-gateway/03-02]: URL.hostname (not .host) for fetch_url allowlist — .host includes port, enabling bypass via credentialed URL injection
 - [Phase 03-bot-runtime-and-tool-gateway/03-02]: path.basename() for write_file path sanitization — strips all directory components regardless of OS separator
 - [Phase 03-bot-runtime-and-tool-gateway/03-02]: consume-after-return TOKEN_RATE_LIMIT is swallowed in route handler — current llm_call already returned; next call blocked by pre-check
+- [Phase 03-bot-runtime-and-tool-gateway]: AI SDK 6 uses inputSchema (not parameters) for tool() — FlexibleSchema accepts Zod v4 directly
+- [Phase 03-bot-runtime-and-tool-gateway]: Local Zod schemas in bot-worker reasoning-loop to avoid Zod v4 enum type mismatch with AI SDK internal types
+- [Phase 03-bot-runtime-and-tool-gateway]: planObjective LLM direct call (not via Tool Gateway) per decision #3; JSON fallback prevents pipeline stall
+- [Phase 03-bot-runtime-and-tool-gateway]: lockDuration 300s on BullMQ Worker for LLM reasoning loops; 30s stub-bot default causes false stalled-job failures
 
 ### Pending Todos
 
@@ -99,5 +103,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-02-PLAN.md — Tool handler implementations (llm_call, fetch_url, write_file) wired into POST /tool.invoke. 2 tasks, 2 commits. Phase 3 Plan 2 complete. Ready for Phase 3 Plan 3 (bot runtime integration).
+Stopped at: Completed 03-03-PLAN.md — bot-worker service with AI SDK 6 reasoning loop and Tool Gateway proxy, plus execution-service planner LLM upgrade. 2 tasks, 2 commits. Phase 3 complete. Ready for Phase 4 (real-time and observability).
 Resume file: None
