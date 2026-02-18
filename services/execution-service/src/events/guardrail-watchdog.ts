@@ -260,3 +260,39 @@ export function stopGuardrailWatchdog(timer: NodeJS.Timeout): void {
   clearInterval(timer);
   console.log('[guardrail-watchdog] Stopped.');
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Exported test helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Check if a single bot exhibits loop behavior.
+ * Queries the last LOOP_DETECTION_WINDOW tool_invocations for the bot and returns
+ * true if all entries have identical fingerprints (toolName + requestSummary).
+ *
+ * Exported for direct testing in Phase 4 E2E test — allows verifying loop detection
+ * logic without running the full watchdog polling cycle.
+ *
+ * @param botId - UUID of the bot to check
+ * @returns true if loop behavior is detected, false otherwise
+ */
+export async function checkLoopForBot(botId: string): Promise<boolean> {
+  const recent = await db
+    .select({
+      toolName: toolInvocations.toolName,
+      requestSummary: toolInvocations.requestSummary,
+    })
+    .from(toolInvocations)
+    .where(eq(toolInvocations.botId, botId))
+    .orderBy(desc(toolInvocations.invokedAt))
+    .limit(LOOP_DETECTION_WINDOW);
+
+  if (recent.length < LOOP_DETECTION_WINDOW) return false;
+
+  const fingerprints = recent.map((row) =>
+    JSON.stringify({ toolName: row.toolName, args: row.requestSummary }),
+  );
+
+  const firstFingerprint = fingerprints[0];
+  return fingerprints.every((fp) => fp === firstFingerprint);
+}
