@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 6 of 6 (UI Command Center) — IN PROGRESS
-Plan: 3 of 5 in current phase — COMPLETE
-Status: Phase 6 Plan 3 complete — Live Execution View at /executions/[id] with SSE activity feed, 5s polled metrics panel (active bots/bot-hours/budget remaining/estimated cost), color-coded status banner, and red-border guardrail event distinction.
-Last activity: 2026-02-19 — Phase 6 Plan 3 complete. Created services/ui/src/routes/executions/[id]/+page.svelte (392 lines). TypeScript clean (316 files, 0 errors). 1 task, 1 commit (5d75e99).
+Plan: 4 of 5 in current phase — COMPLETE
+Status: Phase 6 Plan 4 complete — Post-Execution Dashboard at /executions/[id]/report (7-stat summary + tier-colored leaderboard) and Bot Detail View at /executions/[id]/bots/[botId] (15-metric grid + expandable native-HTML step trace with per-step drill-down).
+Last activity: 2026-02-19 — Phase 6 Plan 4 complete. Created report/+page.svelte (314 lines) and bots/[botId]/+page.svelte (481 lines). TypeScript clean (318 files, 0 errors). 2 tasks, 2 commits (3a03ca5, 73e33a1).
 
-Progress: [██████████████████████] 88%
+Progress: [████████████████████████] 92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 5.2 min
-- Total execution time: 139 min
+- Total plans completed: 22
+- Average duration: 5.1 min
+- Total execution time: 142 min
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [██████████████████████] 8
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
-| 06-ui-command-center | 3/5 | 9 min | 3 min |
+| 06-ui-command-center | 4/5 | 12 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (4 min), 06-01 (3 min), 06-02 (3 min), 06-03 (3 min)
+- Last 5 plans: 06-01 (3 min), 06-02 (3 min), 06-03 (3 min), 06-04 (3 min)
 - Trend: Consistent 3 min per plan — SvelteKit UI components and routes completing in ~3 min each.
 
 *Updated after each plan completion*
@@ -129,6 +129,8 @@ Recent decisions affecting current work:
 - [Phase 06-ui-command-center/06-03]: page.params.id ?? '' null-coalescing required until svelte-kit sync runs and generates [id] route types — sync must run before svelte-check passes for dynamic routes
 - [Phase 06-ui-command-center/06-03]: Dual $effect pattern (separate effects for SSE vs polling) instead of single effect — enables independent cleanup and avoids re-establishing SSE on every metrics poll update
 - [Phase 06-ui-command-center/06-03]: Terminal state guard in SSE and polling effects — prevents reconnecting SSE or re-enabling polling for already-completed/failed/stopped executions
+- [Phase 06-ui-command-center/06-04]: Native HTML details/summary elements for step trace — no JS toggle state, browser-native open/close, nested details (outer=full trace, inner=per-step request/response)
+- [Phase 06-ui-command-center/06-04]: page.params cast to Record<string,string> for [botId] route segment — svelte-kit generated types only include params from routes already synced; cast enables clean build before sync runs
 
 ### Pending Todos
 
@@ -145,5 +147,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 06-03-PLAN.md — Live Execution View at /executions/[id]: SSE activity feed (connectSSE, newest-first, max 100 events), 5s polled metrics panel (active bots, bot-hours, budget remaining, estimated cost), color-coded status banner (running/completed/failed/paused/queued), red-border guardrail event distinction, terminal-state guard stops polling/SSE. 1 task, 1 commit (5d75e99). TypeScript clean (316 files, 0 errors). Phase 6 Plan 3 of 5 complete.
+Stopped at: Completed 06-04-PLAN.md — Post-Execution Dashboard at /executions/[id]/report (7-stat summary panel + tier-colored leaderboard, parallel fetch getExecutionReport+getLeaderboard) and Bot Detail View at /executions/[id]/bots/[botId] (15-metric grid, native HTML details step trace with nested per-step drill-down, rejected step red styling). 2 tasks, 2 commits (3a03ca5, 73e33a1). TypeScript clean (318 files, 0 errors). Phase 6 Plan 4 of 5 complete.
 Resume file: None
