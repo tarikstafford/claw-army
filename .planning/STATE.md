@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 4 — Control Plane Services (IN PROGRESS)
+**Current focus:** Phase 4 — Control Plane Services (COMPLETE)
 
 ## Current Position
 
-Phase: 4 of 6 (Control Plane Services) — IN PROGRESS
-Plan: 2 of 4 in current phase — COMPLETE
-Status: Phase 4 Plan 2 complete — Guardrail Watchdog with rate/loop detection, Redis deny-list enforcement in Tool Gateway, and guardrail_triggered events on idle timeout
-Last activity: 2026-02-18 — Phase 4 Plan 2 complete. guardrail-watchdog.ts polls every 10s for rate violations (>= 60 calls or >= 100k tokens/60s via Postgres) and loop behavior (N identical consecutive invocations). Revoked bots get Redis deny-list key (SETEX with TTL). Tool Gateway /tool.invoke checks deny-list as gate 0 before all other enforcement. Idle timeout now emits guardrail_triggered event. Watchdog starts in main.ts with SIGTERM/SIGINT cleanup.
+Phase: 4 of 6 (Control Plane Services) — COMPLETE
+Plan: 3 of 3 in current phase — COMPLETE
+Status: Phase 4 complete — Billing Engine with atomic Redis Lua budget enforcement, billing_events persistence for all 5 event types, bot-hours telemetry, tool-gateway billing event publishing, and Phase 4 E2E integration test validating all 5 success criteria
+Last activity: 2026-02-18 — Phase 4 Plan 3 complete. billing-engine.ts subscribes to billing-events and bot-lifecycle topics with separate handlers (handleBillingMessage for tool_invoked/execution_completed, handleBotLifecycleMessage for bot_started/bot_stopped). Atomic budget enforcement via Redis Lua EVAL (INCRBY + cap check). Message deduplication via Redis SETNX. Tool Gateway publishes billing events after every successful tool invocation (non-fatal). completion-checker.ts publishes execution_completed billing event. All 5 Phase 4 E2E tests pass.
 
-Progress: [██████████████] 57%
+Progress: [████████████████] 67%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 6.3 min
-- Total execution time: 115 min
+- Total plans completed: 15
+- Average duration: 6.1 min
+- Total execution time: 122 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [██████████████] 57%
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
-| 04-control-plane-services | 2/4 | 4 min | 2 min |
+| 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-03 (7 min), 03-04 (17 min), 04-01 (2 min), 04-02 (2 min)
-- Trend: Phase 4 Plans 1 and 2 both completed in 2 min each. Guardrail Watchdog implementation was well-specified; no blocking issues.
+- Last 5 plans: 03-04 (17 min), 04-01 (2 min), 04-02 (2 min), 04-03 (7 min)
+- Trend: Phase 4 completed in 11 min total across 3 plans. Billing Engine (04-03) was 7 min including E2E test.
 
 *Updated after each plan completion*
 
@@ -101,6 +101,10 @@ Recent decisions affecting current work:
 - [Phase 04-control-plane-services/04-02]: Deny-list uses per-key SETEX guardrail:denied:{botId} (not SADD to a set) for automatic TTL expiration without manual cleanup
 - [Phase 04-control-plane-services/04-02]: Guardrail Watchdog starts globally in main.ts (not per-execution like idle checker) — rate/loop violations are per-bot concerns; one watchdog covers all active bots
 - [Phase 04-control-plane-services/04-02]: Idle timeout guardrail_triggered action is 'terminated' (not 'revoked') — idle bots are stopped cleanly, not deny-listed; they won't make future requests
+- [Phase 04-control-plane-services/04-03]: Two separate Pub/Sub subscriptions in Billing Engine — billing-events-sub (handleBillingMessage) and bot-lifecycle-billing-sub (handleBotLifecycleMessage) — bot lifecycle events have type: bot_started/bot_stopped NOT type: billing_event
+- [Phase 04-control-plane-services/04-03]: bot-lifecycle-billing-sub uses different name from Guardrail Watchdog's bot-lifecycle-sub so each service maintains independent cursor/position on the same topic
+- [Phase 04-control-plane-services/04-03]: Pub/Sub emulator guard in E2E tests — check PUBSUB_EMULATOR_HOST availability before calling publish functions to avoid 60s connection timeouts
+- [Phase 04-control-plane-services/04-03]: TODO (Production) — Terraform needs to add bot-lifecycle-billing-sub subscription to bot-lifecycle topic; emulator auto-creates it locally
 
 ### Pending Todos
 
@@ -112,9 +116,10 @@ None yet.
 - [Phase 3+ watch]: Any new service or Dockerfile using @claw/db or other internal packages must add NODE_OPTIONS --conditions @claw/source (ENV in Dockerfile, flag in tsx scripts).
 - [Phase 3+ watch]: E2E tests requiring Docker bots need bot-internal network pre-created and claw-stub-bot:latest image built. Document in new service READMEs.
 - [Deferred]: GCP resources (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry) not yet provisioned. Terraform config is valid and committed. Run terraform apply when GCP project is ready.
+- [Production]: Terraform needs to add bot-lifecycle-billing-sub subscription to bot-lifecycle topic for Billing Engine to receive bot_started/bot_stopped events in GCP.
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 04-02-PLAN.md — Guardrail Watchdog (guardrail-watchdog.ts) with rate violation detection (Postgres queries), loop detection (N identical consecutive invocations), Redis deny-list revocation, and guardrail_triggered Pub/Sub events. Tool Gateway deny-list gate 0 in /tool.invoke. Idle timeout also emits guardrail_triggered. 2 tasks, 2 commits. Ready for 04-03 (Billing Engine).
+Stopped at: Completed 04-03-PLAN.md — Billing Engine (billing-engine.ts) with atomic Redis Lua INCRBY budget enforcement, dual subscriptions (billing-events-sub and bot-lifecycle-billing-sub with separate handlers), billing_events persistence for all 5 event types, bot-hours telemetry, tool-gateway billing event publishing, Phase 4 E2E test (5/5 passing). Phase 4 complete. 2 tasks, 2 commits. Ready for Phase 5.
 Resume file: None
