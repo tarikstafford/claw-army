@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 3 — Bot Runtime and Tool Gateway (IN PROGRESS)
+**Current focus:** Phase 4 — Realtime and Observability (NEXT)
 
 ## Current Position
 
 Phase: 3 of 6 (Bot Runtime and Tool Gateway) — COMPLETE
-Plan: 3 of 3 in current phase — COMPLETE
-Status: Phase 3 complete — bot-worker service with LLM reasoning loop, Tool Gateway proxy, upgraded planner, 24h JWTs
-Last activity: 2026-02-18 — Phase 3 Plan 3 complete. bot-worker service created with BullMQ Worker, AI SDK 6 reasoning loop (stopWhen: stepCountIs(20)), thin HTTP callGateway() proxy. planObjective() upgraded to async LLM call. JWT expiry 15m -> 24h. BOT_IMAGE default updated to claw-bot-worker:latest.
+Plan: 4 of 4 in current phase — COMPLETE
+Status: Phase 3 fully proven — Tool Gateway Dockerfile, dual-network isolation, network isolation test, and Phase 3 E2E integration tests all passing
+Last activity: 2026-02-18 — Phase 3 Plan 4 complete. Tool Gateway Dockerfile with ca-certificates. docker-compose.dev.yml with bot-internal(internal:true) + tool-gateway dual-network. Network isolation test confirms SC#1. Phase 3 E2E test confirms SC#2-SC#5 with full audit log verification.
 
-Progress: [████████████] 50%
+Progress: [████████████] 52%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 6.1 min
-- Total execution time: 96 min
+- Total plans completed: 12
+- Average duration: 6.5 min
+- Total execution time: 113 min
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████████] 50%
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
-| 03-bot-runtime-and-tool-gateway | 3/3 | 36 min | 12 min |
+| 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-04 (15 min), 03-01 (25 min), 03-02 (4 min), 03-03 (7 min)
-- Trend: Phase 3 complete at 36 min total. Plans with complex Docker/TypeScript integration (03-01, 03-03) take longer; pure implementation (03-02) very fast.
+- Last 5 plans: 03-01 (25 min), 03-02 (4 min), 03-03 (7 min), 03-04 (17 min)
+- Trend: Phase 3 complete at 53 min total (4 plans). Plans with Docker integration, network testing, and E2E test infrastructure take longer due to debugging Docker networking and SSL behavior.
 
 *Updated after each plan completion*
 
@@ -88,6 +88,10 @@ Recent decisions affecting current work:
 - [Phase 03-bot-runtime-and-tool-gateway]: Local Zod schemas in bot-worker reasoning-loop to avoid Zod v4 enum type mismatch with AI SDK internal types
 - [Phase 03-bot-runtime-and-tool-gateway]: planObjective LLM direct call (not via Tool Gateway) per decision #3; JSON fallback prevents pipeline stall
 - [Phase 03-bot-runtime-and-tool-gateway]: lockDuration 300s on BullMQ Worker for LLM reasoning loops; 30s stub-bot default causes false stalled-job failures
+- [Phase 03-bot-runtime-and-tool-gateway/03-04]: Alpine Docker images require ca-certificates for Node.js native fetch() HTTPS support — apk add ca-certificates in Dockerfile
+- [Phase 03-bot-runtime-and-tool-gateway/03-04]: Rate limiter fail-open on Redis connection errors — non-RateLimiterRes errors return allowed:true with console.error, never 500
+- [Phase 03-bot-runtime-and-tool-gateway/03-04]: Test bot container: install curl/nslookup on default network before switching to bot-internal — apk cannot download on internal network
+- [Phase 03-bot-runtime-and-tool-gateway/03-04]: Docker Desktop VPN-Kit intercepts HTTPS — use host-based gateway for E2E tests (system CAs work), not containerized gateway
 
 ### Pending Todos
 
@@ -103,5 +107,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 03-03-PLAN.md — bot-worker service with AI SDK 6 reasoning loop and Tool Gateway proxy, plus execution-service planner LLM upgrade. 2 tasks, 2 commits. Phase 3 complete. Ready for Phase 4 (real-time and observability).
+Stopped at: Completed 03-04-PLAN.md — Tool Gateway Dockerfile, dual-network docker-compose, network isolation test (SC#1), and Phase 3 E2E integration test (SC#2-SC#5). 2 tasks, 3 commits. Phase 3 fully proven with all success criteria tested. Ready for Phase 4 (real-time and observability).
 Resume file: None
