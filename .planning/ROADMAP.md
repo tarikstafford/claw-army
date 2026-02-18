@@ -159,15 +159,14 @@ Plans:
   5. A user can click any bot in the leaderboard to open its detail view showing tasks completed, runtime, token usage, tool calls, error count, and composite score — and a developer can expand the optional step trace showing each step's prompt, tool, arguments, output summary, duration, and token count.
   6. The Usage and Billing screen shows total bot-hours this month, estimated spend, and a list of historical executions with total cost, bot-hours, and task count per run.
 
-**Plans**: TBD
+**Plans:** 5 plans
 
 Plans:
-- [ ] 06-01: Redis pub/sub to SSE bridge — Memorystore fan-out, Fastify SSE endpoint, multi-instance safe event delivery
-- [ ] 06-02: New Execution screen — objective input, bot count slider, budget cap field, tool allowlist multi-select, Deploy Crew submission
-- [ ] 06-03: Live Execution View — real-time status panel (bot count, bot-hours, budget remaining, estimated cost), SSE activity feed with event type styling and guardrail event distinction
-- [ ] 06-04: Post-Execution Dashboard — execution summary panel, bot leaderboard table with tier color indicators
-- [ ] 06-05: Bot Detail View — per-bot metrics panel, expandable step trace
-- [ ] 06-06: Usage and Billing screen — monthly bot-hours and spend summary, historical execution list with cost per run
+- [ ] 06-01-PLAN.md — Backend additions: @fastify/sse + @fastify/cors, SSE bridge (Pub/Sub to EventSource), live metrics endpoint, bot detail endpoint, billing history/summary endpoints
+- [ ] 06-02-PLAN.md — SvelteKit SPA scaffold (adapter-static, ssr=false), app shell with nav, API client + SSE helper modules, New Execution screen (UI-01, UI-02)
+- [ ] 06-03-PLAN.md — Live Execution View: real-time status panel, polled metrics (bot count, bot-hours, budget remaining, estimated cost), SSE activity feed with guardrail event distinction (UI-03, UI-04, UI-05, METR-04)
+- [ ] 06-04-PLAN.md — Post-Execution Dashboard (summary + leaderboard with tier colors) and Bot Detail View (metrics grid + expandable step trace) (UI-06, UI-07, UI-08, UI-09)
+- [ ] 06-05-PLAN.md — Usage & Billing screen (monthly summary + execution history) and full UI visual verification checkpoint (UI-10, METR-05)
 
 ---
 
@@ -183,4 +182,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Bot Runtime and Tool Gateway | 0/4 | Planned | - |
 | 4. Control Plane Services | 0/3 | Not started | - |
 | 5. Performance Intelligence and DNA Capture | 0/3 | Not started | - |
-| 6. UI Command Center | 0/6 | Not started | - |
+| 6. UI Command Center | 0/5 | Planned | - |
