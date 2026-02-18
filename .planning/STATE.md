@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 1 of 6 (Data Foundation)
-Plan: 3 of 4 in current phase (awaiting GCP apply checkpoint)
+Plan: 4 of 4 in current phase (COMPLETE)
 Status: In progress
-Last activity: 2026-02-18 — Plan 01-03 auto-tasks complete: Terraform modules for VPC+Cloud SQL+Memorystore+Pub/Sub+Artifact Registry validated, docker-compose.dev.yml and connectivity-check.ts ready. Awaiting human GCP apply checkpoint.
+Last activity: 2026-02-18 — Plan 01-04 complete: Bot network isolation topology validated. Docker Compose internal:true network blocks all bot egress; tool-gateway-stub reachable via container networking. All 6/6 egress tests PASS.
 
-Progress: [███░░░░░░░] 12%
+Progress: [████░░░░░░] 16%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 5 min
-- Total execution time: 16 min
+- Total plans completed: 4
+- Average duration: 8 min
+- Total execution time: 31 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-data-foundation | 3/4 | 16 min | 5 min |
+| 01-data-foundation | 4/4 | 31 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (7 min), 01-02 (4 min), 01-03 (5 min)
-- Trend: Stable (infrastructure + scripts creation)
+- Last 5 plans: 01-01 (7 min), 01-02 (4 min), 01-03 (5 min), 01-04 (15 min)
+- Trend: Stable (infrastructure + scripts creation; 01-04 longer due to Docker build + egress test run)
 
 *Updated after each plan completion*
 
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - [Phase 01-data-foundation/01-03]: deletion_protection = false on Cloud SQL — Terraform google provider 7.x defaults to true, blocking terraform destroy in dev
 - [Phase 01-data-foundation/01-03]: Memorystore has no public IP by design — local dev uses Docker redis:7, GCP Redis is VPC-only
 - [Phase 01-data-foundation/01-03]: Pub/Sub dead-letter + retry policy (10s-300s backoff, max 5 attempts) on all subscriptions for production reliability
+- [Phase 01-data-foundation/01-04]: Python 3 http.server for gateway stub instead of nc loop -- nc has reconnect gap causing race condition in sequential test execution
+- [Phase 01-data-foundation/01-04]: Test 3 (DNS resolution) is informational only -- Docker embedded DNS resolves external names on internal:true networks but TCP connections to resolved IPs are blocked
+- [Phase 01-data-foundation/01-04]: Readiness probe added to egress-test.sh -- ensures gateway is accepting connections before tests run
 
 ### Pending Todos
 
@@ -70,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Plan 01-03 auto-tasks complete — Terraform modules + docker-compose.dev.yml + connectivity-check.ts committed. Task 3 is a human checkpoint requiring GCP project setup and terraform apply. User must run terraform plan/apply and confirm before continuing.
+Stopped at: Completed 01-04-PLAN.md — Bot network isolation topology validated. Docker internal:true network blocks bot egress; 6/6 egress tests PASS. Phase 01-data-foundation complete (all 4 plans done). Ready for Phase 2.
 Resume file: None
