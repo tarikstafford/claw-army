@@ -10,29 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 2 of 6 (Core Execution Pipeline)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-18 — Phase 2 Plan 1 complete. execution-service with POST /executions and GET /executions/:id live. transitionExecution atomic state machine implemented.
+Last activity: 2026-02-18 — Phase 2 Plan 2 complete. Stub planner (planObjective), BullMQ task queue with 30s lease semantics, and async planning loop in POST /executions writing tasks to Postgres and BullMQ.
 
-Progress: [████▒░░░░░] 20%
+Progress: [█████▒░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 7 min
-- Total execution time: 34 min
+- Total plans completed: 6
+- Average duration: 6.5 min
+- Total execution time: 39 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-data-foundation | 4/4 | 31 min | 8 min |
-| 02-core-execution-pipeline | 1/4 | 3 min | 3 min |
+| 02-core-execution-pipeline | 2/4 | 8 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (4 min), 01-03 (5 min), 01-04 (15 min), 02-01 (3 min)
-- Trend: Fast — 02-01 was lightweight service scaffold on top of established Phase 1 DB foundation
+- Last 5 plans: 01-03 (5 min), 01-04 (15 min), 02-01 (3 min), 02-02 (5 min)
+- Trend: Fast — Phase 2 plans lightweight on top of established Phase 1 foundation
 
 *Updated after each plan completion*
 
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - [Phase 02-core-execution-pipeline/02-01]: NODE_OPTIONS --conditions @claw/source required in tsx scripts to resolve @claw/db via internal packages strategy (tsx falls back to default export condition ./dist/index.js which doesn't exist without build step)
 - [Phase 02-core-execution-pipeline/02-01]: transitionExecution defers transition path validation to Phase 3 -- Phase 2 only enforces atomic WHERE-clause guarding
 - [Phase 02-core-execution-pipeline/02-01]: All Phase 2 runtime deps (bullmq, dockerode, jose, ioredis) installed upfront in execution-service to avoid repeated package.json changes across plans 02-02 through 02-04
+- [Phase 02-core-execution-pipeline/02-02]: Pass plain { host, port } RedisOptions objects to BullMQ Queue/Worker instead of pre-constructed IORedis instances — avoids dual-version type conflict (bullmq@5 bundles ioredis@5.9.2, service has ioredis@5.9.3)
+- [Phase 02-core-execution-pipeline/02-02]: workerConnection uses maxRetriesPerRequest: null — mandatory for BullMQ workers to survive Redis reconnection without silently stopping
+- [Phase 02-core-execution-pipeline/02-02]: planObjective is a numbered-subtask stub (no LLM) intentionally — Phase 3 replaces with real LLM decomposition
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 02-01-PLAN.md — execution-service with POST /executions and GET /executions/:id. Ready for 02-02.
+Stopped at: Completed 02-02-PLAN.md — stub planner, BullMQ task queue, async POST /executions planning. Ready for 02-03.
 Resume file: None
