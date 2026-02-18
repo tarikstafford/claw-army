@@ -5,11 +5,17 @@ import {
   taskClaimedEventSchema,
   taskCompletedEventSchema,
   executionStatusChangedEventSchema,
+  billingEventSchema,
+  budgetExceededEventSchema,
+  guardrailTriggeredEventSchema,
   type BotStartedEvent,
   type BotStoppedEvent,
   type TaskClaimedEvent,
   type TaskCompletedEvent,
   type ExecutionStatusChangedEvent,
+  type BillingEvent,
+  type BudgetExceededEvent,
+  type GuardrailTriggeredEvent,
 } from '@claw/event-schemas';
 
 /**
@@ -21,11 +27,14 @@ const pubsub = new PubSub({
   projectId: process.env.GCP_PROJECT_ID ?? 'claw-local',
 });
 
-// Topic name constants — must match Terraform-provisioned topic names in production
-// and the emulator topic setup in docker-compose.dev.yml.
-const BOT_EVENTS_TOPIC = 'bot-events';
-const EXECUTION_EVENTS_TOPIC = 'execution-events';
-const TASK_EVENTS_TOPIC = 'task-events';
+// Topic name constants — configurable via env vars, defaulting to Terraform-provisioned names.
+// The env suffix (-{env}) is not included here; Terraform appends it for GCP topics.
+// The Pub/Sub emulator auto-creates topics on first publish, so local dev works without the suffix.
+const BOT_LIFECYCLE_TOPIC = process.env.BOT_LIFECYCLE_TOPIC ?? 'bot-lifecycle';
+const EXECUTION_LIFECYCLE_TOPIC = process.env.EXECUTION_LIFECYCLE_TOPIC ?? 'execution-lifecycle';
+const TASK_LIFECYCLE_TOPIC = process.env.TASK_LIFECYCLE_TOPIC ?? 'task-lifecycle';
+const GUARDRAIL_EVENTS_TOPIC = process.env.GUARDRAIL_EVENTS_TOPIC ?? 'guardrail-events';
+const BILLING_EVENTS_TOPIC = process.env.BILLING_EVENTS_TOPIC ?? 'billing-events';
 
 /**
  * Internal helper: validate with Zod, serialize, and publish to a Pub/Sub topic.
@@ -51,7 +60,7 @@ async function publish<T>(
  * Emitted immediately after a bot container is started and registered.
  */
 export async function publishBotStarted(event: BotStartedEvent): Promise<void> {
-  await publish(BOT_EVENTS_TOPIC, botStartedEventSchema, event);
+  await publish(BOT_LIFECYCLE_TOPIC, botStartedEventSchema, event);
 }
 
 /**
@@ -59,7 +68,7 @@ export async function publishBotStarted(event: BotStartedEvent): Promise<void> {
  * Emitted when a bot container is stopped for any reason (idle_timeout, completed, etc.).
  */
 export async function publishBotStopped(event: BotStoppedEvent): Promise<void> {
-  await publish(BOT_EVENTS_TOPIC, botStoppedEventSchema, event);
+  await publish(BOT_LIFECYCLE_TOPIC, botStoppedEventSchema, event);
 }
 
 /**
@@ -69,7 +78,7 @@ export async function publishBotStopped(event: BotStoppedEvent): Promise<void> {
 export async function publishExecutionStatusChanged(
   event: ExecutionStatusChangedEvent,
 ): Promise<void> {
-  await publish(EXECUTION_EVENTS_TOPIC, executionStatusChangedEventSchema, event);
+  await publish(EXECUTION_LIFECYCLE_TOPIC, executionStatusChangedEventSchema, event);
 }
 
 /**
@@ -77,7 +86,7 @@ export async function publishExecutionStatusChanged(
  * Emitted when a bot claims a task from the BullMQ queue (job becomes 'active').
  */
 export async function publishTaskClaimed(event: TaskClaimedEvent): Promise<void> {
-  await publish(TASK_EVENTS_TOPIC, taskClaimedEventSchema, event);
+  await publish(TASK_LIFECYCLE_TOPIC, taskClaimedEventSchema, event);
 }
 
 /**
@@ -87,5 +96,30 @@ export async function publishTaskClaimed(event: TaskClaimedEvent): Promise<void>
 export async function publishTaskCompleted(
   event: TaskCompletedEvent,
 ): Promise<void> {
-  await publish(TASK_EVENTS_TOPIC, taskCompletedEventSchema, event);
+  await publish(TASK_LIFECYCLE_TOPIC, taskCompletedEventSchema, event);
+}
+
+/**
+ * Publish a billing event.
+ * Emitted by the Billing Engine (04-03) for every billing-relevant action
+ * (bot started, tool invoked, execution completed, etc.).
+ */
+export async function publishBillingEvent(event: BillingEvent): Promise<void> {
+  await publish(BILLING_EVENTS_TOPIC, billingEventSchema, event);
+}
+
+/**
+ * Publish a budget_exceeded event.
+ * Emitted when cumulative spend for an execution exceeds its budget cap.
+ */
+export async function publishBudgetExceeded(event: BudgetExceededEvent): Promise<void> {
+  await publish(BILLING_EVENTS_TOPIC, budgetExceededEventSchema, event);
+}
+
+/**
+ * Publish a guardrail_triggered event.
+ * Emitted by the Guardrail Watchdog (04-02) on every revocation or safety action.
+ */
+export async function publishGuardrailTriggered(event: GuardrailTriggeredEvent): Promise<void> {
+  await publish(GUARDRAIL_EVENTS_TOPIC, guardrailTriggeredEventSchema, event);
 }
