@@ -136,67 +136,76 @@
 
 ## Traceability
 
-Populated during roadmap creation.
+Phase 1 (Data Foundation) owns no v1 requirements directly — it delivers the infrastructure and shared contracts that all Phase 2-6 implementations depend on.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXEC-01 | — | Pending |
-| EXEC-02 | — | Pending |
-| EXEC-03 | — | Pending |
-| EXEC-04 | — | Pending |
-| EXEC-05 | — | Pending |
-| ORCH-01 | — | Pending |
-| ORCH-02 | — | Pending |
-| ORCH-03 | — | Pending |
-| ORCH-04 | — | Pending |
-| ORCH-05 | — | Pending |
-| ORCH-06 | — | Pending |
-| GATE-01 | — | Pending |
-| GATE-02 | — | Pending |
-| GATE-03 | — | Pending |
-| GATE-04 | — | Pending |
-| GATE-05 | — | Pending |
-| GATE-06 | — | Pending |
-| GATE-07 | — | Pending |
-| GATE-08 | — | Pending |
-| GARD-01 | — | Pending |
-| GARD-02 | — | Pending |
-| GARD-03 | — | Pending |
-| GARD-04 | — | Pending |
-| GARD-05 | — | Pending |
-| GARD-06 | — | Pending |
-| METR-01 | — | Pending |
-| METR-02 | — | Pending |
-| METR-03 | — | Pending |
-| METR-04 | — | Pending |
-| METR-05 | — | Pending |
-| PERF-01 | — | Pending |
-| PERF-02 | — | Pending |
-| PERF-03 | — | Pending |
-| PERF-04 | — | Pending |
-| PERF-05 | — | Pending |
-| PERF-06 | — | Pending |
-| PERF-07 | — | Pending |
-| DNA-01 | — | Pending |
-| DNA-02 | — | Pending |
-| DNA-03 | — | Pending |
-| DNA-04 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| UI-03 | — | Pending |
-| UI-04 | — | Pending |
-| UI-05 | — | Pending |
-| UI-06 | — | Pending |
-| UI-07 | — | Pending |
-| UI-08 | — | Pending |
-| UI-09 | — | Pending |
-| UI-10 | — | Pending |
+| EXEC-01 | Phase 2 | Pending |
+| EXEC-02 | Phase 2 | Pending |
+| EXEC-03 | Phase 2 | Pending |
+| EXEC-04 | Phase 2 | Pending |
+| EXEC-05 | Phase 2 | Pending |
+| ORCH-01 | Phase 2 | Pending |
+| ORCH-02 | Phase 2 | Pending |
+| ORCH-03 | Phase 2 | Pending |
+| ORCH-04 | Phase 2 | Pending |
+| ORCH-05 | Phase 2 | Pending |
+| ORCH-06 | Phase 2 | Pending |
+| GATE-01 | Phase 3 | Pending |
+| GATE-02 | Phase 3 | Pending |
+| GATE-03 | Phase 3 | Pending |
+| GATE-04 | Phase 3 | Pending |
+| GATE-05 | Phase 3 | Pending |
+| GATE-06 | Phase 3 | Pending |
+| GATE-07 | Phase 3 | Pending |
+| GATE-08 | Phase 3 | Pending |
+| GARD-01 | Phase 4 | Pending |
+| GARD-02 | Phase 4 | Pending |
+| GARD-03 | Phase 4 | Pending |
+| GARD-04 | Phase 4 | Pending |
+| GARD-05 | Phase 4 | Pending |
+| GARD-06 | Phase 4 | Pending |
+| METR-01 | Phase 4 | Pending |
+| METR-02 | Phase 4 | Pending |
+| METR-03 | Phase 4 | Pending |
+| METR-04 | Phase 6 | Pending |
+| METR-05 | Phase 6 | Pending |
+| PERF-01 | Phase 5 | Pending |
+| PERF-02 | Phase 5 | Pending |
+| PERF-03 | Phase 5 | Pending |
+| PERF-04 | Phase 5 | Pending |
+| PERF-05 | Phase 5 | Pending |
+| PERF-06 | Phase 5 | Pending |
+| PERF-07 | Phase 5 | Pending |
+| DNA-01 | Phase 5 | Pending |
+| DNA-02 | Phase 5 | Pending |
+| DNA-03 | Phase 5 | Pending |
+| DNA-04 | Phase 5 | Pending |
+| UI-01 | Phase 6 | Pending |
+| UI-02 | Phase 6 | Pending |
+| UI-03 | Phase 6 | Pending |
+| UI-04 | Phase 6 | Pending |
+| UI-05 | Phase 6 | Pending |
+| UI-06 | Phase 6 | Pending |
+| UI-07 | Phase 6 | Pending |
+| UI-08 | Phase 6 | Pending |
+| UI-09 | Phase 6 | Pending |
+| UI-10 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 49 total
-- Mapped to phases: 0
-- Unmapped: 49 ⚠️ (pending roadmap creation)
+- v1 requirements: 51 total
+- Mapped to phases: 51
+- Unmapped: 0 — all requirements covered
+
+| Phase | Requirements Owned |
+|-------|-------------------|
+| Phase 1: Data Foundation | 0 (infrastructure only — enables all others) |
+| Phase 2: Core Execution Pipeline | 11 (EXEC-01–05, ORCH-01–06) |
+| Phase 3: Bot Runtime and Tool Gateway | 8 (GATE-01–08) |
+| Phase 4: Control Plane Services | 9 (GARD-01–06, METR-01–03) |
+| Phase 5: Performance Intelligence and DNA Capture | 11 (PERF-01–07, DNA-01–04) |
+| Phase 6: UI Command Center | 12 (UI-01–10, METR-04–05) |
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap creation — all 51 v1 requirements mapped across Phases 2–6*
