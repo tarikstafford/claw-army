@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 4 — Control Plane Services (COMPLETE)
+**Current focus:** Phase 5 — Performance Intelligence and DNA Capture (IN PROGRESS)
 
 ## Current Position
 
-Phase: 4 of 6 (Control Plane Services) — COMPLETE
-Plan: 3 of 3 in current phase — COMPLETE
-Status: Phase 4 complete — Billing Engine with atomic Redis Lua budget enforcement, billing_events persistence for all 5 event types, bot-hours telemetry, tool-gateway billing event publishing, and Phase 4 E2E integration test validating all 5 success criteria
-Last activity: 2026-02-18 — Phase 4 Plan 3 complete. billing-engine.ts subscribes to billing-events and bot-lifecycle topics with separate handlers (handleBillingMessage for tool_invoked/execution_completed, handleBotLifecycleMessage for bot_started/bot_stopped). Atomic budget enforcement via Redis Lua EVAL (INCRBY + cap check). Message deduplication via Redis SETNX. Tool Gateway publishes billing events after every successful tool invocation (non-fatal). completion-checker.ts publishes execution_completed billing event. All 5 Phase 4 E2E tests pass.
+Phase: 5 of 6 (Performance Intelligence and DNA Capture) — IN PROGRESS
+Plan: 1 of 3 in current phase — COMPLETE
+Status: Phase 5 Plan 1 complete — Performance scoring pipeline with Drizzle migration (composite_score + tier columns on bots), metrics-computer.ts computing per-bot metrics from tasks/billing_events/tool_invocations/telemetry, score-engine.ts normalizing 4 component scores across all bots with idempotency guard, performance-engine.ts orchestrator, fire-and-forget hook in completion-checker.ts
+Last activity: 2026-02-18 — Phase 5 Plan 1 complete. Added composite_score numeric(5,2) and tier varchar(10) to bots table (migration 0002). metrics-computer reads from tasks (claimed_by_bot_id) not bots.tasksCompleted. score-engine normalizes success_rate/efficiency/cost_efficiency/stability scores; stores 4 telemetry rows/bot; updates bots.composite_score+tier. All weights/thresholds env-var configurable. runPerformancePipeline hooked fire-and-forget in completion-checker. TypeScript clean.
 
-Progress: [████████████████] 67%
+Progress: [█████████████████░] 72%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
-- Average duration: 6.1 min
-- Total execution time: 122 min
+- Total plans completed: 16
+- Average duration: 5.9 min
+- Total execution time: 125 min
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [████████████████] 67%
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
+| 05-performance-intelligence-and-dna-capture | 1/3 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-04 (17 min), 04-01 (2 min), 04-02 (2 min), 04-03 (7 min)
-- Trend: Phase 4 completed in 11 min total across 3 plans. Billing Engine (04-03) was 7 min including E2E test.
+- Last 5 plans: 04-01 (2 min), 04-02 (2 min), 04-03 (7 min), 05-01 (3 min)
+- Trend: Performance scoring pipeline in 3 min — schema migration + 3 new files + hook into completion-checker.
 
 *Updated after each plan completion*
 
@@ -105,6 +106,11 @@ Recent decisions affecting current work:
 - [Phase 04-control-plane-services/04-03]: bot-lifecycle-billing-sub uses different name from Guardrail Watchdog's bot-lifecycle-sub so each service maintains independent cursor/position on the same topic
 - [Phase 04-control-plane-services/04-03]: Pub/Sub emulator guard in E2E tests — check PUBSUB_EMULATOR_HOST availability before calling publish functions to avoid 60s connection timeouts
 - [Phase 04-control-plane-services/04-03]: TODO (Production) — Terraform needs to add bot-lifecycle-billing-sub subscription to bot-lifecycle topic; emulator auto-creates it locally
+- [Phase 05-performance-intelligence-and-dna-capture/05-01]: Task counts read from tasks table (claimed_by_bot_id) NOT from bots.tasksCompleted/tasksFailed — these counter columns are always 0 (not maintained by current bot runtime code)
+- [Phase 05-performance-intelligence-and-dna-capture/05-01]: Score weights (40/30/20/10) and tier thresholds (75/40) are env-var configurable — SCORE_WEIGHT_SUCCESS, SCORE_WEIGHT_EFFICIENCY, SCORE_WEIGHT_COST, SCORE_WEIGHT_STABILITY, TIER_HIGH_THRESHOLD, TIER_MEDIUM_THRESHOLD
+- [Phase 05-performance-intelligence-and-dna-capture/05-01]: Cross-bot min/max normalization with guard: if max===min, return 100 (all bots equal = give full credit, prevents NaN)
+- [Phase 05-performance-intelligence-and-dna-capture/05-01]: Bots with 0 completed tasks get cost_efficiency_score=0 — no useful work done at any cost
+- [Phase 05-performance-intelligence-and-dna-capture/05-01]: Weights normalized to sum to 1 before composite calculation so non-100-summing env overrides work correctly
 
 ### Pending Todos
 
@@ -121,5 +127,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 04-03-PLAN.md — Billing Engine (billing-engine.ts) with atomic Redis Lua INCRBY budget enforcement, dual subscriptions (billing-events-sub and bot-lifecycle-billing-sub with separate handlers), billing_events persistence for all 5 event types, bot-hours telemetry, tool-gateway billing event publishing, Phase 4 E2E test (5/5 passing). Phase 4 complete. 2 tasks, 2 commits. Ready for Phase 5.
+Stopped at: Completed 05-01-PLAN.md — Performance scoring pipeline: migration 0002 adding composite_score + tier to bots, metrics-computer.ts (computeBotMetrics from raw tables), score-engine.ts (computeScoresForExecution with cross-bot normalization, idempotency guard, 4 telemetry rows/bot, bots table update), performance-engine.ts orchestrator, fire-and-forget hook in completion-checker.ts. 1 task, 1 commit (35b16eb). TypeScript clean. Ready for 05-02.
 Resume file: None
