@@ -24,4 +24,6 @@ COPY services/stub-bot/ services/stub-bot/
 
 WORKDIR /app/services/stub-bot
 
+ENV NODE_OPTIONS="--conditions @claw/source"
+
 CMD ["npx", "tsx", "src/main.ts"]
