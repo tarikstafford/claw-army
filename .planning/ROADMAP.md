@@ -13,7 +13,7 @@ Claw Bot Army ships in six sequential phases, each completing a coherent system 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Foundation** - Schema, shared contracts, GCP infrastructure, and bot network isolation topology ready for all subsequent phases
-- [ ] **Phase 2: Core Execution Pipeline** - Objective intake, task decomposition, bot spawning, and lease-based task claiming working end-to-end with stub bots
+- [x] **Phase 2: Core Execution Pipeline** - Objective intake, task decomposition, bot spawning, and lease-based task claiming working end-to-end with stub bots
 - [ ] **Phase 3: Bot Runtime and Tool Gateway** - Real bot reasoning loop running through a security-enforcing Tool Gateway with network isolation finalized
 - [ ] **Phase 4: Control Plane Services** - Event bus, guardrail watchdog, and billing engine operational with atomic budget enforcement
 - [ ] **Phase 5: Performance Intelligence and DNA Capture** - Post-run composite bot scoring, leaderboard tiers, and elite-bot DNA extraction operational
@@ -179,7 +179,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 4/4 | Complete (GCP deferred) | 2026-02-18 |
-| 2. Core Execution Pipeline | 0/4 | Planned | - |
+| 2. Core Execution Pipeline | 4/4 | Complete | 2026-02-18 |
 | 3. Bot Runtime and Tool Gateway | 0/4 | Not started | - |
 | 4. Control Plane Services | 0/3 | Not started | - |
 | 5. Performance Intelligence and DNA Capture | 0/3 | Not started | - |
