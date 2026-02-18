@@ -7,14 +7,15 @@ import {
 } from '../services/execution.service';
 import { planObjective } from '../services/planner.service';
 import { addTaskToQueue } from '../queue/task-queue';
-import { db, tasks, bots } from '@claw/db';
-import { eq } from 'drizzle-orm';
+import { db, tasks, bots, telemetry } from '@claw/db';
+import { eq, and, sql } from 'drizzle-orm';
 import {
   spawnBotsForExecution,
   startIdleChecker,
   startQueueEventListener,
 } from '../orchestrator/bot-orchestrator';
 import { startCompletionPoller } from '../orchestrator/completion-checker';
+import { buildExecutionReport } from '../performance/report-builder';
 
 export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // POST /executions — create a new execution
@@ -253,5 +254,109 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       .where(eq(bots.executionId, id));
 
     return reply.code(200).send(botList);
+  });
+
+  // GET /executions/:id/report — execution summary report (PERF-06)
+  fastify.get('/:id/report', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Object({
+          executionId: Type.String({ format: 'uuid' }),
+          totalBots: Type.Integer(),
+          totalBotHours: Type.Number(),
+          totalCostCents: Type.Integer(),
+          averageBotScore: Type.Number(),
+          topPerformingBotId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
+          errorDistribution: Type.Record(Type.String(), Type.Integer()),
+          costPerTaskCents: Type.Integer(),
+          totalTasks: Type.Integer(),
+          completedTasks: Type.Integer(),
+          failedTasks: Type.Integer(),
+        }),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+    const execution = await getExecution(id);
+    if (!execution) {
+      return reply.code(404).send({ error: 'Execution not found' });
+    }
+    const report = await buildExecutionReport(id);
+    return reply.code(200).send(report);
+  });
+
+  // GET /executions/:id/leaderboard — bot leaderboard sorted by score (PERF-07)
+  fastify.get('/:id/leaderboard', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Array(
+          Type.Object({
+            botId: Type.String({ format: 'uuid' }),
+            compositeScore: Type.Union([Type.Number(), Type.Null()]),
+            tier: Type.Union([Type.String(), Type.Null()]),
+            tasksCompleted: Type.Integer(),
+            tasksFailed: Type.Integer(),
+            botHours: Type.Union([Type.Number(), Type.Null()]),
+          }),
+        ),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+    const execution = await getExecution(id);
+    if (!execution) {
+      return reply.code(404).send({ error: 'Execution not found' });
+    }
+
+    // Get bots sorted by composite_score descending
+    const botRows = await db
+      .select({
+        botId: bots.id,
+        compositeScore: bots.compositeScore,
+        tier: bots.tier,
+      })
+      .from(bots)
+      .where(eq(bots.executionId, id))
+      .orderBy(sql`${bots.compositeScore} DESC NULLS LAST`);
+
+    // For each bot, get task counts and bot-hours
+    // N+1 is acceptable for MVP where executions have at most 20 bots (maxBots cap)
+    const leaderboard = await Promise.all(
+      botRows.map(async (bot) => {
+        const [completedRow] = await db
+          .select({ count: sql<number>`cast(count(*) as int)` })
+          .from(tasks)
+          .where(and(eq(tasks.executionId, id), eq(tasks.claimedByBotId, bot.botId), eq(tasks.status, 'completed')));
+
+        const [failedRow] = await db
+          .select({ count: sql<number>`cast(count(*) as int)` })
+          .from(tasks)
+          .where(and(eq(tasks.executionId, id), eq(tasks.claimedByBotId, bot.botId), eq(tasks.status, 'failed')));
+
+        const [hoursRow] = await db
+          .select({ value: telemetry.metricValue })
+          .from(telemetry)
+          .where(and(eq(telemetry.botId, bot.botId), eq(telemetry.metricName, 'bot_hours')));
+
+        return {
+          botId: bot.botId,
+          compositeScore: bot.compositeScore ? Number(bot.compositeScore) : null,
+          tier: bot.tier,
+          tasksCompleted: completedRow?.count ?? 0,
+          tasksFailed: failedRow?.count ?? 0,
+          botHours: hoursRow?.value ? Number(hoursRow.value) : null,
+        };
+      }),
+    );
+
+    return reply.code(200).send(leaderboard);
   });
 };
