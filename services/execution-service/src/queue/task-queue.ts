@@ -1,5 +1,4 @@
 import { Queue, Worker, type Job } from 'bullmq';
-import type { RedisOptions } from 'ioredis';
 
 // Queue name used by both producer and worker — must match on both sides.
 export const TASK_QUEUE_NAME = 'claw-tasks';
@@ -18,42 +17,17 @@ export const MAX_STALLED_COUNT = 2;
 const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
 /**
- * Producer-side Redis connection options.
- * Passed as a plain options object so BullMQ creates its own IORedis connection internally.
- * This avoids the dual-version IORedis type conflict that arises when passing a pre-constructed
- * IORedis instance (bullmq@5 bundles ioredis@5.9.2; this service has ioredis@5.9.3).
- * Default maxRetriesPerRequest for fast-fail on queue add operations.
+ * Parse a Redis URL string into a plain connection options object.
+ * BullMQ accepts { host, port } as RedisOptions (from bullmq's own types) without
+ * requiring a pre-constructed IORedis instance, avoiding the dual-version type conflict
+ * (bullmq@5 bundles ioredis@5.9.2; this service has ioredis@5.9.3).
  */
-export const queueConnection: RedisOptions = {
-  ...(parseRedisUrl(REDIS_URL)),
-};
-
-/**
- * Worker-side Redis connection options.
- * CRITICAL: maxRetriesPerRequest must be null for workers.
- * Workers use blocking commands (BRPOPLPUSH) that take seconds to respond.
- * With the default maxRetriesPerRequest (3), ioredis will error out after reconnection
- * because the command hasn't completed in <3 attempts — the worker silently stops processing.
- * null = infinite retries, which is required for long-running blocking commands.
- */
-export const workerConnection: RedisOptions = {
-  ...(parseRedisUrl(REDIS_URL)),
-  maxRetriesPerRequest: null,
-};
-
-/**
- * Parse a Redis URL string into ioredis RedisOptions object.
- * Handles redis:// and rediss:// schemes.
- * BullMQ's own ConnectionOptions accepts a url field, but to keep queueConnection
- * and workerConnection as plain RedisOptions (not wrapped), we parse it here.
- */
-function parseRedisUrl(url: string): RedisOptions {
+function parseRedisUrl(url: string): { host: string; port: number; password?: string; db?: number } {
   try {
     const parsed = new URL(url);
-    const opts: RedisOptions = {
+    const opts: { host: string; port: number; password?: string; db?: number } = {
       host: parsed.hostname || 'localhost',
       port: parsed.port ? parseInt(parsed.port, 10) : 6379,
-      tls: parsed.protocol === 'rediss:' ? {} : undefined,
     };
     if (parsed.password) {
       opts.password = parsed.password;
@@ -72,6 +46,26 @@ function parseRedisUrl(url: string): RedisOptions {
 }
 
 /**
+ * Producer-side Redis connection options.
+ * Passed as a plain options object so BullMQ creates its own IORedis connection internally.
+ * Default maxRetriesPerRequest for fast-fail on queue add operations.
+ */
+export const queueConnection = parseRedisUrl(REDIS_URL);
+
+/**
+ * Worker-side Redis connection options.
+ * CRITICAL: maxRetriesPerRequest must be null for workers.
+ * Workers use blocking commands (BRPOPLPUSH) that take seconds to respond.
+ * With the default maxRetriesPerRequest (3), ioredis will error out after reconnection
+ * because the command hasn't completed in <3 attempts — the worker silently stops processing.
+ * null = infinite retries, which is required for long-running blocking commands.
+ */
+export const workerConnection = {
+  ...parseRedisUrl(REDIS_URL),
+  maxRetriesPerRequest: null as null,
+};
+
+/**
  * Data carried by each task job in the queue.
  * taskId and executionId are UUIDs from Postgres.
  * description is the human-readable subtask text from the planner.
@@ -84,15 +78,14 @@ export interface TaskJobData {
 
 /**
  * Producer-side task queue.
- * Used by the POST /executions handler to enqueue planned tasks.
- * Uses queueConnection options (not workerConnection) — producers do not need blocking command support.
+ * Explicitly typed with string NameType to avoid BullMQ 5.x type inference issues.
  *
  * Dual-write strategy (per RESEARCH.md Open Question 2):
  * Write to Postgres first (create task row), then add to BullMQ queue.
  * If BullMQ fails, the task stays 'pending' in Postgres — a reconciler can re-enqueue later.
  * This avoids orphan queue jobs with no corresponding DB record.
  */
-export const taskQueue = new Queue<TaskJobData>(TASK_QUEUE_NAME, {
+export const taskQueue = new Queue<TaskJobData, string, string>(TASK_QUEUE_NAME, {
   connection: queueConnection,
 });
 
@@ -100,8 +93,6 @@ export const taskQueue = new Queue<TaskJobData>(TASK_QUEUE_NAME, {
  * Factory function that creates a BullMQ Worker bound to the task queue.
  *
  * @param processor - Async function that receives a job and returns a result string.
- *   Called by BullMQ for each dequeued job. Must resolve before lockDuration expires,
- *   or implement heartbeat renewal (job.extendLock) for long-running tasks.
  *
  * Configuration:
  * - lockDuration: 30s — bot must complete or renew lock within this window
