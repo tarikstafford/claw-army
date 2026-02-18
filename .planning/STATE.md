@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 6 — (Next Phase)
+**Current focus:** Phase 6 — UI Command Center
 
 ## Current Position
 
-Phase: 5 of 6 (Performance Intelligence and DNA Capture) — COMPLETE
-Plan: 3 of 3 in current phase — COMPLETE
-Status: Phase 5 Plan 3 complete — Elite bot DNA capture module (dna-capture.ts with identifyAndCaptureDna()), versioned INSERT storage in dna_store, PII-safe DNA extraction (tool sequences, arg key shapes only), performance-engine.ts updated to call DNA capture after scoring, and phase5-e2e.test.ts with all 5 success criteria passing.
-Last activity: 2026-02-18 — Phase 5 Plan 3 complete. Created dna-capture.ts with 3-condition elite bot identification (DNA_ELITE_THRESHOLD, DNA_ABOVE_AVERAGE_PCT, DNA_ERROR_RATE_CEILING), PII-safe DnaPayload builder (keys only from requestSummary, tool names from invocations, timing profile, token distribution, retry strategy), MAX(version)+1 INSERT-only versioning. Updated performance-engine.ts pipeline. Created phase5-e2e.test.ts (5/5 tests pass). TypeScript clean.
+Phase: 6 of 6 (UI Command Center) — IN PROGRESS
+Plan: 1 of 5 in current phase — COMPLETE
+Status: Phase 6 Plan 1 complete — Five new Fastify route modules (SSE bridge, live metrics, bot detail, billing history/summary) with @fastify/cors and @fastify/sse plugins. All backend endpoints the SvelteKit UI needs are now live and TypeScript-clean.
+Last activity: 2026-02-19 — Phase 6 Plan 1 complete. Created routes/sse.ts (per-connection Pub/Sub subscriptions on 4 topics, executionId filter, dual cleanup guard), routes/metrics.ts (active bots + telemetry bot-hours + Redis budget keys), routes/bots.ts (computeBotMetrics() + tool_invocations step trace), routes/billing.ts (history with correlated subselects + monthly summary). buildApp() async, CORS before routes, SSE plugin. TypeScript clean. 3 tasks, 3 commits (d100646, 077cb0f, 1bddaa2).
 
-Progress: [████████████████████] 83%
+Progress: [█████████████████████] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 5.6 min
-- Total execution time: 130 min
+- Total plans completed: 19
+- Average duration: 5.4 min
+- Total execution time: 133 min
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Progress: [████████████████████] 83%
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
+| 06-ui-command-center | 1/5 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-03 (7 min), 05-01 (3 min), 05-02 (1 min), 05-03 (4 min)
-- Trend: DNA capture + E2E test in 4 min — no new deps, pure DB query logic and test scaffolding.
+- Last 5 plans: 05-01 (3 min), 05-02 (1 min), 05-03 (4 min), 06-01 (3 min)
+- Trend: Backend endpoint wiring in 3 min — new deps (cors/sse), 4 new route modules + app.ts update.
 
 *Updated after each plan completion*
 
@@ -116,6 +117,12 @@ Recent decisions affecting current work:
 - [Phase 05-performance-intelligence-and-dna-capture/05-03]: Elite condition 2 uses strict > (not >=): compositeScore > executionAvgScore * (1 + DNA_ABOVE_AVERAGE_PCT/100)
 - [Phase 05-performance-intelligence-and-dna-capture/05-03]: SC#5 E2E test calls identifyAndCaptureDna directly (not runPerformancePipeline) — score-engine idempotency guard would skip re-scoring but DNA capture is version-incremented
 - [Phase 05-performance-intelligence-and-dna-capture/05-03]: argumentPatterns extraction enforces PII isolation at code level: only Object.keys(requestSummary), never values
+- [Phase 06-ui-command-center/06-01]: buildApp() converted to async — required to await app.register() for @fastify/cors and @fastify/sse; main.ts updated to await buildApp()
+- [Phase 06-ui-command-center/06-01]: Per-connection Pub/Sub subscription strategy (Option A): 4 subscriptions per SSE connection on execution/task/bot/guardrail topics; simpler than EventEmitter fan-out for MVP
+- [Phase 06-ui-command-center/06-01]: Dual disconnect cleanup in SSE route: reply.sse.onClose() + request.raw.on('close') with cleanedUp boolean guard for abnormal TCP disconnects
+- [Phase 06-ui-command-center/06-01]: subscription.delete() wrapped in .catch(() => {}) for Pub/Sub emulator compatibility — non-fatal in local dev, required for GCP quota hygiene
+- [Phase 06-ui-command-center/06-01]: Redis-authoritative live budget: metrics.ts reads budget:spend:{id} and budget:cap:{id} from Redis; DB billing_events is audit trail not live counter
+- [Phase 06-ui-command-center/06-01]: Correlated subselects in billing.ts: single SELECT with sql template subqueries across billing_events/telemetry/tasks — avoids N+1 for history endpoint
 
 ### Pending Todos
 
@@ -131,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Completed 05-03-PLAN.md — DNA capture module (dna-capture.ts exporting identifyAndCaptureDna(), elite bot identification via 3 conditions, PII-safe DnaPayload extraction, MAX(version)+1 INSERT versioning), performance-engine.ts updated, phase5-e2e.test.ts with 5/5 tests passing. 2 tasks, 2 commits (9dbefdc, d3ce32a). TypeScript clean. Phase 5 complete — ready for Phase 6.
+Last session: 2026-02-19
+Stopped at: Completed 06-01-PLAN.md — SSE bridge route (sse.ts, per-connection Pub/Sub subscriptions on 4 topics with executionId filter and dual cleanup guard), live metrics route (metrics.ts, active bots + telemetry bot-hours + Redis budget keys), bot detail route (bots.ts, computeBotMetrics() + tool_invocations step trace), billing routes (billing.ts, history and monthly summary with correlated subselects). buildApp() converted to async, CORS+SSE plugins registered, 4 new route mounts. 3 tasks, 3 commits (d100646, 077cb0f, 1bddaa2). TypeScript clean. Phase 6 Plan 1 of 5 complete.
 Resume file: None
