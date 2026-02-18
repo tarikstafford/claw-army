@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 5 of 6 (Performance Intelligence and DNA Capture) — IN PROGRESS
-Plan: 1 of 3 in current phase — COMPLETE
-Status: Phase 5 Plan 1 complete — Performance scoring pipeline with Drizzle migration (composite_score + tier columns on bots), metrics-computer.ts computing per-bot metrics from tasks/billing_events/tool_invocations/telemetry, score-engine.ts normalizing 4 component scores across all bots with idempotency guard, performance-engine.ts orchestrator, fire-and-forget hook in completion-checker.ts
-Last activity: 2026-02-18 — Phase 5 Plan 1 complete. Added composite_score numeric(5,2) and tier varchar(10) to bots table (migration 0002). metrics-computer reads from tasks (claimed_by_bot_id) not bots.tasksCompleted. score-engine normalizes success_rate/efficiency/cost_efficiency/stability scores; stores 4 telemetry rows/bot; updates bots.composite_score+tier. All weights/thresholds env-var configurable. runPerformancePipeline hooked fire-and-forget in completion-checker. TypeScript clean.
+Plan: 2 of 3 in current phase — COMPLETE
+Status: Phase 5 Plan 2 complete — Execution report builder (report-builder.ts with buildExecutionReport() aggregating 11 metrics) and two new REST endpoints: GET /executions/:id/report (PERF-06) and GET /executions/:id/leaderboard (PERF-07) with TypeBox schemas, 404 guards, and leaderboard sorted by composite_score DESC NULLS LAST
+Last activity: 2026-02-18 — Phase 5 Plan 2 complete. Created report-builder.ts exporting ExecutionReport interface and buildExecutionReport(). Added /report route querying bots, telemetry, billing_events, tasks, tool_invocations. Added /leaderboard route with N+1 per-bot enrichment (acceptable for maxBots=20 cap). TypeScript clean.
 
-Progress: [█████████████████░] 72%
+Progress: [██████████████████░] 78%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
-- Average duration: 5.9 min
-- Total execution time: 125 min
+- Total plans completed: 17
+- Average duration: 5.6 min
+- Total execution time: 126 min
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [█████████████████░] 72%
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
-| 05-performance-intelligence-and-dna-capture | 1/3 | 3 min | 3 min |
+| 05-performance-intelligence-and-dna-capture | 2/3 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (2 min), 04-02 (2 min), 04-03 (7 min), 05-01 (3 min)
-- Trend: Performance scoring pipeline in 3 min — schema migration + 3 new files + hook into completion-checker.
+- Last 5 plans: 04-02 (2 min), 04-03 (7 min), 05-01 (3 min), 05-02 (1 min)
+- Trend: Report builder + 2 endpoints in 1 min — no new deps, pure aggregation queries + route additions.
 
 *Updated after each plan completion*
 
@@ -111,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase 05-performance-intelligence-and-dna-capture/05-01]: Cross-bot min/max normalization with guard: if max===min, return 100 (all bots equal = give full credit, prevents NaN)
 - [Phase 05-performance-intelligence-and-dna-capture/05-01]: Bots with 0 completed tasks get cost_efficiency_score=0 — no useful work done at any cost
 - [Phase 05-performance-intelligence-and-dna-capture/05-01]: Weights normalized to sum to 1 before composite calculation so non-100-summing env overrides work correctly
+- [Phase 05-performance-intelligence-and-dna-capture/05-02]: N+1 leaderboard enrichment is acceptable for MVP (maxBots cap is 20); production optimization deferred — use single JOIN/subquery when bot counts grow
+- [Phase 05-performance-intelligence-and-dna-capture/05-02]: sql template literal used for ORDER BY composite_score DESC NULLS LAST — Drizzle's orderBy(desc(...)) does not support NULLS LAST natively
 
 ### Pending Todos
 
@@ -127,5 +129,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 05-01-PLAN.md — Performance scoring pipeline: migration 0002 adding composite_score + tier to bots, metrics-computer.ts (computeBotMetrics from raw tables), score-engine.ts (computeScoresForExecution with cross-bot normalization, idempotency guard, 4 telemetry rows/bot, bots table update), performance-engine.ts orchestrator, fire-and-forget hook in completion-checker.ts. 1 task, 1 commit (35b16eb). TypeScript clean. Ready for 05-02.
+Stopped at: Completed 05-02-PLAN.md — Execution report builder and analytics endpoints: report-builder.ts (buildExecutionReport() aggregating 11 metrics from bots/tasks/billing_events/telemetry/tool_invocations), GET /executions/:id/report (PERF-06, TypeBox schema, 404 guard), GET /executions/:id/leaderboard (PERF-07, composite_score DESC NULLS LAST, N+1 enrichment). 1 task, 1 commit (84592c4). TypeScript clean. Ready for 05-03.
 Resume file: None
