@@ -1,6 +1,6 @@
 FROM alpine:3.20
-RUN apk add --no-cache netcat-openbsd curl wget
-# Simple HTTP listener on port 8080 that echoes back request info
-# This simulates the Tool Gateway endpoint
+RUN apk add --no-cache netcat-openbsd curl wget python3
+# Simple HTTP server on port 8080 that returns "Gateway OK"
+# Python's http.server handles concurrent requests without the nc reconnect gap
 EXPOSE 8080
-CMD ["sh", "-c", "while true; do echo -e 'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nGateway OK' | nc -l -p 8080; done"]
+CMD ["python3", "-c", "import http.server, socketserver; handler = type('H', (http.server.BaseHTTPRequestHandler,), {'do_GET': lambda s: (s.send_response(200), s.send_header('Content-Type','text/plain'), s.end_headers(), s.wfile.write(b'Gateway OK')), 'log_message': lambda s, *a: None}); socketserver.TCPServer(('', 8080), handler).serve_forever()"]
