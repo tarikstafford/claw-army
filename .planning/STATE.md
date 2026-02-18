@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 4 of 6 (Control Plane Services) — IN PROGRESS
-Plan: 1 of 4 in current phase — COMPLETE
-Status: Phase 4 Plan 1 complete — Pub/Sub topic name alignment, billing/guardrail publish functions, and Redis budget cap initialization ready
-Last activity: 2026-02-18 — Phase 4 Plan 1 complete. publisher.ts updated with 8 publish functions using 5 Terraform-aligned env-configurable topic names. publishBillingEvent, publishBudgetExceeded, publishGuardrailTriggered added. execution.service.ts initializes budget:cap and budget:spend Redis keys on execution creation (non-fatal try/catch, TTL = runtimeLimitSeconds + 24h).
+Plan: 2 of 4 in current phase — COMPLETE
+Status: Phase 4 Plan 2 complete — Guardrail Watchdog with rate/loop detection, Redis deny-list enforcement in Tool Gateway, and guardrail_triggered events on idle timeout
+Last activity: 2026-02-18 — Phase 4 Plan 2 complete. guardrail-watchdog.ts polls every 10s for rate violations (>= 60 calls or >= 100k tokens/60s via Postgres) and loop behavior (N identical consecutive invocations). Revoked bots get Redis deny-list key (SETEX with TTL). Tool Gateway /tool.invoke checks deny-list as gate 0 before all other enforcement. Idle timeout now emits guardrail_triggered event. Watchdog starts in main.ts with SIGTERM/SIGINT cleanup.
 
-Progress: [█████████████] 54%
+Progress: [██████████████] 57%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 14
 - Average duration: 6.3 min
 - Total execution time: 115 min
 
@@ -30,11 +30,11 @@ Progress: [█████████████] 54%
 | 01-data-foundation | 4/4 | 31 min | 8 min |
 | 02-core-execution-pipeline | 4/4 | 29 min | 7.3 min |
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
-| 04-control-plane-services | 1/4 | 2 min | 2 min |
+| 04-control-plane-services | 2/4 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (4 min), 03-03 (7 min), 03-04 (17 min), 04-01 (2 min)
-- Trend: Phase 4 started. Plan 04-01 was minimal config/plumbing — 2 min. No blocking issues.
+- Last 5 plans: 03-03 (7 min), 03-04 (17 min), 04-01 (2 min), 04-02 (2 min)
+- Trend: Phase 4 Plans 1 and 2 both completed in 2 min each. Guardrail Watchdog implementation was well-specified; no blocking issues.
 
 *Updated after each plan completion*
 
@@ -97,6 +97,10 @@ Recent decisions affecting current work:
 - [Phase 04-control-plane-services/04-01]: IORedis singleton in execution.service.ts uses enableOfflineQueue: true (default) — write-path should queue on slow Redis, not fail fast (contrast: rate-limiter uses enableOfflineQueue:false for fail-fast)
 - [Phase 04-control-plane-services/04-01]: Budget key initialization is non-fatal (try/catch, log only) — billing engine handles missing keys gracefully (no cap = allow all spending per GARD-01 Lua script design)
 - [Phase 04-control-plane-services/04-01]: budget:spend initialized explicitly to 0 — ensures monitoring key exists before any spend occurs; INCRBY would create on non-existent key but explicit SET is clearer
+- [Phase 04-control-plane-services/04-02]: Rate violation detection uses Postgres tool_invocations COUNT/SUM queries (not rate-limiter-flexible internal Redis keys) — internal key format is implementation detail that could change across versions
+- [Phase 04-control-plane-services/04-02]: Deny-list uses per-key SETEX guardrail:denied:{botId} (not SADD to a set) for automatic TTL expiration without manual cleanup
+- [Phase 04-control-plane-services/04-02]: Guardrail Watchdog starts globally in main.ts (not per-execution like idle checker) — rate/loop violations are per-bot concerns; one watchdog covers all active bots
+- [Phase 04-control-plane-services/04-02]: Idle timeout guardrail_triggered action is 'terminated' (not 'revoked') — idle bots are stopped cleanly, not deny-listed; they won't make future requests
 
 ### Pending Todos
 
@@ -112,5 +116,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 04-01-PLAN.md — Pub/Sub topic name alignment (5 Terraform-aligned env-configurable topic constants), 3 new publish functions (publishBillingEvent, publishBudgetExceeded, publishGuardrailTriggered), and Redis budget cap initialization on execution creation. 2 tasks, 2 commits. Ready for 04-02 (Guardrail Watchdog).
+Stopped at: Completed 04-02-PLAN.md — Guardrail Watchdog (guardrail-watchdog.ts) with rate violation detection (Postgres queries), loop detection (N identical consecutive invocations), Redis deny-list revocation, and guardrail_triggered Pub/Sub events. Tool Gateway deny-list gate 0 in /tool.invoke. Idle timeout also emits guardrail_triggered. 2 tasks, 2 commits. Ready for 04-03 (Billing Engine).
 Resume file: None
