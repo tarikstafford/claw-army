@@ -1,0 +1,25 @@
+{
+  "name": "@claw/stub-bot",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "NODE_OPTIONS=\"--conditions @claw/source\" tsx src/main.ts"
+  },
+  "dependencies": {
+    "bullmq": "^5.69.3",
+    "ioredis": "^5.9.3",
+    "@claw/db": "workspace:*",
+    "@claw/event-schemas": "workspace:*",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.18.0",
+    "dotenv": "^16.4.0",
+    "@google-cloud/pubsub": "^5.2.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "tsx": "^4.19.0"
+  }
+}
