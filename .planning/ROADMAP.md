@@ -134,12 +134,12 @@ Plans:
   4. Elite bot candidates — composite score above the configured threshold AND above the execution average by the configured percentage AND below the error rate ceiling — are identified automatically, and their DNA (system prompt template, tool call sequence, argument patterns, retry strategy, timing profile, token distribution) is extracted and stored as a versioned JSONB record tagged with objective_category.
   5. DNA records contain no raw LLM outputs and no customer data — only structural intent patterns — and each capture creates a new versioned record rather than overwriting the prior version.
 
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 05-01: Performance Engine — post-run metric computation (efficiency, reliability, cost efficiency), composite score formula with component breakdown, tier assignment, leaderboard data model
-- [ ] 05-02: Execution Report — summary aggregation (total cost, bot-hours, task count, avg score, top bot, error distribution, cost per task)
-- [ ] 05-03: DNA Capture Engine — elite bot identification, structural pattern extraction, PII stripping, versioned JSONB storage with objective_category tagging
+- [ ] 05-01-PLAN.md — Schema migration (composite_score, tier on bots), metrics-computer, score-engine, performance-engine orchestrator, completion-checker fire-and-forget hook (Wave 1)
+- [ ] 05-02-PLAN.md — Report builder, GET /executions/:id/report, GET /executions/:id/leaderboard routes (Wave 2)
+- [ ] 05-03-PLAN.md — DNA capture: elite bot identification, PII-safe structural pattern extraction, versioned JSONB storage, Phase 5 E2E integration test (Wave 3)
 
 ---
 
