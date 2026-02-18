@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 6 of 6 (UI Command Center) — IN PROGRESS
-Plan: 1 of 5 in current phase — COMPLETE
-Status: Phase 6 Plan 1 complete — Five new Fastify route modules (SSE bridge, live metrics, bot detail, billing history/summary) with @fastify/cors and @fastify/sse plugins. All backend endpoints the SvelteKit UI needs are now live and TypeScript-clean.
-Last activity: 2026-02-19 — Phase 6 Plan 1 complete. Created routes/sse.ts (per-connection Pub/Sub subscriptions on 4 topics, executionId filter, dual cleanup guard), routes/metrics.ts (active bots + telemetry bot-hours + Redis budget keys), routes/bots.ts (computeBotMetrics() + tool_invocations step trace), routes/billing.ts (history with correlated subselects + monthly summary). buildApp() async, CORS before routes, SSE plugin. TypeScript clean. 3 tasks, 3 commits (d100646, 077cb0f, 1bddaa2).
+Plan: 2 of 5 in current phase — COMPLETE
+Status: Phase 6 Plan 2 complete — SvelteKit SPA scaffolded with adapter-static (ssr=false), app shell nav bar, typed API client (8 endpoints), SSE helper (EventSource with 8 event types and cleanup), and New Execution form with Deploy Crew submission.
+Last activity: 2026-02-19 — Phase 6 Plan 2 complete. Created services/ui/ SvelteKit SPA (svelte.config.js, vite.config.ts, tsconfig.json, app shell), src/lib/types.ts (9 interfaces), src/lib/api.ts (8 typed fetch wrappers), src/lib/sse.ts (connectSSE with cleanup), src/routes/new-execution/+page.svelte (UI-01/UI-02 form). TypeScript clean. 3 tasks, 3 commits (1c540ed, d4500ad, 436a6e6).
 
 Progress: [█████████████████████] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
-- Average duration: 5.4 min
-- Total execution time: 133 min
+- Total plans completed: 20
+- Average duration: 5.3 min
+- Total execution time: 136 min
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [█████████████████████] 86%
 | 03-bot-runtime-and-tool-gateway | 4/4 | 53 min | 13 min |
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
-| 06-ui-command-center | 1/5 | 3 min | 3 min |
+| 06-ui-command-center | 2/5 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (3 min), 05-02 (1 min), 05-03 (4 min), 06-01 (3 min)
-- Trend: Backend endpoint wiring in 3 min — new deps (cors/sse), 4 new route modules + app.ts update.
+- Last 5 plans: 05-02 (1 min), 05-03 (4 min), 06-01 (3 min), 06-02 (3 min)
+- Trend: Consistent 3 min per plan — SvelteKit scaffold + API/SSE modules + New Execution form all in 3 min.
 
 *Updated after each plan completion*
 
@@ -123,6 +123,9 @@ Recent decisions affecting current work:
 - [Phase 06-ui-command-center/06-01]: subscription.delete() wrapped in .catch(() => {}) for Pub/Sub emulator compatibility — non-fatal in local dev, required for GCP quota hygiene
 - [Phase 06-ui-command-center/06-01]: Redis-authoritative live budget: metrics.ts reads budget:spend:{id} and budget:cap:{id} from Redis; DB billing_events is audit trail not live counter
 - [Phase 06-ui-command-center/06-01]: Correlated subselects in billing.ts: single SELECT with sql template subqueries across billing_events/telemetry/tasks — avoids N+1 for history endpoint
+- [Phase 06-ui-command-center/06-02]: UI self-contained types: types.ts defines its own interfaces instead of importing from @claw/shared-types — avoids workspace resolution complexity in Vite/SvelteKit build
+- [Phase 06-ui-command-center/06-02]: Svelte 5 event handlers: onchange/onsubmit attributes instead of deprecated on:change/on:submit directives — consistent with Svelte 5 runes mode
+- [Phase 06-ui-command-center/06-02]: SPA mode via +layout.js ssr=false + adapter-static 200.html fallback — handles client-side routing without per-route SSR opt-out
 
 ### Pending Todos
 
@@ -139,5 +142,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 06-01-PLAN.md — SSE bridge route (sse.ts, per-connection Pub/Sub subscriptions on 4 topics with executionId filter and dual cleanup guard), live metrics route (metrics.ts, active bots + telemetry bot-hours + Redis budget keys), bot detail route (bots.ts, computeBotMetrics() + tool_invocations step trace), billing routes (billing.ts, history and monthly summary with correlated subselects). buildApp() converted to async, CORS+SSE plugins registered, 4 new route mounts. 3 tasks, 3 commits (d100646, 077cb0f, 1bddaa2). TypeScript clean. Phase 6 Plan 1 of 5 complete.
+Stopped at: Completed 06-02-PLAN.md — SvelteKit SPA scaffold (adapter-static, ssr=false), app shell nav bar (New Execution + Billing), src/lib/types.ts (9 interfaces), src/lib/api.ts (8 typed fetch wrappers via VITE_API_URL), src/lib/sse.ts (connectSSE with 8 event types + cleanup), src/routes/new-execution/+page.svelte (UI-01/UI-02 form: objective/maxBots/budgetCap/allowedTools + Deploy Crew). 3 tasks, 3 commits (1c540ed, d4500ad, 436a6e6). TypeScript clean. Phase 6 Plan 2 of 5 complete.
 Resume file: None
