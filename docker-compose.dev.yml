@@ -31,5 +31,50 @@ services:
     ports:
       - "8085:8085"
 
+  tool-gateway:
+    build:
+      context: .
+      dockerfile: services/tool-gateway/Dockerfile
+    container_name: tool-gateway
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      # BOT_JWT_SECRET: must be set in production. Falls back to dev secret (insecure) if unset.
+      - BOT_JWT_SECRET=${BOT_JWT_SECRET:-claw-dev-secret-do-not-use-in-prod}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/clawdb
+      - REDIS_URL=redis://redis:6379
+      - ARTIFACT_ROOT=/artifacts
+      # FETCH_URL_DOMAIN_ALLOWLIST: comma-separated list of allowed domains for fetch_url.
+      # Leave empty to allow all domains (development only).
+      - FETCH_URL_DOMAIN_ALLOWLIST=${FETCH_URL_DOMAIN_ALLOWLIST:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - claw-artifacts:/artifacts
+    networks:
+      - default        # external access (LLM APIs, database, Redis)
+      - bot-internal   # receives requests from bot containers on the internal network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+# Bot containers (spawned by execution-service via dockerode, not compose)
+# are configured in bot-orchestrator.ts: NetworkMode: 'bot-internal'
+# This means bot containers can reach the tool-gateway (same bot-internal network)
+# but CANNOT reach the internet (bot-internal is an --internal Docker network).
+
+networks:
+  default:
+    driver: bridge
+  bot-internal:
+    driver: bridge
+    # internal: true blocks all external routing from containers on this network.
+    # The tool-gateway attaches to BOTH networks so it can receive from bots
+    # AND reach external hosts (LLM APIs) via the default network.
+    internal: true
+
 volumes:
   pg-data:
+  claw-artifacts:    # write_file artifacts stored here
