@@ -35,13 +35,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. GCP resources (Cloud SQL, Memorystore Redis, Pub/Sub topics, VPC, Artifact Registry) are provisioned and reachable from the local development environment — verified by a connectivity health check script that tests each resource.
   4. A Docker container started with the bot isolation profile cannot reach any external host except the designated Tool Gateway address — confirmed by an egress test that verifies both TCP connections and DNS queries to external hosts are blocked.
 
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 01-01: PostgreSQL schema, Drizzle ORM setup, and migration tooling
-- [ ] 01-02: Shared TypeScript packages (shared-types, event-schemas, tool-contracts)
-- [ ] 01-03: GCP infrastructure provisioning (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry)
-- [ ] 01-04: Local Docker network isolation configuration and egress restriction validation
+- [ ] 01-01-PLAN.md — pnpm monorepo workspace, packages/db with Drizzle ORM, all 6 table schemas, initial SQL migration
+- [ ] 01-02-PLAN.md — @claw/shared-types, @claw/event-schemas, @claw/tool-contracts packages with Zod v4 schemas
+- [ ] 01-03-PLAN.md — Terraform modules (Cloud SQL, Memorystore, Pub/Sub, VPC, Artifact Registry), docker-compose.dev.yml, connectivity check script
+- [ ] 01-04-PLAN.md — Docker internal network bot isolation topology, automated egress test script
 
 ---
 
