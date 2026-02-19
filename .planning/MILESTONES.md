@@ -21,3 +21,25 @@
 - `.planning/milestones/v1.0-REQUIREMENTS.md` — all 51 requirements with outcomes
 
 ---
+
+## v1.1 Google Auth Gate (Shipped: 2026-02-19)
+
+**Phases completed:** 1 phase (Phase 7), 6 plans
+**Timeline:** 1 day (2026-02-19)
+**Code shipped:** +5,613 / -223 lines across 54 files
+
+**Delivered:** Google OAuth authentication gate — unauthenticated users are redirected to /login, authenticated users access /new-execution with session tokens forwarded to the backend, and POST /executions enforces 401 without a valid Auth.js session.
+
+**Key accomplishments:**
+- Migrated SvelteKit from adapter-static → adapter-vercel, enabling server-side hooks and load functions required by Auth.js
+- Backend 401 enforcement on POST /executions via HKDF key derivation + JWE (jose compactDecrypt) for Auth.js v5 session token verification
+- Auth.js Google OAuth core setup — hooks.server.ts intercepts /auth/* routes, App.Locals.auth() typed globally across all server files
+- /login page with dark-themed card + Google OAuth button; authenticated nav shows user avatar, name, and Sign Out
+- /new-execution auth guard + server action that reads the httpOnly session cookie and forwards it as Authorization: Bearer to execution-service
+- All 8 Google Auth Gate flows human-verified end-to-end: redirect, login page, Google OAuth, post-auth redirect, authenticated nav, sign-out, form submission, backend 401
+
+**Archive:**
+- `.planning/milestones/v1.1-ROADMAP.md` — full phase details
+
+---
+
