@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 07 — Google Auth Gate (in progress)
+**Current focus:** Phase 07 — Google Auth Gate (complete)
 
 ## Current Position
 
 Milestone: v1.1 Google Auth Gate — IN PROGRESS
-Phase: 07-google-auth-gate — Plan 5/6 complete
-Status: 07-05 complete (+page.server.ts auth guard + form action for /new-execution, +page.svelte converted to use:enhance server action). Continuing with 07-06.
-Last activity: 2026-02-19 — 07-05 complete: /new-execution route guard, session token forwarding to execution-service, form converted from client-side createExecution() to server action.
+Phase: 07-google-auth-gate — Plan 6/6 complete
+Status: 07-06 complete (human verification checkpoint — all 8 Google Auth Gate flows confirmed "approved"). Phase 07 complete.
+Last activity: 2026-02-19 — 07-06 complete: full Google Auth Gate verified end-to-end by human tester. All 8 flows passed.
 
-Progress: [███████████████████░░░░░░░░░] 83% (5/6 plans)
+Progress: [████████████████████████████] 100% (6/6 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 28
 - Average duration: 5.0 min
 - Total execution time: 156 min
 
@@ -33,10 +33,10 @@ Progress: [███████████████████░░░░
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
-| 07-google-auth-gate | 5/6 | 15 min | 3 min |
+| 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02 (2 min), 07-03 (3 min), 07-04 (2 min), 07-05 (3 min)
+- Last 5 plans: 07-02 (2 min), 07-03 (3 min), 07-04 (2 min), 07-05 (3 min), 07-06 (1 min)
 - Trend: ~3 min per plan for config/infrastructure work.
 
 *Updated after each plan completion*
@@ -148,6 +148,7 @@ Recent decisions affecting current work:
 - [Phase 07-google-auth-gate/07-05]: redirect(303, '/login') not wrapped in try/catch — SvelteKit redirects throw internally; catching them swallows the redirect silently
 - [Phase 07-google-auth-gate/07-05]: update({ reset: false }) in enhance callback — prevents form clearing on fail() response so user can correct and resubmit without re-entering fields
 - [Phase 07-google-auth-gate/07-05]: allowedTools serialized as multiple hidden inputs via {#each allowedTools} block with formData.getAll() — standard multi-value form pattern
+- [Phase 07-google-auth-gate/07-06]: All 8 auth gate flows human-verified "approved": unauthenticated redirect, login page UI, Google OAuth flow, post-auth redirect to /new-execution, authenticated nav (avatar/name/sign-out), sign-out restores Deploy Crew CTA, form submission creates execution without 401, backend returns 401 on missing auth header
 
 ### Roadmap Evolution
 
@@ -168,5 +169,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 07-05-PLAN.md — /new-execution route guard, server action with session token forwarding, use:enhance form. Next: 07-06.
+Stopped at: Completed 07-06-PLAN.md — Google Auth Gate human verification, all 8 flows approved. Phase 07 complete.
 Resume file: None
