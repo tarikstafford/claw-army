@@ -58,3 +58,25 @@ export async function getBillingHistory(): Promise<BillingHistoryEntry[]> {
 export async function getBillingSummary(): Promise<BillingSummary> {
   return apiFetch(`${BASE}/billing/summary`);
 }
+
+// Admin
+
+export interface AdminExecution {
+  id: string;
+  status: 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  objective: string;
+  maxBots: number;
+  budgetCapCents: number;
+  allowedTools: string[];
+  createdAt: string;
+  updatedAt: string;
+  activeBotCount: number;
+}
+
+export async function listAllExecutions(): Promise<AdminExecution[]> {
+  return apiFetch(`${BASE}/executions/all`);
+}
+
+export async function stopExecution(id: string): Promise<{ success: boolean }> {
+  return apiFetch(`${BASE}/executions/${id}/stop`, { method: 'POST' });
+}

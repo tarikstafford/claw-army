@@ -8,11 +8,13 @@ import {
 import { planObjective } from '../services/planner.service';
 import { addTaskToQueue } from '../queue/task-queue';
 import { db, tasks, bots, telemetry } from '@claw/db';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, desc } from 'drizzle-orm';
 import {
   spawnBotsForExecution,
   startIdleChecker,
   startQueueEventListener,
+  stopBot,
+  getBotsForExecution,
 } from '../orchestrator/bot-orchestrator';
 import { startCompletionPoller } from '../orchestrator/completion-checker';
 import { buildExecutionReport } from '../performance/report-builder';
@@ -358,5 +360,94 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     );
 
     return reply.code(200).send(leaderboard);
+  });
+
+  // GET / — list all executions (admin)
+  fastify.get('/all', {
+    schema: {
+      response: {
+        200: Type.Array(
+          Type.Object({
+            id: Type.String({ format: 'uuid' }),
+            status: Type.Union([
+              Type.Literal('queued'),
+              Type.Literal('running'),
+              Type.Literal('paused'),
+              Type.Literal('stopped'),
+              Type.Literal('completed'),
+              Type.Literal('failed'),
+            ]),
+            objective: Type.String(),
+            maxBots: Type.Integer(),
+            budgetCapCents: Type.Integer(),
+            allowedTools: Type.Array(Type.String()),
+            createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+            updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+            activeBotCount: Type.Integer(),
+          }),
+        ),
+      },
+    },
+  }, async (_request, reply) => {
+    const allExecutions = await db
+      .select()
+      .from(executions)
+      .orderBy(desc(executions.createdAt));
+
+    const result = await Promise.all(
+      allExecutions.map(async (exec) => {
+        const [row] = await db
+          .select({ count: sql<number>`cast(count(*) as int)` })
+          .from(bots)
+          .where(
+            and(
+              eq(bots.executionId, exec.id),
+              sql`${bots.status} NOT IN ('stopped', 'failed')`,
+            ),
+          );
+        return { ...exec, activeBotCount: row?.count ?? 0 };
+      }),
+    );
+
+    return reply.code(200).send(result);
+  });
+
+  // POST /:id/stop — stop a running execution (admin)
+  fastify.post('/:id/stop', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Object({ success: Type.Boolean() }),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    const execution = await getExecution(id);
+    if (!execution) return reply.code(404).send({ error: 'Execution not found' });
+
+    // Transition to stopped (handles both queued and running states)
+    await transitionExecution(id, 'running', 'stopped').catch(() => {});
+    await transitionExecution(id, 'queued', 'stopped').catch(() => {});
+
+    // Stop bots tracked in the in-memory registry
+    const activeBots = getBotsForExecution(id);
+    await Promise.allSettled(activeBots.map((b) => stopBot(b.botId, 'terminated')));
+
+    // Failsafe: mark any remaining DB bot rows as stopped
+    await db
+      .update(bots)
+      .set({ status: 'stopped', stoppedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          eq(bots.executionId, id),
+          sql`${bots.status} NOT IN ('stopped', 'failed')`,
+        ),
+      );
+
+    return reply.code(200).send({ success: true });
   });
 };
