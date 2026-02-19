@@ -25,6 +25,12 @@
         <a href="/billing" class="btn-ghost">View billing →</a>
       </div>
 
+      <div class="persona-links">
+        <a href="/landing/agent">Explore Agent landing</a>
+        <span>•</span>
+        <a href="/landing/marketer">Explore Marketer landing</a>
+      </div>
+
       <div class="hero-specs">
         <div class="spec-item">
           <span class="spec-val">20</span>
@@ -266,6 +272,23 @@
     background: var(--surface-1);
     border: 1px solid var(--border);
     border-radius: var(--r-md);
+  }
+
+  .persona-links {
+    margin-top: var(--s-4);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+
+  .persona-links a {
+    color: #8fb2ff;
+  }
+
+  .persona-links a:hover {
+    color: #b5cbff;
   }
 
   .spec-item {
