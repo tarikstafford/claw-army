@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 ## Current Position
 
 Milestone: v1.1 Google Auth Gate — IN PROGRESS
-Phase: 07-google-auth-gate — Plan 3/6 complete
-Status: 07-03 complete (@auth/sveltekit installed, auth.ts/hooks.server.ts/app.d.ts created, .env.example files updated). Continuing with 07-04.
-Last activity: 2026-02-19 — 07-03 complete: @auth/sveltekit v1.11.1 installed, SvelteKitAuth with Google provider configured, handle hook registered.
+Phase: 07-google-auth-gate — Plan 4/6 complete
+Status: 07-04 complete (login/+page.svelte created, +layout.server.ts exposes session, +layout.svelte nav shows user avatar/name/sign-out). Continuing with 07-05.
+Last activity: 2026-02-19 — 07-04 complete: /login page with Google OAuth button, session loader, nav updated with conditional user display.
 
-Progress: [████████████░░░░░░░░░░░░░░░░] 50% (3/6 plans)
+Progress: [████████████████░░░░░░░░░░░░] 67% (4/6 plans)
 
 ## Performance Metrics
 
@@ -33,10 +33,10 @@ Progress: [████████████░░░░░░░░░░░
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
-| 07-google-auth-gate | 3/6 | 10 min | 3.3 min |
+| 07-google-auth-gate | 4/6 | 12 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-05 (3 min), 07-01 (5 min), 07-02 (2 min), 07-03 (3 min)
+- Last 5 plans: 07-01 (5 min), 07-02 (2 min), 07-03 (3 min), 07-04 (2 min)
 - Trend: ~3 min per plan for config/infrastructure work.
 
 *Updated after each plan completion*
@@ -142,6 +142,8 @@ Recent decisions affecting current work:
 - [Phase 07-google-auth-gate/07-02]: TypeBox 401 response schema required on protected routes — @fastify/type-provider-typebox strict mode rejects reply.code(401) if 401 not declared in route schema
 - [Phase 07-google-auth-gate/07-03]: @auth/sveltekit v1.x handle hook intercepts /auth/* routes directly — no [...]auth/+server.ts catch-all route needed; GET/POST not exported in v1.x
 - [Phase 07-google-auth-gate/07-03]: AUTH_TRUST_HOST must be set explicitly in local .env for dev — Vercel sets it automatically; local dev throws 'Host must be trusted' errors without it
+- [Phase 07-google-auth-gate/07-04]: +layout.server.ts returns session from event.locals.auth() — makes session available as data.session to all pages and layouts without protecting routes
+- [Phase 07-google-auth-gate/07-04]: Deploy Crew CTA only shown when logged out — authenticated users see user info (avatar + name + Sign out) in nav instead; avoids duplicate navigation paths
 
 ### Roadmap Evolution
 
@@ -162,5 +164,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 07-03-PLAN.md — @auth/sveltekit bootstrap with Google provider. Next: 07-04.
+Stopped at: Completed 07-04-PLAN.md — /login page, +layout.server.ts session loader, nav user display. Next: 07-05.
 Resume file: None
