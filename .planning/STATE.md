@@ -5,22 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Planning next milestone — run `/gsd:new-milestone` to define v1.1
+**Current focus:** Phase 07 — Google Auth Gate (in progress)
 
 ## Current Position
 
-Milestone: v1.0 MVP — SHIPPED 2026-02-19
-Status: All 6 phases complete (23 plans). Milestone archived. Ready for next milestone planning.
-Last activity: 2026-02-19 — v1.0 milestone complete. Archived to .planning/milestones/. Git tag v1.0 pending.
+Milestone: v1.1 Google Auth Gate — IN PROGRESS
+Phase: 07-google-auth-gate — Plan 1/6 complete
+Status: 07-01 complete (adapter-vercel migration). Continuing with 07-02.
+Last activity: 2026-02-19 — 07-01 complete: adapter-static → adapter-vercel, SSR enabled, SPA fallback removed.
 
-Progress: [████████████████████████████] 100%
+Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░] 17% (1/6 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: 5.1 min
-- Total execution time: 145 min
+- Total execution time: 150 min
 
 **By Phase:**
 
@@ -32,10 +33,11 @@ Progress: [███████████████████████
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
+| 07-google-auth-gate | 1/6 | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01 (3 min), 06-02 (3 min), 06-03 (3 min), 06-04 (3 min), 06-05 (3 min)
-- Trend: Consistent 3 min per plan — SvelteKit UI components and routes completing in ~3 min each.
+- Last 5 plans: 06-03 (3 min), 06-04 (3 min), 06-05 (3 min), 07-01 (5 min)
+- Trend: ~4 min per plan for config/infrastructure work.
 
 *Updated after each plan completion*
 
@@ -130,6 +132,14 @@ Recent decisions affecting current work:
 - [Phase 06-ui-command-center/06-03]: Terminal state guard in SSE and polling effects — prevents reconnecting SSE or re-enabling polling for already-completed/failed/stopped executions
 - [Phase 06-ui-command-center/06-04]: Native HTML details/summary elements for step trace — no JS toggle state, browser-native open/close, nested details (outer=full trace, inner=per-step request/response)
 - [Phase 06-ui-command-center/06-04]: page.params cast to Record<string,string> for [botId] route segment — svelte-kit generated types only include params from routes already synced; cast enables clean build before sync runs
+- [Phase 07-google-auth-gate/07-01]: adapter-vercel replaces adapter-static — adapter-static produces only static HTML; hooks.server.ts and server load functions never execute at request time; adapter-vercel enables Vercel serverless functions so server files run on every request
+- [Phase 07-google-auth-gate/07-01]: SPA fallback rewrite (/(.*) → /200.html) removed — with adapter-vercel, the fallback catches Auth.js server routes like /auth/callback/google; Vercel native routing handles unknown paths natively
+- [Phase 07-google-auth-gate/07-01]: outputDirectory removed from vercel.json — adapter-vercel manages its own .vercel/output directory; the outputDirectory field conflicts
+- [Phase 07-google-auth-gate/07-01]: export const ssr = false removed from +layout.js — SSR required globally for Auth.js server load functions
+
+### Roadmap Evolution
+
+- Phase 7 added: Google Auth Gate — Google OAuth via @auth/sveltekit, /login page, /new-execution route guard, backend 401 enforcement. PRD at tasks/prd-google-auth.md
 
 ### Pending Todos
 
@@ -146,5 +156,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: ALL PHASES COMPLETE. Phase 6 Plan 5 complete — human-verify checkpoint approved. All 6 UI screens verified end-to-end. All 6 phases (01-06) complete. MVP feature-complete.
+Stopped at: Completed 07-01-PLAN.md — adapter-vercel migration done. Next: 07-02.
 Resume file: None
