@@ -6,9 +6,18 @@
 
 <nav>
   <div class="nav-inner">
-    <span class="brand">Claw Army</span>
-    <a href="/new-execution">New Execution</a>
-    <a href="/billing">Billing</a>
+    <a href="/" class="brand">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 1.5L17.5 5.75V14.25L10 18.5L2.5 14.25V5.75L10 1.5Z"
+          stroke="#3d7eff" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+        <circle cx="10" cy="10" r="3" fill="#3d7eff"/>
+      </svg>
+      <span>Claw Army</span>
+    </a>
+    <div class="nav-right">
+      <a href="/billing" class="nav-link">Billing</a>
+      <a href="/new-execution" class="nav-cta">Deploy Crew</a>
+    </div>
   </div>
 </nav>
 
@@ -18,39 +27,73 @@
 
 <style>
   nav {
-    background: #1a1a1a;
-    color: #fff;
-    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(9, 13, 24, 0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
   }
 
   .nav-inner {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    height: 3rem;
-    max-width: 900px;
+    justify-content: space-between;
+    max-width: 1100px;
     margin: 0 auto;
+    padding: 0 var(--s-6);
+    height: 52px;
   }
 
   .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    color: var(--text-primary);
     font-weight: 700;
-    font-size: 1.1rem;
-    margin-right: auto;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
-  nav a {
-    color: #ccc;
-    font-size: 0.9rem;
+  .brand:hover {
+    color: var(--text-primary);
   }
 
-  nav a:hover {
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+  }
+
+  .nav-link {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: color 0.15s;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary);
+  }
+
+  .nav-cta {
+    padding: 0.375rem 0.875rem;
+    background: var(--signal);
     color: #fff;
-    text-decoration: none;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: var(--r-sm);
+    letter-spacing: 0.01em;
+    transition: background 0.15s;
+  }
+
+  .nav-cta:hover {
+    background: #5a8fff;
+    color: #fff;
   }
 
   main {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+    width: 100%;
+    padding: var(--s-8) var(--s-6);
   }
 </style>

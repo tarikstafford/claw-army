@@ -45,3 +45,37 @@ module "artifact_registry" {
   region      = var.region
   environment = var.environment
 }
+
+module "secrets" {
+  source      = "./modules/secrets"
+  project_id  = var.project_id
+  environment = var.environment
+  db_password = module.cloud_sql.user_password
+
+  depends_on = [module.cloud_sql]
+}
+
+module "compute" {
+  source           = "./modules/compute"
+  project_id       = var.project_id
+  region           = var.region
+  environment      = var.environment
+  machine_type     = var.machine_type
+  vpc_network_name = module.vpc.network_name
+  subnet_name      = module.vpc.subnet_name
+  db_host          = module.cloud_sql.private_ip
+  db_name          = module.cloud_sql.database_name
+  db_user          = module.cloud_sql.user_name
+  redis_host       = module.memorystore.host
+  redis_port       = module.memorystore.port
+  registry_url     = module.artifact_registry.repository_url
+  ssh_source_ranges = var.ssh_source_ranges
+
+  depends_on = [
+    module.vpc,
+    module.cloud_sql,
+    module.memorystore,
+    module.artifact_registry,
+    module.secrets,
+  ]
+}

@@ -101,6 +101,10 @@ export async function spawnBot(
         `GCP_PROJECT_ID=${process.env.GCP_PROJECT_ID ?? 'claw-local'}`,
         `TOOL_GATEWAY_URL=${process.env.TOOL_GATEWAY_URL ?? 'http://tool-gateway:3002'}`,
         `LLM_MODEL=${process.env.BOT_LLM_MODEL ?? 'gpt-4o-mini'}`,
+        // AI provider API keys — passed through from execution-service env
+        `OPENAI_API_KEY=${process.env.OPENAI_API_KEY ?? ''}`,
+        `ANTHROPIC_API_KEY=${process.env.ANTHROPIC_API_KEY ?? ''}`,
+        `GOOGLE_GENERATIVE_AI_API_KEY=${process.env.GOOGLE_GENERATIVE_AI_API_KEY ?? ''}`,
       ],
       HostConfig: {
         Memory: BOT_MEMORY_LIMIT,

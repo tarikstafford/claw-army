@@ -14,7 +14,8 @@ resource "google_sql_database_instance" "postgres" {
   deletion_protection = false
 
   settings {
-    tier = var.db_tier
+    tier    = var.db_tier
+    edition = "ENTERPRISE"
 
     ip_configuration {
       ipv4_enabled    = false

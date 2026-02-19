@@ -25,7 +25,7 @@ output "db_password" {
 }
 
 output "redis_host" {
-  description = "Memorystore Redis host (VPC-only, not publicly accessible)"
+  description = "Memorystore Redis host (VPC-only)"
   value       = module.memorystore.host
 }
 
@@ -45,6 +45,25 @@ output "pubsub_subscription_names" {
 }
 
 output "artifact_registry_url" {
-  description = "Artifact Registry Docker repository URL for bot container images"
+  description = "Artifact Registry Docker repository URL"
   value       = module.artifact_registry.repository_url
+}
+
+output "vm_external_ip" {
+  description = "GCE VM external IP — use this for VITE_API_URL when building the UI"
+  value       = module.compute.external_ip
+}
+
+output "vm_ssh_command" {
+  description = "gcloud SSH command to connect to the VM"
+  value       = module.compute.ssh_command
+}
+
+output "secret_names" {
+  description = "Secret Manager secret names to populate with API keys after apply"
+  value = {
+    db_password    = module.secrets.db_password_secret_name
+    openai_api_key = module.secrets.openai_secret_name
+    anthropic_key  = module.secrets.anthropic_secret_name
+  }
 }
