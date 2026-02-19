@@ -4,6 +4,13 @@ dist/
 .env.local
 *.tsbuildinfo
 
+# SvelteKit build outputs
+.svelte-kit/
+build/
+
+# macOS metadata
+.DS_Store
+
 # Terraform — never commit real tfvars or state
 infra/terraform/terraform.tfvars
 infra/terraform/.terraform/
