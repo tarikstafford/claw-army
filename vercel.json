@@ -1,5 +1,3 @@
 {
-  "buildCommand": "cd services/ui && pnpm run build",
-  "outputDirectory": "services/ui/build",
-  "installCommand": "pnpm install"
+  "outputDirectory": "build"
 }
