@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 ## Current Position
 
 Milestone: v1.1 Google Auth Gate — IN PROGRESS
-Phase: 07-google-auth-gate — Plan 1/6 complete
-Status: 07-01 complete (adapter-vercel migration). Continuing with 07-02.
-Last activity: 2026-02-19 — 07-01 complete: adapter-static → adapter-vercel, SSR enabled, SPA fallback removed.
+Phase: 07-google-auth-gate — Plan 2/6 complete
+Status: 07-02 complete (auth token verification on POST /executions). Continuing with 07-03.
+Last activity: 2026-02-19 — 07-02 complete: verifyAuthToken with HKDF+JWE decryption, POST /executions protected with 401 preHandler.
 
-Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░] 17% (1/6 plans)
+Progress: [█████████░░░░░░░░░░░░░░░░░░░] 33% (2/6 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 24
+- Total plans completed: 25
 - Average duration: 5.1 min
 - Total execution time: 150 min
 
@@ -33,10 +33,10 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
-| 07-google-auth-gate | 1/6 | 5 min | 5 min |
+| 07-google-auth-gate | 2/6 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-03 (3 min), 06-04 (3 min), 06-05 (3 min), 07-01 (5 min)
+- Last 5 plans: 06-04 (3 min), 06-05 (3 min), 07-01 (5 min), 07-02 (2 min)
 - Trend: ~4 min per plan for config/infrastructure work.
 
 *Updated after each plan completion*
@@ -136,6 +136,10 @@ Recent decisions affecting current work:
 - [Phase 07-google-auth-gate/07-01]: SPA fallback rewrite (/(.*) → /200.html) removed — with adapter-vercel, the fallback catches Auth.js server routes like /auth/callback/google; Vercel native routing handles unknown paths natively
 - [Phase 07-google-auth-gate/07-01]: outputDirectory removed from vercel.json — adapter-vercel manages its own .vercel/output directory; the outputDirectory field conflicts
 - [Phase 07-google-auth-gate/07-01]: export const ssr = false removed from +layout.js — SSR required globally for Auth.js server load functions
+- [Phase 07-google-auth-gate/07-02]: jose compactDecrypt (not jwt.verify) for Auth.js v5 token verification — Auth.js v5 sessions are JWE encrypted tokens (A256CBC-HS512); jwt.verify only handles signed JWTs and would fail
+- [Phase 07-google-auth-gate/07-02]: Try both HKDF salts ('authjs.session-token' and '__Secure-authjs.session-token') — cookie name differs between HTTP dev and HTTPS prod; backend cannot know which env UI runs in
+- [Phase 07-google-auth-gate/07-02]: 64-byte HKDF key required — A256CBC-HS512 requires 512-bit key; info string is 'Auth.js Generated Encryption Key ({salt})'
+- [Phase 07-google-auth-gate/07-02]: TypeBox 401 response schema required on protected routes — @fastify/type-provider-typebox strict mode rejects reply.code(401) if 401 not declared in route schema
 
 ### Roadmap Evolution
 
@@ -156,5 +160,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 07-01-PLAN.md — adapter-vercel migration done. Next: 07-02.
+Stopped at: Completed 07-02-PLAN.md — auth token verification on POST /executions. Next: 07-03.
 Resume file: None
