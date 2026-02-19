@@ -7,15 +7,15 @@ import {
 } from '../services/execution.service';
 import { planObjective } from '../services/planner.service';
 import { addTaskToQueue } from '../queue/task-queue';
-import { db, tasks, bots, telemetry } from '@claw/db';
+import { db, executions, tasks, bots, telemetry } from '@claw/db';
 import { eq, and, sql, desc } from 'drizzle-orm';
 import {
   spawnBotsForExecution,
   startIdleChecker,
   startQueueEventListener,
   stopBot,
-  getBotsForExecution,
 } from '../orchestrator/bot-orchestrator';
+import { getBotsForExecution } from '../orchestrator/bot-registry';
 import { startCompletionPoller } from '../orchestrator/completion-checker';
 import { buildExecutionReport } from '../performance/report-builder';
 
