@@ -8,7 +8,7 @@ import type {
   BillingSummary,
 } from './types';
 
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+const BASE = import.meta.env.VITE_API_URL ?? '/api';
 
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options);

@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import type { ActivityEvent } from './types';
 
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+const BASE = import.meta.env.VITE_API_URL ?? '/api';
 
 const EVENT_TYPES = [
   'execution_status_changed',
