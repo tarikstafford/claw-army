@@ -1,7 +1,9 @@
 <script lang="ts">
   import '../app.css';
+  import { signOut } from '@auth/sveltekit/client';
 
-  let { children } = $props();
+  let { children, data } = $props();
+  let session = $derived(data.session);
 </script>
 
 <nav>
@@ -16,7 +18,25 @@
     </a>
     <div class="nav-right">
       <a href="/billing" class="nav-link">Billing</a>
-      <a href="/new-execution" class="nav-cta">Deploy Crew</a>
+      {#if session?.user}
+        <div class="user-info">
+          {#if session.user.image}
+            <img
+              src={session.user.image}
+              alt={session.user.name ?? 'User avatar'}
+              class="user-avatar"
+              width="28"
+              height="28"
+            />
+          {/if}
+          <span class="user-name">{session.user.name}</span>
+          <button class="sign-out-btn" onclick={() => signOut({ redirectTo: '/' })}>
+            Sign out
+          </button>
+        </div>
+      {:else}
+        <a href="/new-execution" class="nav-cta">Deploy Crew</a>
+      {/if}
     </div>
   </div>
 </nav>
@@ -90,6 +110,41 @@
   .nav-cta:hover {
     background: #5a8fff;
     color: #fff;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .user-avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+
+  .user-name {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sign-out-btn {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+  }
+
+  .sign-out-btn:hover {
+    color: var(--text-secondary);
   }
 
   main {
