@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 ## Current Position
 
 Milestone: v1.1 Google Auth Gate — IN PROGRESS
-Phase: 07-google-auth-gate — Plan 2/6 complete
-Status: 07-02 complete (auth token verification on POST /executions). Continuing with 07-03.
-Last activity: 2026-02-19 — 07-02 complete: verifyAuthToken with HKDF+JWE decryption, POST /executions protected with 401 preHandler.
+Phase: 07-google-auth-gate — Plan 3/6 complete
+Status: 07-03 complete (@auth/sveltekit installed, auth.ts/hooks.server.ts/app.d.ts created, .env.example files updated). Continuing with 07-04.
+Last activity: 2026-02-19 — 07-03 complete: @auth/sveltekit v1.11.1 installed, SvelteKitAuth with Google provider configured, handle hook registered.
 
-Progress: [█████████░░░░░░░░░░░░░░░░░░░] 33% (2/6 plans)
+Progress: [████████████░░░░░░░░░░░░░░░░] 50% (3/6 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: 5.1 min
-- Total execution time: 150 min
+- Total execution time: 153 min
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [█████████░░░░░░░░░░░░░░
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
-| 07-google-auth-gate | 2/6 | 7 min | 3.5 min |
+| 07-google-auth-gate | 3/6 | 10 min | 3.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-04 (3 min), 06-05 (3 min), 07-01 (5 min), 07-02 (2 min)
-- Trend: ~4 min per plan for config/infrastructure work.
+- Last 5 plans: 06-05 (3 min), 07-01 (5 min), 07-02 (2 min), 07-03 (3 min)
+- Trend: ~3 min per plan for config/infrastructure work.
 
 *Updated after each plan completion*
 
@@ -140,6 +140,8 @@ Recent decisions affecting current work:
 - [Phase 07-google-auth-gate/07-02]: Try both HKDF salts ('authjs.session-token' and '__Secure-authjs.session-token') — cookie name differs between HTTP dev and HTTPS prod; backend cannot know which env UI runs in
 - [Phase 07-google-auth-gate/07-02]: 64-byte HKDF key required — A256CBC-HS512 requires 512-bit key; info string is 'Auth.js Generated Encryption Key ({salt})'
 - [Phase 07-google-auth-gate/07-02]: TypeBox 401 response schema required on protected routes — @fastify/type-provider-typebox strict mode rejects reply.code(401) if 401 not declared in route schema
+- [Phase 07-google-auth-gate/07-03]: @auth/sveltekit v1.x handle hook intercepts /auth/* routes directly — no [...]auth/+server.ts catch-all route needed; GET/POST not exported in v1.x
+- [Phase 07-google-auth-gate/07-03]: AUTH_TRUST_HOST must be set explicitly in local .env for dev — Vercel sets it automatically; local dev throws 'Host must be trusted' errors without it
 
 ### Roadmap Evolution
 
@@ -160,5 +162,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 07-02-PLAN.md — auth token verification on POST /executions. Next: 07-03.
+Stopped at: Completed 07-03-PLAN.md — @auth/sveltekit bootstrap with Google provider. Next: 07-04.
 Resume file: None
