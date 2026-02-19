@@ -15,6 +15,20 @@ resource "google_secret_manager_secret_version" "db_password" {
 # Placeholder secrets — populate manually after terraform apply:
 #   gcloud secrets versions add claw-openai-api-key --data-file=-
 #   gcloud secrets versions add claw-anthropic-api-key --data-file=-
+#   gcloud secrets versions add claw-auth-secret --data-file=-
+
+resource "google_secret_manager_secret" "auth_secret" {
+  secret_id = "claw-auth-secret"
+  project   = var.project_id
+
+  replication {
+    auto {}
+  }
+
+  lifecycle {
+    ignore_changes = [labels]
+  }
+}
 
 resource "google_secret_manager_secret" "openai_api_key" {
   secret_id = "claw-openai-api-key"
