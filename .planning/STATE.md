@@ -2,17 +2,16 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-18)
+See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Phase 6 — UI Command Center
+**Current focus:** Planning next milestone — run `/gsd:new-milestone` to define v1.1
 
 ## Current Position
 
-Phase: 6 of 6 (UI Command Center) — COMPLETE
-Plan: 5 of 5 in current phase — COMPLETE
-Status: Phase 6 Plan 5 complete — Usage & Billing screen at /billing (3-card monthly summary + historical execution table). All 6 UI screens verified end-to-end by user. All 6 phases complete. MVP feature-complete.
-Last activity: 2026-02-19 — Phase 6 Plan 5 complete. Created billing/+page.svelte (299 lines). TypeScript clean (319 files, 0 errors). 1 auto task + 1 human-verify checkpoint (approved). 1 commit (2b2647a).
+Milestone: v1.0 MVP — SHIPPED 2026-02-19
+Status: All 6 phases complete (23 plans). Milestone archived. Ready for next milestone planning.
+Last activity: 2026-02-19 — v1.0 milestone complete. Archived to .planning/milestones/. Git tag v1.0 pending.
 
 Progress: [████████████████████████████] 100%
 
@@ -44,7 +43,7 @@ Progress: [███████████████████████
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
+All v1.0 decisions logged in PROJECT.md Key Decisions table. Cleared for next milestone.
 Recent decisions affecting current work:
 
 - [Pre-Phase 1]: Bot hosting — dockerode on GCE VM recommended over Cloud Run Jobs for MVP (faster lifecycle control, tighter per-bot management). Cloud Run Jobs is the long-term target but has latency trade-offs. NEEDS prototype validation in Phase 2.
