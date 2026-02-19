@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { createExecution } from '$lib/api';
+  import { enhance } from '$app/forms';
+  import type { ActionData } from './$types';
 
   const TOOLS: { id: string; label: string; description: string }[] = [
     { id: 'llm_call',   label: 'LLM Call',   description: 'Prompt any language model' },
@@ -8,35 +8,15 @@
     { id: 'write_file', label: 'File Write', description: 'Write output to the filesystem' },
   ];
 
+  let { form } = $props<{ form: ActionData }>();
+
   let objective         = $state('');
   let maxBots           = $state(3);
   let budgetCapDollars  = $state(10);
   let allowedTools      = $state<string[]>(['llm_call', 'fetch_url', 'write_file']);
   let submitting        = $state(false);
-  let error             = $state<string | null>(null);
 
-  async function handleSubmit() {
-    if (!objective.trim()) {
-      error = 'Objective is required.';
-      return;
-    }
-
-    submitting = true;
-    error = null;
-
-    try {
-      const result = await createExecution({
-        objective: objective.trim(),
-        maxBots,
-        budgetCapCents: budgetCapDollars * 100,
-        allowedTools,
-      });
-      await goto(`/executions/${result.executionId}`);
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to create execution. Please try again.';
-      submitting = false;
-    }
-  }
+  let error = $derived(form?.error ?? null);
 
   function toggleTool(id: string) {
     if (allowedTools.includes(id)) {
@@ -66,7 +46,16 @@
     <p class="briefing-sub">Configure the mission parameters. Your crew stands by.</p>
   </div>
 
-  <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+  <form
+    method="POST"
+    use:enhance={() => {
+      submitting = true;
+      return async ({ update }) => {
+        submitting = false;
+        await update({ reset: false });
+      };
+    }}
+  >
 
     <!-- Objective -->
     <div class="panel">
@@ -76,6 +65,7 @@
       </div>
       <textarea
         id="objective"
+        name="objective"
         bind:value={objective}
         placeholder="Describe what you want the bot crew to accomplish. Be specific about the desired outcome — the bots will plan and execute the tasks needed to get there."
         rows="5"
@@ -97,6 +87,7 @@
           </div>
           <input
             id="maxBots"
+            name="maxBots"
             type="range"
             bind:value={maxBots}
             min="1"
@@ -120,6 +111,7 @@
             <span class="currency">$</span>
             <input
               id="budgetCap"
+              name="budgetCapDollars"
               type="number"
               bind:value={budgetCapDollars}
               min="1"
@@ -165,6 +157,9 @@
           </button>
         {/each}
       </div>
+      {#each allowedTools as tool}
+        <input type="hidden" name="allowedTools" value={tool} />
+      {/each}
     </div>
 
     {#if error}

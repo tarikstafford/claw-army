@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
+import { verifyAuthToken } from '../lib/verify-auth-token.js';
 import {
   createExecution,
   getExecution,
@@ -35,8 +36,19 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           executionId: Type.String({ format: 'uuid' }),
           status: Type.Literal('queued'),
         }),
+        401: Type.Object({
+          error: Type.String(),
+        }),
       },
     },
+    preHandler: [
+      async (request, reply) => {
+        const valid = await verifyAuthToken(request.headers.authorization);
+        if (!valid) {
+          return reply.code(401).send({ error: 'Unauthorized' });
+        }
+      },
+    ],
   }, async (request, reply) => {
     const {
       objective,

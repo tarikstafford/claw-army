@@ -1,7 +1,5 @@
 {
-  "outputDirectory": "build",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "http://34.136.15.56:3001/:path*" },
-    { "source": "/(.*)", "destination": "/200.html" }
+    { "source": "/api/:path*", "destination": "http://34.136.15.56:3001/:path*" }
   ]
 }

@@ -28,10 +28,14 @@ Users can deploy a crew of AI bots, watch them work in real-time, and see exactl
 - ✓ Usage & billing screen: bot-hours this month, spend estimate, historical executions, cost per execution — v1.0
 - ✓ Elite bot DNA captured for top performers: system prompt, tool call sequence, decision patterns, timing — v1.0
 - ✓ DNA stored versioned, PII-redacted, tagged by objective category (internal only) — v1.0
+- ✓ Unauthenticated users redirected to /login — cannot access /new-execution without Google account — v1.1
+- ✓ Authenticated users see their Google avatar, name, and a Sign Out button in the nav — v1.1
+- ✓ POST /executions enforces 401 if no valid Auth.js session token present — v1.1
+- ✓ /new-execution server action reads httpOnly session cookie and forwards Bearer token to backend — v1.1
 
 ### Active
 
-_(Planning for v1.1 — run `/gsd:new-milestone` to define next milestone requirements)_
+_(Planning for v1.2 — run `/gsd:new-milestone` to define next milestone requirements)_
 
 ### Out of Scope
 
@@ -45,17 +49,18 @@ _(Planning for v1.1 — run `/gsd:new-milestone` to define next milestone requir
 
 ## Context
 
-**Shipped v1.0 with ~10,220 LOC** (8,362 TypeScript + 1,858 Svelte), 216 files, 6 phases, 23 plans, 2 days.
+**Shipped v1.1 with ~15,833 LOC total** (8 phases, 29 plans, 3 days total).
 
 **Tech stack:**
 - Backend: Node.js TypeScript (Fastify), pnpm monorepo
-- Frontend: SvelteKit (Svelte 5 runes, adapter-static SPA)
+- Frontend: SvelteKit (Svelte 5 runes, adapter-vercel, Auth.js v5 Google OAuth)
 - Database: PostgreSQL via Drizzle ORM (6 tables: executions, tasks, bots, billing_events, telemetry, dna_store)
 - Task queue: BullMQ 5 on Redis
 - Bot isolation: Docker containers (internal network, --internal flag)
 - Event bus: Google Cloud Pub/Sub (emulator in local dev)
 - LLM routing: Vercel AI SDK 6, multi-provider via Tool Gateway
 - Billing: Metering and display only — atomic Redis Lua budget enforcement
+- Auth: Auth.js v5 (@auth/sveltekit) with Google OAuth; backend verifies JWE-encrypted session tokens
 
 **GCP deployment:** Terraform config committed and valid. Not yet applied — pending GCP project setup. Local dev uses Docker Compose equivalents.
 
@@ -64,12 +69,13 @@ _(Planning for v1.1 — run `/gsd:new-milestone` to define next milestone requir
 - Production Terraform needs `bot-lifecycle-billing-sub` Pub/Sub subscription added for Billing Engine
 - N+1 leaderboard enrichment acceptable for MVP (maxBots cap 20); add JOIN when bot counts grow
 - Any new service or Dockerfile using `@claw/db` or internal packages must add `NODE_OPTIONS --conditions @claw/source`
+- AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be configured in Vercel env vars for production
 
 ## Constraints
 
 - **Security**: Bots have zero network access except through Tool Gateway — this is non-negotiable
 - **Isolation**: Each bot is ephemeral, stateless, no credentials, no persistent filesystem
-- **Scope**: Single-tenant for MVP — no auth complexity, no multi-org data isolation
+- **Scope**: Single-tenant — Google Auth gates access but no multi-org data isolation yet
 - **Budget**: No real Stripe integration — billing is metering + display only
 - **Planner**: Simple parallel split only — no DAG, no recursive planning, no user-facing visual builder
 
@@ -89,6 +95,9 @@ _(Planning for v1.1 — run `/gsd:new-milestone` to define next milestone requir
 | Per-connection Pub/Sub subscription for SSE | Simpler than EventEmitter fan-out for MVP | ✓ Good — 4 subs/connection manageable at MVP scale |
 | Composite score weights: 40/30/20/10 | Reasoned starting point based on priority | ⚠️ Revisit — not empirically validated; iterate after real execution data |
 | DNA argument patterns: Object.keys only, never values | PII isolation at code level | ✓ Good — prevents any customer data from entering DNA store |
+| adapter-vercel over adapter-static | Auth.js server runtime requires serverless functions, not static HTML | ✓ Good — enables hooks.server.ts + server load functions; Vercel routing handles unknown paths natively |
+| jose compactDecrypt for Auth.js token verification | Auth.js v5 uses JWE encrypted tokens (A256CBC-HS512), not signed JWTs | ✓ Good — HKDF + dual-salt approach handles both HTTP dev and HTTPS prod cookies |
+| Server action (not client fetch) for execution creation | httpOnly cookie inaccessible from client JS | ✓ Good — server action reads and forwards session token transparently; no XSS exposure |
 
 ---
-*Last updated: 2026-02-19 after v1.0 milestone*
+*Last updated: 2026-02-19 after v1.1 milestone*
