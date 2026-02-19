@@ -68,6 +68,9 @@ OPENAI_API_KEY=$(gcloud secrets versions access latest \
 ANTHROPIC_API_KEY=$(gcloud secrets versions access latest \
   --secret="claw-anthropic-api-key" --project="$PROJECT_ID" 2>/dev/null || echo "")
 
+AUTH_SECRET=$(gcloud secrets versions access latest \
+  --secret="claw-auth-secret" --project="$PROJECT_ID")
+
 # ── 5. Authenticate Docker with Artifact Registry ─────────────────────────
 echo "[$(date)] Configuring Docker auth..."
 gcloud auth configure-docker "$REGISTRY_REGION-docker.pkg.dev" --quiet
@@ -87,6 +90,7 @@ printf 'REDIS_URL=redis://%s:%s\n'     "$REDIS_HOST" "$REDIS_PORT"    >> /etc/cl
 printf 'GCP_PROJECT_ID=%s\n'           "$PROJECT_ID"                   >> /etc/claw/.env
 printf 'OPENAI_API_KEY=%s\n'           "$OPENAI_API_KEY"               >> /etc/claw/.env
 printf 'ANTHROPIC_API_KEY=%s\n'        "$ANTHROPIC_API_KEY"            >> /etc/claw/.env
+printf 'AUTH_SECRET=%s\n'             "$AUTH_SECRET"                  >> /etc/claw/.env
 printf 'BOT_IMAGE=%s/bot-worker:latest\n' "$REGISTRY_URL"              >> /etc/claw/.env
 chmod 600 /etc/claw/.env
 
