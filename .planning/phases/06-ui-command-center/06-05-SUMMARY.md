@@ -71,7 +71,7 @@ Each task was committed atomically:
 1. **Task 1: Build Usage and Billing screen (UI-10, METR-05)** - `2b2647a` (feat)
 2. **Task 2: Verify all UI screens end-to-end** - human-verify checkpoint approved by user
 
-**Plan metadata:** TBD (docs commit after STATE.md update)
+**Plan metadata:** `c7e5841` (docs: complete Phase 6 Plan 5 — all 6 UI screens verified end-to-end)
 
 ## Files Created/Modified
 
