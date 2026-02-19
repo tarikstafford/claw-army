@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 ## Current Position
 
 Milestone: v1.1 Google Auth Gate — IN PROGRESS
-Phase: 07-google-auth-gate — Plan 4/6 complete
-Status: 07-04 complete (login/+page.svelte created, +layout.server.ts exposes session, +layout.svelte nav shows user avatar/name/sign-out). Continuing with 07-05.
-Last activity: 2026-02-19 — 07-04 complete: /login page with Google OAuth button, session loader, nav updated with conditional user display.
+Phase: 07-google-auth-gate — Plan 5/6 complete
+Status: 07-05 complete (+page.server.ts auth guard + form action for /new-execution, +page.svelte converted to use:enhance server action). Continuing with 07-06.
+Last activity: 2026-02-19 — 07-05 complete: /new-execution route guard, session token forwarding to execution-service, form converted from client-side createExecution() to server action.
 
-Progress: [████████████████░░░░░░░░░░░░] 67% (4/6 plans)
+Progress: [███████████████████░░░░░░░░░] 83% (5/6 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
-- Average duration: 5.1 min
-- Total execution time: 153 min
+- Total plans completed: 27
+- Average duration: 5.0 min
+- Total execution time: 156 min
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [████████████████░░░░░░░
 | 04-control-plane-services | 3/3 | 11 min | 3.7 min |
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
-| 07-google-auth-gate | 4/6 | 12 min | 3 min |
+| 07-google-auth-gate | 5/6 | 15 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-01 (5 min), 07-02 (2 min), 07-03 (3 min), 07-04 (2 min)
+- Last 5 plans: 07-02 (2 min), 07-03 (3 min), 07-04 (2 min), 07-05 (3 min)
 - Trend: ~3 min per plan for config/infrastructure work.
 
 *Updated after each plan completion*
@@ -144,6 +144,10 @@ Recent decisions affecting current work:
 - [Phase 07-google-auth-gate/07-03]: AUTH_TRUST_HOST must be set explicitly in local .env for dev — Vercel sets it automatically; local dev throws 'Host must be trusted' errors without it
 - [Phase 07-google-auth-gate/07-04]: +layout.server.ts returns session from event.locals.auth() — makes session available as data.session to all pages and layouts without protecting routes
 - [Phase 07-google-auth-gate/07-04]: Deploy Crew CTA only shown when logged out — authenticated users see user info (avatar + name + Sign out) in nav instead; avoids duplicate navigation paths
+- [Phase 07-google-auth-gate/07-05]: Server action (not client fetch) for execution creation — httpOnly cookie requires server-side access; client JS cannot read Auth.js session token
+- [Phase 07-google-auth-gate/07-05]: redirect(303, '/login') not wrapped in try/catch — SvelteKit redirects throw internally; catching them swallows the redirect silently
+- [Phase 07-google-auth-gate/07-05]: update({ reset: false }) in enhance callback — prevents form clearing on fail() response so user can correct and resubmit without re-entering fields
+- [Phase 07-google-auth-gate/07-05]: allowedTools serialized as multiple hidden inputs via {#each allowedTools} block with formData.getAll() — standard multi-value form pattern
 
 ### Roadmap Evolution
 
@@ -164,5 +168,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 07-04-PLAN.md — /login page, +layout.server.ts session loader, nav user display. Next: 07-05.
+Stopped at: Completed 07-05-PLAN.md — /new-execution route guard, server action with session token forwarding, use:enhance form. Next: 07-06.
 Resume file: None
