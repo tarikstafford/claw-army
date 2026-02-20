@@ -1,14 +1,15 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { browser } from '$app/environment';
-  import { getExecution, getExecutionMetrics } from '$lib/api';
+  import { getExecution, getExecutionMetrics, getExecutionBots } from '$lib/api';
   import { connectSSE } from '$lib/sse';
-  import type { Execution, ExecutionMetrics, ActivityEvent } from '$lib/types';
+  import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot } from '$lib/types';
 
   const executionId = $derived(page.params.id ?? '');
 
   let execution = $state<Execution | null>(null);
   let metrics = $state<ExecutionMetrics | null>(null);
+  let bots = $state<ExecutionBot[]>([]);
   let activityFeed = $state<ActivityEvent[]>([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
@@ -21,7 +22,7 @@
       .catch(err => { error = (err as Error).message; loading = false; });
   });
 
-  // Metrics polling — fetch immediately and then every 5 seconds
+  // Metrics + bots polling — fetch immediately and then every 5 seconds
   $effect(() => {
     if (!browser) return;
     const isTerminal =
@@ -31,11 +32,13 @@
 
     // Fetch immediately on mount / when execution changes
     getExecutionMetrics(executionId).then(m => { metrics = m; }).catch(() => {});
+    getExecutionBots(executionId).then(b => { bots = b; }).catch(() => {});
 
     if (isTerminal) return; // Don't poll for completed executions
 
     const interval = setInterval(() => {
       getExecutionMetrics(executionId).then(m => { metrics = m; }).catch(() => {});
+      getExecutionBots(executionId).then(b => { bots = b; }).catch(() => {});
     }, 5000);
 
     return () => clearInterval(interval);
@@ -156,6 +159,38 @@
       <div class="report-link">
         <a href="/executions/{executionId}/report" class="btn-report">View Report</a>
       </div>
+    {/if}
+
+    <!-- Running bots list with links to process logs -->
+    {#if bots.length > 0}
+      <section class="bots-section">
+        <h3>Bots <span class="bots-count">({bots.length})</span></h3>
+        <div class="bots-list">
+          {#each bots as bot (bot.id)}
+            <a
+              href="/executions/{executionId}/bots/{bot.id}"
+              class="bot-card"
+              class:bot-active={bot.status === 'working' || bot.status === 'idle' || bot.status === 'spawning'}
+              class:bot-stopped={bot.status === 'stopped' || bot.status === 'failed'}
+            >
+              <div class="bot-card-top">
+                <span class="bot-id">{bot.id.slice(0, 8)}</span>
+                <span class="bot-status-pill bot-status-{bot.status}">{bot.status}</span>
+              </div>
+              <div class="bot-card-stats">
+                <span>{bot.tasksCompleted} done</span>
+                <span class="stat-sep">·</span>
+                <span>{bot.tasksClaimed} claimed</span>
+                {#if bot.tasksFailed > 0}
+                  <span class="stat-sep">·</span>
+                  <span class="stat-fail">{bot.tasksFailed} failed</span>
+                {/if}
+              </div>
+              <div class="bot-card-cta">View process log →</div>
+            </a>
+          {/each}
+        </div>
+      </section>
     {/if}
 
     <!-- Activity feed (UI-05) -->
@@ -320,6 +355,106 @@
 
   .btn-report:hover {
     background: #15803d;
+  }
+
+  /* Running bots list */
+  .bots-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .bots-section h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .bots-count {
+    font-weight: 400;
+    color: #9ca3af;
+    font-size: 0.875rem;
+  }
+
+  .bots-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.625rem;
+  }
+
+  .bot-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .bot-card:hover {
+    border-color: #6366f1;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+  }
+
+  .bot-card.bot-active {
+    border-left: 3px solid #2563eb;
+    padding-left: calc(1rem - 2px);
+  }
+
+  .bot-card.bot-stopped {
+    opacity: 0.65;
+  }
+
+  .bot-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .bot-id {
+    font-family: ui-monospace, monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .bot-status-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.4rem;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+
+  .bot-status-spawning { background: #fef9c3; color: #854d0e; }
+  .bot-status-idle { background: #f0fdf4; color: #15803d; }
+  .bot-status-working { background: #dbeafe; color: #1d4ed8; }
+  .bot-status-stopping { background: #fef9c3; color: #854d0e; }
+  .bot-status-stopped { background: #f3f4f6; color: #6b7280; }
+  .bot-status-failed { background: #fee2e2; color: #991b1b; }
+
+  .bot-card-stats {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+
+  .stat-sep { color: #d1d5db; }
+  .stat-fail { color: #dc2626; }
+
+  .bot-card-cta {
+    font-size: 0.72rem;
+    color: #6366f1;
+    font-weight: 500;
+    margin-top: 0.15rem;
   }
 
   /* Activity feed */
