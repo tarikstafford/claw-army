@@ -16,6 +16,7 @@ import {
   startQueueEventListener,
   stopBot,
 } from '../orchestrator/bot-orchestrator';
+import { publishExecutionStatusChanged } from '../events/publisher';
 import { getBotsForExecution } from '../orchestrator/bot-registry';
 import { startCompletionPoller } from '../orchestrator/completion-checker';
 import { buildExecutionReport } from '../performance/report-builder';
@@ -108,6 +109,16 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           fastify.log.error({ executionId }, 'Failed to transition to running');
           return;
         }
+
+        await publishExecutionStatusChanged({
+          type: 'execution_status_changed',
+          executionId,
+          fromStatus: 'queued',
+          toStatus: 'running',
+          timestamp: new Date().toISOString(),
+        }).catch((err: Error) => {
+          fastify.log.error({ err, executionId }, 'Failed to publish execution_status_changed (non-fatal)');
+        });
 
         // 4. Spawn bots for this execution
         await spawnBotsForExecution(executionId, maxBots);
