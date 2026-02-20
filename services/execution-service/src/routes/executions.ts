@@ -16,6 +16,7 @@ import {
   startQueueEventListener,
   stopBot,
 } from '../orchestrator/bot-orchestrator';
+import { publishExecutionStatusChanged } from '../events/publisher';
 import { getBotsForExecution } from '../orchestrator/bot-registry';
 import { startCompletionPoller } from '../orchestrator/completion-checker';
 import { buildExecutionReport } from '../performance/report-builder';
@@ -29,7 +30,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         maxBots: Type.Integer({ minimum: 1, maximum: 20 }),
         budgetCapCents: Type.Optional(Type.Integer({ minimum: 0 })),
         runtimeLimitSeconds: Type.Optional(Type.Integer({ minimum: 60 })),
-        allowedTools: Type.Array(Type.String()),
+        allowedTools: Type.Optional(Type.Array(Type.String())),
+        llmProvider: Type.Optional(Type.String()),
+        allowedDomains: Type.Optional(Type.Array(Type.String())),
       }),
       response: {
         201: Type.Object({
@@ -55,7 +58,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       maxBots,
       budgetCapCents,
       runtimeLimitSeconds,
-      allowedTools,
+      allowedTools = [],
     } = request.body;
 
     const result = await createExecution({
@@ -106,6 +109,16 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           fastify.log.error({ executionId }, 'Failed to transition to running');
           return;
         }
+
+        await publishExecutionStatusChanged({
+          type: 'execution_status_changed',
+          executionId,
+          fromStatus: 'queued',
+          toStatus: 'running',
+          timestamp: new Date().toISOString(),
+        }).catch((err: Error) => {
+          fastify.log.error({ err, executionId }, 'Failed to publish execution_status_changed (non-fatal)');
+        });
 
         // 4. Spawn bots for this execution
         await spawnBotsForExecution(executionId, maxBots);
