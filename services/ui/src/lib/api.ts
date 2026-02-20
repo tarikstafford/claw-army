@@ -6,6 +6,7 @@ import type {
   BotDetail,
   BillingHistoryEntry,
   BillingSummary,
+  ExecutionBot,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -49,6 +50,10 @@ export async function getLeaderboard(id: string): Promise<LeaderboardEntry[]> {
 
 export async function getBotDetail(botId: string): Promise<BotDetail> {
   return apiFetch(`${BASE}/bots/${botId}/detail`);
+}
+
+export async function getExecutionBots(executionId: string): Promise<ExecutionBot[]> {
+  return apiFetch(`${BASE}/bots/by-execution/${executionId}`);
 }
 
 export async function getBillingHistory(): Promise<BillingHistoryEntry[]> {

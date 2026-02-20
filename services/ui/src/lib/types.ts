@@ -102,3 +102,29 @@ export interface ActivityEvent {
   isAlert?: boolean;
   [key: string]: unknown;
 }
+
+export interface BotLogEntry {
+  type: 'bot_started' | 'bot_stopped' | 'task_claimed' | 'task_completed' | 'guardrail_triggered' | 'tool_invocation';
+  botId: string;
+  timestamp?: string;
+  // tool_invocation fields
+  toolName?: string;
+  invocationId?: string;
+  rejected?: boolean;
+  rejectionReason?: string | null;
+  durationMs?: number | null;
+  totalTokens?: number | null;
+  invokedAt?: string;
+  // bot_stopped / guardrail_triggered
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface ExecutionBot {
+  id: string;
+  status: 'spawning' | 'idle' | 'working' | 'stopping' | 'stopped' | 'failed';
+  tasksClaimed: number;
+  tasksCompleted: number;
+  tasksFailed: number;
+  startedAt: string | null;
+}

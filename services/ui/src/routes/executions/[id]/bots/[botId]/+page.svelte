@@ -2,7 +2,8 @@
   import { page } from '$app/state';
   import { browser } from '$app/environment';
   import { getBotDetail } from '$lib/api';
-  import type { BotDetail } from '$lib/types';
+  import { connectBotLogs } from '$lib/sse';
+  import type { BotDetail, BotLogEntry, StepTrace } from '$lib/types';
 
   const executionId = $derived((page.params as Record<string, string>).id ?? '');
   const botId = $derived((page.params as Record<string, string>).botId ?? '');
@@ -10,6 +11,31 @@
   let detail = $state<BotDetail | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let logEntries = $state<BotLogEntry[]>([]);
+  let logContainer = $state<HTMLElement | null>(null);
+  let liveConnected = $state(false);
+
+  const ACTIVE_STATUSES = new Set(['spawning', 'idle', 'working', 'stopping']);
+
+  function isActive(status: string) {
+    return ACTIVE_STATUSES.has(status);
+  }
+
+  // Seed log from existing step trace (historical tool calls already in DB)
+  function seedLogFromSteps(steps: StepTrace[]): BotLogEntry[] {
+    return steps.map((s) => ({
+      type: 'tool_invocation' as const,
+      botId,
+      toolName: s.toolName,
+      invocationId: s.invocationId,
+      rejected: s.rejected,
+      rejectionReason: s.rejectionReason,
+      durationMs: s.durationMs,
+      totalTokens: s.totalTokens,
+      invokedAt: s.invokedAt,
+      timestamp: s.invokedAt,
+    }));
+  }
 
   $effect(() => {
     if (!browser) return;
@@ -20,9 +46,100 @@
     error = null;
 
     getBotDetail(id)
-      .then(d => { detail = d; loading = false; })
+      .then(d => {
+        detail = d;
+        loading = false;
+        // Seed log with historical steps
+        logEntries = seedLogFromSteps(d.steps);
+      })
       .catch(err => { error = (err as Error).message; loading = false; });
   });
+
+  // Status polling — refresh bot record while active so we detect when it stops
+  $effect(() => {
+    if (!browser || !detail) return;
+    if (!isActive(detail.bot.status)) return;
+
+    const interval = setInterval(() => {
+      getBotDetail(botId)
+        .then(d => { detail = d; })
+        .catch(() => {});
+    }, 5000);
+
+    return () => clearInterval(interval);
+  });
+
+  // SSE live log connection — only while bot is active
+  $effect(() => {
+    if (!browser || !detail) return;
+    if (!isActive(detail.bot.status)) return;
+
+    liveConnected = true;
+    const knownIds = new Set(logEntries.map(e => e.invocationId).filter(Boolean));
+
+    const cleanup = connectBotLogs(botId, (entry) => {
+      // Deduplicate tool_invocation entries by invocationId
+      if (entry.type === 'tool_invocation' && entry.invocationId) {
+        if (knownIds.has(entry.invocationId)) return;
+        knownIds.add(entry.invocationId);
+      }
+      logEntries = [...logEntries, entry];
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        if (logContainer) {
+          logContainer.scrollTop = logContainer.scrollHeight;
+        }
+      }, 0);
+    });
+
+    return () => {
+      liveConnected = false;
+      cleanup?.();
+    };
+  });
+
+  function formatLogTime(entry: BotLogEntry): string {
+    const ts = entry.invokedAt ?? entry.timestamp;
+    if (!ts) return '--:--:--';
+    return new Date(ts).toLocaleTimeString('en-US', { hour12: false });
+  }
+
+  function logClass(entry: BotLogEntry): string {
+    if (entry.type === 'guardrail_triggered') return 'log-warn';
+    if (entry.type === 'tool_invocation' && entry.rejected) return 'log-error';
+    if (entry.type === 'bot_stopped') return 'log-dim';
+    if (entry.type === 'bot_started') return 'log-success';
+    if (entry.type === 'task_completed') return 'log-success';
+    if (entry.type === 'task_claimed') return 'log-info';
+    return 'log-default';
+  }
+
+  function formatLogLine(entry: BotLogEntry): string {
+    switch (entry.type) {
+      case 'bot_started':
+        return '▶  Bot started';
+      case 'bot_stopped':
+        return `■  Bot stopped${entry.reason ? ` (${entry.reason})` : ''}`;
+      case 'task_claimed':
+        return `◆  Task claimed${entry['taskId'] ? ` [${String(entry['taskId']).slice(0, 8)}]` : ''}`;
+      case 'task_completed':
+        return `✓  Task completed${entry['taskId'] ? ` [${String(entry['taskId']).slice(0, 8)}]` : ''}`;
+      case 'guardrail_triggered':
+        return `⚠  Guardrail: ${entry.reason ?? 'triggered'}`;
+      case 'tool_invocation': {
+        const tool = entry.toolName ?? 'unknown';
+        if (entry.rejected) {
+          return `✗  ${tool}  REJECTED: ${entry.rejectionReason ?? 'unknown reason'}`;
+        }
+        const dur = entry.durationMs != null ? `${entry.durationMs}ms` : '';
+        const tok = entry.totalTokens != null ? `${entry.totalTokens} tokens` : '';
+        const meta = [dur, tok].filter(Boolean).join('  ');
+        return `←  ${tool}${meta ? `  ${meta}` : ''}`;
+      }
+      default:
+        return JSON.stringify(entry);
+    }
+  }
 </script>
 
 <svelte:head>
@@ -48,7 +165,40 @@
       {#if detail.bot.tier}
         <span class="tier tier-{detail.bot.tier.toLowerCase()}">{detail.bot.tier}</span>
       {/if}
+      {#if liveConnected}
+        <span class="live-badge">● LIVE</span>
+      {/if}
     </div>
+
+    <!-- Process Log (live when active, historical when stopped) -->
+    <section class="section">
+      <div class="log-header">
+        <h2>Process Log</h2>
+        <span class="log-count">{logEntries.length} entries</span>
+      </div>
+      <div
+        class="log-pane"
+        bind:this={logContainer}
+      >
+        {#if logEntries.length === 0}
+          {#if isActive(detail.bot.status)}
+            <div class="log-empty">Waiting for activity...</div>
+          {:else}
+            <div class="log-empty">No log entries recorded for this bot.</div>
+          {/if}
+        {:else}
+          {#each logEntries as entry (entry.invocationId ?? (entry.type + (entry.invokedAt ?? entry.timestamp ?? '')))}
+            <div class="log-line {logClass(entry)}">
+              <span class="log-time">{formatLogTime(entry)}</span>
+              <span class="log-msg">{formatLogLine(entry)}</span>
+            </div>
+          {/each}
+        {/if}
+        {#if isActive(detail.bot.status)}
+          <div class="log-cursor">▊</div>
+        {/if}
+      </div>
+    </section>
 
     <!-- Bot Metrics Panel (UI-08) -->
     <section class="section">
@@ -222,9 +372,26 @@
   }
 
   .status-running { background: #dbeafe; color: #1d4ed8; }
+  .status-working { background: #dbeafe; color: #1d4ed8; }
+  .status-idle { background: #f0fdf4; color: #15803d; }
+  .status-spawning { background: #fef9c3; color: #854d0e; }
+  .status-stopping { background: #fef9c3; color: #854d0e; }
   .status-completed { background: #d1fae5; color: #065f46; }
   .status-failed { background: #fee2e2; color: #991b1b; }
   .status-stopped { background: #fef3c7; color: #92400e; }
+
+  .live-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #16a34a;
+    letter-spacing: 0.05em;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
 
   .loading {
     padding: 2rem;
@@ -249,6 +416,84 @@
     margin: 0 0 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Process Log */
+  .log-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .log-header h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 1.25rem;
+  }
+
+  .log-count {
+    font-size: 0.8rem;
+    color: #9ca3af;
+  }
+
+  .log-pane {
+    background: #0f1117;
+    border: 1px solid #1f2937;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    height: 320px;
+    overflow-y: auto;
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    scroll-behavior: smooth;
+  }
+
+  .log-line {
+    display: flex;
+    gap: 1rem;
+    padding: 0.1rem 0;
+  }
+
+  .log-time {
+    color: #4b5563;
+    flex-shrink: 0;
+    min-width: 6rem;
+    user-select: none;
+  }
+
+  .log-msg {
+    flex: 1;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .log-default .log-msg { color: #d1d5db; }
+  .log-info .log-msg { color: #93c5fd; }
+  .log-success .log-msg { color: #86efac; }
+  .log-warn .log-msg { color: #fde68a; }
+  .log-error .log-msg { color: #fca5a5; }
+  .log-dim .log-msg { color: #6b7280; }
+
+  .log-empty {
+    color: #4b5563;
+    font-style: italic;
+    padding: 0.5rem 0;
+  }
+
+  .log-cursor {
+    color: #6366f1;
+    animation: blink 1s step-end infinite;
+    margin-top: 0.2rem;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   /* Metrics grid: 3-4 cols on desktop */

@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import type { ActivityEvent } from './types';
+import type { ActivityEvent, BotLogEntry } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -29,6 +29,40 @@ export function connectSSE(
         const payload = JSON.parse(e.data) as Record<string, unknown>;
         const isAlert = type === 'guardrail_triggered' || type === 'budget_exceeded';
         onEvent({ ...payload, type, isAlert } as ActivityEvent);
+      } catch {
+        // ignore malformed events
+      }
+    });
+  }
+
+  if (onError) es.onerror = onError;
+
+  return () => es.close();
+}
+
+const BOT_LOG_EVENTS = [
+  'bot_started',
+  'bot_stopped',
+  'task_claimed',
+  'task_completed',
+  'guardrail_triggered',
+  'tool_invocation',
+] as const;
+
+export function connectBotLogs(
+  botId: string,
+  onEvent: (entry: BotLogEntry) => void,
+  onError?: (err: Event) => void,
+): (() => void) | null {
+  if (!browser) return null;
+
+  const es = new EventSource(`${BASE}/bots/${botId}/logs`);
+
+  for (const type of BOT_LOG_EVENTS) {
+    es.addEventListener(type, (e: MessageEvent) => {
+      try {
+        const payload = JSON.parse(e.data) as Record<string, unknown>;
+        onEvent({ ...payload, type } as BotLogEntry);
       } catch {
         // ignore malformed events
       }

@@ -38,3 +38,15 @@ variable "ssh_source_ranges" {
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
+
+variable "llm_api_key_secret_name" {
+  description = "Secret Manager secret name containing the LLM API key injected into bot VMs"
+  type        = string
+  default     = "claw-anthropic-api-key"
+}
+
+variable "llm_provider" {
+  description = "LLM provider for bot VMs (anthropic or openai)"
+  type        = string
+  default     = "anthropic"
+}

@@ -56,20 +56,25 @@ module "secrets" {
 }
 
 module "compute" {
-  source           = "./modules/compute"
-  project_id       = var.project_id
-  region           = var.region
-  environment      = var.environment
-  machine_type     = var.machine_type
-  vpc_network_name = module.vpc.network_name
-  subnet_name      = module.vpc.subnet_name
-  db_host          = module.cloud_sql.private_ip
-  db_name          = module.cloud_sql.database_name
-  db_user          = module.cloud_sql.user_name
-  redis_host       = module.memorystore.host
-  redis_port       = module.memorystore.port
-  registry_url     = module.artifact_registry.repository_url
-  ssh_source_ranges = var.ssh_source_ranges
+  source                  = "./modules/compute"
+  project_id              = var.project_id
+  region                  = var.region
+  environment             = var.environment
+  machine_type            = var.machine_type
+  vpc_network_name        = module.vpc.network_name
+  subnet_name             = module.vpc.subnet_name
+  db_host                 = module.cloud_sql.private_ip
+  db_name                 = module.cloud_sql.database_name
+  db_user                 = module.cloud_sql.user_name
+  redis_host              = module.memorystore.host
+  redis_port              = module.memorystore.port
+  registry_url            = module.artifact_registry.repository_url
+  ssh_source_ranges       = var.ssh_source_ranges
+  gcp_zone                = "${var.region}-a"
+  gcp_network             = module.vpc.network_name
+  gcp_subnet              = module.vpc.subnet_name
+  llm_api_key_secret_name = var.llm_api_key_secret_name
+  llm_provider            = var.llm_provider
 
   depends_on = [
     module.vpc,

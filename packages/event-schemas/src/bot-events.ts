@@ -7,8 +7,12 @@ export const botStartedEventSchema = z.object({
   executionId: z.uuid(),
   timestamp: z.iso.datetime(),
   metadata: z.object({
-    imageTag: z.string(),
+    imageTag: z.string().optional(),
     containerId: z.string().optional(),
+    instanceName: z.string().optional(),
+    internalIp: z.string().optional(),
+    port: z.number().optional(),
+    zone: z.string().optional(),
   }).optional(),
 });
 

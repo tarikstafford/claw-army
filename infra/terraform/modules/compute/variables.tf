@@ -64,3 +64,30 @@ variable "ssh_source_ranges" {
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
+
+variable "gcp_zone" {
+  description = "Zone where bot VMs are provisioned (e.g. us-central1-a)"
+  type        = string
+}
+
+variable "gcp_network" {
+  description = "VPC network name for bot VMs"
+  type        = string
+}
+
+variable "gcp_subnet" {
+  description = "Subnet name for bot VMs"
+  type        = string
+}
+
+variable "llm_api_key_secret_name" {
+  description = "Secret Manager secret name containing the LLM API key for bot VMs"
+  type        = string
+  default     = "claw-anthropic-api-key"
+}
+
+variable "llm_provider" {
+  description = "LLM provider for bot VMs (anthropic or openai)"
+  type        = string
+  default     = "anthropic"
+}
