@@ -29,7 +29,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         maxBots: Type.Integer({ minimum: 1, maximum: 20 }),
         budgetCapCents: Type.Optional(Type.Integer({ minimum: 0 })),
         runtimeLimitSeconds: Type.Optional(Type.Integer({ minimum: 60 })),
-        allowedTools: Type.Array(Type.String()),
+        allowedTools: Type.Optional(Type.Array(Type.String())),
+        llmProvider: Type.Optional(Type.String()),
+        allowedDomains: Type.Optional(Type.Array(Type.String())),
       }),
       response: {
         201: Type.Object({
@@ -55,7 +57,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       maxBots,
       budgetCapCents,
       runtimeLimitSeconds,
-      allowedTools,
+      allowedTools = [],
     } = request.body;
 
     const result = await createExecution({
