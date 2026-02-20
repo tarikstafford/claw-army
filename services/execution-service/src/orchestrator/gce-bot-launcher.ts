@@ -78,12 +78,12 @@ cat > /root/.openclaw/config.json <<CONFIG
 {
   "llmProvider": "$LLM_PROVIDER",
   "apiKey": "$LLM_API_KEY",
-  "httpProxy": "http://$TOOL_GATEWAY_URL"
+  "httpProxy": "$TOOL_GATEWAY_URL"
 }
 CONFIG
 
-export HTTP_PROXY="http://$TOOL_GATEWAY_URL"
-export HTTPS_PROXY="http://$TOOL_GATEWAY_URL"
+export HTTP_PROXY="$TOOL_GATEWAY_URL"
+export HTTPS_PROXY="$TOOL_GATEWAY_URL"
 export NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1"
 # Override gateway bind address from 127.0.0.1 to the internal VPC IP
 export OPENCLAW_GATEWAY_HOST="$INTERNAL_IP"
@@ -136,6 +136,8 @@ export interface LaunchBotVMOptions {
   executionServiceUrl: string;
   llmApiKeySecretName: string;
   llmProvider?: string;
+  /** Service account email to attach to bot VMs (needs secretmanager.secretAccessor). */
+  botServiceAccount: string;
 }
 
 /**
@@ -205,6 +207,12 @@ export async function launchBotVM(opts: LaunchBotVMOptions): Promise<{ instanceN
         'bot-id': opts.botId.slice(0, 8).replace(/-/g, ''),
         'execution-id': opts.executionId.slice(0, 8).replace(/-/g, ''),
       },
+      serviceAccounts: [
+        {
+          email: opts.botServiceAccount,
+          scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+        },
+      ],
       tags: {
         items: ['claw-bot-vm'],
       },

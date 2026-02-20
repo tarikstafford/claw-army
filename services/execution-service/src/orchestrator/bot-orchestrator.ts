@@ -29,10 +29,15 @@ const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID ?? 'claw-local';
 const GCP_ZONE = process.env.GCP_ZONE ?? 'us-central1-a';
 const GCP_NETWORK = process.env.GCP_NETWORK ?? 'default';
 const GCP_SUBNET = process.env.GCP_SUBNET ?? 'default';
-const TOOL_GATEWAY_URL = process.env.TOOL_GATEWAY_URL ?? 'tool-gateway:3002';
+const TOOL_GATEWAY_URL = process.env.TOOL_GATEWAY_URL ?? 'http://tool-gateway:3002';
+// VPC-accessible URL for bot VMs (use internal IP, not Docker container name).
+// Falls back to TOOL_GATEWAY_URL if not set (works for local dev where Docker DNS resolves).
+const TOOL_GATEWAY_VPC_URL = process.env.TOOL_GATEWAY_VPC_URL ?? TOOL_GATEWAY_URL;
 const EXECUTION_SERVICE_URL = process.env.EXECUTION_SERVICE_URL ?? 'http://localhost:3001';
 const LLM_API_KEY_SECRET_NAME = process.env.LLM_API_KEY_SECRET_NAME ?? 'llm-api-key';
 const LLM_PROVIDER = process.env.LLM_PROVIDER ?? 'anthropic';
+// Service account for bot VMs — must have roles/secretmanager.secretAccessor
+const GCP_BOT_SERVICE_ACCOUNT = process.env.GCP_BOT_SERVICE_ACCOUNT ?? 'claw-app-dev@claw-army.iam.gserviceaccount.com';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // spawnBot
@@ -79,10 +84,11 @@ export async function spawnBot(
       zone: GCP_ZONE,
       network: GCP_NETWORK,
       subnet: GCP_SUBNET,
-      toolGatewayUrl: TOOL_GATEWAY_URL,
+      toolGatewayUrl: TOOL_GATEWAY_VPC_URL,
       executionServiceUrl: EXECUTION_SERVICE_URL,
       llmApiKeySecretName: LLM_API_KEY_SECRET_NAME,
       llmProvider: LLM_PROVIDER,
+      botServiceAccount: GCP_BOT_SERVICE_ACCOUNT,
     });
     instanceName = result.instanceName;
   } catch (err) {
