@@ -5,6 +5,9 @@ import { eq, gt, and } from 'drizzle-orm';
 import { computeBotMetrics } from '../performance/metrics-computer';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'node:crypto';
+import { getBot } from '../orchestrator/bot-registry';
+import { OpenClawClient } from '../orchestrator/openclaw-client';
+import { publishBotStarted } from '../events/publisher';
 
 const pubsub = new PubSub({
   projectId: process.env.GCP_PROJECT_ID ?? 'claw-local',
@@ -280,5 +283,87 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
     reply.sse.onClose(cleanup);
     request.raw.on('close', cleanup);
+  });
+
+  // POST /:botId/ready — called by bot VM startup script when OpenClaw Gateway is ready
+  fastify.post('/:botId/ready', {
+    schema: {
+      params: Type.Object({
+        botId: Type.String({ format: 'uuid' }),
+      }),
+      body: Type.Object({
+        internalIp: Type.String(),
+        port: Type.Integer({ minimum: 1, maximum: 65535 }),
+      }),
+      response: {
+        200: Type.Object({ ok: Type.Boolean() }),
+        404: Type.Object({ error: Type.String() }),
+        409: Type.Object({ error: Type.String() }),
+        503: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { botId } = request.params;
+    const { internalIp, port } = request.body;
+
+    // Verify bot exists in Postgres
+    const [bot] = await db.select().from(bots).where(eq(bots.id, botId));
+    if (!bot) {
+      return reply.code(404).send({ error: 'Bot not found' });
+    }
+
+    // Look up registry entry (must have been registered by spawnBot)
+    const entry = getBot(botId);
+    if (!entry) {
+      return reply.code(404).send({ error: 'Bot not in registry — may have been stopped' });
+    }
+
+    if (entry.openclawClient) {
+      return reply.code(409).send({ error: 'Bot already marked as ready' });
+    }
+
+    // Connect to OpenClaw Gateway on the bot VM
+    const wsUrl = `ws://${internalIp}:${port}`;
+    const client = new OpenClawClient(wsUrl);
+
+    try {
+      await client.connect();
+    } catch (err) {
+      console.error('[bots/ready] Failed to connect to OpenClaw Gateway:', {
+        botId,
+        wsUrl,
+        error: (err as Error).message,
+      });
+      await db
+        .update(bots)
+        .set({ status: 'failed', updatedAt: new Date() })
+        .where(eq(bots.id, botId));
+      return reply.code(503).send({ error: 'Failed to connect to OpenClaw Gateway' } as never);
+    }
+
+    // Update registry entry with internalIp and connected client
+    entry.internalIp = internalIp;
+    entry.openclawClient = client;
+    entry.lastTaskClaimedAt = Date.now();
+
+    // Transition bot status from 'spawning' → 'idle' in Postgres
+    await db
+      .update(bots)
+      .set({ status: 'idle', updatedAt: new Date() })
+      .where(eq(bots.id, botId));
+
+    // Publish bot_started with VM readiness info
+    await publishBotStarted({
+      type: 'bot_started',
+      botId,
+      executionId: entry.executionId,
+      timestamp: new Date().toISOString(),
+      metadata: { instanceName: entry.instanceName, internalIp, port },
+    }).catch((err: Error) => {
+      console.error('[bots/ready] Failed to publish bot_started (non-fatal):', err.message);
+    });
+
+    console.log('[bots/ready] Bot VM ready:', { botId, internalIp, port, instanceName: entry.instanceName });
+    return reply.code(200).send({ ok: true });
   });
 };

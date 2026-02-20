@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { buildApp } from './app';
 import { startGuardrailWatchdog, stopGuardrailWatchdog } from './events/guardrail-watchdog';
 import { startBillingEngine } from './events/billing-engine';
+import { startOpenClawDispatcher } from './queue/openclaw-dispatcher';
 
 const app = await buildApp();
 const port = Number(process.env['PORT'] ?? 3001);
@@ -21,11 +22,19 @@ const watchdogTimer = startGuardrailWatchdog();
 // Persists billing events, enforces atomic budget caps, and calculates bot-hours.
 const billingEngine = startBillingEngine();
 
-// Graceful shutdown — clean up the watchdog timer and billing engine on process exit
+// Start the OpenClaw dispatcher — pulls tasks from BullMQ and dispatches them
+// to available bot VMs via OpenClaw WebSocket sessions API.
+// Replaces the per-container bot-worker BullMQ worker process.
+const dispatcherWorker = startOpenClawDispatcher();
+
+// Graceful shutdown — clean up the watchdog timer, billing engine, and dispatcher
 function shutdown() {
   stopGuardrailWatchdog(watchdogTimer);
   billingEngine.shutdown().catch((err) => {
     console.error('[main] Error during billing engine shutdown:', err);
+  });
+  dispatcherWorker.close().catch((err: Error) => {
+    console.error('[main] Error closing dispatcher worker:', err);
   });
   process.exit(0);
 }

@@ -1,17 +1,17 @@
 /**
- * End-to-end integration test for the full Phase 2 execution pipeline.
+ * End-to-end integration test for the execution pipeline.
  *
  * Requirements:
- * - Docker Desktop must be running (skip if unavailable)
  * - docker-compose dev services (postgres + redis) must be up
- * - claw-stub-bot:latest Docker image must be built
- * - bot-internal Docker network must exist: `docker network create bot-internal`
+ *
+ * SC #4 and double-claiming tests now require GCE credentials and a running
+ * bot VM rather than Docker. They are guarded by isBotInfraAvailable().
  *
  * Success criteria tested:
  * SC #1 — POST /executions returns 201 with executionId and status 'queued' in <1s
  * SC #2 — System decomposes objective into N tasks visible in task queue
  * SC #3 — Stalled job is reassigned after lock expires (via short stalledInterval)
- * SC #4 — Execution advances queued -> running -> completed
+ * SC #4 — Execution advances queued -> running -> completed (requires GCE bot VM)
  * SC #5 — Idle bot is terminated after timeout (via IDLE_TIMEOUT_MS env override)
  */
 
@@ -26,52 +26,46 @@ import {
 import type { FastifyInstance } from 'fastify';
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Docker availability check
+// Bot infrastructure availability check (GCE)
 // ──────────────────────────────────────────────────────────────────────────────
 
-async function isDockerAvailable(): Promise<boolean> {
+/**
+ * Check if GCE bot VM infrastructure is available:
+ * - GCP_PROJECT_ID env var is set
+ * - Application Default Credentials exist
+ *
+ * Run `gcloud auth application-default login` to set up local credentials.
+ */
+async function isBotInfraAvailable(): Promise<boolean> {
+  if (!process.env.GCP_PROJECT_ID) {
+    console.warn('[e2e] GCP_PROJECT_ID not set — skipping bot-spawn tests');
+    return false;
+  }
   try {
-    const { default: Docker } = await import('dockerode');
-    const docker = new Docker({
-      socketPath: process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock',
-    });
-    await docker.ping();
+    const { InstancesClient } = await import('@google-cloud/compute');
+    const client = new InstancesClient();
+    // A cheap call to verify credentials
+    await client.aggregatedList({ project: process.env.GCP_PROJECT_ID, maxResults: 1 }).next();
     return true;
   } catch {
+    console.warn('[e2e] GCE credentials unavailable — skipping bot-spawn tests');
+    console.warn('[e2e] Run: gcloud auth application-default login');
     return false;
   }
 }
 
-/**
- * Check if the full bot-spawn infrastructure is available:
- * - Docker available
- * - claw-stub-bot:latest image exists
- * - bot-internal Docker network exists
- */
-async function isBotInfraAvailable(): Promise<boolean> {
+// Kept for SC #3 Redis availability check
+async function isDockerAvailable(): Promise<boolean> {
+  // SC #3 uses Redis directly (BullMQ), not Docker. Check Redis instead.
   try {
-    const { default: Docker } = await import('dockerode');
-    const docker = new Docker({
-      socketPath: process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock',
+    const IORedis = (await import('ioredis')).default;
+    const redis = new IORedis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
+      lazyConnect: true,
+      maxRetriesPerRequest: 1,
     });
-
-    await docker.ping();
-
-    // Check for the bot image
-    const images = await docker.listImages({ filters: JSON.stringify({ reference: ['claw-stub-bot:latest'] }) });
-    if (images.length === 0) {
-      console.warn('[e2e] claw-stub-bot:latest image not found — skipping bot-spawn tests');
-      return false;
-    }
-
-    // Check for bot-internal network
-    const networks = await docker.listNetworks({ filters: JSON.stringify({ name: ['bot-internal'] }) });
-    if (networks.length === 0) {
-      console.warn('[e2e] bot-internal Docker network not found — skipping bot-spawn tests');
-      console.warn('[e2e] Create it with: docker network create bot-internal');
-      return false;
-    }
-
+    await redis.connect();
+    await redis.ping();
+    await redis.quit();
     return true;
   } catch {
     return false;
@@ -99,17 +93,6 @@ function parseRedisUrl(url: string) {
 const redisConn = parseRedisUrl(REDIS_URL);
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Docker-accessible URLs for bot containers
-// On macOS/Windows with Docker Desktop, host.docker.internal resolves to the host.
-// On Linux without Docker Desktop, use the bridge gateway IP (172.17.0.1).
-// ──────────────────────────────────────────────────────────────────────────────
-const DOCKER_HOST = process.env.DOCKER_HOST_ALIAS ?? 'host.docker.internal';
-
-function toDockerUrl(url: string): string {
-  return url.replace('localhost', DOCKER_HOST).replace('127.0.0.1', DOCKER_HOST);
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
 // Test suite
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -121,20 +104,6 @@ describe('Phase 2 E2E Integration Tests', () => {
   beforeAll(async () => {
     dockerAvailable = await isDockerAvailable();
     botInfraAvailable = await isBotInfraAvailable();
-
-    // Set docker-accessible URLs for bot container env injection
-    if (botInfraAvailable) {
-      const dbUrl = process.env.DATABASE_URL ?? 'postgresql://postgres:password@localhost:5432/clawdb';
-      const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379';
-      const pubsubEmulator = process.env.PUBSUB_EMULATOR_HOST ?? '';
-
-      // Override env vars so the orchestrator injects Docker-accessible URLs into containers
-      process.env.DATABASE_URL = toDockerUrl(dbUrl);
-      process.env.REDIS_URL = toDockerUrl(redisUrl);
-      if (pubsubEmulator) {
-        process.env.PUBSUB_EMULATOR_HOST = toDockerUrl(pubsubEmulator);
-      }
-    }
 
     app = buildApp();
     await app.ready();
@@ -450,22 +419,27 @@ describe('Phase 2 E2E Integration Tests', () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   it('SC #5: Idle bot is terminated after IDLE_TIMEOUT_MS', async () => {
-    // We need a mock container to register in the registry
-    const mockContainer = {
-      stop: vi.fn().mockResolvedValue(undefined),
-      inspect: vi.fn().mockResolvedValue({ Id: 'mock-container-id' }),
-    };
-
     const fakeBotId = '00000000-0000-0000-0000-000000000001';
     const fakeExecutionId = '00000000-0000-0000-0000-000000000002';
 
-    // Register a bot that has been idle for 6 seconds (past any short timeout)
+    // Register a GCE bot that has been idle for 6 seconds (past any short timeout)
+    // openclawClient is set to a mock so the idle checker considers it "fully ready"
+    const mockClient = {
+      isConnected: true,
+      disconnect: vi.fn(),
+      sendTask: vi.fn(),
+      onComplete: vi.fn(),
+      onError: vi.fn(),
+    };
+
     registerBot({
       botId: fakeBotId,
       executionId: fakeExecutionId,
-      containerId: 'mock-container-id',
+      instanceName: 'bot-mock1234-1700000000000',
+      internalIp: '10.0.0.99',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      container: mockContainer as any,
+      openclawClient: mockClient as any,
+      currentJobId: null,
       startedAt: Date.now() - 10_000,
       lastTaskClaimedAt: Date.now() - 6_000,
     });

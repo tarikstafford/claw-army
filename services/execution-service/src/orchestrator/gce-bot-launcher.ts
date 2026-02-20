@@ -1,0 +1,301 @@
+import { InstancesClient, ZoneOperationsClient } from '@google-cloud/compute';
+
+// ──────────────────────────────────────────────────────────────────────────────
+// GCE client singletons
+// ──────────────────────────────────────────────────────────────────────────────
+
+const instancesClient = new InstancesClient();
+const zoneOperationsClient = new ZoneOperationsClient();
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Startup script template
+// Mirrors infra/terraform/modules/bot-vm/startup.sh.tpl but uses TypeScript
+// template literals instead of Terraform templatefile() interpolation.
+// ──────────────────────────────────────────────────────────────────────────────
+
+function buildStartupScript(opts: {
+  botId: string;
+  executionId: string;
+  llmProvider: string;
+  llmApiKeySecretName: string;
+  toolGatewayUrl: string;
+  executionServiceUrl: string;
+}): string {
+  const {
+    botId,
+    executionId,
+    llmProvider,
+    llmApiKeySecretName,
+    toolGatewayUrl,
+    executionServiceUrl,
+  } = opts;
+
+  return `#!/bin/bash
+set -euo pipefail
+
+BOT_ID="${botId}"
+EXECUTION_ID="${executionId}"
+LLM_PROVIDER="${llmProvider}"
+LLM_API_KEY_SECRET="${llmApiKeySecretName}"
+TOOL_GATEWAY_URL="${toolGatewayUrl}"
+EXECUTION_SERVICE_URL="${executionServiceUrl}"
+
+exec > >(tee /var/log/bot-startup.log | logger -t bot-startup) 2>&1
+
+echo "[startup] === Bot VM starting: $BOT_ID ==="
+echo "[startup] Execution: $EXECUTION_ID"
+
+# ── 1. Get internal IP from GCE metadata ──────────────────────────────────────
+INTERNAL_IP=$(curl -sf \\
+  "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip" \\
+  -H "Metadata-Flavor: Google")
+echo "[startup] Internal IP: $INTERNAL_IP"
+
+# ── 2. Install Node.js 22 ─────────────────────────────────────────────────────
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt-get install -y nodejs git
+
+# ── 3. Install OpenClaw ───────────────────────────────────────────────────────
+npm install -g openclaw@latest
+openclaw --version
+
+# ── 4. Install SecureClaw (OpenClaw plugin) ───────────────────────────────────
+# Source: https://github.com/adversa-ai/secureclaw
+git clone https://github.com/adversa-ai/secureclaw.git /opt/secureclaw
+bash /opt/secureclaw/secureclaw/skill/scripts/install.sh \\
+  || echo "[startup] WARNING: SecureClaw install failed — proceeding without hardening"
+
+# ── 5. Fetch LLM API key from Secret Manager ─────────────────────────────────
+LLM_API_KEY=$(gcloud secrets versions access latest --secret="$LLM_API_KEY_SECRET" 2>/dev/null || echo "")
+if [[ -z "$LLM_API_KEY" ]]; then
+  echo "[startup] ERROR: Could not fetch LLM API key from Secret Manager"
+  exit 1
+fi
+
+# ── 6. Configure OpenClaw ─────────────────────────────────────────────────────
+mkdir -p /root/.openclaw
+cat > /root/.openclaw/config.json <<CONFIG
+{
+  "llmProvider": "$LLM_PROVIDER",
+  "apiKey": "$LLM_API_KEY",
+  "httpProxy": "http://$TOOL_GATEWAY_URL"
+}
+CONFIG
+
+export HTTP_PROXY="http://$TOOL_GATEWAY_URL"
+export HTTPS_PROXY="http://$TOOL_GATEWAY_URL"
+export NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1"
+# Override gateway bind address from 127.0.0.1 to the internal VPC IP
+export OPENCLAW_GATEWAY_HOST="$INTERNAL_IP"
+export OPENCLAW_GATEWAY_PORT="18789"
+
+# ── 7. Run SecureClaw audit + hardening ──────────────────────────────────────
+npx openclaw secureclaw audit 2>&1 | tee /var/log/secureclaw-audit.log || true
+npx openclaw secureclaw harden --full 2>&1 | tee /var/log/secureclaw-harden.log || true
+
+# ── 8. Start OpenClaw gateway as a daemon ─────────────────────────────────────
+openclaw onboard --install-daemon
+systemctl enable openclaw-gateway 2>/dev/null || true
+systemctl start openclaw-gateway 2>/dev/null || true
+
+# ── 9. Wait for OpenClaw Gateway to be ready ─────────────────────────────────
+MAX_WAIT=120
+WAITED=0
+until curl -sf "http://$INTERNAL_IP:18789/health" > /dev/null 2>&1; do
+  if [[ $WAITED -ge $MAX_WAIT ]]; then
+    echo "[startup] ERROR: OpenClaw Gateway not ready after \${MAX_WAIT}s"
+    exit 1
+  fi
+  sleep 5
+  WAITED=$((WAITED + 5))
+done
+echo "[startup] OpenClaw Gateway is ready on $INTERNAL_IP:18789"
+
+# ── 10. Signal readiness to execution-service ─────────────────────────────────
+curl -X POST "$EXECUTION_SERVICE_URL/bots/$BOT_ID/ready" \\
+  -H "Content-Type: application/json" \\
+  -d "{\\"internalIp\\": \\"$INTERNAL_IP\\", \\"port\\": 18789}" \\
+  --retry 10 --retry-delay 5 --retry-connrefused --max-time 60
+
+echo "[startup] === Bot VM ready: $BOT_ID ==="
+`;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// launchBotVM
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface LaunchBotVMOptions {
+  botId: string;
+  executionId: string;
+  projectId: string;
+  zone: string;
+  network: string;
+  subnet: string;
+  toolGatewayUrl: string;
+  executionServiceUrl: string;
+  llmApiKeySecretName: string;
+  llmProvider?: string;
+}
+
+/**
+ * Provision an ephemeral GCE bot VM.
+ *
+ * Creates an e2-standard-2 Ubuntu 22.04 VM with no external IP. The VM runs
+ * the startup script which installs OpenClaw + SecureClaw, starts the OpenClaw
+ * Gateway on port 18789, then POSTs to /bots/:botId/ready when ready.
+ *
+ * Returns as soon as the GCE insert operation completes (VM is being created),
+ * NOT when the VM is fully booted. Actual readiness is signalled via the
+ * /bots/:botId/ready callback from the startup script.
+ *
+ * @returns instanceName — the unique name of the created GCE instance
+ */
+export async function launchBotVM(opts: LaunchBotVMOptions): Promise<{ instanceName: string }> {
+  const instanceName = `bot-${opts.botId.slice(0, 8)}-${Date.now()}`;
+  const region = opts.zone.split('-').slice(0, -1).join('-');
+
+  const startupScript = buildStartupScript({
+    botId: opts.botId,
+    executionId: opts.executionId,
+    llmProvider: opts.llmProvider ?? 'anthropic',
+    llmApiKeySecretName: opts.llmApiKeySecretName,
+    toolGatewayUrl: opts.toolGatewayUrl,
+    executionServiceUrl: opts.executionServiceUrl,
+  });
+
+  console.log('[gce-bot-launcher] Submitting GCE insert:', {
+    instanceName,
+    zone: opts.zone,
+    botId: opts.botId,
+    executionId: opts.executionId,
+  });
+
+  const [operation] = await instancesClient.insert({
+    project: opts.projectId,
+    zone: opts.zone,
+    instanceResource: {
+      name: instanceName,
+      machineType: `zones/${opts.zone}/machineTypes/e2-standard-2`,
+      disks: [
+        {
+          boot: true,
+          autoDelete: true,
+          initializeParams: {
+            sourceImage: 'projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts',
+            diskSizeGb: '30',
+            diskType: `zones/${opts.zone}/diskTypes/pd-balanced`,
+          },
+        },
+      ],
+      networkInterfaces: [
+        {
+          network: `projects/${opts.projectId}/global/networks/${opts.network}`,
+          subnetwork: `projects/${opts.projectId}/regions/${region}/subnetworks/${opts.subnet}`,
+          // No accessConfigs → no external IP; egress via Cloud NAT / Tool Gateway proxy
+        },
+      ],
+      metadata: {
+        items: [
+          { key: 'startup-script', value: startupScript },
+        ],
+      },
+      labels: {
+        'managed-by': 'claw-army',
+        'bot-id': opts.botId.slice(0, 8).replace(/-/g, ''),
+        'execution-id': opts.executionId.slice(0, 8).replace(/-/g, ''),
+      },
+      tags: {
+        items: ['claw-bot-vm'],
+      },
+    },
+  });
+
+  // Wait for the insert operation to reach DONE (VM created, not yet booted)
+  await waitForOperation({
+    projectId: opts.projectId,
+    zone: opts.zone,
+    operationName: operation.name!,
+  });
+
+  console.log('[gce-bot-launcher] GCE insert complete:', { instanceName, botId: opts.botId });
+
+  return { instanceName };
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// terminateBotVM
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface TerminateBotVMOptions {
+  projectId: string;
+  zone: string;
+  instanceName: string;
+}
+
+/**
+ * Delete a GCE bot VM. Fires the delete operation and returns immediately —
+ * does NOT wait for the operation to complete (deletion is eventual).
+ */
+export async function terminateBotVM(opts: TerminateBotVMOptions): Promise<void> {
+  console.log('[gce-bot-launcher] Terminating GCE instance:', opts.instanceName);
+
+  try {
+    await instancesClient.delete({
+      project: opts.projectId,
+      zone: opts.zone,
+      instance: opts.instanceName,
+    });
+  } catch (err) {
+    // 404 = already deleted; log and continue
+    const error = err as { code?: number; message?: string };
+    if (error.code === 404) {
+      console.warn('[gce-bot-launcher] Instance already deleted:', opts.instanceName);
+      return;
+    }
+    console.error('[gce-bot-launcher] Error deleting instance:', {
+      instanceName: opts.instanceName,
+      error: error.message,
+    });
+    throw err;
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Operation polling helper
+// ──────────────────────────────────────────────────────────────────────────────
+
+async function waitForOperation(opts: {
+  projectId: string;
+  zone: string;
+  operationName: string;
+  timeoutMs?: number;
+  pollIntervalMs?: number;
+}): Promise<void> {
+  const { projectId, zone, operationName } = opts;
+  const timeoutMs = opts.timeoutMs ?? 120_000; // 2 minutes
+  const pollIntervalMs = opts.pollIntervalMs ?? 3_000;
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const [op] = await zoneOperationsClient.get({
+      project: projectId,
+      zone,
+      operation: operationName,
+    });
+
+    if (op.status === 'DONE') {
+      if (op.error?.errors?.length) {
+        const msg = op.error.errors.map((e) => e.message).join('; ');
+        throw new Error(`GCE operation failed: ${msg}`);
+      }
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+  }
+
+  throw new Error(
+    `GCE operation ${operationName} did not complete within ${timeoutMs}ms`,
+  );
+}

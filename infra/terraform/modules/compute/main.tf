@@ -38,6 +38,32 @@ resource "google_project_iam_member" "secret_accessor" {
   member  = "serviceAccount:${google_service_account.app.email}"
 }
 
+# Needed by gce-bot-launcher.ts to create/delete ephemeral bot VMs
+resource "google_project_iam_member" "compute_instance_admin" {
+  project = var.project_id
+  role    = "roles/compute.instanceAdmin.v1"
+  member  = "serviceAccount:${google_service_account.app.email}"
+}
+
+# ── Bot VM firewall rule ──────────────────────────────────────────────────────
+# Allow execution-service VM to reach OpenClaw Gateway (port 18789) on bot VMs.
+# Bot VMs are tagged claw-bot-vm; the execution-service VM is tagged execution-service.
+resource "google_compute_firewall" "allow_openclaw_gateway" {
+  name    = "claw-allow-openclaw-gateway-${var.environment}"
+  network = var.vpc_network_name
+  project = var.project_id
+
+  description = "Allow execution-service to reach OpenClaw Gateway on bot VMs (port 18789)"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["18789"]
+  }
+
+  source_tags = ["execution-service"]
+  target_tags = ["claw-bot-vm"]
+}
+
 # ── Firewall Rules ───────────────────────────────────────────────────────────
 
 resource "google_compute_firewall" "allow_http" {
@@ -82,7 +108,9 @@ resource "google_compute_instance" "app" {
   zone         = "${var.region}-a"
   project      = var.project_id
 
-  tags = ["claw-app"]
+  # execution-service tag is used by the openclaw-gateway firewall rule
+  # to allow this VM's traffic to reach bot VMs on port 18789
+  tags = ["claw-app", "execution-service"]
 
   boot_disk {
     initialize_params {
@@ -114,15 +142,20 @@ resource "google_compute_instance" "app" {
   metadata_startup_script = templatefile(
     "${path.module}/startup.sh.tpl",
     {
-      db_host          = var.db_host
-      db_name          = var.db_name
-      db_user          = var.db_user
-      redis_host       = var.redis_host
-      redis_port       = var.redis_port
-      registry_url     = var.registry_url
-      registry_region  = local.registry_region
-      project_id       = var.project_id
-      environment      = var.environment
+      db_host                 = var.db_host
+      db_name                 = var.db_name
+      db_user                 = var.db_user
+      redis_host              = var.redis_host
+      redis_port              = var.redis_port
+      registry_url            = var.registry_url
+      registry_region         = local.registry_region
+      project_id              = var.project_id
+      environment             = var.environment
+      gcp_zone                = var.gcp_zone
+      gcp_network             = var.gcp_network
+      gcp_subnet              = var.gcp_subnet
+      llm_api_key_secret_name = var.llm_api_key_secret_name
+      llm_provider            = var.llm_provider
     }
   )
 
