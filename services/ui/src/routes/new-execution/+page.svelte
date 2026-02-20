@@ -2,29 +2,23 @@
   import { enhance } from '$app/forms';
   import type { ActionData } from './$types';
 
-  const TOOLS: { id: string; label: string; description: string }[] = [
-    { id: 'llm_call',   label: 'LLM Call',   description: 'Prompt any language model' },
-    { id: 'fetch_url',  label: 'Web Fetch',  description: 'Retrieve content from URLs' },
-    { id: 'write_file', label: 'File Write', description: 'Write output to the filesystem' },
+  const LLM_PROVIDERS: { id: string; label: string; description: string }[] = [
+    { id: 'anthropic', label: 'Anthropic', description: 'Claude models via Anthropic API' },
+    { id: 'openai',    label: 'OpenAI',    description: 'GPT models via OpenAI API' },
   ];
+
+  const DEFAULT_DOMAINS = 'api.anthropic.com, api.openai.com, github.com, objects.githubusercontent.com, registry.npmjs.org';
 
   let { form } = $props<{ form: ActionData }>();
 
-  let objective         = $state('');
-  let maxBots           = $state(3);
-  let budgetCapDollars  = $state(10);
-  let allowedTools      = $state<string[]>(['llm_call', 'fetch_url', 'write_file']);
-  let submitting        = $state(false);
+  let objective        = $state('');
+  let maxBots          = $state(3);
+  let budgetCapDollars = $state(10);
+  let llmProvider      = $state('anthropic');
+  let allowedDomains   = $state(DEFAULT_DOMAINS);
+  let submitting       = $state(false);
 
   let error = $derived(form?.error ?? null);
-
-  function toggleTool(id: string) {
-    if (allowedTools.includes(id)) {
-      allowedTools = allowedTools.filter((t) => t !== id);
-    } else {
-      allowedTools = [...allowedTools, id];
-    }
-  }
 </script>
 
 <svelte:head>
@@ -123,43 +117,63 @@
       </div>
     </div>
 
-    <!-- Tool Permissions -->
-    <div class="panel">
-      <div class="panel-label">
-        <span class="panel-tag">04</span>
-        Tool Permissions
-      </div>
-      <p class="panel-hint">Grant bots access to these capabilities. Unchecked tools are blocked entirely.</p>
-      <div class="tools-grid">
-        {#each TOOLS as tool}
-          <button
-            type="button"
-            class="tool-toggle"
-            class:active={allowedTools.includes(tool.id)}
-            onclick={() => toggleTool(tool.id)}
-          >
-            <div class="tool-indicator">
-              {#if allowedTools.includes(tool.id)}
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              {:else}
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path d="M2.5 2.5L7.5 7.5M7.5 2.5L2.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
+    <!-- LLM Provider + Egress Perimeter -->
+    <div class="row-panels">
+
+      <div class="panel">
+        <div class="panel-label">
+          <span class="panel-tag">04</span>
+          LLM Provider
+        </div>
+        <p class="panel-hint">Which model powers the crew.</p>
+        <div class="tools-grid">
+          {#each LLM_PROVIDERS as provider}
+            <button
+              type="button"
+              class="tool-toggle"
+              class:active={llmProvider === provider.id}
+              onclick={() => llmProvider = provider.id}
+            >
+              <div class="tool-indicator">
+                {#if llmProvider === provider.id}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {:else}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                {/if}
+              </div>
+              <div class="tool-info">
+                <span class="tool-label">{provider.label}</span>
+                <span class="tool-desc">{provider.description}</span>
+              </div>
+              {#if llmProvider === provider.id}
+                <span class="tool-status">SELECTED</span>
               {/if}
-            </div>
-            <div class="tool-info">
-              <span class="tool-label">{tool.label}</span>
-              <span class="tool-desc">{tool.description}</span>
-            </div>
-            <span class="tool-status">{allowedTools.includes(tool.id) ? 'ALLOWED' : 'BLOCKED'}</span>
-          </button>
-        {/each}
+            </button>
+          {/each}
+        </div>
+        <input type="hidden" name="llmProvider" value={llmProvider} />
       </div>
-      {#each allowedTools as tool}
-        <input type="hidden" name="allowedTools" value={tool} />
-      {/each}
+
+      <div class="panel">
+        <div class="panel-label">
+          <span class="panel-tag">05</span>
+          Egress Perimeter
+        </div>
+        <p class="panel-hint">Domains bots can reach via the proxy. All other outbound traffic is blocked.</p>
+        <textarea
+          id="allowedDomains"
+          name="allowedDomains"
+          bind:value={allowedDomains}
+          rows="4"
+          spellcheck="false"
+          class="domains-input"
+        ></textarea>
+      </div>
+
     </div>
 
     {#if error}
@@ -410,6 +424,13 @@
     font-size: 0.8125rem;
     color: var(--text-muted);
     line-height: 1.5;
+  }
+
+  /* ── Domains input ── */
+  .domains-input {
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+    font-size: 0.8125rem;
+    line-height: 1.7;
   }
 
   /* ── Tool toggles ── */
