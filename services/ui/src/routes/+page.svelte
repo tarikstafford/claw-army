@@ -106,19 +106,19 @@
 
         <div class="cap-card">
           <div class="cap-top">
-            <span class="cap-tag">TA</span>
-            <h3>Tool Access Control</h3>
+            <span class="cap-tag">EP</span>
+            <h3>Egress Perimeter</h3>
           </div>
-          <p>Decide exactly what bots can do per mission. Allow or restrict LLM calls, web fetch, and file writes. Bots operate within the perimeter you define — nothing beyond.</p>
+          <p>Each bot gets a dedicated machine — full bash access, a real browser, complete filesystem. All outbound traffic routes through a metered proxy. You define which domains they can reach. Nothing else gets out.</p>
           <div class="cap-footer">
-            <span class="cap-metric">3</span>
-            <span class="cap-metric-label">permission-gated tools</span>
+            <span class="cap-metric">Proxy</span>
+            <span class="cap-metric-label">gated egress</span>
           </div>
         </div>
 
         <div class="cap-card cap-card--cta">
           <h3>Ready to run a mission?</h3>
-          <p>Configure your objective, set crew size and budget, and deploy. Under 60 seconds to first launch.</p>
+          <p>Configure your objective, set crew size and budget, and deploy. First bot online in minutes.</p>
           <a href="/new-execution" class="btn-primary">Start Mission →</a>
         </div>
 
