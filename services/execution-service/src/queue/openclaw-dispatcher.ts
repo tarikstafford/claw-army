@@ -11,7 +11,7 @@ import {
   releaseBot,
   getBotsForExecution,
 } from '../orchestrator/bot-registry';
-import { publishTaskCompleted } from '../events/publisher';
+import { publishTaskClaimed, publishTaskCompleted } from '../events/publisher';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -126,6 +126,17 @@ async function dispatchTaskToBot(
       updatedAt: new Date(),
     })
     .where(eq(bots.id, botId));
+
+  // Publish task_claimed event
+  await publishTaskClaimed({
+    type: 'task_claimed',
+    taskId,
+    executionId,
+    botId,
+    timestamp: new Date().toISOString(),
+  }).catch((err: Error) => {
+    console.error('[openclaw-dispatcher] Failed to publish task_claimed (non-fatal):', err.message);
+  });
 
   // Keep the job lock alive while waiting (renew every 20s)
   const renewInterval = setInterval(() => {
