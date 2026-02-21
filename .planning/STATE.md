@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (roadmap created, ready for Phase 8 planning)
+**Current focus:** v2.0 — The SOUL System (Phase 8 Plan 01 complete)
 
 ## Current Position
 
-Phase: Not started (requirements defined, roadmap created)
-Plan: —
-Status: Ready for Phase 8 planning
-Last activity: 2026-02-21 — v2.0 roadmap created (7 phases, phases 8–14, 37 requirements)
+Phase: 08-database-schema-and-shared-types
+Plan: 01 (complete)
+Status: Phase 8 Plan 01 complete — schema files and shared types defined
+Last activity: 2026-02-21 — Phase 08-01 complete (4 new tables, 3 modified, 5 shared types)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/TBD v2.0 plans)
+Progress: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4% (1/TBD v2.0 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28
+- Total plans completed: 29
 - Average duration: 5.0 min
-- Total execution time: 156 min
+- Total execution time: 158 min
 
 **By Phase:**
 
@@ -34,10 +34,11 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
 | 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
+| 08-database-schema-and-shared-types | 1/? | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02 (2 min), 07-03 (3 min), 07-04 (2 min), 07-05 (3 min), 07-06 (1 min)
-- Trend: ~3 min per plan for config/infrastructure work.
+- Last 5 plans: 07-03 (3 min), 07-04 (2 min), 07-05 (3 min), 07-06 (1 min), 08-01 (2 min)
+- Trend: ~2 min per plan for schema/types work.
 
 *Updated after each plan completion*
 
@@ -58,6 +59,12 @@ Key architecture decisions carried into v2.0:
 - pgvector extension on Cloud SQL must be confirmed before Phase 8 migration runs
 - OpenClaw WebSocket protocol acceptance of soul fields must be confirmed before Phase 9 dispatch code is finalized
 
+Phase 08-01 decisions:
+- AnyPgColumn import from drizzle-orm/pg-core used for bot_souls self-referencing parentSoulId FK — the explicit return type annotation `references((): AnyPgColumn => botSouls.id)` is required to avoid TypeScript TS7022 implicit-any error on circular initializers
+- council_verdicts.soulId left as bare uuid() without explicit FK reference to bot_souls (logical linkage only; avoids unnecessary cross-file import in council-verdicts.ts)
+- All additive columns on bots/executions/dna_store are nullable with no defaults — safe for live Cloud SQL with existing rows pre-dating the SOUL system
+- decision_traces TTL policy (90 days / 5M row threshold) documented as JSDoc in schema file; enforcement deferred to Phase 10
+
 ### Roadmap Evolution
 
 v2.0 starts at Phase 8 (v1.0 Phases 1–6, v1.1 Phase 7). 7 phases planned. Roadmap finalized 2026-02-21.
@@ -73,12 +80,12 @@ None.
 - [Deferred]: GCP resources not yet provisioned. Terraform config valid. Run terraform apply when GCP project is ready.
 - [Production]: Terraform needs bot-lifecycle-billing-sub subscription for Billing Engine.
 - [Production]: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be set in Vercel env vars.
-- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`).
+- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). drizzle-kit generate + migrate needed before Phase 9 runtime runs.
 - [Phase 9 blocker]: Verify OpenClaw WebSocket task dispatch protocol — confirm whether `run_task` accepts extra fields (soul_content, task_category) or requires prompt-prefix injection.
 - [Phase 10 blocker]: Confirm whether OpenClaw supports emitting `decision_annotation` messages from agent reasoning. If unavailable, post-hoc attribution path ships as primary.
 
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: v2.0 roadmap created. Ready to begin Phase 8 planning.
+Stopped at: Completed 08-01-PLAN.md (schema tables + shared types)
 Resume file: None
