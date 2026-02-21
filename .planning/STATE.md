@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-19)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Planning next milestone (v1.2)
+**Current focus:** Planning v2.0 — The SOUL System
 
 ## Current Position
 
-Milestone: v1.1 Google Auth Gate — COMPLETE (shipped 2026-02-19)
-Phase: 07-google-auth-gate — 6/6 plans complete
-Status: v1.1 milestone archived. All 8 Google Auth Gate flows verified. Awaiting next milestone planning.
-Last activity: 2026-02-19 — v1.1 milestone archived.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v2.0 The SOUL System
+Last activity: 2026-02-21 — Milestone v2.0 started
 
-Progress: [████████████████████████████] 100% (6/6 plans)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0 plans)
 
 ## Performance Metrics
 
@@ -45,11 +45,11 @@ Progress: [███████████████████████
 
 ### Decisions
 
-All v1.1 decisions logged in PROJECT.md Key Decisions table. Cleared for next milestone.
+v2.0 milestone started. Soul PRD read and digested. Requirements definition in progress.
 
 ### Roadmap Evolution
 
-v1.1 complete. All decisions logged in PROJECT.md. Cleared for next milestone.
+v2.0 starts at Phase 8. Roadmap pending requirements definition.
 
 ### Pending Todos
 
@@ -65,6 +65,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Stopped at: v1.1 milestone archived. Ready for next milestone planning.
+Last session: 2026-02-21
+Stopped at: v2.0 milestone started. Defining requirements from soul PRD.
 Resume file: None

@@ -33,9 +33,37 @@ Users can deploy a crew of AI bots, watch them work in real-time, and see exactl
 - ✓ POST /executions enforces 401 if no valid Auth.js session token present — v1.1
 - ✓ /new-execution server action reads httpOnly session cookie and forwards Bearer token to backend — v1.1
 
+## Current Milestone: v2.0 — The SOUL System
+
+**Goal:** Transform the platform into an evolutionary learning engine where every run generates signal that mutates and improves agent behavioral configurations over time.
+
+**Target features:**
+- SOUL.md architecture (agent behavioral constitutions loaded at session start)
+- Soul generation, mutation, and differentiation enforcement
+- The Council (3-agent post-run evaluation with causal attribution)
+- God Layer + DNA Library (versioned, indexed, mutation lineage)
+- Agent class system (Novice → Understudy → Artisan) per task category
+- Human confirmation gate for Promote/Retire verdicts
+- Army Builder UI with composition recommendations
+- Gamified promotion/retirement narrative events
+
+---
+
 ### Active
 
-_(Planning for v1.2 — run `/gsd:new-milestone` to define next milestone requirements)_
+<!-- v2.0 The SOUL System — Evolutionary Agent Intelligence -->
+
+- [ ] Every run deploys a minimum of 3 agents per task with meaningfully differentiated SOUL.md behavioral constitutions
+- [ ] Soul generation produces populations via library-seeded mutation (known categories) or archetype spread (novel categories)
+- [ ] Soul differentiation is enforced algorithmically via embedding similarity before deployment
+- [ ] Agents are instrumented to annotate causal soul directive attribution at runtime
+- [ ] Post-run Council (Performance Judge, Soul Analyst, Devil's Advocate) produces verdicts with causal attribution
+- [ ] God Layer reads council verdicts, manages DNA library, drives promotions, retirements, and mutation cycles
+- [ ] DNA Library stores versioned, indexed soul entries with mutation lineage and causal attribution reports
+- [ ] Agent classes (Novice, Understudy, Artisan) tracked per task category with promotion/demotion/retirement logic
+- [ ] Human confirmation gate for Promote and Retire verdicts before library write
+- [ ] Army Builder UI with class composition, library-depth-aware recommendations, and budget enforcement
+- [ ] Gamified promotion/retirement narrative events surfaced to users
 
 ### Out of Scope
 
@@ -100,4 +128,4 @@ _(Planning for v1.2 — run `/gsd:new-milestone` to define next milestone requir
 | Server action (not client fetch) for execution creation | httpOnly cookie inaccessible from client JS | ✓ Good — server action reads and forwards session token transparently; no XSS exposure |
 
 ---
-*Last updated: 2026-02-19 after v1.1 milestone*
+*Last updated: 2026-02-21 after v2.0 milestone start*
