@@ -50,7 +50,11 @@ See `.planning/milestones/v1.1-ROADMAP.md` for full phase details.
 4. The 6+ canonical archetype soul templates (Cautious Verifier, Aggressive Executor, Creative Synthesizer, Structured Analyst, Collaborative Integrator, and variants) are seeded into the database as static library records
 5. `decision_traces` table has a documented 90-day TTL archival policy and the row-count threshold is noted in the schema comment
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md -- Schema files (4 new tables, 3 additive columns, shared types)
+- [ ] 08-02-PLAN.md -- Migration generation (pgvector), archetype seed script (6 archetypes)
 
 ---
 
