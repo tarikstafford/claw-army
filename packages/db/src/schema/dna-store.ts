@@ -32,6 +32,9 @@ export const dnaStore = pgTable(
     compositeScore: numeric('composite_score', { precision: 5, scale: 2 }).notNull(),
     dnaPayload: jsonb('dna_payload').$type<DnaPayload>().notNull(),
     capturedAt: timestamp('captured_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
+    soulId: uuid('soul_id'), // nullable; links DNA capture to source soul (Phase 9)
+    parentSoulIds: uuid('parent_soul_ids').array(), // nullable; mutation lineage parent IDs (Phase 13)
+    mutationLineage: jsonb('mutation_lineage'), // nullable; operations applied from parent (Phase 13)
   },
   (t) => [
     index('dna_store_execution_id_idx').on(t.executionId),

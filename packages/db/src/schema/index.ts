@@ -5,3 +5,7 @@ export * from './billing-events';
 export * from './telemetry';
 export * from './dna-store';
 export * from './tool-invocations';
+export * from './bot-souls';
+export * from './decision-traces';
+export * from './council-verdicts';
+export * from './negative-signal-register';
