@@ -90,7 +90,11 @@ Plans:
 1. After an execution completes, the `decision_traces` table contains rows for each significant agent decision (tool call, reasoning branch, output step) — each row carries a decision ID, decision type, directive referenced, attribution confidence score, and outcome
 2. When the OpenClaw runtime supports `decision_annotation` messages, those messages are the source of truth for trace rows — when unavailable, the post-hoc attribution compiler runs automatically against the `tool_invocations` sequence and produces equivalent rows, with no manual switch required
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md -- Schema unique constraint migration + post-hoc attribution compiler
+- [ ] 10-02-PLAN.md -- Admin TTL cleanup route + OpenClaw decision_annotation stub
 
 ---
 
