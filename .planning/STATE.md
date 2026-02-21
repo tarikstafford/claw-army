@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 9 Plan 03 complete)
+**Current focus:** v2.0 — The SOUL System (Phase 9 complete — ready for Phase 10)
 
 ## Current Position
 
@@ -14,7 +14,7 @@ Plan: 03 (complete)
 Status: Phase 9 Plan 03 complete — humanReviewFlag persisted to database; SGEN-05 fully satisfied
 Last activity: 2026-02-21 — Phase 09-03 complete (humanReviewFlag schema column, migration, and soul-generator.ts insert wired)
 
-Progress: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7% (2/TBD v2.0 plans)
+Progress: [██░░░░░░░░░░░░░░░░░░░░░░░░░░] 11% (3/TBD v2.0 plans — Phase 9 complete)
 
 ## Performance Metrics
 

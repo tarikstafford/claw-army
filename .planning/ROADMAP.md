@@ -224,7 +224,7 @@ Plans:
 | 6. UI Command Center | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. Google Auth Gate | v1.1 | 6/6 | Complete | 2026-02-19 |
 | 8. Database Schema and Shared Types | v2.0 | 0/TBD | Not started | - |
-| 9. Soul Generation and Dispatch Integration | v2.0 | 2/3 | In progress | - |
+| 9. Soul Generation and Dispatch Integration | v2.0 | 3/3 | Complete | 2026-02-21 |
 | 10. Decision Trace Collection | v2.0 | 0/TBD | Not started | - |
 | 11. The Council | v2.0 | 0/TBD | Not started | - |
 | 12. Human Confirmation Gate | v2.0 | 0/TBD | Not started | - |
