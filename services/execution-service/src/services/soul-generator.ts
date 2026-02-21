@@ -462,6 +462,7 @@ export async function generateSoulPopulation(
         constitutionDirectives: candidate.parent.constitutionDirectives,
         embedding: candidate.embedding,
         isArchetype: false,
+        humanReviewFlag: candidate.humanReviewFlag,
       })
       .returning({ id: botSouls.id });
 
