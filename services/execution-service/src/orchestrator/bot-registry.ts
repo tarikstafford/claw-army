@@ -15,6 +15,8 @@ export interface BotEntry {
   gatewayToken: string | null;   // OpenClaw Gateway auth token — null until /ready callback
   openclawClient: OpenClawClient | null; // WebSocket client — null until /ready callback
   currentJobId: string | null;   // BullMQ job ID being processed; null = idle
+  /** UUID of the soul document assigned to this bot — null if pre-SOUL system */
+  soulId: string | null;
   startedAt: number;             // Date.now() — epoch ms when VM was provisioned
   lastTaskClaimedAt: number;     // Date.now() — reset when bot (or sibling) claims a task
 }
