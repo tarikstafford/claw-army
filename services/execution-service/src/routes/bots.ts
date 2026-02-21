@@ -294,6 +294,7 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       body: Type.Object({
         internalIp: Type.String(),
         port: Type.Integer({ minimum: 1, maximum: 65535 }),
+        gatewayToken: Type.String(),
       }),
       response: {
         200: Type.Object({ ok: Type.Boolean() }),
@@ -304,7 +305,7 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     },
   }, async (request, reply) => {
     const { botId } = request.params;
-    const { internalIp, port } = request.body;
+    const { internalIp, port, gatewayToken } = request.body;
 
     // Verify bot exists in Postgres
     const [bot] = await db.select().from(bots).where(eq(bots.id, botId));
@@ -324,7 +325,7 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
     // Connect to OpenClaw Gateway on the bot VM
     const wsUrl = `ws://${internalIp}:${port}`;
-    const client = new OpenClawClient(wsUrl);
+    const client = new OpenClawClient(wsUrl, gatewayToken);
 
     try {
       await client.connect();
@@ -341,8 +342,9 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       return reply.code(503).send({ error: 'Failed to connect to OpenClaw Gateway' } as never);
     }
 
-    // Update registry entry with internalIp and connected client
+    // Update registry entry with internalIp, token, and connected client
     entry.internalIp = internalIp;
+    entry.gatewayToken = gatewayToken;
     entry.openclawClient = client;
     entry.lastTaskClaimedAt = Date.now();
 
