@@ -48,8 +48,8 @@ const GCP_BOT_SERVICE_ACCOUNT = process.env.GCP_BOT_SERVICE_ACCOUNT ?? 'claw-app
  *
  * Lifecycle (async — does NOT wait for VM to be ready):
  * 1. Generate botId UUID
- * 2. Insert bot row in Postgres with status 'spawning'
- * 3. Submit GCE insert operation via Compute Engine API
+ * 2. Insert bot row in Postgres with status 'spawning' (includes soulId)
+ * 3. Submit GCE insert operation via Compute Engine API (receives soulContent for SOUL.md)
  * 4. Register in in-memory bot registry (instanceName set; internalIp + openclawClient = null)
  * 5. Publish bot_started event
  *
@@ -58,10 +58,14 @@ const GCP_BOT_SERVICE_ACCOUNT = process.env.GCP_BOT_SERVICE_ACCOUNT ?? 'claw-app
  * and openclawClient on the registry entry.
  *
  * @param executionId - UUID of the execution this bot belongs to
+ * @param soulId - UUID of the bot_souls row assigned to this bot
+ * @param soulContent - Full SOUL.md markdown content to deliver to the VM
  * @returns botId and instanceName of the provisioned VM
  */
 export async function spawnBot(
   executionId: string,
+  soulId: string,
+  soulContent: string,
 ): Promise<{ botId: string; instanceName: string }> {
   const botId = randomUUID();
 
@@ -71,6 +75,7 @@ export async function spawnBot(
     executionId,
     status: 'spawning',
     imageTag: `gce-openclaw-${GCP_ZONE}`,
+    soulId,
   });
 
   const gatewayToken = randomUUID();
@@ -91,6 +96,7 @@ export async function spawnBot(
       llmProvider: LLM_PROVIDER,
       botServiceAccount: GCP_BOT_SERVICE_ACCOUNT,
       gatewayToken,
+      soulContent,
     });
     instanceName = result.instanceName;
   } catch (err) {
@@ -126,6 +132,7 @@ export async function spawnBot(
     gatewayToken,
     openclawClient: null,
     currentJobId: null,
+    soulId,
     startedAt: Date.now(),
     lastTaskClaimedAt: Date.now(),
   });
@@ -213,25 +220,25 @@ export async function stopBot(
 // ──────────────────────────────────────────────────────────────────────────────
 
 /**
- * Provision enough bot VMs to reach maxBots for the given execution.
+ * Provision bot VMs for the given execution, one per soul in the souls array.
  * Respects the current bot count — does not over-provision.
  *
  * Spawns in parallel using Promise.allSettled so one failure doesn't block others.
  *
  * @param executionId - UUID of the execution to spawn bots for
- * @param maxBots - Maximum number of bots allowed for this execution
+ * @param souls - Array of { soulId, soulContent } — length determines bot count
  */
 export async function spawnBotsForExecution(
   executionId: string,
-  maxBots: number,
+  souls: Array<{ soulId: string; soulContent: string }>,
 ): Promise<void> {
   const currentCount = getActiveBotCount(executionId);
-  const toSpawn = Math.max(0, maxBots - currentCount);
+  const toSpawn = Math.max(0, souls.length - currentCount);
 
   if (toSpawn === 0) {
     console.log('[bot-orchestrator] No bots to spawn (already at max):', {
       executionId,
-      maxBots,
+      targetCount: souls.length,
       currentCount,
     });
     return;
@@ -241,11 +248,13 @@ export async function spawnBotsForExecution(
     executionId,
     toSpawn,
     currentCount,
-    maxBots,
+    targetCount: souls.length,
   });
 
   const results = await Promise.allSettled(
-    Array.from({ length: toSpawn }, () => spawnBot(executionId)),
+    souls.slice(currentCount).map((soul) =>
+      spawnBot(executionId, soul.soulId, soul.soulContent),
+    ),
   );
 
   for (const result of results) {

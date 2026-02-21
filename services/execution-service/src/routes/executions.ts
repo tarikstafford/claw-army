@@ -7,6 +7,7 @@ import {
   transitionExecution,
 } from '../services/execution.service';
 import { planObjective } from '../services/planner.service';
+import { generateSoulPopulation } from '../services/soul-generator';
 import { addTaskToQueue } from '../queue/task-queue';
 import { db, executions, tasks, bots, telemetry } from '@claw/db';
 import { eq, and, sql, desc } from 'drizzle-orm';
@@ -27,7 +28,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     schema: {
       body: Type.Object({
         objective: Type.String({ minLength: 1 }),
-        maxBots: Type.Integer({ minimum: 1, maximum: 20 }),
+        maxBots: Type.Integer({ minimum: 3, maximum: 20 }),
         budgetCapCents: Type.Optional(Type.Integer({ minimum: 0 })),
         runtimeLimitSeconds: Type.Optional(Type.Integer({ minimum: 60 })),
         allowedTools: Type.Optional(Type.Array(Type.String())),
@@ -38,6 +39,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         201: Type.Object({
           executionId: Type.String({ format: 'uuid' }),
           status: Type.Literal('queued'),
+        }),
+        400: Type.Object({
+          error: Type.String(),
         }),
         401: Type.Object({
           error: Type.String(),
@@ -61,6 +65,17 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       allowedTools = [],
     } = request.body;
 
+    const MIN_POPULATION = 3;
+
+    // SOUL-02: Custom guard for human-readable minimum population message.
+    // TypeBox schema also enforces minimum:3 as defense-in-depth, but its
+    // error message is a generic JSON Schema validation string.
+    if (maxBots < MIN_POPULATION) {
+      return reply.code(400).send({
+        error: `A minimum of ${MIN_POPULATION} bots is required to maintain a meaningfully differentiated soul population. Increase maxBots to at least ${MIN_POPULATION}.`,
+      });
+    }
+
     const result = await createExecution({
       objective,
       maxBots,
@@ -78,6 +93,13 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       try {
         // 1. Plan tasks (LLM decomposition)
         const plannedTasks = await planObjective(objective, maxBots);
+
+        // 1b. Generate differentiated soul population for this execution
+        const souls = await generateSoulPopulation(executionId, objective, maxBots);
+        fastify.log.info(
+          { executionId, soulCount: souls.length },
+          'Soul population generated',
+        );
 
         // 2. Dual-write: Postgres first, then BullMQ
         // Per RESEARCH.md: write to DB first so task rows always exist.
@@ -120,10 +142,10 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           fastify.log.error({ err, executionId }, 'Failed to publish execution_status_changed (non-fatal)');
         });
 
-        // 4. Spawn bots for this execution
-        await spawnBotsForExecution(executionId, maxBots);
+        // 4. Spawn bots for this execution (each bot receives its assigned soul)
+        await spawnBotsForExecution(executionId, souls);
         fastify.log.info(
-          { executionId, botCount: maxBots, taskCount: plannedTasks.length },
+          { executionId, botCount: souls.length, taskCount: plannedTasks.length },
           'Bots spawned, execution running',
         );
 
