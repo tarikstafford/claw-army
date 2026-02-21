@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 8 Plan 01 complete)
+**Current focus:** v2.0 — The SOUL System (Phase 8 Plan 02 complete)
 
 ## Current Position
 
 Phase: 08-database-schema-and-shared-types
-Plan: 01 (complete)
-Status: Phase 8 Plan 01 complete — schema files and shared types defined
-Last activity: 2026-02-21 — Phase 08-01 complete (4 new tables, 3 modified, 5 shared types)
+Plan: 02 (complete)
+Status: Phase 8 Plan 02 complete — migration generated, archetypes seed script created
+Last activity: 2026-02-21 — Phase 08-02 complete (migration 0003, 6 archetype seeds)
 
-Progress: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░] 4% (1/TBD v2.0 plans)
+Progress: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7% (2/TBD v2.0 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
+- Total plans completed: 30
 - Average duration: 5.0 min
-- Total execution time: 158 min
+- Total execution time: 161 min
 
 **By Phase:**
 
@@ -34,11 +34,11 @@ Progress: [█░░░░░░░░░░░░░░░░░░░░░░
 | 05-performance-intelligence-and-dna-capture | 3/3 | 8 min | 2.7 min |
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
 | 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
-| 08-database-schema-and-shared-types | 1/? | 2 min | 2 min |
+| 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-03 (3 min), 07-04 (2 min), 07-05 (3 min), 07-06 (1 min), 08-01 (2 min)
-- Trend: ~2 min per plan for schema/types work.
+- Last 5 plans: 07-04 (2 min), 07-05 (3 min), 07-06 (1 min), 08-01 (2 min), 08-02 (3 min)
+- Trend: ~2-3 min per plan for schema/migration/seed work.
 
 *Updated after each plan completion*
 
@@ -65,6 +65,13 @@ Phase 08-01 decisions:
 - All additive columns on bots/executions/dna_store are nullable with no defaults — safe for live Cloud SQL with existing rows pre-dating the SOUL system
 - decision_traces TTL policy (90 days / 5M row threshold) documented as JSDoc in schema file; enforcement deferred to Phase 10
 
+Phase 08-02 decisions:
+- Migration file renamed from drizzle-kit auto-generated 0003_solid_magdalene.sql to 0003_soul_system_foundation.sql; journal tag updated — drizzle-kit tracks migrations by tag in _journal.json, so rename is fully safe; snapshot file is indexed numerically and unaffected
+- pgvector CREATE EXTENSION IF NOT EXISTS vector manually prepended as first migration statement — drizzle-kit does not emit extension creation; manual prepend is the standard approach and is idempotent
+- Seed script idempotency guard uses count >= 6 (not == 0) — tolerates partial seed states where some archetypes were inserted before a failure
+- Archetype SOUL.md content is full markdown documents so Phase 9 can inject soulContent directly as system prompt prefixes without additional templating
+- constitutionDirectives stored as both JSONB array column and verbatim in SOUL.md Constitution section — single source of truth for inviolable directives
+
 ### Roadmap Evolution
 
 v2.0 starts at Phase 8 (v1.0 Phases 1–6, v1.1 Phase 7). 7 phases planned. Roadmap finalized 2026-02-21.
@@ -80,12 +87,13 @@ None.
 - [Deferred]: GCP resources not yet provisioned. Terraform config valid. Run terraform apply when GCP project is ready.
 - [Production]: Terraform needs bot-lifecycle-billing-sub subscription for Billing Engine.
 - [Production]: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be set in Vercel env vars.
-- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). drizzle-kit generate + migrate needed before Phase 9 runtime runs.
+- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). Migration 0003_soul_system_foundation.sql is ready; apply via `cd packages/db && npx drizzle-kit migrate` after pgvector confirmed.
+- [Phase 8 blocker]: Run seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
 - [Phase 9 blocker]: Verify OpenClaw WebSocket task dispatch protocol — confirm whether `run_task` accepts extra fields (soul_content, task_category) or requires prompt-prefix injection.
 - [Phase 10 blocker]: Confirm whether OpenClaw supports emitting `decision_annotation` messages from agent reasoning. If unavailable, post-hoc attribution path ships as primary.
 
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 08-01-PLAN.md (schema tables + shared types)
+Stopped at: Completed 08-02-PLAN.md (migration generated + archetype seed script)
 Resume file: None
