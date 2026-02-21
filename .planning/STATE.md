@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 9 complete — ready for Phase 10)
+**Current focus:** v2.0 — The SOUL System (Phase 10 Plan 01 complete — decision trace attribution compiler shipped)
 
 ## Current Position
 
-Phase: 09-soul-generation-and-dispatch-integration
-Plan: 03 (complete)
-Status: Phase 9 Plan 03 complete — humanReviewFlag persisted to database; SGEN-05 fully satisfied
-Last activity: 2026-02-21 — Phase 09-03 complete (humanReviewFlag schema column, migration, and soul-generator.ts insert wired)
+Phase: 10-decision-trace-collection
+Plan: 01 (complete)
+Status: Phase 10 Plan 01 complete — unique constraint on decision_traces.decision_id + post-hoc attribution compiler wired into performance pipeline
+Last activity: 2026-02-22 — Phase 10-01 complete (migration 0005, attribution-compiler.ts, performance-engine.ts updated)
 
-Progress: [██░░░░░░░░░░░░░░░░░░░░░░░░░░] 11% (3/TBD v2.0 plans — Phase 9 complete)
+Progress: [██░░░░░░░░░░░░░░░░░░░░░░░░░░] 12% (4/TBD v2.0 plans — Phase 10 Plan 01 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
+- Total plans completed: 33
 - Average duration: 4.9 min
-- Total execution time: 162 min
+- Total execution time: 170 min
 
 **By Phase:**
 
@@ -36,10 +36,11 @@ Progress: [██░░░░░░░░░░░░░░░░░░░░░
 | 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
 | 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
 | 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
+| 10-decision-trace-collection | 1/? | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-01 (2 min), 08-02 (3 min), 09-01 (3 min), 09-03 (1 min)
-- Trend: ~1-3 min per plan for targeted gap-closure work.
+- Last 5 plans: 08-02 (3 min), 09-01 (3 min), 09-03 (1 min), 10-01 (8 min)
+- Trend: ~1-8 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
 
@@ -77,6 +78,10 @@ Phase 08-02 decisions:
 - [Phase 09-01]: humanReviewFlag set on soul instead of throwing when MAX_MUTATION_ITERATIONS exceeded — pipeline completes, flagged souls reviewed externally per SGEN-04/05
 - [Phase 09-03]: humanReviewFlag column placed after embedding, before createdAt — consistent with column ordering convention of operational fields before audit timestamps
 - [Phase 09-03]: Migration renamed from auto-generated 0004_empty_lady_bullseye to 0004_add_human_review_flag following the pattern established in 08-02 — drizzle-kit tracks by _journal.json tag, rename is safe
+- [Phase 10-01]: Migration 0005 renamed from 0005_slimy_goliath to 0005_decision_traces_unique_decision_id; journal tag updated; snapshot file (numerically indexed) untouched — same rename pattern as prior migrations
+- [Phase 10-01]: MAX_INVOCATIONS_PER_BOT=50 caps LLM cost per bot; rejected tool calls included for counterfactual value in CNCL-04
+- [Phase 10-01]: reasoning_branch writes low-confidence fallback row on LLM failure — Council always has a row to evaluate; fire-and-forget boundary at top-level never throws
+- [Phase 10-01]: Verbatim directive validation — confidence > 0.5 AND directive not in soulContent → degrade to max 0.3 + validationWarning metadata flag to prevent confabulation from poisoning Council analysis
 
 ### Roadmap Evolution
 
@@ -93,13 +98,13 @@ None.
 - [Deferred]: GCP resources not yet provisioned. Terraform config valid. Run terraform apply when GCP project is ready.
 - [Production]: Terraform needs bot-lifecycle-billing-sub subscription for Billing Engine.
 - [Production]: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be set in Vercel env vars.
-- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). Migrations 0003_soul_system_foundation.sql AND 0004_add_human_review_flag.sql are ready; apply via `cd packages/db && npx drizzle-kit migrate` after pgvector confirmed.
+- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). Migrations 0003_soul_system_foundation.sql, 0004_add_human_review_flag.sql, AND 0005_decision_traces_unique_decision_id.sql are ready; apply via `cd packages/db && npx drizzle-kit migrate` after pgvector confirmed.
 - [Phase 8 blocker]: Run seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
 - [Phase 9 blocker]: Verify OpenClaw WebSocket task dispatch protocol — confirm whether `run_task` accepts extra fields (soul_content, task_category) or requires prompt-prefix injection.
-- [Phase 10 blocker]: Confirm whether OpenClaw supports emitting `decision_annotation` messages from agent reasoning. If unavailable, post-hoc attribution path ships as primary.
+- [Phase 10 blocker resolved]: OpenClaw decision_annotation unavailable — post-hoc attribution path ships as primary (as planned). Attribution compiler complete.
 
 ## Session Continuity
 
-Last session: 2026-02-21
-Stopped at: Completed 09-03-PLAN.md (humanReviewFlag database persistence gap closure)
+Last session: 2026-02-22
+Stopped at: Completed 10-01-PLAN.md (unique constraint migration + post-hoc attribution compiler)
 Resume file: None
