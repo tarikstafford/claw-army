@@ -113,53 +113,53 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SOUL-01 | — | Pending |
-| SOUL-02 | — | Pending |
-| SOUL-03 | — | Pending |
-| SOUL-04 | — | Pending |
-| SGEN-01 | — | Pending |
-| SGEN-02 | — | Pending |
-| SGEN-03 | — | Pending |
-| SGEN-04 | — | Pending |
-| SGEN-05 | — | Pending |
-| DTRC-01 | — | Pending |
-| DTRC-02 | — | Pending |
-| DTRC-03 | — | Pending |
-| CNCL-01 | — | Pending |
-| CNCL-02 | — | Pending |
-| CNCL-03 | — | Pending |
-| CNCL-04 | — | Pending |
-| CNCL-05 | — | Pending |
-| CNCL-06 | — | Pending |
-| CONF-01 | — | Pending |
-| CONF-02 | — | Pending |
-| CONF-03 | — | Pending |
-| CONF-04 | — | Pending |
-| GODL-01 | — | Pending |
-| GODL-02 | — | Pending |
-| GODL-03 | — | Pending |
-| GODL-04 | — | Pending |
-| GODL-05 | — | Pending |
-| GODL-06 | — | Pending |
-| GODL-07 | — | Pending |
-| CLAS-01 | — | Pending |
-| CLAS-02 | — | Pending |
-| CLAS-03 | — | Pending |
-| CLAS-04 | — | Pending |
-| CLAS-05 | — | Pending |
-| CLAS-06 | — | Pending |
-| UIEX-01 | — | Pending |
-| UIEX-02 | — | Pending |
-| UIEX-03 | — | Pending |
-| UIEX-04 | — | Pending |
-| UIEX-05 | — | Pending |
+| SOUL-01 | Phase 8 | Pending |
+| SOUL-02 | Phase 9 | Pending |
+| SOUL-03 | Phase 8 | Pending |
+| SOUL-04 | Phase 8 | Pending |
+| SGEN-01 | Phase 9 | Pending |
+| SGEN-02 | Phase 9 | Pending |
+| SGEN-03 | Phase 9 | Pending |
+| SGEN-04 | Phase 9 | Pending |
+| SGEN-05 | Phase 9 | Pending |
+| DTRC-01 | Phase 10 | Pending |
+| DTRC-02 | Phase 10 | Pending |
+| DTRC-03 | Phase 8 | Pending |
+| CNCL-01 | Phase 11 | Pending |
+| CNCL-02 | Phase 11 | Pending |
+| CNCL-03 | Phase 11 | Pending |
+| CNCL-04 | Phase 11 | Pending |
+| CNCL-05 | Phase 11 | Pending |
+| CNCL-06 | Phase 11 | Pending |
+| CONF-01 | Phase 12 | Pending |
+| CONF-02 | Phase 12 | Pending |
+| CONF-03 | Phase 12 | Pending |
+| CONF-04 | Phase 12 | Pending |
+| GODL-01 | Phase 13 | Pending |
+| GODL-02 | Phase 13 | Pending |
+| GODL-03 | Phase 13 | Pending |
+| GODL-04 | Phase 13 | Pending |
+| GODL-05 | Phase 13 | Pending |
+| GODL-06 | Phase 13 | Pending |
+| GODL-07 | Phase 13 | Pending |
+| CLAS-01 | Phase 13 | Pending |
+| CLAS-02 | Phase 13 | Pending |
+| CLAS-03 | Phase 13 | Pending |
+| CLAS-04 | Phase 13 | Pending |
+| CLAS-05 | Phase 13 | Pending |
+| CLAS-06 | Phase 13 | Pending |
+| UIEX-01 | Phase 14 | Pending |
+| UIEX-02 | Phase 14 | Pending |
+| UIEX-03 | Phase 14 | Pending |
+| UIEX-04 | Phase 14 | Pending |
+| UIEX-05 | Phase 14 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 37 total
-- Mapped to phases: 0
-- Unmapped: 37 ⚠️ (to be filled by roadmapper)
+- Mapped to phases: 37
+- Unmapped: 0 ✓
 
 ---
 
 *Requirements defined: 2026-02-21*
-*Last updated: 2026-02-21 after initial v2.0 definition*
+*Last updated: 2026-02-21 — traceability filled after roadmap creation*

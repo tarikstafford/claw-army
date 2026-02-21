@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-19)
+See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** Planning v2.0 — The SOUL System
+**Current focus:** v2.0 — The SOUL System (roadmap created, ready for Phase 8 planning)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Not started (requirements defined, roadmap created)
 Plan: —
-Status: Defining requirements for v2.0 The SOUL System
-Last activity: 2026-02-21 — Milestone v2.0 started
+Status: Ready for Phase 8 planning
+Last activity: 2026-02-21 — v2.0 roadmap created (7 phases, phases 8–14, 37 requirements)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0 plans)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (0/TBD v2.0 plans)
 
 ## Performance Metrics
 
@@ -45,11 +45,22 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 
 ### Decisions
 
-v2.0 milestone started. Soul PRD read and digested. Requirements definition in progress.
+v2.0 milestone started. Soul PRD read and digested. Requirements defined (37 requirements, 8 categories: SOUL, SGEN, DTRC, CNCL, CONF, GODL, CLAS, UIEX). Roadmap created with 7 phases (8–14).
+
+Phase build order driven by hard dependency direction: schema before generation, generation before traces, traces before council, council before confirmation gate, gate before God Layer, God Layer before UI. Each phase is independently testable before the next begins.
+
+Key architecture decisions carried into v2.0:
+- Council runs fully async on a dedicated `council-queue` (concurrency=5) — never blocks execution result delivery
+- Three Council judges run with zero inter-agent visibility; Devil's Advocate uses a heterogeneous LLM provider family
+- Counterfactual verification by Soul Analyst is mandatory — self-reported attribution alone is treated as confabulation
+- Human confirmation gate ships with anti-rubber-stamp mechanics at launch (evidence surface, confirmation rate tracking, parity framing for reject)
+- God Layer evaluates `bot_souls` snapshot at execution start — Redis lock prevents mid-run library mutations
+- pgvector extension on Cloud SQL must be confirmed before Phase 8 migration runs
+- OpenClaw WebSocket protocol acceptance of soul fields must be confirmed before Phase 9 dispatch code is finalized
 
 ### Roadmap Evolution
 
-v2.0 starts at Phase 8. Roadmap pending requirements definition.
+v2.0 starts at Phase 8 (v1.0 Phases 1–6, v1.1 Phase 7). 7 phases planned. Roadmap finalized 2026-02-21.
 
 ### Pending Todos
 
@@ -62,9 +73,12 @@ None.
 - [Deferred]: GCP resources not yet provisioned. Terraform config valid. Run terraform apply when GCP project is ready.
 - [Production]: Terraform needs bot-lifecycle-billing-sub subscription for Billing Engine.
 - [Production]: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be set in Vercel env vars.
+- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`).
+- [Phase 9 blocker]: Verify OpenClaw WebSocket task dispatch protocol — confirm whether `run_task` accepts extra fields (soul_content, task_category) or requires prompt-prefix injection.
+- [Phase 10 blocker]: Confirm whether OpenClaw supports emitting `decision_annotation` messages from agent reasoning. If unavailable, post-hoc attribution path ships as primary.
 
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: v2.0 milestone started. Defining requirements from soul PRD.
+Stopped at: v2.0 roadmap created. Ready to begin Phase 8 planning.
 Resume file: None
