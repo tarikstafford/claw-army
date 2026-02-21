@@ -7,6 +7,7 @@ import { sseRoutes } from './routes/sse';
 import { metricsRoutes } from './routes/metrics';
 import { botsRoutes } from './routes/bots';
 import { billingRoutes } from './routes/billing';
+import { adminRoutes } from './routes/admin';
 
 export async function buildApp() {
   const app = Fastify({
@@ -30,6 +31,9 @@ export async function buildApp() {
   app.register(metricsRoutes, { prefix: '/executions' });
   app.register(botsRoutes, { prefix: '/bots' });
   app.register(billingRoutes, { prefix: '/billing' });
+
+  // Admin routes (Phase 10 — decision trace cleanup)
+  app.register(adminRoutes, { prefix: '/admin' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
