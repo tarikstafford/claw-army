@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 8 Plan 02 complete)
+**Current focus:** v2.0 — The SOUL System (Phase 9 Plan 01 complete)
 
 ## Current Position
 
-Phase: 08-database-schema-and-shared-types
-Plan: 02 (complete)
-Status: Phase 8 Plan 02 complete — migration generated, archetypes seed script created
-Last activity: 2026-02-21 — Phase 08-02 complete (migration 0003, 6 archetype seeds)
+Phase: 09-soul-generation-and-dispatch-integration
+Plan: 01 (complete)
+Status: Phase 9 Plan 01 complete — soul generation pipeline implemented (generateSoulPopulation)
+Last activity: 2026-02-21 — Phase 09-01 complete (soul-generator.ts, 495 lines, zero TS errors)
 
 Progress: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7% (2/TBD v2.0 plans)
 
@@ -35,10 +35,11 @@ Progress: [█░░░░░░░░░░░░░░░░░░░░░░
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
 | 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
 | 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
+| 09-soul-generation-and-dispatch-integration | 1/? | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-04 (2 min), 07-05 (3 min), 07-06 (1 min), 08-01 (2 min), 08-02 (3 min)
-- Trend: ~2-3 min per plan for schema/migration/seed work.
+- Last 5 plans: 07-06 (1 min), 08-01 (2 min), 08-02 (3 min), 09-01 (3 min)
+- Trend: ~2-3 min per plan for service/pipeline work.
 
 *Updated after each plan completion*
 
@@ -71,6 +72,9 @@ Phase 08-02 decisions:
 - Seed script idempotency guard uses count >= 6 (not == 0) — tolerates partial seed states where some archetypes were inserted before a failure
 - Archetype SOUL.md content is full markdown documents so Phase 9 can inject soulContent directly as system prompt prefixes without additional templating
 - constitutionDirectives stored as both JSONB array column and verbatim in SOUL.md Constitution section — single source of truth for inviolable directives
+- [Phase 09-01]: Novel path restricted to Substitution and Attenuation only at temperature 0.2 to preserve archetype spread (amplification/recombination/introduction would erode behavioral distinctiveness)
+- [Phase 09-01]: pickFromPool() helper wraps array index-modulo access for noUncheckedIndexedAccess safety without littering callsites with non-null assertions
+- [Phase 09-01]: humanReviewFlag set on soul instead of throwing when MAX_MUTATION_ITERATIONS exceeded — pipeline completes, flagged souls reviewed externally per SGEN-04/05
 
 ### Roadmap Evolution
 
@@ -95,5 +99,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 08-02-PLAN.md (migration generated + archetype seed script)
+Stopped at: Completed 09-01-PLAN.md (soul generation pipeline)
 Resume file: None
