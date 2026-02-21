@@ -36,6 +36,13 @@
       "when": 1771669259361,
       "tag": "0004_add_human_review_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771692711273,
+      "tag": "0005_decision_traces_unique_decision_id",
+      "breakpoints": true
     }
   ]
 }

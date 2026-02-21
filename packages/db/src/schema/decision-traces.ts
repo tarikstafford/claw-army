@@ -7,6 +7,7 @@ import {
   jsonb,
   timestamp,
   index,
+  unique,
 } from 'drizzle-orm/pg-core';
 import { executions } from './executions';
 import { botSouls } from './bot-souls';
@@ -42,6 +43,7 @@ export const decisionTraces = pgTable(
     index('decision_traces_bot_id_idx').on(t.botId),
     index('decision_traces_soul_id_idx').on(t.soulId),
     index('decision_traces_decided_at_idx').on(t.decidedAt), // needed for TTL archival queries
+    unique('decision_traces_decision_id_unique').on(t.decisionId),
   ],
 );
 

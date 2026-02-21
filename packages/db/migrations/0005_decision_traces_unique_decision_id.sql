@@ -1,0 +1,1 @@
+ALTER TABLE "decision_traces" ADD CONSTRAINT "decision_traces_decision_id_unique" UNIQUE("decision_id");
