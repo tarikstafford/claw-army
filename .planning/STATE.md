@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 9 Plan 01 complete)
+**Current focus:** v2.0 — The SOUL System (Phase 9 Plan 03 complete)
 
 ## Current Position
 
 Phase: 09-soul-generation-and-dispatch-integration
-Plan: 01 (complete)
-Status: Phase 9 Plan 01 complete — soul generation pipeline implemented (generateSoulPopulation)
-Last activity: 2026-02-21 — Phase 09-01 complete (soul-generator.ts, 495 lines, zero TS errors)
+Plan: 03 (complete)
+Status: Phase 9 Plan 03 complete — humanReviewFlag persisted to database; SGEN-05 fully satisfied
+Last activity: 2026-02-21 — Phase 09-03 complete (humanReviewFlag schema column, migration, and soul-generator.ts insert wired)
 
 Progress: [█░░░░░░░░░░░░░░░░░░░░░░░░░░░] 7% (2/TBD v2.0 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30
-- Average duration: 5.0 min
-- Total execution time: 161 min
+- Total plans completed: 32
+- Average duration: 4.9 min
+- Total execution time: 162 min
 
 **By Phase:**
 
@@ -35,11 +35,11 @@ Progress: [█░░░░░░░░░░░░░░░░░░░░░░
 | 06-ui-command-center | 5/5 | 15 min | 3 min |
 | 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
 | 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
-| 09-soul-generation-and-dispatch-integration | 1/? | 3 min | 3 min |
+| 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-06 (1 min), 08-01 (2 min), 08-02 (3 min), 09-01 (3 min)
-- Trend: ~2-3 min per plan for service/pipeline work.
+- Last 5 plans: 08-01 (2 min), 08-02 (3 min), 09-01 (3 min), 09-03 (1 min)
+- Trend: ~1-3 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
 
@@ -75,6 +75,8 @@ Phase 08-02 decisions:
 - [Phase 09-01]: Novel path restricted to Substitution and Attenuation only at temperature 0.2 to preserve archetype spread (amplification/recombination/introduction would erode behavioral distinctiveness)
 - [Phase 09-01]: pickFromPool() helper wraps array index-modulo access for noUncheckedIndexedAccess safety without littering callsites with non-null assertions
 - [Phase 09-01]: humanReviewFlag set on soul instead of throwing when MAX_MUTATION_ITERATIONS exceeded — pipeline completes, flagged souls reviewed externally per SGEN-04/05
+- [Phase 09-03]: humanReviewFlag column placed after embedding, before createdAt — consistent with column ordering convention of operational fields before audit timestamps
+- [Phase 09-03]: Migration renamed from auto-generated 0004_empty_lady_bullseye to 0004_add_human_review_flag following the pattern established in 08-02 — drizzle-kit tracks by _journal.json tag, rename is safe
 
 ### Roadmap Evolution
 
@@ -91,7 +93,7 @@ None.
 - [Deferred]: GCP resources not yet provisioned. Terraform config valid. Run terraform apply when GCP project is ready.
 - [Production]: Terraform needs bot-lifecycle-billing-sub subscription for Billing Engine.
 - [Production]: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be set in Vercel env vars.
-- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). Migration 0003_soul_system_foundation.sql is ready; apply via `cd packages/db && npx drizzle-kit migrate` after pgvector confirmed.
+- [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). Migrations 0003_soul_system_foundation.sql AND 0004_add_human_review_flag.sql are ready; apply via `cd packages/db && npx drizzle-kit migrate` after pgvector confirmed.
 - [Phase 8 blocker]: Run seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
 - [Phase 9 blocker]: Verify OpenClaw WebSocket task dispatch protocol — confirm whether `run_task` accepts extra fields (soul_content, task_category) or requires prompt-prefix injection.
 - [Phase 10 blocker]: Confirm whether OpenClaw supports emitting `decision_annotation` messages from agent reasoning. If unavailable, post-hoc attribution path ships as primary.
@@ -99,5 +101,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed 09-01-PLAN.md (soul generation pipeline)
+Stopped at: Completed 09-03-PLAN.md (humanReviewFlag database persistence gap closure)
 Resume file: None
