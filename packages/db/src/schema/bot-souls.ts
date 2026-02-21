@@ -29,6 +29,7 @@ export const botSouls = pgTable(
     dimensions: jsonb('dimensions').notNull(), // 7-dimension breakdown as JSONB
     constitutionDirectives: jsonb('constitution_directives').notNull(), // array of inviolable directives
     embedding: vector('embedding', { dimensions: 1536 }), // nullable; populated in Phase 9 for cosine similarity
+    humanReviewFlag: boolean('human_review_flag').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
   (t) => [
