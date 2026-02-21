@@ -1,267 +1,390 @@
-# Feature Research
+# Feature Landscape
 
 **Domain:** AI Bot Orchestration Platform (multi-agent workforce, parallel task execution)
-**Researched:** 2026-02-18
-**Confidence:** HIGH (multiple verified sources: official docs, industry analyses, platform documentation)
+**Researched:** 2026-02-21 (v1 features) + 2026-02-21 (v2.0 SOUL System features)
+**Confidence:** HIGH (v1 features); MEDIUM-HIGH (SOUL System — novel domain, cross-referenced against evolutionary AI, LLM-as-judge, and gamification research)
 
 ---
 
-## Feature Landscape
+## Summary
 
-### Table Stakes (Users Expect These)
+This file covers two milestone layers:
 
-Features users assume exist. Missing these = product feels incomplete or unsafe.
+- **v1 Features (already shipped):** Execution intake, bot orchestration, tool gateway, performance scoring, DNA capture, UI dashboards. See "v1 Feature Landscape" section below — do not re-research or re-implement.
+- **v2.0 SOUL System (this milestone):** Behavioral constitutions, soul mutation operations, Council evaluation, God Layer + DNA Library, agent class progression, human confirmation gates, Army Builder UI, gamified lifecycle events.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Objective intake + task decomposition** | Any orchestration platform must split a goal into executable tasks — this is the core promise | MEDIUM | MVP can be simple flat decomposition (no DAG builder required) |
-| **Parallel agent execution** | Orchestration without parallelism is just sequential scripting; users come for speed | MEDIUM | Fan-out/fan-in is the pattern — Temporal, LangGraph, CrewAI all implement this |
-| **Task claiming / work queue** | Distributed agents need a lease-based claiming mechanism to avoid duplicate work | MEDIUM | Must support reassignment on failure; idempotent task IDs required |
-| **Agent lifecycle management** | Spawn, monitor, idle-detect, and terminate agents — the platform is the process manager | MEDIUM | Idle timeout, max-runtime enforcement, graceful shutdown |
-| **Hard budget caps** | Users deploying AI workers need guaranteed spend ceilings; missing this causes financial harm | LOW | Must be enforced at gateway level, not just UI — token burn stops execution, not just displays a warning |
-| **Per-execution status tracking** | queued → running → paused → completed → failed — users need to know what's happening | LOW | Real-time state changes over websocket or polling; lifecycle events are standard |
-| **Tool allowlisting** | Unrestricted tool access is unacceptable for any production system; users expect explicit control | LOW | Users configure which tools each execution can use |
-| **Rate limiting per agent** | Prevents a single runaway agent from consuming all quota; every platform implements this | LOW | Per-bot token/min and tool-call/min limits |
-| **Audit / event log** | Every tool call, every state change, every error must be logged for debugging and accountability | LOW | Append-only structured event stream; not just raw stderr |
-| **Execution cost reporting** | After a run, users need to know what it cost — per execution and per bot | LOW | Cost is a first-class output, not an afterthought |
-| **Bot-level performance metrics** | Tasks handled, runtime, errors, retries per bot — users need to evaluate what happened | MEDIUM | Retroactive (post-run) is acceptable for MVP; real-time adds complexity |
-| **Sandbox isolation** | Running untrusted AI-generated code/commands without isolation is a security breach | HIGH | Docker containers minimum; microVMs (Firecracker/Kata) for stronger isolation. Network restricted to Tool Gateway only |
-| **Loop/thrash detection** | Runaway agents repeating the same failing call destroy budgets; every serious platform detects this | MEDIUM | Watchdog pattern — detect repetitive behavior pattern, revoke bot |
-| **Structured trace capture** | Not raw logs — step-level structured data (tool called, args, result, duration, tokens) | MEDIUM | Enables post-run analysis; required for any performance intelligence |
-| **Execution history** | Users need to view past runs — list of executions with status and cost | LOW | Simple list view with drill-down; pagination required |
-
-### Differentiators (Competitive Advantage)
-
-Features that set the product apart. Not required by convention, but highly valued.
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Bot Performance Scoring (composite)** | Normalizes success rate + efficiency + cost + stability into a single score per bot; surfaces quality differences invisible in raw metrics | MEDIUM | Score formula: 40% success, 30% efficiency, 20% cost, 10% stability — documented in PRD. No competitor does this out-of-the-box |
-| **Bot Leaderboard with Tier Indicators** | Visual ranking of bots by performance creates immediate narrative ("Bot-7 is your best worker") — makes performance data actionable and emotionally engaging | LOW | Green/Yellow/Red tiers; top-performing bot highlighted. Simple table but high perceived value |
-| **DNA Capture for Elite Bots** | Capturing the "recipe" (system prompt, tool sequence, decision patterns, timing) of top-performing runs creates a proprietary improvement moat. No other platform captures this at the execution template level | HIGH | This is the primary competitive moat — equivalent to NVIDIA's data flywheel concept applied to agent run patterns. Must be PII-safe and tenant-isolated |
-| **DNA Replay Engine (internal)** | Validates that captured elite-bot DNA is actually repeatable and not overfitting to a single run | HIGH | Internal-only for MVP — used by platform team to validate DNA before promotion. Not user-facing |
-| **Real-time Live Activity Feed** | Stream of events (bot claimed task, tool invoked, guardrail triggered) creates engagement during long runs — users stay on the page | MEDIUM | Websocket feed; not just a progress bar. Each event is legible ("Bot-3 called fetch_url on example.com") |
-| **Per-bot-hour billing transparency** | Showing users exactly how many bot-hours were consumed per bot, not just a total dollar figure, makes cost intuitive — they see the AI workforce working for them | LOW | UI display (non-payable in MVP); formula is straightforward metering |
-| **Execution pause/resume controls** | Letting users pause a running execution (e.g., to adjust budget) without losing work is rarely implemented well | HIGH | Requires state checkpointing; complex but high retention value |
-| **Guardrail event feed in UI** | Making guardrail triggers visible ("Budget cap triggered — stopping Bot-4") builds trust in the platform's safety rather than making safety invisible | LOW | Part of live activity feed, tagged as guardrail events |
-| **Bot Detail Drill-Down** | Step-level trace view per bot — developers can see every prompt, every tool call, every output in sequence | MEDIUM | Optional expandable panel; high value for debugging and post-mortems |
-| **Objective-category tagging for DNA** | DNA is tagged by objective type (e.g., "email processing", "data extraction") allowing future matching of elite patterns to similar objectives | MEDIUM | Foundational for DNA to become a real improvement system over time |
-| **Historical performance trend** | Track bot scores across executions over time — shows improvement from DNA capture loop | MEDIUM | Requires score history storage; enables the "get better every run" narrative |
-
-### Anti-Features (Commonly Requested, Often Problematic)
-
-Features that seem good but create problems — deliberately excluded from MVP.
-
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **DAG visual workflow builder** | Seems powerful; users want to design complex agent graphs visually | Massive frontend investment; most users need flat parallel tasks not graphs; creates complexity that undermines the "deploy a crew" simplicity | MVP uses flat task decomposition. DAG builder is v2+ only after validating that users actually need it |
-| **Arbitrary shell execution in bots** | Developers want maximum bot capability | Security nightmare — arbitrary shell in containers = container escape vector; impossible to audit; creates unlimited blast radius | Tool Gateway with explicit allowlist. If users need a tool, they add it to the approved tool set |
-| **Real-time per-step cost streaming** | Users want live cost ticker during execution | Requires sub-second cost calculation for every LLM call including streaming; adds significant infrastructure complexity for marginal UX gain | Show estimated cost based on bot-hours consumed (updates periodically) + budget remaining |
-| **User-defined agent roles (CrewAI-style)** | Role-based agents ("Researcher", "Writer") sound appealing | Adds prompt engineering complexity, inconsistent quality, and hard-to-debug failures when roles conflict | Stateless ephemeral bots all follow the same base system prompt; differentiation comes from DNA capture, not user-configured roles |
-| **Recursive replanning / DAG-based task graphs** | Sophisticated users want agents to spawn sub-agents dynamically | Unbounded depth creates runaway cost and circular dependencies; extremely hard to debug; out of scope for MVP market (SMEs) | Flat decomposition only in MVP. All tasks are independent and parallelizable |
-| **Human-in-the-loop approval gates** | Enterprise feature for sensitive actions requiring sign-off | Breaks the "deploy and watch" autonomy model that is the product's core promise; adds significant latency and UX complexity | Guardrails (hard budget caps, tool allowlists) are the safety model — not human approval mid-run. HITL is v2 for regulated industries |
-| **Multi-tenant tool plugin marketplace** | Platform as ecosystem for third-party tool providers | Requires security vetting, versioning, revenue share, and support infrastructure — a company in itself | Ship first-party Tool Gateway with curated tools. Marketplace is a v3+ strategy |
-| **Real-time model fine-tuning from DNA** | DNA capture sounds like it should immediately improve future runs | Fine-tuning pipelines are complex, expensive, require RLHF infrastructure, and take weeks to evaluate safely. Premature optimization | DNA capture stores execution templates for replay and pattern reuse — not model fine-tuning. Start with prompt/strategy capture, not weights |
-| **Per-bot configuration (different prompts per bot)** | Advanced users want to tune individual bots | Creates an N-bot configuration management problem; inconsistency between bots makes performance scoring noisy and DNA capture meaningless | Uniform bots per execution; differentiation through DNA capture applied at execution level, not individual bot level |
+The SOUL System is not incremental polish — it is a paradigm shift from "bots execute tasks" to "bots evolve behavioral strategies across runs." The table stakes for v2.0 are defined by what makes the evolutionary loop coherent, not by competitor parity (no competitor does this at all).
 
 ---
 
-## Feature Dependencies
+## v2.0 SOUL System — Table Stakes
+
+Features that must exist for the SOUL System to be coherent. Missing these makes the v2.0 premise hollow.
+
+### SOUL.md Behavioral Constitutions
+
+| Feature | Why Required | Complexity | Dependency on v1 |
+|---------|--------------|------------|-----------------|
+| SOUL.md schema with defined behavioral dimensions | Without explicit dimensions, mutation has no axes to operate on — you're mutating noise | MEDIUM | None (new artifact type) |
+| Per-agent soul loading at session start | Agents need distinct constitutions to generate differentiated behavior signal | LOW | Bot lifecycle (v1) |
+| Soul differentiation enforcement (embedding similarity pre-deployment) | If agents share near-identical constitutions, evaluation signal is worthless | MEDIUM | DNA store (v1), needs embedding infrastructure |
+| Minimum 3 differentiated agents per task category | Single-agent runs produce no causal comparison baseline | LOW | Bot orchestrator (v1) |
+| Soul version tracking (hash + generation number) | You cannot attribute mutation lineage without knowing what soul version ran | LOW | DNA store (v1) |
+
+**What a SOUL.md governs (research-confirmed dimensions):**
+Research on Anthropic's constitutional approach, CrewClaw SOUL.md patterns, and agent behavioral science confirms 7 core dimensions:
+
+1. **Identity and role** — What the agent conceives its purpose to be (e.g., "aggressive optimizer" vs. "cautious verifier")
+2. **Decision-making priorities** — What to optimize when trade-offs arise (speed vs. thoroughness, breadth vs. depth)
+3. **Tool usage doctrine** — Which tools to reach for first, when to chain calls, when to stop
+4. **Risk tolerance and caution level** — How to handle ambiguous instructions, edge cases, potential errors
+5. **Communication and reporting style** — How structured outputs are formatted, verbosity, what to surface
+6. **Recovery and resilience behavior** — How to handle failures, retries, partial results, timeout conditions
+7. **Ethical boundaries and hard stops** — What the agent refuses to do regardless of instruction
+
+**How a soul differs from a system prompt:** A system prompt says "do X." A soul says "when trade-offs arise, prefer Y because of Z." Souls govern decision-making under uncertainty — the conditions that standard prompts don't cover.
+
+### Soul Mutation Operations
+
+| Operation | Description | Why Required | Complexity |
+|-----------|-------------|--------------|------------|
+| **Substitution** | Replace a directive with a higher-performing variant from DNA library | Without this, good patterns cannot propagate forward | MEDIUM |
+| **Amplification** | Strengthen a directive that causally correlated with success (increase emphasis, add more specificity) | Without this, partially-good behaviors stay weak | MEDIUM |
+| **Attenuation** | Weaken or remove a directive that causally correlated with failure | Without this, bad behaviors persist | MEDIUM |
+| **Recombination** | Blend directive fragments from two high-performing souls | Without this, evolution has no crossover — it is only point mutation | HIGH |
+| **Introduction** | Insert a novel directive not present in either parent (seeded from archetype library) | Without this, the system converges on local optima without exploration | HIGH |
+
+**Research basis:** EvoAgent (arxiv:2406.14228), GAAPO, and EvoPrompt all confirm these as the standard mutation taxonomy for LLM-based evolutionary systems. Recombination and Introduction are the high-complexity operations — they require semantic coherence checking to prevent contradictory directives after crossover.
+
+**Mutation scope warning:** Mutations must target individual directives, not entire souls. Full-soul replacement breaks lineage continuity and makes attribution impossible. The soul is a collection of directives; mutations operate on directive-level granularity.
+
+### Council Evaluation (3-Judge Post-Run Panel)
+
+| Feature | Why Required | Complexity | Dependency on v1 |
+|---------|--------------|------------|-----------------|
+| Three distinct judge roles (Performance Judge, Soul Analyst, Devil's Advocate) | Single-judge evaluation has ~31% disagreement rate vs human consensus; three-role design forces different causal lenses | HIGH | Performance scoring (v1), trace capture (v1) |
+| Causal attribution: soul directive → outcome linkage | The God Layer cannot mutate intelligently without knowing which directive caused which result | HIGH | Runtime annotation (new in v2) |
+| Structured verdict schema (JSON, machine-readable) | Council output feeds God Layer — must be parseable, not prose | LOW | None |
+| Position-randomized evaluation to prevent verbosity bias | Research confirms positional bias causes 10%+ accuracy shifts in judge panels | MEDIUM | None |
+| Disagreement resolution protocol | Without a tie-breaking mechanism, 2-1 splits produce no actionable signal | MEDIUM | None |
+
+**Council roles (research-derived):**
+- **Performance Judge:** Evaluates outcome metrics (task success, efficiency, cost per task, stability). Grounds evaluation in v1 composite score data. Looks for: did this soul produce better task outcomes than its peers this run?
+- **Soul Analyst:** Evaluates behavioral coherence. Did the soul's stated priorities manifest in actual tool call sequences? Identifies which specific directives were causally active. Provides directive-level attribution.
+- **Devil's Advocate:** Challenges success attributions. Asks: was this success due to the soul, or luck (easy task, favorable timing, other bot clearing blockers)? Downgrades soul credit for confounded successes.
+
+**Variance reduction (research-confirmed):**
+- Use distinct model families for different judge roles (e.g., not all Claude — mix in GPT-4 or Gemini for Devil's Advocate)
+- Schema-constrained JSON output mandatory — prose verdicts introduce parsing failure and hallucinated scores
+- Minority-veto rule for retirement verdicts: one judge recommending "Retire" blocks promotion even if two approve it
+- Multiple evaluation temperatures for each judge role to reduce stochastic variance
+
+### Runtime Soul Directive Annotation
+
+| Feature | Why Required | Complexity | Dependency on v1 |
+|---------|--------------|------------|-----------------|
+| Agents annotate which soul directive they are acting under per tool call | Without this, council attribution is retrospective guessing not causal signal | HIGH | Tool gateway (v1), trace capture (v1) |
+| Annotation stored in existing trace capture | Extends v1 trace schema — avoids new infrastructure | LOW | Structured trace capture (v1) |
+
+**This is the hardest v2.0 feature to implement correctly.** Agents must actively self-report directive activation, not just emit tool calls. The annotation can be lightweight (directive ID tag per tool call) but must be built into the bot runtime. Without this, the Council is doing correlation not causation.
+
+---
+
+## v2.0 SOUL System — Differentiators
+
+Features that are not strictly required for coherence but create competitive distance and user engagement.
+
+### God Layer (Meta-Orchestrator)
+
+| Feature | Value Proposition | Complexity | Dependency |
+|---------|-------------------|------------|------------|
+| Automated mutation decision-making from council verdicts | Closes the evolutionary loop without requiring human involvement for every cycle | HIGH | Council evaluation, DNA library |
+| Exploration vs. exploitation balance | Prevents full convergence on known-good souls — maintains population diversity | MEDIUM | God Layer core |
+| Mutation lineage graph (parent → child soul tracking) | Users can see evolution of agent "lineages" — creates narrative and trust in the system | MEDIUM | DNA library |
+| Promotion/demotion/retirement decision generation | God Layer produces recommendations; humans confirm (see confirmation gate below) | MEDIUM | Agent class system |
+
+**Research basis:** Evolutionary algorithm literature confirms that meta-controllers managing population-level selection pressure are essential for preventing premature convergence. The God Layer is the population-level selection mechanism — it is not just "pick the best soul." It must also inject diversity (Introduction mutations) when population variance drops below a threshold.
+
+### DNA Library (Versioned Soul Store)
+
+| Feature | Value Proposition | Complexity | Dependency |
+|---------|-------------------|------------|------------|
+| Versioned soul entries with mutation lineage | Enables time-travel debugging: "why did this soul emerge?" | MEDIUM | v1 DNA store (extends) |
+| Causal attribution reports per soul version | Each soul knows which specific directive changes drove its performance delta | HIGH | Council evaluation |
+| Objective-category indexing | Seeds appropriate archetypes for novel categories without cold-start | MEDIUM | v1 category tagging |
+| Archetype library (6-8 canonical personality templates) | Novel categories without history need a warm start — archetypes provide spread without history | MEDIUM | God Layer |
+| Performance delta tracking per soul version | Soul v3 beat soul v2 by 12% on efficiency — visible improvement narrative | LOW | v1 performance scoring |
+
+**Archetype library matters:** For new task categories, the system has no prior souls to mutate from. Without archetypes, you get random initialization which produces incoherent souls. Archetypes should cover the major behavioral axes: aggressive optimizer, cautious verifier, breadth-first explorer, depth-first specialist, creative recombiner, conservative executor.
+
+### Agent Class Progression (Novice / Understudy / Artisan)
+
+| Feature | Value Proposition | Complexity | Dependency |
+|---------|-------------------|------------|------------|
+| Per-task-category class tracking | Specialization is domain-specific — a Artisan email-processor is still Novice at code review | MEDIUM | DNA library, task category tagging |
+| Promotion thresholds (performance-based, run-count-based) | Research confirms that progression gates need both quality and quantity signals — lucky runs don't promote | LOW | Performance scoring (v1) |
+| Demotion logic (performance regression tracking) | Without demotion, the class system becomes a one-way ratchet with no signal value | MEDIUM | Performance scoring (v1) |
+| Retirement trigger conditions | When a soul consistently underperforms across multiple runs, retirement creates space for new exploration | MEDIUM | God Layer |
+| Class-aware army composition recommendations | In Army Builder, prefer known Artisans for mission-critical slots, Novices for exploration | MEDIUM | Army Builder UI |
+
+**Research basis:** RPG progression system design literature (IntechOpen, UniversityXP) confirms three principles for engagement: (1) progression must be visible, (2) promotion must require sustained performance not one lucky run, (3) specialization paths must diverge (an Artisan Optimizer and Artisan Verifier should feel meaningfully different). The Novice/Understudy/Artisan structure maps to these — three tiers is the engagement sweet spot; five or more creates choice paralysis.
+
+**Critical detail:** Class tracks per task category, not per agent identity. An agent-soul is a behavioral constitution, not a persistent identity. The "class" belongs to the soul-version-plus-category combination, not a named agent. Users should understand they are promoting a behavioral pattern, not a character.
+
+### Human Confirmation Gate (Promote / Retire Verdicts)
+
+| Feature | Value Proposition | Complexity | Dependency |
+|---------|-------------------|------------|------------|
+| Confirmation required before DNA library write for Promote/Retire | Prevents automated system from degrading the DNA library with miscalibrated verdicts | LOW | Council evaluation, God Layer |
+| Context summary shown at confirmation (not raw verdict) | Research confirms that cognitive overload at confirmation kills engagement — show the key finding, not the full judge transcript | MEDIUM | Council evaluation |
+| Async confirmation (non-blocking) | Blocking execution on human response kills the "deploy and watch" UX | LOW | None |
+| Decline-with-reason capture | If user rejects a verdict, that signal improves council calibration over time | MEDIUM | God Layer |
+| Auto-confirm after timeout (configurable) | Prevents abandoned verdicts from blocking library growth | LOW | None |
+
+**UX research finding (HIGH confidence):** The optimal friction level for confirmation gates is: show one sentence of evidence, require one binary decision (Confirm/Override), default to async so the user is never blocked. Research from permit.io and HITL literature confirms that contextual, lightweight summaries maintain signal quality while preventing reviewer fatigue. Full transcript review destroys engagement — users stop reading after the first 3 confirmations if they see a wall of text.
+
+**What NOT to do:** Don't require users to adjudicate between the three judge opinions. The God Layer's verdict synthesis is the system's job. The human confirms or overrides the synthesized recommendation — they do not re-run the evaluation.
+
+### Army Builder UI
+
+| Feature | Value Proposition | Complexity | Dependency |
+|---------|-------------------|------------|------------|
+| Soul composition view before deployment | Users see what behavioral mix they're deploying — not just "3 bots" but "2 Artisan Optimizers + 1 Novice Explorer" | MEDIUM | Agent class system, DNA library |
+| Library-depth-aware recommendations | "This category has 12 runs of data — recommending 2 Artisans + 1 Novice for coverage" | MEDIUM | DNA library depth query |
+| Cold-start archetype selection UI | For novel categories: let user pick starting archetypes (or accept system default spread) | MEDIUM | Archetype library |
+| Budget-aware composition | Class costs (Artisans have more complex souls, potentially higher token usage) visible per slot | LOW | v1 budget enforcement |
+| Differentiation enforcement feedback | Visual confirmation that souls passed embedding similarity check before deployment | LOW | Soul differentiation enforcement |
+
+**Research basis:** Fleet management UX literature (Hicron) and multi-agent UI design research (ACM DIS 2025) both confirm that heterogeneous fleet management requires role-legibility — users need to understand what each "slot" in the fleet does, not just how many slots exist. The Army Builder is the pre-flight checklist: it answers "what am I deploying and why."
+
+### Gamified Lifecycle Events
+
+| Feature | Value Proposition | Complexity | Dependency |
+|---------|-------------------|------------|------------|
+| Promotion ceremony (narrative event on class advancement) | Research confirms milestone visibility drives re-engagement — users return to see what happened | LOW | Agent class system, confirmation gate |
+| Retirement announcement (memorial-style narrative on soul retirement) | Retiring a soul after 20 runs creates a story — users feel the lifecycle not just see a table update | LOW | Agent class system |
+| Pioneer badge (first Artisan in a new category) | Marks exploration milestones — the "first ever" narrative is well-documented as high-engagement | LOW | Agent class system |
+| Mutation lineage visualization ("this soul descended from...") | Shows users the evolutionary story — makes the system feel alive, not algorithmic | MEDIUM | DNA library lineage graph |
+| Run-level evolution feed ("Council promoted Soul-7 to Understudy after 3 consecutive top-tier runs") | Makes the God Layer's decisions visible and legible to users who don't read technical verdicts | LOW | Council evaluation, God Layer |
+
+**Research basis:** Gamification literature (Centrical, Open Loyalty, Optimove) consistently identifies lifecycle events (promotion, graduation, retirement) as among the highest-engagement triggers. The key is they must feel earned and be legible — users need to understand what the agent did to deserve promotion. Vague celebration defeats the purpose.
+
+**Note:** These are notification/display features, not mechanical features. Complexity is LOW because they are display representations of decisions already made by the system. Do not over-engineer the gamification layer — the mechanical substance must exist first.
+
+---
+
+## v2.0 SOUL System — Anti-Features
+
+Features that seem right for SOUL System but create problems. Deliberately excluded.
+
+| Anti-Feature | Why It Seems Right | Why It Is a Trap | What to Do Instead |
+|--------------|-------------------|------------------|-------------------|
+| **Full-soul replacement as mutation** | Simpler to implement — just swap the whole soul | Destroys lineage continuity; attribution becomes impossible; evolution loses its gradient | Mutate at directive level (substitution, amplification, attenuation on specific dimensions) |
+| **User-editable souls (manual prompt engineering)** | Power users want to write their own constitutions | Introduces human-written text into what should be an algorithmically-generated evolutionary space; pollutes lineage graph; creates accountability confusion | Expose archetype selection and weight sliders, not raw text editing. Soul text is an output, not an input |
+| **Fine-tuning model weights from soul data** | DNA Library sounds like training data | Requires RLHF infrastructure, months of evaluation, and model serving changes. Out of scope for v2.0 | Prompt-level mutation only — the soul is a behavioral specification applied at inference time, not a weight update |
+| **Real-time council evaluation during execution** | Seems more responsive | Council evaluation requires full trace data — you cannot attribute "which directive caused this outcome" mid-run. Premature council = garbage attribution | Council runs post-run only, with complete trace + performance data available |
+| **5+ class tiers (e.g., Apprentice/Journeyman/Expert/Master/Grandmaster)** | More granularity sounds richer | Three tiers is the RPG engagement optimum. More tiers create choice paralysis and slow the progression feedback loop; users disengage when promotion feels distant | Novice/Understudy/Artisan — three is enough. Add prestige sub-tiers only if users explicitly ask |
+| **Continuous automated promotion without human gate** | Faster, less friction | The DNA Library is a long-term asset. Miscalibrated council verdicts can degrade it silently. Human gate provides a circuit breaker for early-iteration council errors | Require confirmation for Promote and Retire. Confirmation for Demotion can be automated (lower stakes) |
+| **Multi-model council using the same model family** | Seems consistent | Self-preference bias — GPT-4 as all three judges will favor GPT-4-style outputs. Research confirms diversity of model families is required for bias mitigation | Use different model families for at least one judge role. Performance Judge can be same-family; Devil's Advocate should not be |
+| **Unlimited soul mutation history (unbounded lineage growth)** | More history = more data | Lineage graphs become unnavigable. Users cannot understand their army if every soul has a 40-generation ancestry tree | Prune lineage display to depth-3. Maintain full history in DB but surface 3 generations in UI |
+| **Per-run soul mutation (mutate after every execution)** | Faster evolution sounds better | With insufficient run count per soul, causal attribution is noise not signal. Single-run council verdicts promote overfitting | Require minimum N runs (e.g., 3-5) before a soul is eligible for council evaluation and mutation |
+
+---
+
+## Feature Dependencies (SOUL System)
 
 ```
-[Task Decomposition / Planner]
-    └──requires──> [Execution Lifecycle State Machine]
-                       └──requires──> [Bot Orchestrator]
-                                          └──requires──> [Bot Runtime Sandbox]
-                                                             └──requires──> [Tool Gateway]
+[SOUL.md Behavioral Constitutions]
+    └──requires──> [v1 Bot Orchestrator] (loads soul at bot spawn)
+    └──requires──> [v1 DNA Store] (soul versioning extends existing store)
+    └──requires──> [Embedding Similarity Check] (new — enforces differentiation)
 
-[Tool Gateway]
-    └──requires──> [Audit Event Log]
-    └──requires──> [Budget Enforcement (guardrails)]
-    └──requires──> [Rate Limiting per Bot]
+[Runtime Soul Directive Annotation]
+    └──requires──> [v1 Tool Gateway Trace Capture] (extends trace schema)
+    └──requires──> [SOUL.md] (directive IDs must exist to annotate against)
 
-[Performance Intelligence]
-    └──requires──> [Structured Trace Capture]
-    └──requires──> [Bot Lifecycle Events (started, stopped)]
-    └──requires──> [Tool Call Events from Tool Gateway]
+[Council Evaluation]
+    └──requires──> [Runtime Soul Directive Annotation] (causal attribution needs annotations)
+    └──requires──> [v1 Performance Scoring] (Performance Judge reads composite scores)
+    └──requires──> [v1 Structured Trace Capture] (Soul Analyst reads tool call sequences)
+    └──requires──> [Structured Verdict Schema] (JSON output, not prose)
 
-[Bot Performance Score]
-    └──requires──> [Performance Intelligence]
-    └──enhances──> [Bot Leaderboard]
+[God Layer]
+    └──requires──> [Council Evaluation] (reads verdicts)
+    └──requires──> [DNA Library] (reads + writes souls)
+    └──requires──> [Agent Class System] (issues promotion/demotion/retirement)
+    └──requires──> [Human Confirmation Gate] (gates library writes)
 
-[DNA Capture]
-    └──requires──> [Structured Trace Capture]
-    └──requires──> [Bot Performance Score]  (only elite bots qualify)
-    └──requires──> [Objective Category Tagging]
+[DNA Library]
+    └──requires──> [v1 DNA Store] (extends, does not replace)
+    └──requires──> [Soul Version Tracking] (hash + generation number)
+    └──requires──> [Causal Attribution Reports] (from Council)
+    └──requires──> [Archetype Library] (warm-start for cold categories)
 
-[DNA Replay Engine]
-    └──requires──> [DNA Capture]
-    └──requires──> [Bot Runtime Sandbox]
+[Agent Class System (Novice/Understudy/Artisan)]
+    └──requires──> [DNA Library] (souls have classes)
+    └──requires──> [v1 Performance Scoring] (promotion thresholds)
+    └──requires──> [v1 Task Category Tagging] (class is per-category)
+    └──requires──> [God Layer] (issues class transitions)
 
-[Live Activity Feed (UI)]
-    └──requires──> [Audit Event Log]  (streams events in real-time)
+[Human Confirmation Gate]
+    └──requires──> [God Layer] (produces recommendations to confirm)
+    └──requires──> [Council verdict summary] (evidence shown to user)
 
-[Billing / Metering Display]
-    └──requires──> [Bot Lifecycle Events]
-    └──requires──> [Budget Enforcement]
+[Army Builder UI]
+    └──requires──> [DNA Library] (shows available souls by class + category)
+    └──requires──> [Agent Class System] (shows class per slot)
+    └──requires──> [Soul Differentiation Enforcement] (validates composition before deploy)
+    └──requires──> [v1 Budget Enforcement] (class-aware cost estimation)
 
-[Bot Detail Drill-Down (UI)]
-    └──requires──> [Structured Trace Capture]
+[Gamified Lifecycle Events]
+    └──requires──> [Agent Class System] (reads transitions)
+    └──requires──> [Human Confirmation Gate] (promotion confirmed = event fires)
+    └──requires──> [Mutation Lineage Graph] (ancestry display)
 
-[Execution History (UI)]
-    └──requires──> [Execution Lifecycle State Machine]
-    └──requires──> [Billing / Metering Display]
+[Soul Mutation Operations]
+    └──requires──> [God Layer] (decides which mutation to apply)
+    └──requires──> [DNA Library] (source material for Recombination + Substitution)
+    └──requires──> [Archetype Library] (source material for Introduction)
+    └──requires──> [Semantic Coherence Check] (post-mutation validation — new)
 ```
 
-### Dependency Notes
-
-- **Tool Gateway requires Audit Event Log:** Every tool invocation must be logged before response is returned. Logging cannot be optional or async-only.
-- **DNA Capture requires Performance Score:** DNA is only extracted from bots that score above threshold. The scoring system must exist and be reliable before DNA capture can identify candidates.
-- **Performance Intelligence requires Structured Trace Capture:** Retroactive metrics (tokens/task, retries, cost/task) are computed from stored trace data, not from real-time counters. Trace storage is the foundation.
-- **Budget Enforcement requires Tool Gateway:** Budget caps are enforced by intercepting tool calls at the gateway level. Bots cannot self-enforce limits.
-- **Bot Runtime Sandbox requires Tool Gateway (network restriction):** Sandbox isolation is incomplete if bots can make arbitrary network calls. The sandbox must route all external access through the Tool Gateway — this is architectural, not optional.
-- **Live Activity Feed enhances Bot Leaderboard:** Both draw from the same event stream; the leaderboard aggregates what the feed shows in detail.
+**Critical path for v2.0:** SOUL.md schema → Runtime Annotation → Council Evaluation → God Layer → DNA Library → Agent Class System → Human Confirmation Gate. Army Builder UI and Gamification are display layers that can ship after the mechanical loop is closed.
 
 ---
 
-## MVP Definition
+## Feature Complexity Ratings (SOUL System Only)
 
-### Launch With (v1)
-
-Minimum viable product — what's needed to validate the core concept and generate the first "wow, this actually works" moment.
-
-- [ ] **Execution intake UI (objective + max_bots + budget + tool allowlist)** — Entry point; without this, nothing starts
-- [ ] **Flat task decomposition (planner)** — Core mechanic; turns objective into N independent tasks
-- [ ] **Task queue with lease-based claiming** — Enables parallel execution without duplicate work
-- [ ] **Bot spawning + lifecycle management (spawn, idle timeout, shutdown)** — Required to have actual bots
-- [ ] **Docker container sandbox (isolated, no persistent filesystem, network restricted to Tool Gateway)** — Non-negotiable security requirement
-- [ ] **Tool Gateway with allowlist enforcement + rate limits + budget enforcement** — Security and cost control cannot ship after launch
-- [ ] **Guardrails: budget cap, token burn limit, loop detection, idle shutdown** — Prevents runaway scenarios that would bankrupt users and the platform
-- [ ] **Structured trace capture (per-bot, per-step)** — Foundation for all intelligence features
-- [ ] **Retroactive performance metrics + composite bot score** — The "performance intelligence" differentiator
-- [ ] **Bot leaderboard with tier indicators** — Visual output of the scoring; makes performance legible
-- [ ] **Live execution dashboard (status, active bots, bot-hours, budget remaining, activity feed)** — Required for engagement and trust during runs
-- [ ] **Post-execution report (summary + leaderboard + cost breakdown)** — The deliverable users share with stakeholders
-- [ ] **Bot detail drill-down (step trace, tool breakdown)** — Developer trust feature; required for enterprise evaluation
-- [ ] **DNA capture for elite bots (internal store only)** — The moat-building feature; must exist from day one to accumulate data
-- [ ] **Usage/billing history screen** — Required for any paid product
-
-### Add After Validation (v1.x)
-
-Features to add once core is working and real user behavior is observed.
-
-- [ ] **Execution pause/resume** — Add when users report they want mid-run control (high complexity, validate demand first)
-- [ ] **DNA Replay Engine (internal tooling)** — Add when enough DNA has been captured to run meaningful benchmarks
-- [ ] **Historical performance trend across executions** — Add when users have run enough executions to generate trend data (requires ~10+ runs)
-- [ ] **Objective-category auto-tagging (enhanced)** — LLM-based classification; add when DNA store has volume to benefit from better indexing
-- [ ] **Expanded Tool Gateway tool set** (beyond llm_call, fetch_url, write_file) — Add based on user requests; each tool requires security review before adding
-- [ ] **Budget soft alerts (warn at 80% without stopping)** — Add after confirming hard-stop behavior is acceptable to users
-
-### Future Consideration (v2+)
-
-Features to defer until product-market fit is established.
-
-- [ ] **DAG workflow builder** — Defer until users explicitly outgrow flat decomposition; adds massive UI/UX complexity
-- [ ] **Human-in-the-loop approval gates** — Defer to regulated-industry vertical; breaks core autonomy model for general users
-- [ ] **Third-party tool marketplace** — Defer; requires ecosystem development infrastructure
-- [ ] **DNA-informed prompt templates (user-facing)** — Expose elite DNA patterns as reusable templates users can select; high value but requires DNA store maturity
-- [ ] **Multi-model routing (choose model per task)** — Cost optimization feature; defer until cost becomes the primary complaint
-- [ ] **Webhook/API triggers for executions** — Enables pipeline integration; add when users want to embed Claw Army in their workflows
-- [ ] **Team/org features (shared executions, access control)** — Defer until proven single-user value; org features are premature
+| Feature | Complexity | Rationale |
+|---------|------------|-----------|
+| SOUL.md schema design + loading | LOW | Markdown file + DB column; no new infrastructure |
+| Soul version tracking | LOW | Hash + generation counter; extends existing DNA store |
+| Embedding similarity enforcement | MEDIUM | Needs embedding model call at deploy time; adds ~200ms pre-flight |
+| Runtime soul directive annotation | HIGH | Requires bot runtime changes; agents must actively tag actions |
+| Council evaluation (3 judges) | HIGH | Multi-LLM orchestration, bias mitigation, structured verdicts, attribution |
+| Structured verdict schema + parsing | LOW | JSON schema definition; low impl risk |
+| God Layer mutation decisions | HIGH | Exploration/exploitation balance; requires semantic coherence checking post-mutation |
+| Soul mutation operations (all 5) | HIGH | Recombination + Introduction require semantic coherence validation |
+| DNA Library (versioned + lineage) | MEDIUM | Extends v1 DNA store schema; lineage graph is new but contained |
+| Archetype library (6-8 templates) | MEDIUM | Content creation + embedding indexing; no new infrastructure |
+| Agent class system (3 tiers) | MEDIUM | DB columns + promotion logic; depends on God Layer |
+| Human confirmation gate | LOW | Simple confirm/decline UI + async webhook; no complex logic |
+| Army Builder UI | MEDIUM | New UI screen; depends on DNA Library + class system being stable |
+| Gamified lifecycle events | LOW | Display layer only; depends on class transitions existing |
+| Causal attribution reports | HIGH | Requires runtime annotations + council analysis to be coherent |
 
 ---
 
-## Feature Prioritization Matrix
+## MVP Recommendation for v2.0
 
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Execution intake + task decomposition | HIGH | MEDIUM | P1 |
-| Docker sandbox isolation | HIGH | MEDIUM | P1 |
-| Tool Gateway (allowlist + rate limit + budget) | HIGH | MEDIUM | P1 |
-| Guardrails (budget cap, loop detection, idle shutdown) | HIGH | MEDIUM | P1 |
-| Structured trace capture | HIGH | MEDIUM | P1 |
-| Live execution dashboard | HIGH | MEDIUM | P1 |
-| Bot performance score + leaderboard | HIGH | MEDIUM | P1 |
-| Post-execution report | HIGH | LOW | P1 |
-| DNA capture (elite bot identification) | HIGH | HIGH | P1 (moat) |
-| Bot detail drill-down | MEDIUM | MEDIUM | P1 |
-| Billing/usage history screen | MEDIUM | LOW | P1 |
-| DNA Replay Engine (internal) | MEDIUM | HIGH | P2 |
-| Execution pause/resume | MEDIUM | HIGH | P2 |
-| Historical performance trends | MEDIUM | MEDIUM | P2 |
-| Soft budget alerts | LOW | LOW | P2 |
-| DNA-informed user-facing templates | HIGH | HIGH | P3 |
-| DAG workflow builder | MEDIUM | HIGH | P3 |
-| Human-in-the-loop gates | MEDIUM | HIGH | P3 |
-| Third-party tool marketplace | HIGH | HIGH | P3 |
+### Build First (Mechanical Loop — nothing works without these)
 
-**Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible
-- P3: Nice to have, future consideration
+1. SOUL.md schema — 7 behavioral dimensions, directive-level structure, versioning
+2. Soul loading at bot spawn — inject soul into bot runtime context
+3. Runtime directive annotation — tag each tool call with active directive ID
+4. Soul differentiation enforcement — embedding similarity pre-deployment check
+5. Council evaluation — 3-judge panel, structured JSON verdicts, post-run only
+6. Causal attribution — directive-to-outcome linkage from annotations + council analysis
+7. God Layer core — reads verdicts, generates mutation candidates and class recommendations
+8. Soul mutation operations — Substitution, Amplification, Attenuation first; Recombination + Introduction after
+9. DNA Library — versioned souls, lineage tracking, extends v1 dna_store table
+10. Human confirmation gate — async, context-summary-only, confirm/override
 
----
+### Build Second (User-Facing — depends on loop being closed)
 
-## Competitor Feature Analysis
+11. Agent class system — Novice/Understudy/Artisan per category, promotion/demotion/retirement
+12. Archetype library — 6-8 canonical personality templates for cold-start
+13. Army Builder UI — composition view, class-aware slot filling, differentiation feedback
 
-| Feature | Temporal | Prefect | LangGraph/LangSmith | CrewAI | Claw Army Approach |
-|---------|----------|---------|---------------------|--------|-------------------|
-| Task orchestration | YES — durable workflows, stateful | YES — Python flows | YES — graph-based DAG | YES — role-based crews | Flat parallel decomposition; simpler for SMEs |
-| Parallel execution | YES | YES | YES (fan-out nodes) | YES | YES — N bots claim from shared queue |
-| Sandbox isolation | NO (user responsibility) | NO | NO | NO | YES — Docker/microVM; core security feature |
-| Tool Gateway / allowlisting | NO | NO | Partial (tools defined in code) | Partial | YES — centralized, enforced, audited |
-| Budget enforcement | NO (workflow-level) | NO | NO | NO | YES — hard cap enforced at gateway |
-| Per-agent performance scoring | NO | NO | Partial (LangSmith evals) | NO | YES — composite score per bot run |
-| Bot leaderboard | NO | NO | NO | NO | YES — differentiator |
-| Structured trace capture | YES (event history) | YES (flow run logs) | YES (LangSmith traces) | Partial | YES — step-level structured, not raw logs |
-| DNA / elite run capture | NO | NO | NO | NO | YES — primary moat; no competitor does this |
-| Usage-based billing display | NO (self-host) | Partial (cloud) | Partial (cloud) | NO | YES — bot-hours display in UI |
-| Live activity feed | YES (workflow UI) | YES (Prefect UI) | Partial (LangSmith) | NO | YES — real-time event stream for every tool call |
-| SME-friendly UI | NO (dev-oriented) | Partial | NO (dev-oriented) | NO | YES — designed for non-technical deployment |
+### Build Third (Engagement Layer — depends on class system existing)
 
-**Key insight:** No competitor combines sandbox isolation + Tool Gateway enforcement + performance scoring + DNA capture in a single platform. Claw Army's moat is the full stack from secure execution to performance intelligence to improvement capture.
+14. Gamified lifecycle events — promotion ceremony, retirement announcement, pioneer badge, lineage visualization
+15. Run-level evolution feed — legible God Layer decision surface
+
+### Defer to v2.1+
+
+- Soul weight sliders (user influence on mutation pressure without raw text editing)
+- Multi-category army optimization (optimize across categories simultaneously)
+- DNA export / portability (regulated enterprise requirement)
+- Soul A/B testing UI (compare two soul versions head-to-head)
 
 ---
 
-## Platform Stickiness Analysis
+## v1 Feature Landscape (Already Shipped — Do Not Re-Research)
 
-What makes orchestration platforms hard to leave (informed by data flywheel research):
+### Table Stakes (v1 — Shipped)
 
-**Short-term stickiness (months 1-3):**
-- Execution history and reporting creates a record users reference repeatedly
-- Bot leaderboard creates familiarity with bot performance narratives
-- Cost transparency builds trust that the platform is safe to use
+| Feature | Status |
+|---------|--------|
+| Objective intake + task decomposition | SHIPPED v1.0 |
+| Parallel agent execution | SHIPPED v1.0 |
+| Task claiming / work queue (BullMQ) | SHIPPED v1.0 |
+| Agent lifecycle management | SHIPPED v1.0 |
+| Hard budget caps (atomic Redis Lua) | SHIPPED v1.0 |
+| Per-execution status tracking | SHIPPED v1.0 |
+| Tool allowlisting | SHIPPED v1.0 |
+| Rate limiting per agent | SHIPPED v1.0 |
+| Audit / event log | SHIPPED v1.0 |
+| Execution cost reporting | SHIPPED v1.0 |
+| Bot-level performance metrics | SHIPPED v1.0 |
+| Sandbox isolation (Docker, GCE VMs with OpenClaw) | SHIPPED v1.1 |
+| Loop/thrash detection | SHIPPED v1.0 |
+| Structured trace capture | SHIPPED v1.0 |
+| Execution history | SHIPPED v1.0 |
 
-**Medium-term stickiness (months 3-12):**
-- DNA store accumulates proprietary run data that cannot be exported to a competitor
-- Performance trends over time show improvement — users see ROI
-- Tool Gateway integrations become dependency infrastructure
+### Differentiators (v1 — Shipped)
 
-**Long-term stickiness (12+ months):**
-- DNA corpus becomes a training asset — elite patterns inform future bot behavior
-- Historical performance benchmarks mean switching = losing institutional knowledge
-- If DNA templates surface to users as productivity tools, the data moat becomes a product feature
-
-**The flywheel:** Each elite run improves the DNA store → better DNA produces better results → better results generate more elite runs → DNA store grows. This is the NVIDIA data flywheel concept applied to agent execution patterns. No competitor is positioned to replicate this without first accumulating years of run data.
+| Feature | Status |
+|---------|--------|
+| Bot performance scoring (composite 40/30/20/10) | SHIPPED v1.0 |
+| Bot leaderboard with tier indicators | SHIPPED v1.0 |
+| DNA capture for elite bots (system prompt + tool sequences + decision patterns) | SHIPPED v1.0 |
+| Real-time live activity feed | SHIPPED v1.0 |
+| Per-bot-hour billing transparency | SHIPPED v1.0 |
+| Guardrail event feed in UI | SHIPPED v1.0 |
+| Bot detail drill-down | SHIPPED v1.0 |
+| Objective-category tagging for DNA | SHIPPED v1.0 |
+| Auth (Google OAuth, Auth.js v5) | SHIPPED v1.1 |
 
 ---
 
 ## Sources
 
-- [Top AI Agent Orchestration Platforms 2026 — Redis](https://redis.io/blog/ai-agent-orchestration-platforms/)
-- [AI Agent Tools Landscape 2026 — StackOne](https://www.stackone.com/blog/ai-agent-tools-landscape-2026)
-- [Agent Orchestration 2026: LangGraph, CrewAI & AutoGen Guide — Iterathon](https://iterathon.tech/blog/ai-agent-orchestration-frameworks-2026)
-- [AI Agent Sandboxing: MicroVMs, gVisor & Isolation — Northflank](https://northflank.com/blog/how-to-sandbox-ai-agents)
-- [Agentic AI Safety Playbook 2025 — DextraLabs](https://dextralabs.com/blog/agentic-ai-safety-playbook-guardrails-permissions-auditability/)
-- [Pricing AI Agents: Plans, Costs, Monetization — Orb](https://www.withorb.com/blog/pricing-ai-agents)
-- [Maximize AI Agent Performance with Data Flywheels — NVIDIA](https://developer.nvidia.com/blog/maximize-ai-agent-performance-with-data-flywheels-using-nvidia-nemo-microservices/)
-- [Agentic AI and IP Moats — Medium](https://medium.com/@alexglee/agentic-ai-and-ip-moats-1e78a8c8acec)
-- [LLM Observability Explained — Langflow](https://www.langflow.org/blog/llm-observability-explained-feat-langfuse-langsmith-and-langwatch)
-- [AI Guardrails for Enterprise — SkyworkAI](https://skywork.ai/blog/agentic-ai-safety-best-practices-2025-enterprise/)
-- [Workflow Orchestration Platforms Comparison 2025 — Procycons](https://procycons.com/en/blogs/workflow-orchestration-platforms-comparison-2025/)
-- [Claw Bot Army PRD — Internal](../PRD%20%E2%80%94%20Claw%20Bot%20Army.md)
+**SOUL.md / Behavioral Constitutions:**
+- [What is AI Agent Soul File (SOUL.md)? — Chipp AI Glossary](https://chipp.ai/ai/glossary/ai-agent-soul-file)
+- [SOUL.md Guide: Create an AI Agent with One File — CrewClaw](https://www.crewclaw.com/blog/soul-md-create-ai-agent)
+- [Claude 4.5 Opus Soul Document — Simon Willison](https://simonwillison.net/2025/Dec/2/claude-soul-document/)
+- [Anthropic Publishes Claude's Constitution — Anthropic](https://www.anthropic.com/news/claudes-constitution)
+
+**Evolutionary AI / Mutation Operations:**
+- [EvoAgent: Towards Automatic Multi-Agent Generation via Evolutionary Algorithms — arXiv 2406.14228](https://arxiv.org/abs/2406.14228)
+- [GAAPO: Genetic Algorithmic Applied to Prompt Optimization — Frontiers](https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2025.1613007/full)
+- [Evolving Excellence: Automated Optimization of LLM-based Agents — arXiv 2512.09108](https://www.arxiv.org/pdf/2512.09108)
+- [Comparing Top 5 AI Agent Architectures 2025 — MarkTechPost](https://www.marktechpost.com/2025/11/15/comparing-the-top-5-ai-agent-architectures-in-2025-hierarchical-swarm-meta-learning-modular-evolutionary/)
+
+**LLM-as-Judge / Council Evaluation:**
+- [LLM-as-a-judge: A Complete Guide — EvidentlyAI](https://www.evidentlyai.com/llm-guide/llm-as-a-judge)
+- [When AIs Judge AIs: The Rise of Agent-as-a-Judge — arXiv 2508.02994](https://arxiv.org/html/2508.02994v1)
+- [LLMs-as-Judges: A Comprehensive Survey — arXiv 2412.05579](https://arxiv.org/html/2412.05579v2)
+- [LLM-as-a-Judge Primer and Autoraters — Aman's AI Journal](https://aman.ai/primers/ai/LLM-as-a-judge/)
+- [Beyond Consensus: Mitigating Agreeableness Bias in LLM Judge Evaluations — NUS / AICET](https://aicet.comp.nus.edu.sg/wp-content/uploads/2025/10/Beyond-Consensus-Mitigating-the-agreeableness-bias-in-LLM-judge-evaluations.pdf)
+
+**Human-in-the-Loop / Confirmation UX:**
+- [Human-in-the-Loop for AI Agents: Best Practices — permit.io](https://www.permit.io/blog/human-in-the-loop-for-ai-agents-best-practices-frameworks-use-cases-and-demo)
+- [Designing for Autonomy: UX Principles for Agentic AI — UXmatters](https://www.uxmatters.com/mt/archives/2025/12/designing-for-autonomy-ux-principles-for-agentic-ai.php)
+- [HITL Patterns in LangGraph: Approve, Reject, and Edit — Medium](https://medium.com/the-advanced-school-of-ai/human-in-the-loop-in-langgraph-approve-or-reject-pattern-fcf6ba0c5990)
+
+**Agent Class Progression / Gamification:**
+- [Pathways to Mastery: A Taxonomy of Player Progression Systems — IntechOpen](https://www.intechopen.com/online-first/1221745)
+- [What are Progression Systems in Games? — University XP](https://www.universityxp.com/blog/2024/1/16/what-are-progression-systems-in-games)
+- [AI-Orchestrated Gamification: The Future — Optimove](https://www.optimove.com/blog/ai-gamification-next-level-player-engagement)
+- [The 2025 Inflection Point and The Agent Maturity Model — Agent Factory](https://agentfactory.panaversity.org/docs/General-Agents-Foundations/agent-factory-paradigm/the-2025-inflection-point)
+
+**Army Builder / Multi-Agent UX:**
+- [Designing with Multi-Agent Generative AI: Insights from Industry Early Adopters — ACM DIS 2025](https://dl.acm.org/doi/10.1145/3715336.3735823)
+- [Fleet Management Dashboard UI Design Guide — Hicron Software](https://hicronsoftware.com/blog/fleet-management-dashboard-ui-design/)
 
 ---
 
-*Feature research for: AI Bot Orchestration Platform (Claw Bot Army)*
-*Researched: 2026-02-18*
+*v2.0 SOUL System feature research: 2026-02-21*
+*v1 feature research: 2026-02-18*

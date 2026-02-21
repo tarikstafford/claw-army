@@ -1,240 +1,348 @@
-# Project Research Summary
+# Research Summary — SOUL System v2.0
 
-**Project:** Claw Bot Army — AI Multi-Agent Orchestration Platform
-**Domain:** AI bot fleet management with parallel task execution, performance intelligence, and continuous improvement via DNA capture
-**Researched:** 2026-02-18
-**Confidence:** HIGH
+**Synthesized:** 2026-02-21
+**Sources:** STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md
+**Prior summary (v1 base platform):** preserved above the break below for reference
+
+---
 
 ## Executive Summary
 
-Claw Bot Army is a multi-agent AI orchestration platform where a user submits an objective, the system decomposes it into parallel tasks, and a fleet of isolated bot workers execute those tasks concurrently. Research confirms this class of platform is well-understood in the industry (Temporal, LangGraph, CrewAI, Prefect all occupy adjacent space), but no competitor combines the full stack of: enforced sandbox isolation, a centralized Tool Gateway, hard budget guardrails, composite per-bot performance scoring, and elite-bot DNA capture in a single product. The recommended approach is a pull-based task queue with lease semantics, container-isolated bot workers that communicate exclusively through a Tool Gateway acting as a security membrane, and an event-driven control plane where billing, guardrail enforcement, and telemetry collection are decoupled consumers of a canonical event bus. The DNA capture flywheel — where elite-run structural patterns are stored and can inform future executions — is the primary competitive moat and must be built from day one even if the corpus starts small.
+The SOUL System v2.0 transforms Claw Army from a bot execution platform into an evolutionary learning system. The paradigm shift: bots no longer just execute tasks — they carry behavioral constitutions (SOUL.md documents with 7 defined dimensions), get evaluated by a three-judge Council after each run, and are mutated by a meta-orchestrator (God Layer) based on causal attribution of which soul directives drove which outcomes. The resulting DNA Library compounds over time, seeding future populations with increasingly specialized agents organized into a Novice/Understudy/Artisan class progression. No competitor is doing this. The moat is real if the attribution signal is real — that conditional is the single biggest implementation risk in the entire milestone.
 
-The core technology stack is Node.js 22 LTS with Fastify 5 for the API layer, BullMQ 5 on Redis 7 for task queue mechanics, Drizzle ORM on Cloud SQL PostgreSQL 15 for relational data, Vercel AI SDK 5 for multi-provider LLM routing, dockerode (or GCP Cloud Run Jobs API) for container lifecycle management, and Svelte 5 + SvelteKit 2 for the live command-center frontend. GCP services (Cloud Run, Cloud SQL, Memorystore, Pub/Sub, Secret Manager, Artifact Registry) provide the managed infrastructure layer. The critical architectural fork to resolve in Phase 1 is bot container hosting: dockerode against a persistent GCE VM gives faster orchestration loop control and is recommended for MVP; Cloud Run Jobs is the cleaner long-term target but has latency and API-coupling trade-offs not suited to tight per-bot lifecycle management.
+The recommended implementation approach is a 7-phase incremental build, all inside the existing Fastify/BullMQ/PostgreSQL execution-service. Net new infrastructure: one npm package (`pgvector ^0.2.0`). Net new external dependencies: none. All LLM orchestration uses the already-installed Vercel AI SDK (`ai ^6.0.90`). All persistent state goes into the existing Cloud SQL PostgreSQL instance using Drizzle's built-in `vector()` column type. All background processing uses the existing BullMQ installation with a dedicated `council-queue` added alongside the existing execution queue. This is a capability milestone, not an infrastructure migration.
 
-The top risks are financial (race-condition budget overshoot from concurrent bots), security (container escape from misconfiguration), and product credibility (DNA capture that produces non-reproducible recipes). All three have known prevention patterns — atomic Redis budget operations, hardened container flags with network egress restriction, and intent-based DNA storage rather than literal output storage — but each must be addressed in its founding phase, not deferred. Research confidence is HIGH across all four areas, with MEDIUM confidence on the specific GCP deployment topology choice (Cloud Run Jobs vs GCE/dockerode) and on composite performance scoring validity, both of which require validation during execution.
-
----
-
-## Key Findings
-
-### Recommended Stack
-
-The stack is designed around two distinct runtime boundaries: the control plane (always-on Fastify API on Cloud Run) and the bot data plane (ephemeral isolated containers). These must never share process space or direct database connections. Fastify 5 is chosen over Express (throughput) and NestJS (unnecessary abstraction overhead) for the API. BullMQ 5 is chosen over Cloud Tasks (lacks lease semantics and worker metrics) and Temporal (overkill for independent parallel tasks). Drizzle ORM is chosen for its near-zero cold-start overhead on Cloud Run versus Prisma. Vercel AI SDK 5 (July 2025 release) provides unified TypeScript across 25+ LLM providers, handling the multi-provider routing the platform needs without a separate LiteLLM network hop.
-
-See `/Users/tarikstafford/Desktop/Projects/claw-army/.planning/research/STACK.md` for full alternatives analysis, version compatibility table, and GCP deployment architecture details.
-
-**Core technologies:**
-- Node.js 22 LTS: runtime — current LTS, required by Fastify 5, native fetch, performance improvements
-- TypeScript 5.x: type safety — required by Fastify, Drizzle, AI SDK; enables strict mode for complex orchestration
-- Fastify 5.7.x: HTTP API server — 2-3x faster than Express, native JSON schema validation, SSE + WebSocket plugins
-- BullMQ 5.69.x: task queue and worker orchestration — Redis-backed, supports lease/claim, retries, rate-limiting, priority
-- Redis 7 (GCP Memorystore): BullMQ backing store and pub/sub fan-out — must set `maxmemory-policy: noeviction`
-- Drizzle ORM 0.45.x on PostgreSQL 15 (Cloud SQL): relational data — zero-dep, TypeScript-native, fast cold starts
-- Vercel AI SDK 5.x + provider packages: multi-provider LLM routing — unified API across providers, handles streaming and tool calling
-- dockerode 4.0.9: Docker container lifecycle management — only maintained Node.js Docker Remote API client
-- Svelte 5 + SvelteKit 2: frontend command center — smallest bundle, native SSE support, reactive enough for live dashboards
-- Zod 4.x: schema validation — validates Tool Gateway requests before business logic
-- OpenTelemetry SDK: structured tracing — 2025 standard for AI agent observability
-
-**Critical version constraint:** Vercel AI SDK 5 requires provider packages on 3.x branch (`@ai-sdk/anthropic@3.x`, `@ai-sdk/openai@3.x`). SDK 4 packages are incompatible.
-
-### Expected Features
-
-Research confirms competitors handle orchestration and parallelism but universally lack sandbox isolation, Tool Gateway enforcement, hard budget caps, per-bot performance scoring, leaderboards, and DNA capture. These absences define Claw Army's differentiation.
-
-See `/Users/tarikstafford/Desktop/Projects/claw-army/.planning/research/FEATURES.md` for full competitor matrix, feature dependency graph, and prioritization table.
-
-**Must have — table stakes (v1):**
-- Objective intake and flat task decomposition — core mechanic; without this nothing starts
-- Parallel agent execution with pull-based lease claiming — the platform's primary value delivery
-- Docker container sandbox isolation with network restriction to Tool Gateway only — non-negotiable security requirement
-- Tool Gateway with allowlist enforcement, schema validation, rate limiting, and hard budget caps — security and cost control cannot ship after launch
-- Guardrails: budget cap, token burn limit, loop/thrash detection, idle shutdown — prevents runaway scenarios
-- Structured trace capture per bot per step — foundation for all intelligence features
-- Live execution dashboard with real-time activity feed — engagement and trust during runs
-- Post-execution report with bot leaderboard and cost breakdown — the primary deliverable users share
-- Bot detail drill-down (step trace, tool breakdown) — developer trust requirement
-- DNA capture for elite bots (internal store, not user-facing yet) — moat-building feature must accumulate data from day one
-- Usage/billing history screen — required for any paid product
-
-**Should have — differentiators (v1 to v1.x):**
-- Composite bot performance score (40% success, 30% efficiency, 20% cost, 10% stability)
-- Bot leaderboard with Green/Yellow/Red tier indicators
-- Per-bot-hour billing transparency (AI workforce cost narrative)
-- Guardrail event feed in UI (makes safety visible, builds trust)
-- Real-time live activity feed with legible per-event descriptions
-- DNA Replay Engine (internal tooling, added when DNA corpus has volume)
-- Historical performance trends (added after users have 10+ runs)
-
-**Defer to v2+:**
-- DAG visual workflow builder — massive UI investment; flat decomposition covers most real workloads
-- Human-in-the-loop approval gates — breaks the autonomy model; defer to regulated-industry vertical
-- Third-party tool plugin marketplace — requires separate ecosystem infrastructure
-- Execution pause/resume — high complexity; validate user demand before building
-- Multi-tenant features and access control — premature before single-user value is proven
-
-**Deliberate anti-features (never ship):**
-- Arbitrary shell execution in bots — container escape vector, impossible to audit
-- Per-bot role configuration (CrewAI-style) — creates N-bot config management problem, undermines DNA capture
-- Recursive replanning / DAG task graphs in MVP — unbounded cost, circular dependency risk
-- Real-time model fine-tuning from DNA — requires RLHF infrastructure; not what DNA capture is for
-
-### Architecture Approach
-
-The architecture separates into two distinct planes: a Control Plane (Execution Service, Planner, Bot Orchestrator, Guardrail Watchdog, Billing Engine, Performance Engine, DNA Capture Engine) and a Data Plane (Bot Worker Pool + Tool Gateway). The boundary between them is enforced by VPC firewall rules — bots can only reach the Tool Gateway, nothing else. All control plane components communicate through a canonical event bus (GCP Cloud Pub/Sub) rather than direct calls, decoupling guardrail enforcement from billing from telemetry collection. The six key architectural patterns are: pull-based task leasing (bots claim work, lease expiry handles failure recovery), Tool Gateway as security membrane (single egress point, holds all credentials), event-driven internal coordination (no synchronous coupling between control plane services), short-lived bot identity JWTs (generated at spawn, expire with container), telemetry via gateway (bots send traces through the gateway, cannot reach external telemetry backends), and Redis pub/sub for real-time UI event fan-out.
-
-See `/Users/tarikstafford/Desktop/Projects/claw-army/.planning/research/ARCHITECTURE.md` for full system diagram, data flow sequences, GCP service mapping, scaling thresholds, and anti-patterns.
-
-**Major components:**
-1. Execution Service — accepts POST /executions, persists execution record, triggers planner
-2. Planner — decomposes objective into N independent parallel tasks (flat, no DAG in MVP)
-3. Task Queue — durable lease-based task store; bots pull and claim with atomic row locking
-4. Bot Orchestrator — spawns/terminates bot containers; maintains bot registry; enforces max_bots cap
-5. Tool Gateway — single egress point; validates JWT, checks allowlist, schema, rate limits, budget; logs all calls; holds all external credentials
-6. Guardrail Watchdog — subscribes to event bus; detects rate violations, token burn, loops; issues termination signals asynchronously
-7. Billing Engine — consumes bot lifecycle and tool_invoked events; accumulates cost; enforces budget cap
-8. Performance Engine — computes post-run composite bot scores from telemetry store
-9. DNA Capture Engine — identifies elite bots post-execution; extracts structural patterns (not raw data); writes versioned JSONB records with PII stripped
-10. Bot Workers — isolated containers; execute LLM reasoning loop; communicate exclusively through Tool Gateway
-
-**Shared packages:** `shared-types` (TypeScript interfaces), `event-schemas` (canonical event payloads), `tool-contracts` (allowlist schema definitions) — these prevent drift across service boundaries.
-
-### Critical Pitfalls
-
-See `/Users/tarikstafford/Desktop/Projects/claw-army/.planning/research/PITFALLS.md` for full prevention strategies, warning signs, and phase mapping for all 11 pitfalls.
-
-**Top 5 pitfalls (all require prevention, none can be deferred):**
-
-1. **Budget guardrail race conditions cause spending overshoot** — Use Redis atomic operations (`INCRBYFLOAT` or Lua scripts) for all budget check-and-increment operations. Pre-commit an estimated max cost before each LLM call; reconcile actuals after. Never implement budget as a read-then-write in async code. A fleet of concurrent bots can simultaneously pass the same budget check and collectively overspend by a factor of N.
-
-2. **Container isolation gaps from misconfiguration** — Never mount the Docker socket into agent containers. Always run agent containers with `--read-only`, `--no-new-privileges`, `--security-opt seccomp=custom.json`, `--cap-drop=ALL`. Block all egress at the network layer except the Tool Gateway. Block UDP port 53 (DNS) separately — IP-based egress blocking does not stop DNS-based data exfiltration. For production, evaluate gVisor or Firecracker microVMs.
-
-3. **BullMQ stalled jobs cause duplicate bot execution** — Set `lockDuration` significantly longer than the longest expected agent step (e.g., 300,000ms for 5-minute max steps). Move CPU-intensive work to worker threads to keep event loop free for lock renewals. Implement idempotency keys checked at job start. Single-bot testing will not surface this — it emerges under concurrent load.
-
-4. **LLM token counting diverges across providers, corrupting billing display** — Never use tiktoken to estimate Claude or Gemini tokens. Always capture provider-reported token counts from actual API responses (not pre-flight estimates) and use those for metering. Account for tool-schema token overhead per call. Buffer final usage stats from stream `message_stop` event — never treat an interrupted stream as zero-cost.
-
-5. **Real-time telemetry silently lost from isolated containers** — Design a dedicated telemetry network route (agents reach Tool Gateway and telemetry collector; nothing else). Use synchronous writes for critical events. Implement a SIGTERM handler in agent code to flush pending telemetry before container exit. Set `--stop-timeout` to at least 15 seconds so SIGTERM can complete before SIGKILL.
+The highest-risk element is not technical. It is epistemic: the causal attribution pipeline (which soul directive drove which outcome) is built on LLM self-reporting, which research confirms is post-hoc rationalization rather than genuine introspection. The counterfactual verification step in the Council's Soul Analyst is not optional — it is the mechanism that separates a learning signal from an expensive random walk. Build it before the first production Council run. The second highest risk is that three LLM judges running in the same model family will produce sycophantic consensus rather than genuine adversarial evaluation. Use heterogeneous model families for the three Council roles from the start — this is an architectural constraint, not a prompt engineering tweak.
 
 ---
 
-## Implications for Roadmap
+## Stack Additions
 
-The architecture research explicitly provides a 6-phase build order based on hard dependencies. This maps directly to roadmap phases.
+### Net New Packages
 
-### Phase 1: Data Foundation and Infrastructure
-**Rationale:** Every subsequent phase depends on correct schema, shared types, event contracts, and GCP infrastructure. The VPC firewall rules that restrict bot egress are not optional and must be designed before the first container runs. GCR is deprecated — all images must be in Artifact Registry from day one.
-**Delivers:** PostgreSQL schema (executions, tasks, bots, billing_events, telemetry), shared TypeScript packages (types, event schemas, tool contracts), local Docker network config for bot isolation, GCP resource provisioning (Cloud SQL, Memorystore, Pub/Sub topics, VPC, Artifact Registry).
-**Addresses:** Execution history (table stakes), audit event log foundation.
-**Avoids:** GCP-specific misconfiguration pitfalls (Pitfall 8 — GCR deprecation, VPC Connector bottleneck, Cloud Run cold starts).
+| Package | Version | Location | Purpose |
+|---------|---------|----------|---------|
+| `pgvector` | `^0.2.0` | `@claw/db` | Wire-format serialization for PostgreSQL vector columns |
 
-### Phase 2: Core Execution Pipeline
-**Rationale:** Execution Service + Planner + Task Queue + Bot Orchestrator is the minimal system that can spawn bots and assign work. No real LLMs needed yet — stub bot workers validate the orchestration loop. Pull-based lease claiming must be correct before concurrency testing.
-**Delivers:** POST /executions endpoint, flat task decomposition, lease-based task queue with heartbeat/claim/complete, bot container spawn and terminate via dockerode or Cloud Run Jobs API, short-lived JWT generation and injection at spawn time, execution lifecycle state machine (queued → running → completed → failed).
-**Implements:** Execution Service, Planner, Task Queue, Bot Orchestrator (Architecture components 1-4).
-**Avoids:** Push-based task assignment anti-pattern; BullMQ stalled jobs from incorrect `lockDuration` (Pitfall 3).
+**Install command:** `pnpm --filter @claw/db add pgvector`
 
-### Phase 3: Bot Runtime and Tool Gateway
-**Rationale:** Tool Gateway is the only permitted egress for bots — it must exist before any real bot can execute. JWT validation, allowlist enforcement, schema validation, and rate limiting must all be in place before connecting real LLMs. Network isolation is finalized here.
-**Delivers:** Tool Gateway (`/tool.invoke`, `/telemetry.emit`, `/task.heartbeat` endpoints), bot worker reasoning loop (Vercel AI SDK, LLM tool calling), container network isolation (VPC firewall rules for production, Docker bridge for local), telemetry routing through gateway, short-lived bot token lifecycle end-to-end.
-**Uses:** Fastify 5, Zod 4, Vercel AI SDK 5, dockerode, ioredis (rate limit counters).
-**Avoids:** Bots holding external API keys (Architecture anti-pattern 1); container escape from misconfiguration (Pitfall 2); DNS egress leak (Pitfall 10); telemetry loss on container exit (Pitfall 5).
-**Research flag:** Tool Gateway auth patterns and bot JWT rotation strategy — MEDIUM confidence, may need deeper research.
+### Already Available — No Action Required
 
-### Phase 4: Control Plane Services (Guardrails, Billing, Event Bus)
-**Rationale:** Guardrail Watchdog, Billing Engine, and the Event Bus backbone must exist before any run can be considered safe for real users. Event Bus decouples these consumers so none block the Tool Gateway's hot path. Budget enforcement with atomic Redis operations is mandatory before any LLM billing is shown to users.
-**Delivers:** Cloud Pub/Sub event bus with canonical event types (bot_started, bot_stopped, tool_invoked, task_claimed, task_completed, guardrail_triggered, budget_exceeded), Guardrail Watchdog (async subscriber; detects rate violations, token burn, loop patterns; issues revoke signals), Billing Engine (accumulates bot-hour and tool cost; enforces budget cap atomically), bot JWT revocation via Redis deny list.
-**Avoids:** Budget race condition overshoot (Pitfall 1 — atomic Redis operations); synchronous guardrail enforcement anti-pattern blocking the gateway (Architecture anti-pattern 3); token counting divergence corrupting billing (Pitfall 4); interrupted stream undercount (Pitfall 11).
+| Capability | Package | Notes |
+|-----------|---------|-------|
+| Embedding generation | `ai ^6.0.90` + `@ai-sdk/openai ^3.0.29` | `embed()` and `.embedding('text-embedding-3-small')` ready |
+| Structured LLM output (Council judges) | `ai ^6.0.90` + `zod ^4.3.6` | `generateObject()` with Zod schemas — same pattern as `planner.service.ts` |
+| WebSocket (OpenClaw client) | `ws ^8.18.0` | Installed — extend `openclaw-client.ts`, no new package |
+| Vector column DDL | `drizzle-orm 0.45.1` | Built-in `vector()` column type in `drizzle-orm/pg-core` |
+| BullMQ dedicated queues + rate limiting | BullMQ 5.69.x | `limiter: { max: N, duration: Ms }` supported natively |
+| Cosine similarity | Pure TypeScript | 10-line inline function — no package needed (OpenAI embeddings are unit-normalized) |
 
-### Phase 5: Performance Intelligence and DNA Capture
-**Rationale:** Performance Engine depends on telemetry collected in earlier phases. DNA Capture depends on performance scores to identify elite bots. This phase delivers the primary competitive moat — but only after execution reliability is proven. Composite score component architecture must be correct before building the composite to avoid misleading metrics.
-**Delivers:** Performance Engine (post-run composite bot scores: 40% success, 30% efficiency, 20% cost, 10% stability with component scores exposed separately), Bot Leaderboard data model (Green/Yellow/Red tiers), DNA Capture Engine (elite bot identification, structural pattern extraction, PII stripping, versioned JSONB storage in DNA Store with objective_category tagging), DNA data model designed for intent capture and replay fidelity (not literal output storage).
-**Avoids:** Misleading composite scores without component breakdown (Pitfall 6); DNA non-reproducibility from storing outputs instead of intent (Pitfall 7 — store tool sequence patterns, prompt templates, timing profiles, not raw LLM outputs); model version pinning in DNA records.
-**Research flag:** Composite score weighting formula validation — MEDIUM confidence; may need iteration with real execution data.
+### Critical Stack Decisions
 
-### Phase 6: UI Command Center
-**Rationale:** All backend systems must be stable and emitting correct events before the real-time UI is built. WebSocket/SSE fan-out via Redis pub/sub must be in place before multiple API instances are deployed — doing this retroactively requires a rewrite.
-**Delivers:** Redis pub/sub to WebSocket/SSE bridge (Memorystore fan-out for multi-instance), Svelte 5 + SvelteKit 2 frontend: New Execution screen (objective, max_bots, budget, tool allowlist), Live Execution View (real-time activity feed with legible event descriptions, guardrail events tagged, bot status, budget remaining, bot-hours consumed), Post-Execution Dashboard (summary report, bot leaderboard with tier indicators, cost breakdown, execution cost reporting), Bot Detail drill-down (step trace, tool breakdown), Usage/Billing history screen.
-**Uses:** Svelte 5 Runes, SvelteKit 2 native SSE, `@fastify/sse` or `@fastify/websocket`, ioredis pub/sub.
-**Avoids:** WebSocket multi-instance message loss (Pitfall 9 — Redis pub/sub from day one, not in-process EventEmitter).
+1. **No vector database.** pgvector in existing Cloud SQL handles 3–7 soul populations. Pinecone/Weaviate/Qdrant add managed service overhead for zero benefit at this scale.
+2. **No orchestration framework.** The Council is 3 parallel `generateObject()` calls with `Promise.all()`. LangChain/LangGraph add abstraction overhead and conflict with the Fastify/BullMQ architecture.
+3. **Embedding model: `text-embedding-3-small`.** 1,536 dimensions. Cost to embed a full 7-soul population: ~$0.00014. Reduce to 512 dimensions only if storage becomes a concern at thousands of souls.
+4. **Council model: `gpt-4o` for judges — but heterogeneous model families.** Use at least one non-OpenAI model family for one judge role to prevent self-enhancement bias. Do not use `gpt-4o-mini` for the Devil's Advocate; genuine adversarial reasoning requires frontier capability.
+5. **Prerequisite: enable pgvector on Cloud SQL.** Drizzle-kit does not auto-enable extensions. Run `CREATE EXTENSION IF NOT EXISTS vector;` manually and confirm with `\dx` before running migrations.
 
-### Phase Ordering Rationale
+---
 
-- Schema and types must precede all code that references them (Phase 1 before everything).
-- The orchestration loop (Phase 2) must be testable with stub bots before real LLMs are connected, so bugs in task claiming and container lifecycle are caught cheaply.
-- Tool Gateway (Phase 3) is the only permitted bot egress — it must exist before real LLM calls flow through the system.
-- Budget enforcement (Phase 4) must be atomic and correct before any real spending occurs; this cannot be retrofitted after Phase 3 connects real LLMs.
-- Performance scores (Phase 5) must exist before DNA Capture can identify which bots are elite; these are sequential dependencies.
-- UI (Phase 6) is last because it streams data from all upstream systems — premature UI build against unstable backends wastes effort and produces misleading test results.
+## Feature Landscape
 
-### Research Flags
+### Table Stakes — v2.0 (Must-Have for Coherence)
 
-Phases likely needing deeper research during planning:
-- **Phase 3 (Bot Runtime + Tool Gateway):** Tool Gateway authentication patterns, bot JWT revocation approach, and telemetry routing from isolated containers are MEDIUM confidence. Specifically: the gap between Cloud Run Jobs API latency and dockerode direct socket control needs validation with a prototype. The GCP deployment topology decision (Cloud Run Jobs vs GCE/dockerode) is the single most consequential architectural fork in the project.
-- **Phase 5 (Performance Intelligence + DNA):** Composite scoring weight validation requires real execution data to calibrate. DNA reproducibility measurement (running N re-executions to score variance) is MEDIUM confidence and may require iteration. LLM non-determinism is a fundamental constraint that the DNA data model must accommodate from the start.
+Features that make the evolutionary loop meaningful. Missing any one makes the v2.0 premise hollow.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Data Foundation):** GCP infrastructure provisioning, PostgreSQL schema design, and Terraform are well-documented standard patterns. HIGH confidence.
-- **Phase 2 (Core Execution Pipeline):** Pull-based task leasing is a well-established distributed systems pattern; BullMQ documentation is thorough; Fastify routing patterns are standard. HIGH confidence.
-- **Phase 4 (Control Plane Services):** GCP Cloud Pub/Sub fan-out, Redis atomic operations, and event-driven architecture are well-documented. HIGH confidence.
-- **Phase 6 (UI Command Center):** Svelte 5 + SvelteKit 2 with SSE is well-documented; Redis pub/sub to WebSocket bridge is a standard pattern. HIGH confidence.
+| Feature | Why Required | Complexity |
+|---------|--------------|------------|
+| SOUL.md schema (7 behavioral dimensions) | No axes = mutations operate on noise | MEDIUM |
+| Soul loading at bot spawn (per-agent distinct constitution) | No distinct constitutions = no differentiated behavioral signal | LOW |
+| Soul differentiation enforcement (embedding similarity pre-deploy) | Near-clones make causal comparison worthless | MEDIUM |
+| Minimum 3 differentiated agents per task category | Single-agent runs produce no comparison baseline | LOW |
+| Soul version tracking (hash + generation counter) | No version = no mutation lineage attribution | LOW |
+| Runtime soul directive annotation per tool call | Without per-decision self-tagging, Council attribution is retrospective guessing | HIGH |
+| 5 mutation operations: Substitution, Amplification, Attenuation, Recombination, Introduction | Full taxonomy required for non-trivial evolution; Recombination/Introduction add exploration | HIGH |
+| Council evaluation: 3 independent judges, structured JSON verdicts, post-run only | Evaluation machinery for the learning loop | HIGH |
+| Causal attribution with counterfactual verification | Self-report alone is confabulation; counterfactual is the real signal | HIGH |
+| God Layer: reads verdicts, generates mutations and class transitions | Closes the evolutionary loop; without this, Council is a log file | HIGH |
+| DNA Library: versioned souls, lineage, confirmed entries only | Compound learning requires a validated pattern store | MEDIUM |
+| Human confirmation gate (async, summary-only, anti-rubber-stamp) | Ground truth circuit breaker for miscalibrated council verdicts | LOW |
+
+### Differentiators — v2.0 (Create Competitive Distance)
+
+| Feature | Value | Complexity |
+|---------|-------|------------|
+| Agent class progression (Novice/Understudy/Artisan per task category) | Specialization is domain-specific; progression is visible and engaging | MEDIUM |
+| Archetype library (6–8 canonical personality templates) | Warm start for cold categories; prevents random initialization | MEDIUM |
+| Army Builder UI (soul composition view pre-deployment) | Users see what they're deploying, not just "3 bots" | MEDIUM |
+| Gamified lifecycle events (promotion ceremony, retirement, pioneer badge) | Narrative engagement; makes the system feel alive | LOW |
+| Mutation lineage visualization | Shows the evolutionary story; builds trust | MEDIUM |
+| Run-level evolution feed | God Layer decisions visible without reading technical verdicts | LOW |
+
+### Anti-Features — Explicitly Excluded
+
+| Anti-Feature | Why Excluded |
+|--------------|-------------|
+| Full-soul replacement as mutation | Destroys lineage continuity; attribution becomes impossible |
+| User-editable raw soul text | Pollutes algorithmically-generated evolutionary space; corrupts lineage graph |
+| Fine-tuning model weights from soul data | Requires RLHF infrastructure; out of scope for v2.0 |
+| Real-time Council evaluation during execution | Council requires complete trace; mid-run attribution is garbage |
+| 5+ class tiers | Three is the RPG engagement optimum; more creates choice paralysis |
+| Continuous automated promotion without human gate | Miscalibrated verdicts silently degrade the DNA library |
+| All Council members from the same model family | Self-enhancement bias; research confirms heterogeneous families are required |
+| Per-run soul mutation | Insufficient run count produces noisy signal; require 3–5 runs minimum before Council eligibility |
+
+### MVP Build Sequence
+
+**Phase 1 (Mechanical Loop — must exist for v2.0 coherence):** SOUL.md schema, soul loading, directive annotation, differentiation enforcement, Council, causal attribution, God Layer, soul mutations, DNA Library, human confirmation gate.
+
+**Phase 2 (User-Facing — depends on loop being closed):** Agent class system, archetype library, Army Builder UI.
+
+**Phase 3 (Engagement — depends on class system existing):** Gamified lifecycle events, run-level evolution feed.
+
+**Defer to v2.1+:** Soul weight sliders, multi-category army optimization, DNA export, soul A/B testing UI.
+
+---
+
+## Architecture Integration Points
+
+### How New Components Hook Into Existing Stack
+
+All new components live inside `services/execution-service`. No new GCE service. No new managed service.
+
+| Seam | Existing Code | New Code | Change Type |
+|------|--------------|----------|-------------|
+| Pre-execution (soul generation) | `routes/executions.ts` setImmediate block | `soul/soul-generator.ts` — insert between `planObjective()` and `spawnBotsForExecution()` | Call insertion |
+| Task dispatch (soul delivery) | `queue/openclaw-dispatcher.ts` `dispatchTaskToBot()` | Soul lookup from `bot_souls` by `botId`; pass to `sendTask()` | DB lookup + optional field |
+| Execution-time (trace collection) | `openclaw-client.ts` `handleMessage()` | `decision_annotation` message handler — writes to `decision_traces` table | New message type handler |
+| Post-execution (Council trigger) | `performance/performance-engine.ts` `runPerformancePipeline()` | Append `runCouncil(executionId)` after `identifyAndCaptureDna()` | Function append |
+| Background (God Layer) | `main.ts` | `startGodLayerWorker()` started alongside existing openclaw dispatcher | BullMQ Worker addition |
+| API (confirmation gate) | `app.ts` | Register `verdicts` route plugin | Route plugin |
+
+**New directory structure inside execution-service:**
+
+```
+services/execution-service/src/
+  soul/
+    soul-generator.ts           Query dna_store, apply mutations, return SoulDocument[]
+    mutation-engine.ts          5 mutation operations (Substitution, Amplification, etc.)
+    differentiation-enforcer.ts Embedding generation + pairwise cosine similarity
+    constitution-enforcer.ts    Inviolable directives validation
+    attribution-compiler.ts     Post-hoc fallback from tool_invocations if annotation unavailable
+    soul-query.ts               Query top-performing souls from dna_store by task category
+  council/
+    council-runner.ts           Orchestrate 3 judges, write council_verdicts, route to BullMQ
+    performance-judge.ts        generateObject() — outcome metrics vs objectives
+    soul-analyst.ts             generateObject() — directive-level attribution from decision traces
+    devils-advocate.ts          generateObject() — adversarial rebuttal (heterogeneous model)
+    verdict-aggregator.ts       50/35/15 weighted aggregation, confidence scoring
+  god-layer/
+    god-layer-worker.ts         BullMQ Worker on soul-verdicts queue
+    promotion-engine.ts         Class transition thresholds (Novice → Understudy → Artisan)
+    dna-writer.ts               Versioned DNA library writes
+    negative-register.ts        Failure pattern preservation to negative_signal_register
+    benchmark-manager.ts        Pioneer event handling, benchmark instantiation
+  routes/verdicts.ts            GET /verdicts/:executionId, POST /verdicts/:verdictId/confirm
+```
+
+### New Database Tables Required
+
+| Table | Purpose | Volume Note |
+|-------|---------|-------------|
+| `bot_souls` | Soul content keyed to bots before VM spawn; read by dispatcher | ~500 rows / 100 runs — trivial |
+| `decision_traces` | Per-decision annotation from agents; Council's primary input | HIGH — ~2,500 rows/execution; plan 90-day TTL before 5M rows |
+| `council_verdicts` | Post-execution Council outputs; one row per bot per execution | Low volume; long-lived |
+| `negative_signal_register` | Failure patterns preserved as mutation constraints | Rare (retirement events) — low volume |
+
+### Modified Tables (Additive — All Backward-Compatible)
+
+| Table | New Columns |
+|-------|-------------|
+| `dna_store` | `soul_content`, `agent_class`, `parent_lineage UUID[]`, `mutation_ops TEXT[]`, `council_verdict_id`, `directive_activation_summary JSONB`, `human_confirmed_at`, `pioneer BOOLEAN`, `is_provisional BOOLEAN` |
+| `bots` | `agent_class VARCHAR(20)`, `soul_id UUID`, `task_category VARCHAR(255)`, `pioneer BOOLEAN` |
+| `executions` | `task_category VARCHAR(255)`, `soul_generation_status VARCHAR(20)` |
+
+**All new columns are nullable or have defaults. Existing rows remain valid. Single coordinated Drizzle migration required — not incremental ALTER TABLE statements.**
+
+### Critical Integration Risks
+
+1. **OpenClaw WebSocket protocol (BLOCKER for Phase 2).** The `run_task` / `task_complete` message types in `openclaw-client.ts` are explicitly flagged as unverified placeholders in the existing code. Soul context delivery mechanism depends on whether OpenClaw accepts extra fields in `run_task` or requires prompt-prefix injection. Must verify against a live instance on `claw-app-dev` before finalizing Phase 2 design. Fallback (prompt prefix) is functional but less structured.
+
+2. **Decision annotation capability (BLOCKER for Phase 3 quality).** Whether OpenClaw agents can emit `decision_annotation` messages from their reasoning loop is unconfirmed. If unavailable, the post-hoc attribution path (LLM analysis of `tool_invocations` sequences) ships as primary. Build both paths; ship whichever OpenClaw supports. Post-hoc is the safe fallback.
+
+3. **Pre-assigned botId refactor.** `spawnBot()` currently generates its own UUID. Soul generation must precede VM spawn, so botIds must be pre-assigned by the caller (`spawnBotsForExecution()`). This is a 3-line change but touches the core spawn path — test carefully against existing bot lifecycle tests.
+
+4. **`dna_store` schema migration.** `DnaPayload` interface and `dna_store` schema both change. All downstream queries that consume DNA records must handle nulls for soul fields. Audit every query site before migrating. Add `soul_generation_status` discriminator to distinguish pre-SOUL and post-SOUL runs in historical queries.
+
+5. **Council queue isolation.** The Council must run on a separate named `council-queue` with its own worker pool. If Council jobs share the existing execution dispatcher queue (concurrency=20), they compete for worker slots during peak execution. Design the queue topology before writing the first Council job handler.
+
+---
+
+## Critical Watch-Outs
+
+### Top 5 Pitfalls by Severity
+
+**SOUL-1 — Council runs synchronously in the execution critical path (CRITICAL)**
+Relevant phase: Council architecture (Phase 4)
+The obvious implementation awaits all three Council `generateObject()` calls before returning the execution result. Three `gpt-4o` calls × 2,000–8,000 tokens each adds 10–45 seconds latency and costs $0.03–$0.25 per run. At concurrency=20 bots, this creates 60 simultaneous LLM calls that back up behind each other, causing cascading delays.
+Prevention: Council evaluation is a fully async BullMQ job on a separate `council-queue`, triggered by the `execution:completed` event. Display run results immediately; push Council verdicts via SSE when ready. Separate queue with dedicated worker pool (start at concurrency=5). Set a hard token ceiling of 8,000 tokens per Council member; compress/summarize decision traces before passing. Route Council LLM cost through existing metering so users see total spend.
+
+**SOUL-2 — LLM self-reported causal attribution is post-hoc rationalization (CRITICAL)**
+Relevant phase: Causal Attribution implementation (Phase 3)
+Agents annotate which soul directive drove each decision at runtime. Research on LLM explainability consistently finds that Chain-of-Thought rationales are plausible narratives constructed after decisions, not introspective records of the actual computation. If treated as ground truth, God Layer mutations operate on confabulated signal, and the platform degrades invisibly with each mutation cycle.
+Prevention: The counterfactual verification step is mandatory. If an agent claims directive X caused a decision, the Soul Analyst must evaluate: "Would this decision trace have differed without directive X?" Cross-population validation (did agents without directive X make a different decision at the same branch point?) is the only behaviorally grounded check. Track attribution disagreement rate between self-reported and counterfactual assessments as a system health metric — if it exceeds 40%, the pipeline is producing noise. Build counterfactual verification at the same time as self-report instrumentation, not after observing drift.
+
+**SOUL-3 — Council collapses into sycophantic consensus (CRITICAL)**
+Relevant phase: Council implementation (Phase 4)
+Multi-agent LLM debate research finds models converge toward consensus (mean 0.892 convergence rate) through sycophancy rather than genuine evaluation. The Devil's Advocate is most vulnerable — after seeing a strong Performance Judge score, it produces weak or no rebuttals regardless of actual weaknesses. If all three judges use the same model family, self-enhancement bias amplifies this further.
+Prevention: Run three Council members with zero inter-agent visibility — no judge sees any other judge's output before producing its own. Only aggregate after all three independent outputs are collected. Use heterogeneous model families (e.g., GPT-4o for Performance Judge, Claude for Soul Analyst, Gemini for Devil's Advocate). If the Devil's Advocate no-objection rate on promotion recommendations exceeds 80% over a sample window, harden the DA prompt. This is an architectural constraint enforced by separate API calls with no shared context — not a prompt engineering fix.
+
+**SOUL-4 — Human confirmation degrades into a rubber stamp (CRITICAL)**
+Relevant phase: Human Confirmation Gate UX (Phase 5)
+The human confirmation gate is the ground-truth signal that prevents miscalibrated council verdicts from corrupting the DNA Library. Research on HITL workflows finds sub-5-second confirmation times indicate button-pressing not genuine review. Gamification mechanics amplify this: users feel social pressure to confirm promotions framed as "your agent is ready." Once the signal is laundered as validated, all downstream library writes are corrupted.
+Prevention: Measure time-on-confirmation-screen. Surface at least one concrete evidence item (a specific tool call, a Devil's Advocate argument if one exists) that requires parsing before the confirm button appears. Frame rejection as positive contribution. Track per-user confirmation rate — above 95% across 10+ confirmations is a rubber-stamp signal warranting a calibration check. Anti-rubber-stamp mechanics must ship at launch, not be added after observing degradation.
+
+**INT-1 — Council jobs compete with execution jobs for the same BullMQ queue (HIGH)**
+Relevant phase: Council architecture (Phase 4)
+Council jobs added to the existing `execution-queue` (concurrency=20) compete for worker slots. During peak execution, a burst of 20 concurrent bots fills the pool; queued Council evaluations wait. After a large campaign, a burst of Council evaluations blocks the next campaign's bots from starting.
+Prevention: Create a separate named `council-queue` with its own worker pool (initial concurrency=5) before deploying any Council job handlers. Add a BullMQ rate limiter on `council-queue` to prevent post-campaign bursts from queuing 50 evaluations simultaneously. Also: `decision_traces` table grows at ~2,500 rows/execution — plan a 90-day TTL archival policy before reaching 5M rows.
+
+### Additional High-Severity Watch-Outs
+
+| Pitfall | Phase | Key Prevention |
+|---------|-------|---------------|
+| INT-3: Embedding differentiation adds 2–5s to pre-run startup if sequential | Phase 2 | Batch all embedding calls via single API request; cache by soul content hash; `Promise.all` for pairwise comparison |
+| INT-4: God Layer mutates souls during active campaigns (race condition) | Phase 6 | Snapshot soul at execution start (`bot_souls` is immutable per run); Redis lock on category library during active runs |
+| EVAL-2: Thin benchmark window (Pioneer categories) produces misleading verdicts | Phase 6 | No promotion executes until benchmark has 3 confirmed runs; mandatory confidence discount in UI |
+| EVAL-3: Unbounded Council LLM cost on large decision traces | Phase 4 | Hard 8,000-token ceiling per Council member context; compress traces before passing; route cost through existing metering |
+| INT-2: DNA schema changes break existing run history queries on null soul fields | Phase 1 | Single coordinated migration; audit all query sites; `soul_generation_status` discriminator column gates soul-specific aggregations |
+| DATA-2: Mutation lineage graph degrades query performance over time | Phase 6 (future) | Index on `(task_category, agent_class, fitness_score)`; store drift distance as computed column; plan lineage pruning at depth-3 for UI display |
+
+---
+
+## Open Questions
+
+Ranked by blocking impact.
+
+| Question | Blocks | Must Resolve Before | How to Investigate |
+|----------|--------|--------------------|--------------------|
+| Does OpenClaw `run_task` accept extra fields (`soul_content`, `task_category`) without rejecting the message? | Phase 2 soul delivery mechanism | Phase 2 coding begins | Test against live OpenClaw on `claw-app-dev` — send a `run_task` message with extra fields; inspect source or contact adversa-ai |
+| What is the OpenClaw task dispatch method name (`agent.send` vs `agent.execute`) and params structure? | Phase 2 — correct dispatch | Phase 2 coding begins | Inspect running OpenClaw process on `claw-app-dev`; review DeepWiki source mappings for `openclaw/openclaw/12.2-agent-commands` |
+| Does OpenClaw support emitting `decision_annotation` messages from agent reasoning? | Phase 3 — real-time vs. post-hoc attribution path | Phase 3 coding begins | Same investigation; check OpenClaw plugin/extension API; check `onboard` configuration |
+| Is pgvector enabled on the Cloud SQL `claw-army` database? | Phase 1 migration | Phase 1 migration runs | `gcloud compute ssh claw-app-dev --zone=us-central1-a --command="psql [connection string] -c '\dx'"` |
+| Does Council LLM cost at concurrency=20 hit OpenAI TPM limits? | Phase 4 — council-queue rate limiter sizing | Before Phase 4 production rollout | Load test in staging; configure `limiter: { max: 10, duration: 60000 }` on `council-queue` if limits are hit |
+| What is the empirically correct pairwise similarity threshold for soul differentiation? | Phase 2 — differentiation enforcer calibration | Can ship at 0.85 and tune post-MVP | Run calibration run after first 10 executions; compare embedding distance with actual behavioral variance |
+| Maximum SOUL.md document size vs. `text-embedding-3-small` 8,191-token context window | Phase 2 | Phase 2 soul schema design | Define hard max token limit in SOUL.md schema spec; truncation strategy if exceeded |
+
+---
+
+## Recommended Phase Order
+
+Build order driven by hard dependency direction: you cannot evaluate what hasn't run; you cannot mutate based on evaluations that don't exist; you cannot surface class transitions before the class system exists. Each phase is independently testable before the next begins.
+
+### Phase 1 — Database Schema + Shared Types
+**Why first:** All subsequent phases write to or read from these tables. Having real schema in place means later phases write real data, not stubs. The DNA store migration must be done in a single coordinated operation to avoid breaking existing run history queries.
+**Deliverables:** 4 new Drizzle schema files (`bot-souls.ts`, `decision-traces.ts`, `council-verdicts.ts`, `negative-signal-register.ts`); modified schemas (`dna-store.ts`, `bots.ts`, `executions.ts`); new shared types (`soul.ts`, `verdict.ts`); new event schemas (`soul-events.ts`); Drizzle migration applied.
+**Risk:** LOW — additive columns, nullable defaults, no existing runtime paths broken.
+**Research flag:** None — additive Drizzle migration patterns are well-documented and HIGH confidence.
+**Blocker prerequisite:** Confirm pgvector extension available on Cloud SQL before running migration.
+
+### Phase 2 — Soul Generation + Dispatch Integration
+**Why second:** Souls must exist and be attached to bots before task dispatch. Every run from this phase forward has real soul data, which all later phases consume for evaluation.
+**Deliverables:** `soul/` module (6 files); modified `executions.ts` (soul generation inserted); modified `bot-orchestrator.ts` (pre-assigned botId flow); modified `openclaw-client.ts` (optional soul fields); modified `openclaw-dispatcher.ts` (soul lookup before dispatch).
+**Risk:** MEDIUM — pre-assigned botId refactor touches core spawn path; OpenClaw field acceptance must be confirmed before finalizing soul delivery. Fallback to prompt-prefix injection is functional.
+**Research flag:** BLOCKER — verify OpenClaw WebSocket task dispatch protocol before writing Phase 2 soul delivery code.
+
+### Phase 3 — Decision Trace Collection
+**Why third:** The Council's Soul Analyst needs decision traces for causal attribution. Without this phase, Soul Analyst falls back to coarse post-hoc analysis from `tool_invocations`, producing weaker attribution signal.
+**Deliverables:** Extended `openclaw-client.ts` (`decision_annotation` handler); extended `openclaw-dispatcher.ts` (annotation callback + DB write to `decision_traces`); new `soul/attribution-compiler.ts` (post-hoc fallback compiling `tool_invocations` rows into attribution reports).
+**Risk:** MEDIUM — depends on OpenClaw emitting annotation messages. Build both paths; the post-hoc path is the safe fallback and ships regardless.
+**Research flag:** BLOCKER — confirm OpenClaw annotation capability before Phase 3. If unavailable, the post-hoc path ships as primary; this must be decided before Phase 3 begins so the Soul Analyst is built against the right input.
+
+### Phase 4 — The Council
+**Why fourth:** Depends on decision traces (Phase 3) and existing score pipeline (already running). First phase where the learning signal becomes real. Council queue topology must be designed before writing any Council LLM handlers.
+**Deliverables:** Separate `council-queue` BullMQ configuration (concurrency=5, rate limiter); `council/` module (5 files including verdict-aggregator with 50/35/15 weighting); modified `performance-engine.ts` (append `runCouncil()` — async BullMQ enqueue, not await).
+**Risk:** LOW structurally — `generateObject()` follows the established pattern used in `planner.service.ts`. Quality risk: enforce independent execution (no judge sees another's output), heterogeneous model families, position randomization in comparison inputs.
+**Research flag:** None — LLM-as-judge bias mitigations are HIGH confidence from multiple peer-reviewed sources.
+
+### Phase 5 — Human Confirmation API + Notifications
+**Why fifth:** God Layer cannot execute until verdicts are confirmed. The human gate is required before any DNA library writes occur.
+**Deliverables:** `routes/verdicts.ts` (GET + POST endpoints); registered in `app.ts`; Pub/Sub `verdict_confirmed` event schema; UI verdict notification panel with confirm/reject interface and mandatory evidence surface; SSE extension for `verdict_confirmed` events.
+**Risk:** LOW — standard Fastify route and BullMQ enqueue pattern. UX risk: anti-rubber-stamp mechanics must ship at launch (evidence surface, time measurement, rejection framing). Do not defer UX hardening to post-launch.
+**Research flag:** None — HITL UX patterns are HIGH confidence. Anti-rubber-stamp mechanics are well-specified.
+
+### Phase 6 — God Layer
+**Why sixth:** Terminal step of the feedback loop. Depends on confirmed verdicts (Phase 5). Makes the DNA Library compound over time.
+**Deliverables:** `god-layer/` module (5 files); `godLayerWorker` started in `main.ts` alongside existing openclaw dispatcher; idempotency via `council_verdicts.status` atomic transition; soul snapshot binding (God Layer evaluates run's `bot_souls` snapshot, not current library); Redis lock on category library during active campaigns.
+**Risk:** LOW-MEDIUM — most stateful component. Idempotency and snapshot binding are the critical correctness requirements; both must be in place before the first God Layer run touches real DNA library data.
+**Research flag:** None — BullMQ worker patterns are established by the existing openclaw dispatcher.
+
+### Phase 7 — UI: Council Narrative, Leaderboard Extensions, Army Builder
+**Why last:** All data these views consume is produced by Phases 4–6. Building last avoids dead UI while backend phases are in flight.
+**Deliverables:** Extended leaderboard (`agentClass`, council verdict summary, tier badges, pioneer flag); verdict confirmation panel with anti-rubber-stamp UX; SSE `class_transition` narrative notifications; Army Builder UI (soul composition view, class-aware slot filling, differentiation enforcement feedback); mutation lineage display (depth-3 max for UI).
+**Risk:** LOW — additive UI changes on existing leaderboard and SSE infrastructure. Army Builder depends on stable DNA Library and class system API.
+**Research flag:** Army Builder role-legibility patterns are HIGH confidence per ACM DIS 2025 research. Gamification engagement patterns (promotion ceremony, pioneer badge) are HIGH confidence per RPG progression literature.
 
 ---
 
 ## Confidence Assessment
 
-| Area | Confidence | Notes |
+| Area | Confidence | Basis |
 |------|------------|-------|
-| Stack | MEDIUM-HIGH | Core stack (Fastify, BullMQ, Drizzle, Vercel AI SDK 5) is HIGH confidence from official sources. Version numbers for BullMQ and @ai-sdk packages are MEDIUM (npm search, not Context7). GCP topology fork is MEDIUM — requires prototype validation. |
-| Features | HIGH | Multiple verified industry sources + competitor analysis + PRD alignment. Feature dependency graph is well-reasoned. Anti-features are clearly justified. |
-| Architecture | HIGH | Control plane patterns, GCP Pub/Sub, VPC isolation, pull-based leasing all HIGH confidence from official GCP documentation and established distributed systems patterns. Tool Gateway auth and telemetry from isolated containers are MEDIUM. |
-| Pitfalls | HIGH | Container escape (HIGH — vendor security advisories + CVE data), budget race conditions (HIGH — well-documented TOCTOU problem), BullMQ stalled jobs (HIGH — official BullMQ docs), token counting divergence (HIGH — provider documentation), DNA non-reproducibility (HIGH — provider-stated non-determinism). Performance score validity is MEDIUM. |
+| Stack additions | HIGH | Direct package.json + schema analysis; 1 new package with clear precedent |
+| Feature set (table stakes) | HIGH | Cross-referenced: evolutionary AI (arXiv), LLM-as-judge surveys, PRD |
+| Feature set (differentiators) | MEDIUM-HIGH | Novel domain; gamification and HITL patterns are HIGH; class progression novelty introduces calibration uncertainty |
+| Architecture integration points | HIGH | Direct source analysis of all relevant execution-service files |
+| Database schema design | HIGH | Additive Drizzle migration pattern verified against existing schema structure |
+| OpenClaw WebSocket extensions | LOW | Message schema in existing code flagged as unverified placeholder; actual protocol acceptance unconfirmed |
+| Decision annotation capability | LOW | Depends on OpenClaw runtime behavior; not confirmed from public documentation |
+| Council bias mitigations (sycophancy, position, verbosity) | HIGH | Multiple peer-reviewed ACL 2025 papers, arXiv surveys on LLM judge biases |
+| Causal attribution quality | MEDIUM | Research confirms self-report is unreliable; counterfactual approach is correct direction but implementation-specific quality unknown until calibrated against real runs |
+| Embedding differentiation threshold (0.85) | MEDIUM | Community guidance; requires empirical calibration against real SOUL.md corpus |
+| Council LLM cost at concurrency=20 | MEDIUM | Per-call estimates grounded; TPM behavior under load requires staging measurement |
 
-**Overall confidence:** HIGH
+### Gaps Requiring Attention During Implementation
 
-### Gaps to Address
-
-- **GCP bot hosting topology:** The Cloud Run Jobs vs. dockerode-on-GCE decision is the most consequential unresolved fork. Recommendation is to start with dockerode on a GCE VM for MVP (faster lifecycle control), but this needs a prototype to validate Cloud Run Jobs API latency under concurrent bot spawning scenarios before committing to either path for scale.
-- **Composite score weights:** The 40/30/20/10 weighting formula (success/efficiency/cost/stability) is a reasoned starting point from the PRD, not empirically validated. Plan to iterate on weights after the first real execution data is collected.
-- **DNA reproducibility measurement:** How to quantify and surface a "reproducibility score" for captured DNA (run N re-executions, measure output variance) is not fully specified. This needs a concrete implementation plan when Phase 5 is built.
-- **BullMQ vs Postgres task queue:** ARCHITECTURE.md suggests Postgres row-level locking as the MVP task queue (simpler), while STACK.md recommends BullMQ. These need to be reconciled in Phase 2 — BullMQ is the recommendation for Phase 1+ given its lease semantics, but Postgres locking is a valid simpler starting point if the team prefers to defer Redis until it's needed for other reasons.
-- **Planner implementation:** Research assumes an LLM-based planner for objective decomposition, but does not specify the prompt strategy, output format validation, or handling of objectives that produce too many or too few tasks. This needs definition in Phase 2.
-
----
-
-## Sources
-
-### Primary (HIGH confidence)
-- [Vercel AI SDK 5 Release Blog](https://vercel.com/blog/ai-sdk-5) — SDK 5 release July 2025, multi-provider patterns
-- [BullMQ Documentation](https://docs.bullmq.io) — Redis requirements, stalled jobs, lock duration configuration
-- [dockerode GitHub](https://github.com/apocas/dockerode) — version 4.0.9, HostConfig resource limits
-- [GCP Cloud Run Jobs Documentation](https://cloud.google.com/run/docs/create-jobs) — Node.js quickstart, job execution API
-- [GCP Direct VPC Egress](https://docs.cloud.google.com/run/docs/configuring/vpc-direct-vpc) — network isolation for Cloud Run
-- [GCP Cloud Pub/Sub WebSocket Streaming](https://cloud.google.com/pubsub/docs/streaming-cloud-pub-sub-messages-over-websockets) — event fan-out pattern
-- [GCP Task Queue Leasing Pattern](https://cloud.google.com/appengine/docs/legacy/standard/python/taskqueue/pull/leasing-pull-tasks) — pull-based leasing (pattern is portable)
-- [OpenTelemetry AI Agent Observability](https://opentelemetry.io/blog/2025/ai-agent-observability/) — OTel for AI agents
-- [Control Planes in Agentic AI — AWS Prescriptive Guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-multitenant/employing-control-planes-in-agentic-environments.html) — control/data plane separation
-- [Svelte 5 Release](https://svelte.dev/blog/svelte-5-is-alive) — stable October 2024, Runes reactivity
-- [JWTs for AI Agents — SecurityBoulevard](https://securityboulevard.com/2025/11/jwts-for-ai-agents-authenticating-non-human-identities/) — non-human identity patterns
-- [Claude Token Counting — Anthropic Documentation](https://platform.claude.com/docs/en/build-with-claude/token-counting) — provider-reported actuals
-- [BullMQ Stalled Jobs Documentation](https://docs.bullmq.io/guide/workers/stalled-jobs) — lockDuration, stalledInterval
-- [How to Sandbox AI Agents — Northflank](https://northflank.com/blog/how-to-sandbox-ai-agents) — container isolation, gVisor, Firecracker
-- [Gartner: 40%+ Agentic AI Projects Canceled by 2027](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027) — cost control failures as primary cause
-- [Container Escape Vulnerabilities — Blaxel](https://blaxel.ai/blog/container-escape) — runC CVEs, misconfiguration escape vectors
-- [NVIDIA Data Flywheel for AI Agents](https://developer.nvidia.com/blog/maximize-ai-agent-performance-with-data-flywheels-using-nvidia-nemo-microservices/) — DNA flywheel concept
-
-### Secondary (MEDIUM confidence)
-- [Drizzle vs Prisma — Bytebase](https://www.bytebase.com/blog/drizzle-vs-prisma/) — ORM comparison, cold start differences
-- [Token Counting Guide — Propel](https://www.propelcode.ai/blog/token-counting-tiktoken-anthropic-gemini-guide-2025) — cross-provider tokenizer divergence
-- [Cost Guardrails for Agent Fleets — Medium](https://medium.com/@Micheal-Lanham/cost-guardrails-for-agent-fleets-how-to-prevent-your-ai-agents-from-burning-through-your-budget-ea68722af3fe) — TOCTOU race condition patterns
-- [Why Deterministic LLM Output Is Nearly Impossible — Unstract](https://unstract.com/blog/understanding-why-deterministic-output-from-llms-is-nearly-impossible/) — non-determinism constraints for DNA replay
-- [Top AI Agent Orchestration Platforms 2026 — Redis](https://redis.io/blog/ai-agent-orchestration-platforms/) — competitor feature matrix
-- [WebSocket Scale Architecture — Ably](https://ably.com/topic/the-challenge-of-scaling-websockets) — Redis pub/sub fan-out for multi-instance
-
-### Tertiary (LOW confidence)
-- [LLM Gateway Comparison 2025 — Helicone](https://www.helicone.ai/blog/top-llm-gateways-comparison-2025) — vendor blog; used only to confirm category, not specific recommendations
-- [AI Agent Versioning — Decagon](https://decagon.ai/resources/decagon-agent-versioning) — single source for DNA versioning concept; cross-referenced with internal PRD
+1. **OpenClaw protocol** — Both soul delivery (Phase 2) and decision annotation capability (Phase 3) depend on unconfirmed OpenClaw behavior. Investigate on `claw-app-dev` before writing these components. This is the only true external dependency that could force significant design changes.
+2. **pgvector Cloud SQL availability** — Must be confirmed before Phase 1 migration. If unavailable on the current Cloud SQL instance version, a flag change or instance upgrade is required.
+3. **Attribution quality calibration** — The disagreement rate between self-reported and counterfactual attribution is unknown until real runs are evaluated. Build the tracking metric into the Council from Phase 4 launch; do not wait to observe drift before adding measurement.
+4. **Council cost under load** — Run a staging load test before enabling Council in production. Configure `council-queue` rate limiter before the test, not after observing TPM errors.
 
 ---
 
-*Research completed: 2026-02-18*
-*Ready for roadmap: yes*
+## Sources (Aggregated)
+
+**Stack (HIGH confidence):** Vercel AI SDK docs, pgvector-node GitHub, Drizzle ORM vector guide, BullMQ rate limiting docs, OpenAI model pricing (cross-referenced via Helicone). **Stack (MEDIUM confidence):** OpenClaw Gateway Protocol docs (JSON-RPC framing confirmed; specific method names not public), OpenClaw DeepWiki agent commands (inferred from source file references).
+
+**Features (HIGH confidence):** EvoAgent arXiv:2406.14228, GAAPO Frontiers 2025, arXiv:2512.09108 (evolutionary LLM agents), Anthropic Constitutional AI, CONSENSAGENT ACL 2025, LLM-as-Judge survey arXiv:2412.05579, permit.io HITL best practices, RPG progression systems IntechOpen, ACM DIS 2025 multi-agent UX. **Features (MEDIUM confidence):** CrewClaw SOUL.md patterns, Agent Factory paradigm docs.
+
+**Architecture (HIGH confidence):** Direct codebase analysis of all execution-service source files, full PRD `soulprd.md`. **Architecture (LOW confidence):** OpenClaw WebSocket extension acceptance (unverified against live instance).
+
+**Pitfalls (HIGH confidence):** Evidently AI LLM-as-Judge guide, arXiv:2410.02736 (position bias), CONSENSAGENT ACL 2025 (sycophancy), arXiv:2509.23055 (multi-agent sycophancy), arXiv:2410.21819 (self-preference bias), Lil'Log reward hacking, METR reward hacking report, KDD causal interpretability survey, Goodhart's Law in AI (Collinear AI). **Pitfalls (MEDIUM confidence):** Embedding threshold calibration (community guidance), mutation drift math (research-backed but implementation-specific).
+
+---
+
+## Appendix: v1 Base Platform Summary
+
+*The original v1 base platform research summary (researched 2026-02-18) is preserved below for reference. All v1 features listed there are SHIPPED and are not re-evaluated in this document.*
+
+---
+
+**Project:** Claw Bot Army — AI Multi-Agent Orchestration Platform
+**Researched:** 2026-02-18
+
+### v1 Executive Summary
+
+Claw Bot Army is a multi-agent AI orchestration platform where a user submits an objective, the system decomposes it into parallel tasks, and a fleet of isolated bot workers execute those tasks concurrently. The recommended approach is a pull-based task queue with lease semantics, container-isolated bot workers that communicate exclusively through a Tool Gateway, and an event-driven control plane where billing, guardrail enforcement, and telemetry collection are decoupled consumers of a canonical event bus. The DNA capture flywheel is the primary competitive moat.
+
+### v1 Stack (Shipped)
+
+Node.js 22 LTS, Fastify 5, BullMQ 5 on Redis 7, Drizzle ORM 0.45.x on Cloud SQL PostgreSQL 15, Vercel AI SDK 5+ provider packages, GCE VMs with OpenClaw (replaced dockerode after v1.1), Svelte 5 + SvelteKit 2, Zod 4, Auth.js v5.
+
+### v1 Features (Shipped)
+
+All table-stakes execution features, Tool Gateway, guardrails, performance scoring (composite 40/30/20/10), bot leaderboard, DNA capture, real-time live activity feed, structured trace capture, execution history, cost reporting, bot detail drill-down, Google OAuth auth, GCE VM sandbox isolation with OpenClaw.
+
+### v1 Phase Order (Completed)
+
+Phase 1: Data Foundation + Infrastructure. Phase 2: Core Execution Pipeline. Phase 3: Bot Runtime + Tool Gateway. Phase 4: Control Plane Services (Guardrails, Billing, Event Bus). Phase 5: Performance Intelligence + DNA Capture. Phase 6: UI Command Center.
