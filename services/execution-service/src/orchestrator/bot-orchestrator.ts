@@ -73,6 +73,7 @@ export async function spawnBot(
     imageTag: `gce-openclaw-${GCP_ZONE}`,
   });
 
+  const gatewayToken = randomUUID();
   let instanceName: string;
 
   try {
@@ -89,6 +90,7 @@ export async function spawnBot(
       llmApiKeySecretName: LLM_API_KEY_SECRET_NAME,
       llmProvider: LLM_PROVIDER,
       botServiceAccount: GCP_BOT_SERVICE_ACCOUNT,
+      gatewayToken,
     });
     instanceName = result.instanceName;
   } catch (err) {
@@ -121,6 +123,7 @@ export async function spawnBot(
     executionId,
     instanceName,
     internalIp: null,
+    gatewayToken,
     openclawClient: null,
     currentJobId: null,
     startedAt: Date.now(),

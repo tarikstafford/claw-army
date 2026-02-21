@@ -64,7 +64,10 @@ export class OpenClawClient {
   private failureCallbacks: Array<(error: string) => void> = [];
   private _isConnected = false;
 
-  constructor(private readonly wsUrl: string) {}
+  constructor(
+    private readonly wsUrl: string,
+    private readonly token?: string,
+  ) {}
 
   // ── Connection ──────────────────────────────────────────────────────────────
 
@@ -81,7 +84,10 @@ export class OpenClawClient {
           attempt: this.reconnectAttempts + 1,
         });
 
-        const ws = new WebSocket(this.wsUrl);
+        const wsOptions = this.token
+          ? { headers: { 'OpenClaw-Token': this.token } }
+          : undefined;
+        const ws = new WebSocket(this.wsUrl, wsOptions);
         const connectTimeout = setTimeout(() => {
           ws.terminate();
           this.handleReconnect(resolve, reject);

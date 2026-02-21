@@ -12,6 +12,7 @@ export interface BotEntry {
   executionId: string;
   instanceName: string;          // GCE instance name (e.g. bot-abc12345-1700000000000)
   internalIp: string | null;     // VPC-internal IP — null until VM startup completes
+  gatewayToken: string | null;   // OpenClaw Gateway auth token — null until /ready callback
   openclawClient: OpenClawClient | null; // WebSocket client — null until /ready callback
   currentJobId: string | null;   // BullMQ job ID being processed; null = idle
   startedAt: number;             // Date.now() — epoch ms when VM was provisioned

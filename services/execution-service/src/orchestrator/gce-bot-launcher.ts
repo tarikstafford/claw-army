@@ -20,6 +20,7 @@ function buildStartupScript(opts: {
   llmApiKeySecretName: string;
   toolGatewayUrl: string;
   executionServiceUrl: string;
+  gatewayToken: string;
 }): string {
   const {
     botId,
@@ -28,6 +29,7 @@ function buildStartupScript(opts: {
     llmApiKeySecretName,
     toolGatewayUrl,
     executionServiceUrl,
+    gatewayToken,
   } = opts;
 
   return `#!/bin/bash
@@ -39,6 +41,8 @@ LLM_PROVIDER="${llmProvider}"
 LLM_API_KEY_SECRET="${llmApiKeySecretName}"
 TOOL_GATEWAY_URL="${toolGatewayUrl}"
 EXECUTION_SERVICE_URL="${executionServiceUrl}"
+GATEWAY_TOKEN="${gatewayToken}"
+GATEWAY_PORT="18789"
 
 exec > >(tee /var/log/bot-startup.log | logger -t bot-startup) 2>&1
 
@@ -59,49 +63,36 @@ apt-get install -y nodejs git
 npm install -g openclaw@latest
 openclaw --version
 
-# ── 4. Install SecureClaw (OpenClaw plugin) ───────────────────────────────────
-# Source: https://github.com/adversa-ai/secureclaw
-git clone https://github.com/adversa-ai/secureclaw.git /opt/secureclaw
-bash /opt/secureclaw/secureclaw/skill/scripts/install.sh \\
-  || echo "[startup] WARNING: SecureClaw install failed — proceeding without hardening"
-
-# ── 5. Fetch LLM API key from Secret Manager ─────────────────────────────────
+# ── 4. Fetch LLM API key from Secret Manager ─────────────────────────────────
 LLM_API_KEY=$(gcloud secrets versions access latest --secret="$LLM_API_KEY_SECRET" 2>/dev/null || echo "")
 if [[ -z "$LLM_API_KEY" ]]; then
   echo "[startup] ERROR: Could not fetch LLM API key from Secret Manager"
   exit 1
 fi
 
-# ── 6. Configure OpenClaw ─────────────────────────────────────────────────────
-mkdir -p /root/.openclaw
-cat > /root/.openclaw/config.json <<CONFIG
-{
-  "llmProvider": "$LLM_PROVIDER",
-  "apiKey": "$LLM_API_KEY",
-  "httpProxy": "$TOOL_GATEWAY_URL"
-}
-CONFIG
-
+# ── 5. Configure OpenClaw non-interactively ───────────────────────────────────
+# Route LLM API calls through the Tool Gateway (HTTP forward proxy)
 export HTTP_PROXY="$TOOL_GATEWAY_URL"
 export HTTPS_PROXY="$TOOL_GATEWAY_URL"
 export NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1"
-# Override gateway bind address from 127.0.0.1 to the internal VPC IP
-export OPENCLAW_GATEWAY_HOST="$INTERNAL_IP"
-export OPENCLAW_GATEWAY_PORT="18789"
 
-# ── 7. Run SecureClaw audit + hardening ──────────────────────────────────────
-npx openclaw secureclaw audit 2>&1 | tee /var/log/secureclaw-audit.log || true
-npx openclaw secureclaw harden --full 2>&1 | tee /var/log/secureclaw-harden.log || true
+# Non-interactive quickstart: sets LLM credentials, binds gateway to 0.0.0.0
+# so the execution service can reach it over the VPC internal IP, and installs
+# the openclaw-gw systemd service.
+openclaw onboard \\
+  --accept-risk \\
+  --flow quickstart \\
+  --auth-choice anthropic-api-key \\
+  --anthropic-api-key "$LLM_API_KEY" \\
+  --gateway-port "$GATEWAY_PORT" \\
+  --gateway-bind lan \\
+  --gateway-auth token \\
+  --gateway-token "$GATEWAY_TOKEN"
 
-# ── 8. Start OpenClaw gateway as a daemon ─────────────────────────────────────
-openclaw onboard --install-daemon
-systemctl enable openclaw-gateway 2>/dev/null || true
-systemctl start openclaw-gateway 2>/dev/null || true
-
-# ── 9. Wait for OpenClaw Gateway to be ready ─────────────────────────────────
+# ── 6. Wait for OpenClaw Gateway to be ready ──────────────────────────────────
 MAX_WAIT=120
 WAITED=0
-until curl -sf "http://$INTERNAL_IP:18789/health" > /dev/null 2>&1; do
+until curl -sf "http://$INTERNAL_IP:$GATEWAY_PORT/health" > /dev/null 2>&1; do
   if [[ $WAITED -ge $MAX_WAIT ]]; then
     echo "[startup] ERROR: OpenClaw Gateway not ready after \${MAX_WAIT}s"
     exit 1
@@ -109,12 +100,12 @@ until curl -sf "http://$INTERNAL_IP:18789/health" > /dev/null 2>&1; do
   sleep 5
   WAITED=$((WAITED + 5))
 done
-echo "[startup] OpenClaw Gateway is ready on $INTERNAL_IP:18789"
+echo "[startup] OpenClaw Gateway is ready on $INTERNAL_IP:$GATEWAY_PORT"
 
-# ── 10. Signal readiness to execution-service ─────────────────────────────────
+# ── 7. Signal readiness to execution-service ──────────────────────────────────
 curl -X POST "$EXECUTION_SERVICE_URL/bots/$BOT_ID/ready" \\
   -H "Content-Type: application/json" \\
-  -d "{\\"internalIp\\": \\"$INTERNAL_IP\\", \\"port\\": 18789}" \\
+  -d "{\\"internalIp\\": \\"$INTERNAL_IP\\", \\"port\\": $GATEWAY_PORT, \\"gatewayToken\\": \\"$GATEWAY_TOKEN\\"}" \\
   --retry 10 --retry-delay 5 --retry-connrefused --max-time 60
 
 echo "[startup] === Bot VM ready: $BOT_ID ==="
@@ -138,6 +129,8 @@ export interface LaunchBotVMOptions {
   llmProvider?: string;
   /** Service account email to attach to bot VMs (needs secretmanager.secretAccessor). */
   botServiceAccount: string;
+  /** Pre-generated token the OpenClaw Gateway will require for WebSocket connections. */
+  gatewayToken: string;
 }
 
 /**
@@ -164,6 +157,7 @@ export async function launchBotVM(opts: LaunchBotVMOptions): Promise<{ instanceN
     llmApiKeySecretName: opts.llmApiKeySecretName,
     toolGatewayUrl: opts.toolGatewayUrl,
     executionServiceUrl: opts.executionServiceUrl,
+    gatewayToken: opts.gatewayToken,
   });
 
   console.log('[gce-bot-launcher] Submitting GCE insert:', {
