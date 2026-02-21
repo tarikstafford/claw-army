@@ -93,8 +93,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- Schema unique constraint migration + post-hoc attribution compiler
-- [ ] 10-02-PLAN.md -- Admin TTL cleanup route + OpenClaw decision_annotation stub
+- [x] 10-01-PLAN.md -- Schema unique constraint migration + post-hoc attribution compiler
+- [x] 10-02-PLAN.md -- Admin TTL cleanup route + OpenClaw decision_annotation stub
 
 ---
 
@@ -229,7 +229,7 @@ Plans:
 | 7. Google Auth Gate | v1.1 | 6/6 | Complete | 2026-02-19 |
 | 8. Database Schema and Shared Types | v2.0 | 0/TBD | Not started | - |
 | 9. Soul Generation and Dispatch Integration | v2.0 | 3/3 | Complete | 2026-02-21 |
-| 10. Decision Trace Collection | v2.0 | 0/TBD | Not started | - |
+| 10. Decision Trace Collection | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 11. The Council | v2.0 | 0/TBD | Not started | - |
 | 12. Human Confirmation Gate | v2.0 | 0/TBD | Not started | - |
 | 13. God Layer and Agent Class System | v2.0 | 0/TBD | Not started | - |
