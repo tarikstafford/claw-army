@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 10 Plan 01 complete — decision trace attribution compiler shipped)
+**Current focus:** v2.0 — The SOUL System (Phase 10 complete — DTRC-01 + DTRC-02 done; admin cleanup endpoint shipped)
 
 ## Current Position
 
 Phase: 10-decision-trace-collection
-Plan: 01 (complete)
-Status: Phase 10 Plan 01 complete — unique constraint on decision_traces.decision_id + post-hoc attribution compiler wired into performance pipeline
-Last activity: 2026-02-22 — Phase 10-01 complete (migration 0005, attribution-compiler.ts, performance-engine.ts updated)
+Plan: 02 (complete)
+Status: Phase 10 complete — post-hoc attribution compiler (Plan 01) + admin TTL cleanup endpoint (Plan 02); DTRC-01 and DTRC-02 fully satisfied
+Last activity: 2026-02-22 — Phase 10-02 complete (admin.ts route, app.ts registration, openclaw-client.ts stub)
 
-Progress: [██░░░░░░░░░░░░░░░░░░░░░░░░░░] 12% (4/TBD v2.0 plans — Phase 10 Plan 01 complete)
+Progress: [██░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (5/TBD v2.0 plans — Phase 10 Plan 02 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33
-- Average duration: 4.9 min
-- Total execution time: 170 min
+- Total plans completed: 34
+- Average duration: 4.8 min
+- Total execution time: 172 min
 
 **By Phase:**
 
@@ -36,10 +36,10 @@ Progress: [██░░░░░░░░░░░░░░░░░░░░░
 | 07-google-auth-gate | 6/6 | 16 min | 2.7 min |
 | 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
 | 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
-| 10-decision-trace-collection | 1/? | 8 min | 8 min |
+| 10-decision-trace-collection | 2/2 | 10 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 08-02 (3 min), 09-01 (3 min), 09-03 (1 min), 10-01 (8 min)
+- Last 5 plans: 09-01 (3 min), 09-03 (1 min), 10-01 (8 min), 10-02 (2 min)
 - Trend: ~1-8 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
@@ -82,6 +82,9 @@ Phase 08-02 decisions:
 - [Phase 10-01]: MAX_INVOCATIONS_PER_BOT=50 caps LLM cost per bot; rejected tool calls included for counterfactual value in CNCL-04
 - [Phase 10-01]: reasoning_branch writes low-confidence fallback row on LLM failure — Council always has a row to evaluate; fire-and-forget boundary at top-level never throws
 - [Phase 10-01]: Verbatim directive validation — confidence > 0.5 AND directive not in soulContent → degrade to max 0.3 + validationWarning metadata flag to prevent confabulation from poisoning Council analysis
+- [Phase 10-02]: Admin route uses plain FastifyInstance (not FastifyPluginAsyncTypebox) — no TypeBox schema needed for internal Cloud Scheduler trigger endpoint
+- [Phase 10-02]: No auth middleware on /admin prefix at this stage — execution service is internal, protected by GCP firewall rules; auth hook can be added later as a Fastify onRequest hook on the prefix
+- [Phase 10-02]: decision_annotation stub placed after task_failed handler inside handleMessage() — natural extension point when OpenClaw adds annotation support
 
 ### Roadmap Evolution
 
@@ -101,10 +104,10 @@ None.
 - [Phase 8 blocker]: Confirm pgvector extension is enabled on Cloud SQL before running migration (`psql -c '\dx'`). Migrations 0003_soul_system_foundation.sql, 0004_add_human_review_flag.sql, AND 0005_decision_traces_unique_decision_id.sql are ready; apply via `cd packages/db && npx drizzle-kit migrate` after pgvector confirmed.
 - [Phase 8 blocker]: Run seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
 - [Phase 9 blocker]: Verify OpenClaw WebSocket task dispatch protocol — confirm whether `run_task` accepts extra fields (soul_content, task_category) or requires prompt-prefix injection.
-- [Phase 10 blocker resolved]: OpenClaw decision_annotation unavailable — post-hoc attribution path ships as primary (as planned). Attribution compiler complete.
+- [Phase 10 complete]: DTRC-01 (attribution compiler) and DTRC-02 (admin TTL cleanup endpoint) fully satisfied. Cloud Scheduler can be configured to POST /admin/cleanup/decision-traces on a cron schedule.
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 10-01-PLAN.md (unique constraint migration + post-hoc attribution compiler)
+Stopped at: Completed 10-02-PLAN.md (admin cleanup endpoint + OpenClaw decision_annotation stub)
 Resume file: None
