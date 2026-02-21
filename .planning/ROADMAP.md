@@ -71,11 +71,12 @@ Plans:
 4. Every generated soul is validated against inviolable constitution directives before dispatch — a soul that violates constitution lines is rejected and regenerated without any manual intervention
 5. Submitting an execution where the budget cannot support a minimum 3-agent population is blocked at the API with a plain explanation — the minimum is never silently reduced
 
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
 - [ ] 09-01-PLAN.md -- Soul generation service (classify, mutate, validate, embed, differentiate, persist)
 - [ ] 09-02-PLAN.md -- Dispatch integration (startup script soul delivery, orchestrator wiring, budget enforcement)
+- [ ] 09-03-PLAN.md -- Gap closure: persist humanReviewFlag to bot_souls table (schema + migration + insert fix)
 
 ---
 
@@ -223,7 +224,7 @@ Plans:
 | 6. UI Command Center | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. Google Auth Gate | v1.1 | 6/6 | Complete | 2026-02-19 |
 | 8. Database Schema and Shared Types | v2.0 | 0/TBD | Not started | - |
-| 9. Soul Generation and Dispatch Integration | v2.0 | 0/2 | Not started | - |
+| 9. Soul Generation and Dispatch Integration | v2.0 | 2/3 | In progress | - |
 | 10. Decision Trace Collection | v2.0 | 0/TBD | Not started | - |
 | 11. The Council | v2.0 | 0/TBD | Not started | - |
 | 12. Human Confirmation Gate | v2.0 | 0/TBD | Not started | - |
