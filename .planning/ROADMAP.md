@@ -100,12 +100,12 @@ Plans:
   3. The objective detail page shows aggregate stats across all runs: total spend, total tasks completed, total bot-hours, and a readable soul class distribution trend
   4. If a run on this objective is currently active, the objective detail page shows live status inline: active bot count, real-time budget burn, and the last 5 activity events — without navigating away
   5. The objective detail page shows a DNA evolution summary: how many Novice → Understudy → Artisan class transitions have occurred across all runs on this objective
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 17-01: `/objectives` list page — SvelteKit route, load function, objective card component
-- [ ] 17-02: `/objectives/:id` detail page — run history table, aggregate stats panel, DNA evolution summary
-- [ ] 17-03: Live status inline — SSE-driven active run status panel embedded in objective detail page
+- [ ] 17-01-PLAN.md — Backend API extensions: GET /:id/executions + GET /:id/stats endpoints, UI types, API client functions
+- [ ] 17-02-PLAN.md — /objectives list page + nav link: objective table with status badges, stats, and navigation
+- [ ] 17-03-PLAN.md — /objectives/:id detail page: run history table, aggregate stats, live status panel, DNA evolution summary
 
 #### Phase 18: Soul Inspector
 
@@ -161,6 +161,6 @@ Plans:
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 15. Bot Reliability | v3.0 | 0/4 | Planned | - |
 | 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
-| 17. Objective Hub UI | v3.0 | 0/TBD | Not started | - |
+| 17. Objective Hub UI | v3.0 | 0/3 | Planned | - |
 | 18. Soul Inspector | v3.0 | 0/TBD | Not started | - |
 | 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |
