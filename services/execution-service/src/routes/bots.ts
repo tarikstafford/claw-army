@@ -43,6 +43,7 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
               Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
               Type.Null(),
             ]),
+            errorMessage: Type.Union([Type.String(), Type.Null()]),
           }),
         ),
       },
@@ -57,6 +58,7 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         tasksCompleted: bots.tasksCompleted,
         tasksFailed: bots.tasksFailed,
         startedAt: bots.startedAt,
+        errorMessage: bots.errorMessage,
       })
       .from(bots)
       .where(eq(bots.executionId, executionId))
@@ -286,16 +288,27 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   });
 
   // POST /:botId/ready — called by bot VM startup script when OpenClaw Gateway is ready
+  // Accepts either a success payload (success:true) or a failure payload (success:false).
   fastify.post('/:botId/ready', {
     schema: {
       params: Type.Object({
         botId: Type.String({ format: 'uuid' }),
       }),
-      body: Type.Object({
-        internalIp: Type.String(),
-        port: Type.Integer({ minimum: 1, maximum: 65535 }),
-        gatewayToken: Type.String(),
-      }),
+      body: Type.Union([
+        // Success payload — startup script completed successfully
+        Type.Object({
+          success: Type.Literal(true),
+          internalIp: Type.String(),
+          port: Type.Integer({ minimum: 1, maximum: 65535 }),
+          gatewayToken: Type.String(),
+          openclawVersion: Type.Optional(Type.String()),
+        }),
+        // Failure payload — startup script encountered an error
+        Type.Object({
+          success: Type.Literal(false),
+          error: Type.String(),
+        }),
+      ]),
       response: {
         200: Type.Object({ ok: Type.Boolean() }),
         404: Type.Object({ error: Type.String() }),
@@ -305,7 +318,29 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     },
   }, async (request, reply) => {
     const { botId } = request.params;
-    const { internalIp, port, gatewayToken } = request.body;
+    const body = request.body;
+
+    // ── Failure payload path ─────────────────────────────────────────────────
+    // The startup script encountered an error and reported back.
+    // Write errorMessage + set status to failed. Return 200 to acknowledge receipt.
+    if (body.success === false) {
+      console.error('[bots/ready] Bot VM startup script reported failure:', {
+        botId,
+        error: body.error,
+      });
+      await db
+        .update(bots)
+        .set({
+          status: 'failed',
+          errorMessage: body.error,
+          updatedAt: new Date(),
+        })
+        .where(eq(bots.id, botId));
+      return reply.code(200).send({ ok: true });
+    }
+
+    // ── Success payload path ─────────────────────────────────────────────────
+    const { internalIp, port, gatewayToken } = body;
 
     // Verify bot exists in Postgres
     const [bot] = await db.select().from(bots).where(eq(bots.id, botId));
@@ -337,9 +372,32 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
       await db
         .update(bots)
-        .set({ status: 'failed', updatedAt: new Date() })
+        .set({
+          status: 'failed',
+          errorMessage: `Failed to connect to OpenClaw Gateway at ${wsUrl}: ${(err as Error).message}`,
+          updatedAt: new Date(),
+        })
         .where(eq(bots.id, botId));
       return reply.code(503).send({ error: 'Failed to connect to OpenClaw Gateway' } as never);
+    }
+
+    // WebSocket liveness check — confirm the connection is still open after connect().
+    // A stale connection that opened but immediately closed (e.g. token mismatch,
+    // gateway crash) is caught here before we transition the bot to idle.
+    if (!client.isConnected) {
+      console.error('[bots/ready] WebSocket connected but immediately disconnected:', {
+        botId,
+        wsUrl,
+      });
+      await db
+        .update(bots)
+        .set({
+          status: 'failed',
+          errorMessage: 'WebSocket connected but immediately disconnected — gateway may have rejected the token',
+          updatedAt: new Date(),
+        })
+        .where(eq(bots.id, botId));
+      return reply.code(503).send({ error: 'WebSocket not live after connect' });
     }
 
     // Update registry entry with internalIp, token, and connected client
