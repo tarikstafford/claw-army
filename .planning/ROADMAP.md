@@ -5,6 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 1-6 (shipped 2026-02-19)
 - ✅ **v1.1 Google Auth Gate** — Phase 7 (shipped 2026-02-19)
 - ✅ **v2.0 The SOUL System** — Phases 8-14 (shipped 2026-02-22)
+- 🚧 **v3.0 Bot Reliability & UX Overhaul** — Phases 15-19 (in progress)
 
 ## Phases
 
@@ -46,6 +47,99 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
 
 </details>
 
+---
+
+### 🚧 v3.0 Bot Reliability & UX Overhaul (In Progress)
+
+**Milestone Goal:** Fix bot spawning and harden the full GCE/OpenClaw lifecycle, then rebuild the UI around the objective as the primary unit of navigation — souls visible, army status live, run history and DNA evolution all accessible from one place.
+
+#### Phase 15: Bot Reliability
+
+**Goal**: Bots spawn reliably, fail visibly, and execute tasks end-to-end without operator intervention
+**Depends on**: Phase 14 (v2.0 complete)
+**Requirements**: BOT-01, BOT-02, BOT-03, BOT-04, BOT-05, BOT-06
+**Success Criteria** (what must be TRUE):
+  1. A bot VM that successfully starts OpenClaw transitions to `idle` status without manual intervention — verified across cold boot and restart
+  2. A bot VM that fails to install OpenClaw or SecureClaw transitions to `error` status with a human-readable failure reason stored in the database
+  3. A bot assigned a task sends it to OpenClaw via WebSocket, receives a completion event, and returns to `idle` — the full dispatch round-trip is confirmed working
+  4. The UI displays a human-readable error message on any bot card that has entered `error` status — the user knows what went wrong without checking logs
+  5. The `/bots/:botId/ready` handler refuses to set a bot to `idle` unless it can confirm the OpenClaw WebSocket connection is live
+**Plans**: TBD
+
+Plans:
+- [ ] 15-01: GCE startup script hardening — idempotent OpenClaw/SecureClaw install with validation and success/failure POST payload
+- [ ] 15-02: Ready handler validation + error state machine — WebSocket liveness check, spawn timeout, error status writes
+- [ ] 15-03: End-to-end dispatch validation — BOT-05 task round-trip test + BOT-06 UI error surface
+
+#### Phase 16: Named Objectives Data Model
+
+**Goal**: Users can save, launch from, list, and archive named objectives — objectives persist across runs and accumulate history
+**Depends on**: Phase 15
+**Requirements**: OBJ-01, OBJ-02, OBJ-03, OBJ-04
+**Success Criteria** (what must be TRUE):
+  1. User can create a named objective with name, description, default bot count, budget cap, runtime limit, and tool allowlist — and it persists after page reload
+  2. User can launch a new run from a saved objective — the submission form pre-fills with the objective's default settings, all fields remain editable before launch
+  3. The objectives list screen shows each saved objective with its last-run status, total run count, cumulative spend, and highest bot class achieved
+  4. User can delete an objective (removes it from the list) or archive it (hides it from the list but preserves all run history)
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: `objectives` DB table + Drizzle migration + shared-types OBJ schema
+- [ ] 16-02: Execution-service API endpoints — POST /objectives, GET /objectives, GET /objectives/:id, DELETE /objectives/:id, PATCH /objectives/:id (archive)
+- [ ] 16-03: Link executions to objectives — execution schema update, launch-from-objective flow, list aggregation query
+
+#### Phase 17: Objective Hub UI
+
+**Goal**: Users navigate the platform through objectives — each objective page shows all runs, aggregate stats, live status (if active), and DNA class progression
+**Depends on**: Phase 16
+**Requirements**: HUB-01, HUB-02, HUB-03, HUB-04
+**Success Criteria** (what must be TRUE):
+  1. The `/objectives` list page renders all saved objectives with last-run status, run count, total spend, and best class achieved — clicking any objective navigates to its detail page
+  2. The `/objectives/:id` detail page lists every run with date, status, cost, bot count, avg composite score, and a link to the run detail view
+  3. The objective detail page shows aggregate stats across all runs: total spend, total tasks completed, total bot-hours, and a readable soul class distribution trend
+  4. If a run on this objective is currently active, the objective detail page shows live status inline: active bot count, real-time budget burn, and the last 5 activity events — without navigating away
+  5. The objective detail page shows a DNA evolution summary: how many Novice → Understudy → Artisan class transitions have occurred across all runs on this objective
+**Plans**: TBD
+
+Plans:
+- [ ] 17-01: `/objectives` list page — SvelteKit route, load function, objective card component
+- [ ] 17-02: `/objectives/:id` detail page — run history table, aggregate stats panel, DNA evolution summary
+- [ ] 17-03: Live status inline — SSE-driven active run status panel embedded in objective detail page
+
+#### Phase 18: Soul Inspector
+
+**Goal**: Users can inspect the full soul, lineage, and verdict for any bot in any run — and can see soul tier badges on bot cards throughout the UI
+**Depends on**: Phase 17
+**Requirements**: SOUL-01, SOUL-02, SOUL-03, SOUL-04
+**Success Criteria** (what must be TRUE):
+  1. Clicking any bot in any run opens a soul inspector panel showing the full SOUL.md content: all 7 behavioral dimensions and the inviolable constitution directives
+  2. The soul inspector shows lineage metadata: generation counter, mutation operations applied, and the parent soul reference (or "seed" if no parent)
+  3. If the bot has been evaluated by the council, the soul inspector shows the verdict type, confidence score, and a summary from each judge
+  4. Every bot card across the live monitoring view, post-run dashboard, and leaderboard displays the bot's soul tier badge (Novice / Understudy / Artisan)
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: Soul inspector panel component — drawer/modal with SOUL.md content, lineage metadata, and verdict outcome
+- [ ] 18-02: Soul tier badge component + integration into all bot card contexts (monitoring, dashboard, leaderboard)
+
+#### Phase 19: Run View Enhancements
+
+**Goal**: The live and post-run views are richer — bot cards show task context and soul tier, the activity feed is accessible from the objective hub, and pending verdicts are highlighted with inline confirmation
+**Depends on**: Phase 18
+**Requirements**: RUN-01, RUN-02, RUN-03, RUN-04
+**Success Criteria** (what must be TRUE):
+  1. Bot cards in the live monitoring view show the current task description, tool call count, token burn rate, and soul tier badge — all updating in real time
+  2. The activity feed for a run is accessible directly from the objective hub page (embedded or linked inline) without navigating away to the run detail view
+  3. The post-run performance dashboard displays a soul tier distribution panel showing the count of Novice, Understudy, and Artisan bots across the completed army
+  4. The run detail view highlights any bots with pending council verdicts and shows an inline confirmation panel (reusing the existing CONF-* component) — verdict actions available without navigating to a separate screen
+**Plans**: TBD
+
+Plans:
+- [ ] 19-01: Bot card enhancements — task description, tool call count, token burn rate fields wired to live SSE data
+- [ ] 19-02: Post-run soul tier distribution panel + pending verdict highlights with inline CONF-* panel
+
+---
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -64,3 +158,8 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
 | 12. Human Confirmation Gate | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
+| 15. Bot Reliability | v3.0 | 0/TBD | Not started | - |
+| 16. Named Objectives Data Model | v3.0 | 0/TBD | Not started | - |
+| 17. Objective Hub UI | v3.0 | 0/TBD | Not started | - |
+| 18. Soul Inspector | v3.0 | 0/TBD | Not started | - |
+| 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |

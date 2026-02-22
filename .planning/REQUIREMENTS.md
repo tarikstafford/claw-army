@@ -78,38 +78,36 @@
 
 ## Traceability
 
-*(Populated by roadmapper)*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BOT-01 | — | Pending |
-| BOT-02 | — | Pending |
-| BOT-03 | — | Pending |
-| BOT-04 | — | Pending |
-| BOT-05 | — | Pending |
-| BOT-06 | — | Pending |
-| OBJ-01 | — | Pending |
-| OBJ-02 | — | Pending |
-| OBJ-03 | — | Pending |
-| OBJ-04 | — | Pending |
-| HUB-01 | — | Pending |
-| HUB-02 | — | Pending |
-| HUB-03 | — | Pending |
-| HUB-04 | — | Pending |
-| SOUL-01 | — | Pending |
-| SOUL-02 | — | Pending |
-| SOUL-03 | — | Pending |
-| SOUL-04 | — | Pending |
-| RUN-01 | — | Pending |
-| RUN-02 | — | Pending |
-| RUN-03 | — | Pending |
-| RUN-04 | — | Pending |
+| BOT-01 | Phase 15 | Pending |
+| BOT-02 | Phase 15 | Pending |
+| BOT-03 | Phase 15 | Pending |
+| BOT-04 | Phase 15 | Pending |
+| BOT-05 | Phase 15 | Pending |
+| BOT-06 | Phase 15 | Pending |
+| OBJ-01 | Phase 16 | Pending |
+| OBJ-02 | Phase 16 | Pending |
+| OBJ-03 | Phase 16 | Pending |
+| OBJ-04 | Phase 16 | Pending |
+| HUB-01 | Phase 17 | Pending |
+| HUB-02 | Phase 17 | Pending |
+| HUB-03 | Phase 17 | Pending |
+| HUB-04 | Phase 17 | Pending |
+| SOUL-01 | Phase 18 | Pending |
+| SOUL-02 | Phase 18 | Pending |
+| SOUL-03 | Phase 18 | Pending |
+| SOUL-04 | Phase 18 | Pending |
+| RUN-01 | Phase 19 | Pending |
+| RUN-02 | Phase 19 | Pending |
+| RUN-03 | Phase 19 | Pending |
+| RUN-04 | Phase 19 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 22 total
-- Mapped to phases: 0
-- Unmapped: 22 ⚠️ (roadmapper will fill)
+- Mapped to phases: 22
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initial definition*
+*Last updated: 2026-02-22 — traceability filled by roadmapper*
