@@ -9,3 +9,5 @@ export * from './bot-souls';
 export * from './decision-traces';
 export * from './council-verdicts';
 export * from './negative-signal-register';
+export * from './agent-classes';
+export * from './category-benchmarks';

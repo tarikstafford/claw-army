@@ -48,6 +48,7 @@ export const councilVerdicts = pgTable(
     confirmedAt: timestamp('confirmed_at', { withTimezone: true, precision: 3 }),
     confirmedBy: varchar('confirmed_by', { length: 255 }),
     timeOnScreenMs: integer('time_on_screen_ms'), // nullable, no default — set on confirm/reject
+    godLayerProcessedAt: timestamp('god_layer_processed_at', { withTimezone: true, precision: 3 }), // nullable; idempotency column for God Layer (GODL-01)
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
