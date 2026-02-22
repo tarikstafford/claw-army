@@ -38,7 +38,7 @@ function buildStartupScript(opts: {
   const soulContentB64 = Buffer.from(soulContent).toString('base64');
 
   return `#!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 BOT_ID="${botId}"
 EXECUTION_ID="${executionId}"
@@ -55,29 +55,74 @@ exec > >(tee /var/log/bot-startup.log | logger -t bot-startup) 2>&1
 echo "[startup] === Bot VM starting: $BOT_ID ==="
 echo "[startup] Execution: $EXECUTION_ID"
 
+# ── Failure tracking and trap ─────────────────────────────────────────────────
+FAILURE_REASON=""
+
+post_failure() {
+  local reason
+  reason=$(echo "$FAILURE_REASON" | sed 's/"/\\\\"/g')
+  curl -X POST "$EXECUTION_SERVICE_URL/bots/$BOT_ID/ready" \\
+    -H "Content-Type: application/json" \\
+    -d "{\\"success\\": false, \\"error\\": \\"$reason\\"}" \\
+    --retry 3 --retry-delay 5 --retry-connrefused --max-time 30 || true
+}
+
+trap 'if [[ -n "$FAILURE_REASON" ]]; then post_failure; fi' EXIT
+
 # ── 1. Get internal IP from GCE metadata ──────────────────────────────────────
 INTERNAL_IP=$(curl -sf \\
   "http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip" \\
   -H "Metadata-Flavor: Google")
 echo "[startup] Internal IP: $INTERNAL_IP"
 
-# ── 2. Install Node.js 22 ─────────────────────────────────────────────────────
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt-get install -y nodejs git
+# ── 2. Install Node.js 22 (idempotent) ────────────────────────────────────────
+if ! command -v node &>/dev/null; then
+  echo "[startup] Installing Node.js 22..."
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - || {
+    FAILURE_REASON="Failed to install Node.js 22 — nodesource setup exited with code $?"
+    exit 1
+  }
+  apt-get install -y nodejs git || {
+    FAILURE_REASON="Failed to install Node.js 22 — apt-get exited with code $?"
+    exit 1
+  }
+  echo "[startup] Node.js installed: $(node --version)"
+else
+  echo "[startup] Node.js already installed: $(node --version)"
+fi
 
 # ── 2b. Write SOUL.md to OpenClaw workspace ──────────────────────────────────
 mkdir -p /root/.openclaw/workspace
 echo "$SOUL_CONTENT_B64" | base64 --decode > /root/.openclaw/workspace/SOUL.md
 echo "[startup] SOUL.md written ($(wc -c < /root/.openclaw/workspace/SOUL.md) bytes)"
 
-# ── 3. Install OpenClaw ───────────────────────────────────────────────────────
-npm install -g openclaw@latest
-openclaw --version
+# ── 3. Install OpenClaw (idempotent) ──────────────────────────────────────────
+if ! command -v openclaw &>/dev/null; then
+  echo "[startup] Installing OpenClaw..."
+  npm install -g openclaw@latest || {
+    FAILURE_REASON="Failed to install openclaw npm package — npm exited with code $?"
+    exit 1
+  }
+  echo "[startup] OpenClaw installed"
+else
+  echo "[startup] OpenClaw already installed"
+fi
+
+# ── 3b. Validate OpenClaw binary and capture version ─────────────────────────
+if ! command -v openclaw &>/dev/null; then
+  FAILURE_REASON="OpenClaw binary not found after install — command -v openclaw failed"
+  exit 1
+fi
+OPENCLAW_VERSION=$(openclaw --version 2>&1) || {
+  FAILURE_REASON="OpenClaw binary exists but --version failed — binary may be corrupted"
+  exit 1
+}
+echo "[startup] OpenClaw version: $OPENCLAW_VERSION"
 
 # ── 4. Fetch LLM API key from Secret Manager ─────────────────────────────────
 LLM_API_KEY=$(gcloud secrets versions access latest --secret="$LLM_API_KEY_SECRET" 2>/dev/null || echo "")
 if [[ -z "$LLM_API_KEY" ]]; then
-  echo "[startup] ERROR: Could not fetch LLM API key from Secret Manager"
+  FAILURE_REASON="Failed to fetch LLM API key from Secret Manager (secret: $LLM_API_KEY_SECRET)"
   exit 1
 fi
 
@@ -98,14 +143,17 @@ openclaw onboard \\
   --gateway-port "$GATEWAY_PORT" \\
   --gateway-bind lan \\
   --gateway-auth token \\
-  --gateway-token "$GATEWAY_TOKEN"
+  --gateway-token "$GATEWAY_TOKEN" || {
+  FAILURE_REASON="openclaw onboard command failed — exit code $?"
+  exit 1
+}
 
 # ── 6. Wait for OpenClaw Gateway to be ready ──────────────────────────────────
 MAX_WAIT=120
 WAITED=0
 until curl -sf "http://$INTERNAL_IP:$GATEWAY_PORT/health" > /dev/null 2>&1; do
   if [[ $WAITED -ge $MAX_WAIT ]]; then
-    echo "[startup] ERROR: OpenClaw Gateway not ready after \${MAX_WAIT}s"
+    FAILURE_REASON="OpenClaw Gateway did not become healthy within \${MAX_WAIT}s"
     exit 1
   fi
   sleep 5
@@ -116,7 +164,7 @@ echo "[startup] OpenClaw Gateway is ready on $INTERNAL_IP:$GATEWAY_PORT"
 # ── 7. Signal readiness to execution-service ──────────────────────────────────
 curl -X POST "$EXECUTION_SERVICE_URL/bots/$BOT_ID/ready" \\
   -H "Content-Type: application/json" \\
-  -d "{\\"internalIp\\": \\"$INTERNAL_IP\\", \\"port\\": $GATEWAY_PORT, \\"gatewayToken\\": \\"$GATEWAY_TOKEN\\"}" \\
+  -d "{\\"success\\": true, \\"internalIp\\": \\"$INTERNAL_IP\\", \\"port\\": $GATEWAY_PORT, \\"gatewayToken\\": \\"$GATEWAY_TOKEN\\", \\"openclawVersion\\": \\"$OPENCLAW_VERSION\\"}" \\
   --retry 10 --retry-delay 5 --retry-connrefused --max-time 60
 
 echo "[startup] === Bot VM ready: $BOT_ID ==="
