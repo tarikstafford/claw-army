@@ -3,6 +3,7 @@ import { buildApp } from './app';
 import { startGuardrailWatchdog, stopGuardrailWatchdog } from './events/guardrail-watchdog';
 import { startBillingEngine } from './events/billing-engine';
 import { startOpenClawDispatcher } from './queue/openclaw-dispatcher';
+import { startCouncilWorker } from './queue/council-worker';
 
 const app = await buildApp();
 const port = Number(process.env['PORT'] ?? 3001);
@@ -27,6 +28,10 @@ const billingEngine = startBillingEngine();
 // Replaces the per-container bot-worker BullMQ worker process.
 const dispatcherWorker = startOpenClawDispatcher();
 
+// Start the Council worker — evaluates bot performance asynchronously
+// after each execution completes. Runs 3 LLM judges per bot, produces verdicts.
+const councilWorker = startCouncilWorker();
+
 // Graceful shutdown — clean up the watchdog timer, billing engine, and dispatcher
 function shutdown() {
   stopGuardrailWatchdog(watchdogTimer);
@@ -35,6 +40,9 @@ function shutdown() {
   });
   dispatcherWorker.close().catch((err: Error) => {
     console.error('[main] Error closing dispatcher worker:', err);
+  });
+  councilWorker.close().catch((err: Error) => {
+    console.error('[main] Error closing council worker:', err);
   });
   process.exit(0);
 }
