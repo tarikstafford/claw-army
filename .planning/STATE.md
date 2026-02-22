@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 14-ui-extensions
-Plan: 02 (complete)
-Status: Phase 14 Plan 02 complete — Soul lifecycle event schemas (soul_promoted, soul_demoted, soul_retired, pioneer_detected), Pub/Sub publisher, God Layer worker hooks, and global SSE endpoint GET /events/lifecycle. UIEX-03 backend satisfied.
-Last activity: 2026-02-22 — Phase 14 Plan 02 complete (Soul lifecycle event infrastructure — UIEX-03 backend)
+Plan: 03 (complete)
+Status: Phase 14 Plan 03 complete — LifecycleNotification type, connectLifecycleSSE() SSE client, global lifecycle toast container in +layout.svelte, new-verdict arrival banner in verdicts/+page.svelte. UIEX-03 frontend and UIEX-02 satisfied.
+Last activity: 2026-02-22 — Phase 14 Plan 03 complete (Frontend SSE lifecycle notifications and verdict arrival banner)
 
 Progress: [██████░░░░░░░░░░░░░░░░░░░░░░] 31% (11/TBD v2.0 plans — Phase 13 complete)
 
@@ -49,6 +49,7 @@ Progress: [██████░░░░░░░░░░░░░░░░░
 | Phase 13-god-layer-and-agent-class-system P04 | 4 | 2 tasks | 4 files |
 | Phase 14-ui-extensions P01 | 2 | 2 tasks | 3 files |
 | Phase 14-ui-extensions P02 | 8 | 2 tasks | 5 files |
+| Phase 14-ui-extensions P03 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,7 @@ Phase 08-02 decisions:
 - [Phase 14-02]: lifecycleSseRoutes registered at /events prefix (not /executions) to avoid /:id=events routing ambiguity with existing execution-scoped SSE route
 - [Phase 14-02]: Artisan graduation publish handled in dedicated if(artisanGraduated) block before general promote check to prevent duplicate soul_promoted events for Understudy->Artisan graduations
 - [Phase 14-02]: previousClass hoisted before transaction to capture currentClass pre-mutation for soul_retired event payload (ClassTransition.retire has no from/to fields)
+- [Phase 14-03]: connectLifecycleSSE follows exact same EventSource + typed-listener pattern as connectSSE/connectBotLogs — no new patterns; previousCount=null sentinel prevents false positive new-verdict banners on initial load; toast stack capped at 5, 8s auto-dismiss per UIEX spec
 
 ### Roadmap Evolution
 
@@ -149,5 +151,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 14-02-PLAN.md (Soul lifecycle event infrastructure — soul-lifecycle-events.ts, publisher.ts, god-layer-worker.ts, sse.ts, app.ts)
+Stopped at: Completed 14-03-PLAN.md (Frontend SSE lifecycle notifications — types.ts, sse.ts, +layout.svelte, verdicts/+page.svelte)
 Resume file: None
