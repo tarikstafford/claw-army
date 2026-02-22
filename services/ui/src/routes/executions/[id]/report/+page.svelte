@@ -83,6 +83,33 @@
       </div>
     </section>
 
+    <!-- Soul Tier Distribution (RUN-03) -->
+    {#if report.soulTierDistribution}
+      <section class="section">
+        <h2>Soul Tier Distribution</h2>
+        <div class="tier-distribution">
+          <div class="tier-item">
+            <SoulTierBadge agentClass="Artisan" />
+            <span class="tier-count">{report.soulTierDistribution.artisan}</span>
+          </div>
+          <div class="tier-item">
+            <SoulTierBadge agentClass="Understudy" />
+            <span class="tier-count">{report.soulTierDistribution.understudy}</span>
+          </div>
+          <div class="tier-item">
+            <SoulTierBadge agentClass="Novice" />
+            <span class="tier-count">{report.soulTierDistribution.novice}</span>
+          </div>
+          {#if report.soulTierDistribution.retired > 0}
+            <div class="tier-item">
+              <SoulTierBadge agentClass="Retired" />
+              <span class="tier-count">{report.soulTierDistribution.retired}</span>
+            </div>
+          {/if}
+        </div>
+      </section>
+    {/if}
+
     <!-- Bot Leaderboard Table (UI-07) -->
     <section class="section">
       <h2>Bot Leaderboard</h2>
@@ -476,5 +503,23 @@
   .inspect-soul-btn:hover {
     background: #e0e7ff;
     border-color: #a5b4fc;
+  }
+
+  .tier-distribution {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tier-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tier-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
   }
 </style>

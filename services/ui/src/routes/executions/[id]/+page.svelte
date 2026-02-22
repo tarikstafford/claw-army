@@ -1,11 +1,12 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { browser } from '$app/environment';
-  import { getExecution, getExecutionMetrics, getExecutionBots } from '$lib/api';
+  import { getExecution, getExecutionMetrics, getExecutionBots, getExecutionPendingVerdicts } from '$lib/api';
   import { connectSSE } from '$lib/sse';
-  import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot } from '$lib/types';
+  import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot, VerdictDetail } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
   import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
+  import VerdictConfirmPanel from '$lib/components/VerdictConfirmPanel.svelte';
 
   const executionId = $derived(page.params.id ?? '');
 
@@ -16,6 +17,8 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
   let selectedBotId = $state<string | null>(null);
+  let pendingVerdicts = $state<VerdictDetail[]>([]);
+  let selectedVerdict = $state<VerdictDetail | null>(null);
 
   // Initial load
   $effect(() => {
@@ -70,6 +73,29 @@
 
     return cleanup ?? undefined;
   });
+
+  // Pending verdicts polling — fetch immediately and poll every 10 seconds
+  $effect(() => {
+    if (!browser) return;
+    // Fetch immediately
+    getExecutionPendingVerdicts(executionId).then(v => { pendingVerdicts = v; }).catch(() => {});
+
+    const isTerminal =
+      execution?.status === 'completed' ||
+      execution?.status === 'failed' ||
+      execution?.status === 'stopped';
+    if (isTerminal) return;
+
+    const interval = setInterval(() => {
+      getExecutionPendingVerdicts(executionId).then(v => { pendingVerdicts = v; }).catch(() => {});
+    }, 10000);
+
+    return () => clearInterval(interval);
+  });
+
+  function getPendingVerdictForBot(botId: string): VerdictDetail | undefined {
+    return pendingVerdicts.find(v => v.botId === botId);
+  }
 
   function formatEventType(type: string): string {
     return type
@@ -185,6 +211,12 @@
                   class="inspect-soul-btn"
                   onclick={(e) => { e.stopPropagation(); e.preventDefault(); selectedBotId = bot.id; }}
                 >Soul</button>
+                {#if getPendingVerdictForBot(bot.id)}
+                  <button
+                    class="verdict-pending-btn"
+                    onclick={(e) => { e.stopPropagation(); e.preventDefault(); selectedVerdict = getPendingVerdictForBot(bot.id) ?? null; }}
+                  >Verdict</button>
+                {/if}
               </div>
               <div class="bot-card-stats">
                 <span>{bot.tasksCompleted} done</span>
@@ -214,6 +246,19 @@
     {/if}
 
     <SoulInspectorPanel botId={selectedBotId} onClose={() => selectedBotId = null} />
+
+    {#if selectedVerdict}
+      <VerdictConfirmPanel
+        verdict={selectedVerdict}
+        userId="operator"
+        onResolved={() => {
+          selectedVerdict = null;
+          getExecutionPendingVerdicts(executionId).then(v => { pendingVerdicts = v; }).catch(() => {});
+          getExecutionBots(executionId).then(b => { bots = b; }).catch(() => {});
+        }}
+        onClose={() => { selectedVerdict = null; }}
+      />
+    {/if}
 
     <!-- Activity feed (UI-05) -->
     <section class="activity-section">
@@ -541,6 +586,32 @@
   .inspect-soul-btn:hover {
     background: #e0e7ff;
     border-color: #a5b4fc;
+  }
+
+  .verdict-pending-btn {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    border: 1px solid #fde68a;
+    background: #fef3c7;
+    color: #92400e;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s, border-color 0.1s;
+    animation: pulse-verdict 2s ease-in-out infinite;
+  }
+
+  .verdict-pending-btn:hover {
+    background: #fde68a;
+    border-color: #f59e0b;
+  }
+
+  @keyframes pulse-verdict {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
   }
 
   /* Activity feed */
