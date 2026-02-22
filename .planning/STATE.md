@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 17 — Objective Hub UI
+**Current focus:** v3.0 Phase 18 — Soul Inspector
 
 ## Current Position
 
-Phase: 17 of 19 (Objective Hub UI)
-Plan: 3 of 3 in current phase — COMPLETE
-Status: Phase 17 complete — Objective Hub UI fully delivered and visually verified
-Last activity: 2026-02-22 — 17-03 complete: /objectives/[id] detail page (HUB-01, HUB-02, HUB-03, HUB-04) — human verified and approved
+Phase: 18 of 19 (Soul Inspector)
+Plan: 1 of 1 in current phase — COMPLETE
+Status: Phase 18 Plan 01 complete — Soul Inspector panel, endpoint, types, and all 3 bot card wirings delivered
+Last activity: 2026-02-22 — 18-01 complete: Soul Inspector (GET /bots/:botId/soul, SoulInspectorPanel, all 3 bot card contexts)
 
-Progress: [████░░░░░░] 11% (v3.0 — Phase 17 complete, 3/3 plans done)
+Progress: [█████░░░░░] 13% (v3.0 — Phase 18 complete, 1/1 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 42 (v1.0 + v1.1 + v2.0 + v3.0 P01-03)
+- Total plans completed: 43 (v1.0 + v1.1 + v2.0 + v3.0 P01-04)
 - Average duration: 4.7 min
-- Total execution time: 202 min
+- Total execution time: 214 min
 
 **By Phase:**
 
@@ -29,7 +29,9 @@ Progress: [████░░░░░░] 11% (v3.0 — Phase 17 complete, 3/3 
 |-------|-------|-------|----------|
 | 01–07 (v1.0 + v1.1) | 25/25 | 147 min | 5.9 min |
 | 08–14 (v2.0) | 19/19 | 55 min | 2.9 min |
-| 15–19 (v3.0) | 6/TBD | 25 min | 4.2 min |
+| 15–19 (v3.0) | 7/TBD | 37 min | 5.3 min |
+
+| Phase 18-soul-inspector P01 | 12 min | 2 tasks | 7 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -55,7 +57,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [15-03] bot-stopped class no longer applied to failed bots — failed bots need distinct visual treatment (red/pink) not faded opacity
 - [15-03] Connection-level errorMessage uses substring matching ('not connected', 'Connection closed') — matches openclaw-client error strings from Plan 02
 - [16-01] objectiveId on executions is nullable with ON DELETE SET NULL — existing executions unaffected, no backfill needed
-- [16-01] Migration 0010 uses DO $$ block with information_schema check for idempotent FK constraint addition
+- [16-01] Migration 0010 uses DO $ block with information_schema check for idempotent FK constraint addition
 - [16-01] NewObjective omits id, isArchived, createdAt, updatedAt — server always assigns these
 - [16-02] TypeBox response schemas for auth-protected routes must declare 401 as valid response code or TS2345 is raised
 - [16-02] CORS methods expanded to include PATCH and DELETE for browser preflight support on objectives endpoints
@@ -72,6 +74,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [17-03] activeRunId is plain $state (not $derived from runs) — prevents Svelte 5 infinite re-run loop in SSE/polling effect
 - [17-03] SSE effect cleanup: returns () => { clearInterval(interval); cleanup?.(); } — mirrors executions/[id] pattern; terminal status events clear activeRunId to auto-dismiss live panel
 - [17-03] activityFeed LIFO slice of 5: [event, ...activityFeed].slice(0, 5) — newest event always first
+- [Phase 18-01]: [18-01] constitutionDirectives jsonb column cast to string[] via TypeScript assertion — Drizzle infers jsonb as generic type, required to satisfy TypeBox string[] | null response schema
 
 ### Pending Todos
 
@@ -91,5 +94,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 17-03-PLAN.md — Phase 17 (Objective Hub UI) fully complete
+Stopped at: Completed 18-01-PLAN.md — Soul Inspector panel, GET /bots/:botId/soul endpoint, BotSoul type, SoulInspectorPanel component wired into all 3 bot card contexts
 Resume file: None
