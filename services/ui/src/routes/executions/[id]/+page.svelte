@@ -195,6 +195,14 @@
                   <span class="stat-fail">{bot.tasksFailed} failed</span>
                 {/if}
               </div>
+              {#if bot.currentTaskDescription}
+                <div class="bot-task-desc">{bot.currentTaskDescription}</div>
+              {/if}
+              <div class="bot-live-stats">
+                <span>{bot.toolCallCount} tool calls</span>
+                <span class="stat-sep">&middot;</span>
+                <span>{bot.tokenBurnRate != null ? `${bot.tokenBurnRate.toLocaleString()} tok/min` : '- tok/min'}</span>
+              </div>
               {#if bot.status === 'failed' && bot.errorMessage}
                 <div class="bot-error-msg">{bot.errorMessage}</div>
               {/if}
@@ -485,6 +493,28 @@
 
   .stat-sep { color: #d1d5db; }
   .stat-fail { color: #dc2626; }
+
+  .bot-task-desc {
+    font-size: 0.72rem;
+    color: #4b5563;
+    background: #f0f4ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .bot-live-stats {
+    font-size: 0.72rem;
+    color: #6b7280;
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
 
   .bot-card-cta {
     font-size: 0.72rem;

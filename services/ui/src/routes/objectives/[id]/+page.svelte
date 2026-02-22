@@ -71,6 +71,25 @@
 
     return () => { clearInterval(interval); cleanup?.(); };
   });
+
+  function formatEventDetail(event: ActivityEvent): string {
+    const botId = event['botId'] as string | undefined;
+    const short = botId ? botId.slice(0, 8) : 'unknown';
+    const reason = event['reason'] as string | undefined;
+    switch (event.type) {
+      case 'task_claimed': return `Bot ${short} claimed task`;
+      case 'task_completed': return `Task completed by bot ${short}`;
+      case 'bot_started': return `Bot ${short} started`;
+      case 'bot_stopped': return `Bot ${short} stopped${reason ? ` (${reason})` : ''}`;
+      case 'guardrail_triggered': return `Bot ${short}: ${reason ?? 'guardrail triggered'}`;
+      case 'budget_exceeded': return 'Budget exceeded for execution';
+      default: {
+        const { type: _type, executionId: _eid, timestamp: _ts, isAlert: _ia, ...rest } = event;
+        const detail = JSON.stringify(rest);
+        return detail.length > 120 ? detail.slice(0, 117) + '...' : detail;
+      }
+    }
+  }
 </script>
 
 <svelte:head>
@@ -140,11 +159,12 @@
             {:else}
               {#each activityFeed as event}
                 <div class="activity-item">
-                  <span class="activity-type">{event.type.replace(/_/g, ' ')}</span>
+                  <span class="activity-detail">{formatEventDetail(event)}</span>
                   <span class="activity-time">{new Date(event.timestamp).toLocaleTimeString()}</span>
                 </div>
               {/each}
             {/if}
+            <a href="/executions/{activeRunId}" class="view-full-run">View full run &rarr;</a>
           </div>
         </div>
       </section>
@@ -320,8 +340,26 @@
   .activity-feed { flex: 1; min-width: 200px; }
   .activity-feed h3 { font-size: 0.875rem; font-weight: 600; margin: 0 0 0.5rem; color: #374151; }
   .activity-item { display: flex; justify-content: space-between; padding: 0.375rem 0; border-bottom: 1px solid #e5e7eb; font-size: 0.8125rem; }
-  .activity-type { color: #374151; text-transform: capitalize; }
+  .activity-detail {
+    color: #374151;
+    font-size: 0.8125rem;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .activity-time { color: #9ca3af; font-size: 0.75rem; }
+  .view-full-run {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .view-full-run:hover {
+    text-decoration: underline;
+  }
 
   /* Execution history table */
   .table-wrapper {
