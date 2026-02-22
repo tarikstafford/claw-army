@@ -64,12 +64,12 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
   3. A bot assigned a task sends it to OpenClaw via WebSocket, receives a completion event, and returns to `idle` — the full dispatch round-trip is confirmed working
   4. The UI displays a human-readable error message on any bot card that has entered `error` status — the user knows what went wrong without checking logs
   5. The `/bots/:botId/ready` handler refuses to set a bot to `idle` unless it can confirm the OpenClaw WebSocket connection is live
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 15-01: GCE startup script hardening — idempotent OpenClaw/SecureClaw install with validation and success/failure POST payload
-- [ ] 15-02: Ready handler validation + error state machine — WebSocket liveness check, spawn timeout, error status writes
-- [ ] 15-03: End-to-end dispatch validation — BOT-05 task round-trip test + BOT-06 UI error surface
+- [ ] 15-01-PLAN.md — GCE startup script hardening + errorMessage DB column (BOT-01, BOT-02, BOT-04 foundation)
+- [ ] 15-02-PLAN.md — Ready handler validation + spawn timeout (BOT-03, BOT-04)
+- [ ] 15-03-PLAN.md — Dispatch round-trip validation + UI error surface (BOT-05, BOT-06)
 
 #### Phase 16: Named Objectives Data Model
 
@@ -158,7 +158,7 @@ Plans:
 | 12. Human Confirmation Gate | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
-| 15. Bot Reliability | v3.0 | 0/TBD | Not started | - |
+| 15. Bot Reliability | v3.0 | 0/3 | Planned | - |
 | 16. Named Objectives Data Model | v3.0 | 0/TBD | Not started | - |
 | 17. Objective Hub UI | v3.0 | 0/TBD | Not started | - |
 | 18. Soul Inspector | v3.0 | 0/TBD | Not started | - |
