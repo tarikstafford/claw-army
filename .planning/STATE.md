@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 15 of 19 (Bot Reliability)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-22 — v3.0 roadmap created (5 phases, 22 requirements mapped)
+Plan: 1 of 3 in current phase (15-01 complete)
+Status: In progress
+Last activity: 2026-02-22 — 15-01 complete: startup script hardened + errorMessage schema
 
-Progress: [░░░░░░░░░░] 0% (v3.0 — Phase 15 not started)
+Progress: [█░░░░░░░░░] 3% (v3.0 — Phase 15, Plan 1/3 complete)
 
 ## Performance Metrics
 
@@ -29,7 +29,7 @@ Progress: [░░░░░░░░░░] 0% (v3.0 — Phase 15 not started)
 |-------|-------|-------|----------|
 | 01–07 (v1.0 + v1.1) | 25/25 | 147 min | 5.9 min |
 | 08–14 (v2.0) | 19/19 | 55 min | 2.9 min |
-| 15–19 (v3.0) | 0/TBD | — | — |
+| 15–19 (v3.0) | 1/TBD | 8 min | 8 min |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -43,6 +43,11 @@ Progress: [░░░░░░░░░░] 0% (v3.0 — Phase 15 not started)
 
 All v1.0–v2.0 architectural decisions archived in PROJECT.md Key Decisions table.
 See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
+
+**v3.0 decisions:**
+- [15-01] Migration files belong in packages/db/migrations/ (drizzle out:./migrations), not src/migrations/ as initially planned
+- [15-01] Removed set -e from startup script in favor of explicit || { FAILURE_REASON=...; exit 1; } blocks — required for EXIT trap to fire post_failure()
+- [15-01] Double-validate openclaw: command -v guard (idempotency) + --version execution (correctness) as separate checks
 
 ### Pending Todos
 
@@ -62,5 +67,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: v3.0 roadmap created — Phases 15–19 defined, ready to plan Phase 15
+Stopped at: Completed 15-01-PLAN.md — startup script hardened, errorMessage schema added
 Resume file: None
