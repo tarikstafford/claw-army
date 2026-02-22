@@ -234,7 +234,7 @@ Plans:
 | 8. Database Schema and Shared Types | v2.0 | 0/TBD | Not started | - |
 | 9. Soul Generation and Dispatch Integration | v2.0 | 3/3 | Complete | 2026-02-21 |
 | 10. Decision Trace Collection | v2.0 | 2/2 | Complete | 2026-02-22 |
-| 11. The Council | v2.0 | 0/2 | Not started | - |
+| 11. The Council | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 12. Human Confirmation Gate | v2.0 | 0/TBD | Not started | - |
 | 13. God Layer and Agent Class System | v2.0 | 0/TBD | Not started | - |
 | 14. UI Extensions | v2.0 | 0/TBD | Not started | - |
