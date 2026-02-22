@@ -5,6 +5,7 @@
   import { connectSSE } from '$lib/sse';
   import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
+  import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
 
   const executionId = $derived(page.params.id ?? '');
 
@@ -179,6 +180,7 @@
               <div class="bot-card-top">
                 <span class="bot-id">{bot.id.slice(0, 8)}</span>
                 <span class="bot-status-pill bot-status-{bot.status}">{bot.status}</span>
+                <SoulTierBadge agentClass={bot.agentClass} />
                 <button
                   class="inspect-soul-btn"
                   onclick={(e) => { e.stopPropagation(); e.preventDefault(); selectedBotId = bot.id; }}

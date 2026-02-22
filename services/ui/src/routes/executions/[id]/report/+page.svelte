@@ -4,6 +4,7 @@
   import { getExecutionReport, getLeaderboard } from '$lib/api';
   import type { ExecutionReport, LeaderboardEntry } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
+  import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
 
   const executionId = $derived(page.params.id ?? '');
 
@@ -124,9 +125,7 @@
                   <td>{entry.tasksFailed}</td>
                   <td>{entry.botHours?.toFixed(3) ?? '-'}</td>
                   <td>
-                    <span class="class-badge class-{entry.agentClass?.toLowerCase() ?? 'none'}">
-                      {entry.agentClass ?? '-'}
-                    </span>
+                    <SoulTierBadge agentClass={entry.agentClass} />
                   </td>
                   <td>
                     {#if entry.verdictType}

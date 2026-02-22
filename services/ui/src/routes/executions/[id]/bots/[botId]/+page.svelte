@@ -1,10 +1,11 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { browser } from '$app/environment';
-  import { getBotDetail } from '$lib/api';
+  import { getBotDetail, getBotSoul } from '$lib/api';
   import { connectBotLogs } from '$lib/sse';
   import type { BotDetail, BotLogEntry, StepTrace } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
+  import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
 
   const executionId = $derived((page.params as Record<string, string>).id ?? '');
   const botId = $derived((page.params as Record<string, string>).botId ?? '');
@@ -16,6 +17,7 @@
   let logContainer = $state<HTMLElement | null>(null);
   let liveConnected = $state(false);
   let showInspector = $state(false);
+  let botAgentClass = $state<'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null>(null);
 
   const ACTIVE_STATUSES = new Set(['spawning', 'idle', 'working', 'stopping']);
 
@@ -55,6 +57,16 @@
         logEntries = seedLogFromSteps(d.steps);
       })
       .catch(err => { error = (err as Error).message; loading = false; });
+  });
+
+  // Fetch soul agentClass for SoulTierBadge — lightweight, displayed without opening inspector
+  $effect(() => {
+    if (!browser) return;
+    const id = botId;
+    if (!id) return;
+    getBotSoul(id)
+      .then(soul => { botAgentClass = soul.agentClass; })
+      .catch(() => { botAgentClass = null; });
   });
 
   // Status polling — refresh bot record while active so we detect when it stops
@@ -167,6 +179,7 @@
       {#if detail.bot.tier}
         <span class="tier tier-{detail.bot.tier.toLowerCase()}">{detail.bot.tier}</span>
       {/if}
+      <SoulTierBadge agentClass={botAgentClass} />
       {#if liveConnected}
         <span class="live-badge">● LIVE</span>
       {/if}
