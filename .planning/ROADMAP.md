@@ -111,7 +111,11 @@ Plans:
 4. Each agent receives a verdict row in `council_verdicts` with one of 5 verdict types (Promote, Maintain, Monitor, Demote, Retire), a weighted confidence score (Performance Judge 50%, Soul Analyst 35%, Devil's Advocate 15%), a plain-language summary, and a human-confirmation-required flag
 5. A strong unresolved Devil's Advocate argument automatically escalates the verdict to human review regardless of the aggregate score
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md -- Council queue definition + three independent LLM judge modules (Performance Judge, Soul Analyst, Devil's Advocate)
+- [ ] 11-02-PLAN.md -- Council worker processor, completion-checker integration, main.ts startup wiring
 
 ---
 
@@ -230,7 +234,7 @@ Plans:
 | 8. Database Schema and Shared Types | v2.0 | 0/TBD | Not started | - |
 | 9. Soul Generation and Dispatch Integration | v2.0 | 3/3 | Complete | 2026-02-21 |
 | 10. Decision Trace Collection | v2.0 | 2/2 | Complete | 2026-02-22 |
-| 11. The Council | v2.0 | 0/TBD | Not started | - |
+| 11. The Council | v2.0 | 0/2 | Not started | - |
 | 12. Human Confirmation Gate | v2.0 | 0/TBD | Not started | - |
 | 13. God Layer and Agent Class System | v2.0 | 0/TBD | Not started | - |
 | 14. UI Extensions | v2.0 | 0/TBD | Not started | - |
