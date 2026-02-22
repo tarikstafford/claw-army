@@ -16,8 +16,8 @@
       <h1>Deploy an AI workforce.<br>Watch them execute.</h1>
 
       <p class="lead">
-        Claw Army spawns a crew of AI bots against any objective.<br>
-        Parallel execution, real-time monitoring, full cost control.
+        Claw Army deploys a crew of AI bots against any objective.<br>
+        Parallel execution, real-time monitoring, and an agent library that evolves with every mission.
       </p>
 
       <div class="hero-actions">
@@ -32,8 +32,8 @@
         </div>
         <div class="spec-div"></div>
         <div class="spec-item">
-          <span class="spec-val">SSE</span>
-          <span class="spec-lbl">real-time stream</span>
+          <span class="spec-val">3</span>
+          <span class="spec-lbl">agent tiers</span>
         </div>
         <div class="spec-div"></div>
         <div class="spec-item">
@@ -51,7 +51,7 @@
 
       <div class="section-header">
         <span class="eyebrow">Capabilities</span>
-        <h2>Everything you need to run an AI workforce</h2>
+        <h2>Everything you need to run and evolve an AI workforce</h2>
       </div>
 
       <div class="cap-grid">
@@ -116,6 +116,42 @@
           </div>
         </div>
 
+        <div class="cap-card">
+          <div class="cap-top">
+            <span class="cap-tag">AB</span>
+            <h3>Army Builder Analysis</h3>
+          </div>
+          <p>Before you deploy, analyze your objective. The system detects task categories, checks your agent library for Novice, Understudy, and Artisan availability, and recommends composition tiers — launch with the right crew, not a guess.</p>
+          <div class="cap-footer">
+            <span class="cap-metric">Pre-flight</span>
+            <span class="cap-metric-label">intelligence</span>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-top">
+            <span class="cap-tag">DN</span>
+            <h3>Bot DNA &amp; Evolution</h3>
+          </div>
+          <p>Every bot earns structured performance DNA after each run. Top performers get promoted — Novice → Understudy → Artisan. Elite agents are available for future missions. The army compounds with every deployment.</p>
+          <div class="cap-footer">
+            <span class="cap-metric">Novice → Artisan</span>
+            <span class="cap-metric-label">3 tiers</span>
+          </div>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-top">
+            <span class="cap-tag">VG</span>
+            <h3>Verdicts &amp; Governance</h3>
+          </div>
+          <p>After each mission, the system recommends Promote or Retire verdicts per bot. Review the evidence, challenge with Devil's Advocate, and confirm. Human-in-the-loop oversight keeps your workforce quality-controlled, not just automated.</p>
+          <div class="cap-footer">
+            <span class="cap-metric">Human</span>
+            <span class="cap-metric-label">in the loop</span>
+          </div>
+        </div>
+
         <div class="cap-card cap-card--cta">
           <h3>Ready to run a mission?</h3>
           <p>Configure your objective, set crew size and budget, and deploy. First bot online in minutes.</p>
@@ -135,20 +171,20 @@
       <div class="steps">
         <div class="step">
           <span class="step-num">01</span>
-          <h3>Write your objective</h3>
-          <p>Describe the outcome you need. The bots break it into tasks and start working.</p>
+          <h3>Analyze your objective</h3>
+          <p>Describe the outcome. The system detects task categories and surfaces available agents from your library — so you know what's in the army before you deploy.</p>
         </div>
         <div class="step-arrow">→</div>
         <div class="step">
           <span class="step-num">02</span>
           <h3>Configure the crew</h3>
-          <p>Set bot count, budget cap, and which tools they're allowed to use.</p>
+          <p>Set crew size, budget cap, LLM provider, and egress perimeter. Control exactly which domains the bots can reach.</p>
         </div>
         <div class="step-arrow">→</div>
         <div class="step">
           <span class="step-num">03</span>
-          <h3>Deploy and monitor</h3>
-          <p>Launch. Watch the live activity feed. Review the post-run performance report.</p>
+          <h3>Deploy, monitor, and evolve</h3>
+          <p>Launch. Watch the live activity feed. Review verdicts after the run — promote elite bots to Artisan and build a stronger army for next time.</p>
         </div>
       </div>
 
@@ -159,7 +195,7 @@
   <section class="footer-cta">
     <div class="section-inner">
       <h2>Your AI workforce is standing by.</h2>
-      <p>Define the mission. They'll handle the rest.</p>
+      <p>Define the mission. Deploy the crew. Build the army.</p>
       <a href="/new-execution" class="btn-primary">Deploy a Crew</a>
     </div>
   </section>
