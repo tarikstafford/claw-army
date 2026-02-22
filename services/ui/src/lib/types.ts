@@ -31,7 +31,15 @@ export interface ExecutionReport {
   totalTasks: number;
   completedTasks: number;
   failedTasks: number;
+  soulTierDistribution: {
+    novice: number;
+    understudy: number;
+    artisan: number;
+    retired: number;
+  };
 }
+
+export type ExecutionPendingVerdict = VerdictDetail;
 
 export interface LeaderboardEntry {
   botId: string;

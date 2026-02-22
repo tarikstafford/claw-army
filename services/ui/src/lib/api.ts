@@ -9,6 +9,7 @@ import type {
   ExecutionBot,
   PendingVerdict,
   VerdictDetail,
+  ExecutionPendingVerdict,
   CalibrationData,
   ArmyBuilderAnalysis,
   Objective,
@@ -166,4 +167,10 @@ export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
 
 export async function getBotSoul(botId: string): Promise<BotSoul> {
   return apiFetch(`${BASE}/bots/${botId}/soul`);
+}
+
+// Phase 19 — Run View Enhancements
+
+export async function getExecutionPendingVerdicts(executionId: string): Promise<ExecutionPendingVerdict[]> {
+  return apiFetch(`${BASE}/executions/${executionId}/pending-verdicts`);
 }

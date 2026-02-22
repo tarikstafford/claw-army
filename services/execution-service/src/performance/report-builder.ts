@@ -1,5 +1,5 @@
-import { db, bots, tasks, billingEvents, telemetry, toolInvocations } from '@claw/db';
-import { eq, and, sql } from 'drizzle-orm';
+import { db, bots, tasks, billingEvents, telemetry, toolInvocations, agentClasses } from '@claw/db';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // ExecutionReport interface
@@ -34,6 +34,12 @@ export interface ExecutionReport {
   totalTasks: number;
   completedTasks: number;
   failedTasks: number;
+  soulTierDistribution: {
+    novice: number;
+    understudy: number;
+    artisan: number;
+    retired: number;
+  };
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -149,6 +155,32 @@ export async function buildExecutionReport(executionId: string): Promise<Executi
   // ── 8. Cost per task: guard against division by zero ──
   const costPerTaskCents = completedTasks === 0 ? 0 : Math.round(totalCostCents / completedTasks);
 
+  // ── 9. Soul tier distribution ──
+  const soulTierDistribution = { novice: 0, understudy: 0, artisan: 0, retired: 0 };
+  const botIds = (await db
+    .select({ id: bots.id })
+    .from(bots)
+    .where(eq(bots.executionId, executionId))
+  ).map(b => b.id);
+
+  if (botIds.length > 0) {
+    const tierRows = await db
+      .select({
+        currentClass: agentClasses.currentClass,
+        count: sql<number>`cast(count(distinct ${agentClasses.botId}) as int)`,
+      })
+      .from(agentClasses)
+      .where(inArray(agentClasses.botId, botIds))
+      .groupBy(agentClasses.currentClass);
+
+    for (const row of tierRows) {
+      const key = row.currentClass.toLowerCase() as keyof typeof soulTierDistribution;
+      if (key in soulTierDistribution) {
+        soulTierDistribution[key] = row.count;
+      }
+    }
+  }
+
   return {
     executionId,
     totalBots,
@@ -161,5 +193,6 @@ export async function buildExecutionReport(executionId: string): Promise<Executi
     totalTasks,
     completedTasks,
     failedTasks,
+    soulTierDistribution,
   };
 }
