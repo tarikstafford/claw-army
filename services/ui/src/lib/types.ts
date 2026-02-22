@@ -209,3 +209,49 @@ export interface LifecycleNotification {
   fromClass?: string;
   toClass?: string;
 }
+
+// Phase 17 — Objective Hub types
+
+export interface Objective {
+  id: string;
+  name: string;
+  description: string | null;
+  defaultMaxBots: number;
+  defaultBudgetCapCents: number | null;
+  defaultRuntimeLimitSeconds: number | null;
+  defaultAllowedTools: string[];
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ObjectiveListItem extends Objective {
+  lastRunStatus: string | null;
+  runCount: number;
+  totalSpendCents: number;
+  bestBotClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+}
+
+export interface ObjectiveRun {
+  id: string;
+  status: 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  objective: string;
+  createdAt: string;
+  totalCostCents: number;
+  botCount: number;
+  avgCompositeScore: number | null;
+}
+
+export interface ObjectiveStats {
+  totalSpendCents: number;
+  totalTasksCompleted: number;
+  totalBotHours: number;
+  runCount: number;
+  classBreakdown: {
+    novice: number;
+    understudy: number;
+    artisan: number;
+    retired: number;
+  };
+  classTrendSummary: string;
+}
