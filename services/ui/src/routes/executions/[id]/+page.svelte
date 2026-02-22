@@ -171,7 +171,8 @@
               href="/executions/{executionId}/bots/{bot.id}"
               class="bot-card"
               class:bot-active={bot.status === 'working' || bot.status === 'idle' || bot.status === 'spawning'}
-              class:bot-stopped={bot.status === 'stopped' || bot.status === 'failed'}
+              class:bot-stopped={bot.status === 'stopped'}
+              class:bot-failed={bot.status === 'failed'}
             >
               <div class="bot-card-top">
                 <span class="bot-id">{bot.id.slice(0, 8)}</span>
@@ -186,6 +187,9 @@
                   <span class="stat-fail">{bot.tasksFailed} failed</span>
                 {/if}
               </div>
+              {#if bot.status === 'failed' && bot.errorMessage}
+                <div class="bot-error-msg">{bot.errorMessage}</div>
+              {/if}
               <div class="bot-card-cta">View process log →</div>
             </a>
           {/each}
@@ -406,6 +410,28 @@
 
   .bot-card.bot-stopped {
     opacity: 0.65;
+  }
+
+  .bot-card.bot-failed {
+    border-left: 3px solid #dc2626;
+    padding-left: calc(1rem - 2px);
+    background: #fef2f2;
+  }
+
+  .bot-error-msg {
+    font-size: 0.72rem;
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    margin-top: 0.15rem;
+    line-height: 1.3;
+    /* Truncate very long messages to 3 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .bot-card-top {

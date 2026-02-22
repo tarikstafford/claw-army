@@ -131,6 +131,7 @@ export interface ExecutionBot {
   tasksCompleted: number;
   tasksFailed: number;
   startedAt: string | null;
+  errorMessage: string | null;
 }
 
 export interface PendingVerdict {
