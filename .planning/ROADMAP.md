@@ -131,7 +131,11 @@ Plans:
 3. The reject path is visually equivalent in weight to the confirm path and carries a label framing rejection as a positive contribution to the army's learning
 4. Per-user confirmation rate above 95% across 10 or more confirmations triggers a calibration warning visible to the operator
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 12-01-PLAN.md -- Backend: timeOnScreenMs migration + Fastify verdicts route plugin (5 endpoints)
+- [ ] 12-02-PLAN.md -- Frontend: verdict types, API helpers, /verdicts inbox page, /verdicts/[verdictId] detail page with anti-rubber-stamp controls
 
 ---
 
