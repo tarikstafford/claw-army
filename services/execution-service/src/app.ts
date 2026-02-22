@@ -3,7 +3,7 @@ import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import cors from '@fastify/cors';
 import sse from '@fastify/sse';
 import { executionsRoutes } from './routes/executions';
-import { sseRoutes } from './routes/sse';
+import { sseRoutes, lifecycleSseRoutes } from './routes/sse';
 import { metricsRoutes } from './routes/metrics';
 import { botsRoutes } from './routes/bots';
 import { billingRoutes } from './routes/billing';
@@ -38,6 +38,9 @@ export async function buildApp() {
 
   // Verdict confirmation gate (Phase 12)
   app.register(verdictsRoutes, { prefix: '/verdicts' });
+
+  // Soul lifecycle SSE (Phase 14 — UIEX-03)
+  app.register(lifecycleSseRoutes, { prefix: '/events' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));

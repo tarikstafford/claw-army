@@ -12,6 +12,7 @@ const EXECUTION_LIFECYCLE_TOPIC = process.env.EXECUTION_LIFECYCLE_TOPIC ?? 'exec
 const TASK_LIFECYCLE_TOPIC = process.env.TASK_LIFECYCLE_TOPIC ?? 'task-lifecycle';
 const BOT_LIFECYCLE_TOPIC = process.env.BOT_LIFECYCLE_TOPIC ?? 'bot-lifecycle';
 const GUARDRAIL_EVENTS_TOPIC = process.env.GUARDRAIL_EVENTS_TOPIC ?? 'guardrail-events';
+const SOUL_LIFECYCLE_TOPIC = process.env.SOUL_LIFECYCLE_TOPIC ?? 'soul-lifecycle';
 
 export const sseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // GET /:id/events — SSE bridge: Pub/Sub subscription per connection, event forwarding, cleanup on disconnect
@@ -82,6 +83,48 @@ export const sseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     reply.sse.onClose(cleanup);
 
     // Backup cleanup: raw TCP close for abnormal disconnects (Pitfall 7)
+    request.raw.on('close', cleanup);
+  });
+};
+
+export const lifecycleSseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
+  // GET /lifecycle — global soul lifecycle SSE stream (not execution-scoped)
+  fastify.get('/lifecycle', {
+    sse: true,
+  }, async (request, reply) => {
+    const connId = randomUUID().slice(0, 8);
+    const subName = `sse-lifecycle-${connId}`;
+
+    await pubsub.topic(SOUL_LIFECYCLE_TOPIC).createSubscription(subName);
+    const sub = pubsub.subscription(subName);
+
+    const handler = async (message: { data: Buffer; ack: () => void; nack: () => void }) => {
+      try {
+        const payload = JSON.parse(message.data.toString()) as { type?: string };
+        if (reply.sse.isConnected) {
+          await reply.sse.send({
+            event: payload.type ?? 'lifecycle',
+            data: JSON.stringify(payload),
+          });
+        }
+        message.ack();
+      } catch {
+        message.nack();
+      }
+    };
+
+    sub.on('message', handler);
+
+    let cleanedUp = false;
+    const cleanup = async () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      sub.removeAllListeners();
+      await sub.close();
+      await sub.delete().catch(() => {});
+    };
+
+    reply.sse.onClose(cleanup);
     request.raw.on('close', cleanup);
   });
 };
