@@ -4,3 +4,4 @@ export * from './task';
 export * from './bot';
 export * from './billing';
 export * from './soul';
+export * from './objective';
