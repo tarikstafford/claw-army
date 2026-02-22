@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 16 of 19 (Named Objectives Data Model)
-Plan: 1 of 3 in current phase (16-01 complete — objectives schema + migrations + shared-types)
+Plan: 2 of 3 in current phase (16-02 complete — objectives REST API: 5 endpoints, aggregation, CORS)
 Status: In progress
-Last activity: 2026-02-22 — 16-01 complete: objectives Drizzle schema, SQL migrations 0009/0010, shared-types Objective interface
+Last activity: 2026-02-22 — 16-02 complete: objectives CRUD REST API (POST, GET /, GET /:id, DELETE, PATCH) with correlated subquery aggregation
 
-Progress: [███░░░░░░░] 8% (v3.0 — Phase 16 Plan 01 complete)
+Progress: [████░░░░░░] 9% (v3.0 — Phase 16 Plan 02 complete)
 
 ## Performance Metrics
 
@@ -57,6 +57,8 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [16-01] objectiveId on executions is nullable with ON DELETE SET NULL — existing executions unaffected, no backfill needed
 - [16-01] Migration 0010 uses DO $$ block with information_schema check for idempotent FK constraint addition
 - [16-01] NewObjective omits id, isArchived, createdAt, updatedAt — server always assigns these
+- [16-02] TypeBox response schemas for auth-protected routes must declare 401 as valid response code or TS2345 is raised
+- [16-02] CORS methods expanded to include PATCH and DELETE for browser preflight support on objectives endpoints
 
 ### Pending Todos
 
@@ -76,5 +78,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 16-01-PLAN.md — objectives Drizzle schema, SQL migrations 0009/0010, shared-types Objective interface
+Stopped at: Completed 16-02-PLAN.md — objectives REST API with 5 endpoints, aggregation subqueries, CORS PATCH/DELETE
 Resume file: None
