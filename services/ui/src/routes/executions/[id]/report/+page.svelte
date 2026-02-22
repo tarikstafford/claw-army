@@ -97,6 +97,9 @@
                 <th>Completed</th>
                 <th>Failed</th>
                 <th>Bot-Hours</th>
+                <th>Class</th>
+                <th>Verdict</th>
+                <th>Pioneer</th>
               </tr>
             </thead>
             <tbody>
@@ -117,6 +120,28 @@
                   <td>{entry.tasksCompleted}</td>
                   <td>{entry.tasksFailed}</td>
                   <td>{entry.botHours?.toFixed(3) ?? '-'}</td>
+                  <td>
+                    <span class="class-badge class-{entry.agentClass?.toLowerCase() ?? 'none'}">
+                      {entry.agentClass ?? '-'}
+                    </span>
+                  </td>
+                  <td>
+                    {#if entry.verdictType}
+                      <span class="verdict-badge verdict-{entry.verdictType.toLowerCase()}">{entry.verdictType}</span>
+                      {#if entry.verdictSummary}
+                        <span class="verdict-summary">{entry.verdictSummary.length > 60 ? entry.verdictSummary.slice(0, 60) + '...' : entry.verdictSummary}</span>
+                      {/if}
+                    {:else}
+                      <span class="no-data">-</span>
+                    {/if}
+                  </td>
+                  <td>
+                    {#if entry.isPioneer}
+                      <span class="pioneer-badge" title="Pioneer — first in category">P</span>
+                    {:else}
+                      <span class="no-data">-</span>
+                    {/if}
+                  </td>
                 </tr>
               {/each}
             </tbody>
@@ -310,5 +335,117 @@
     color: #6b7280;
     background: #f3f4f6;
     border: 1px solid #e5e7eb;
+  }
+
+  /* Agent class badges */
+  .class-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+  }
+
+  .class-novice {
+    color: #3b82f6;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+  }
+
+  .class-understudy {
+    color: #8b5cf6;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+  }
+
+  .class-artisan {
+    color: #d97706;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+  }
+
+  .class-retired {
+    color: #6b7280;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+  }
+
+  .class-none {
+    color: #6b7280;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Pioneer badge */
+  .pioneer-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 700;
+    font-size: 0.7rem;
+    border: 1px solid #fde68a;
+  }
+
+  /* Verdict badges */
+  .verdict-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+  }
+
+  .verdict-promote {
+    color: #16a34a;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+  }
+
+  .verdict-retire {
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+  }
+
+  .verdict-demote {
+    color: #ea580c;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+  }
+
+  .verdict-monitor {
+    color: #ca8a04;
+    background: #fefce8;
+    border: 1px solid #fde68a;
+  }
+
+  .verdict-maintain {
+    color: #2563eb;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+  }
+
+  .verdict-summary {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 0.2rem;
+  }
+
+  .no-data {
+    color: #9ca3af;
   }
 </style>

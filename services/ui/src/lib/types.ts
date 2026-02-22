@@ -40,6 +40,10 @@ export interface LeaderboardEntry {
   tasksCompleted: number;
   tasksFailed: number;
   botHours: number | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  isPioneer: boolean;
+  verdictSummary: string | null;
+  verdictType: string | null;
 }
 
 export interface BotDetail {
