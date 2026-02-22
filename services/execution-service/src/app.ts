@@ -8,6 +8,7 @@ import { metricsRoutes } from './routes/metrics';
 import { botsRoutes } from './routes/bots';
 import { billingRoutes } from './routes/billing';
 import { adminRoutes } from './routes/admin';
+import { verdictsRoutes } from './routes/verdicts';
 
 export async function buildApp() {
   const app = Fastify({
@@ -34,6 +35,9 @@ export async function buildApp() {
 
   // Admin routes (Phase 10 — decision trace cleanup)
   app.register(adminRoutes, { prefix: '/admin' });
+
+  // Verdict confirmation gate (Phase 12)
+  app.register(verdictsRoutes, { prefix: '/verdicts' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
