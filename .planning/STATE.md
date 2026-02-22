@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Planning next milestone (v2.0 shipped — The SOUL System complete)
+**Current focus:** v3.0 Bot Reliability & UX Overhaul — planning roadmap
 
 ## Current Position
 
-Phase: milestone-complete
-Plan: v2.0 archived
-Status: v2.0 The SOUL System shipped — 7 phases (8–14), 19 plans, 2 days. All 37 v2.0 requirements delivered. Evolutionary loop closes end-to-end: SOUL generation → Council evaluation → Human confirmation → God Layer DNA writes → Agent class transitions → UI visibility.
-Last activity: 2026-02-22 — v2.0 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Milestone v3.0 started — Bot Reliability & UX Overhaul. 22 requirements across 5 categories defined. Roadmapper running.
+Last activity: 2026-02-22 — Milestone v3.0 started
 
-Progress: [████████████████████████████] 100% (v2.0 complete)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0% (v3.0 planning)
 
 ## Performance Metrics
 

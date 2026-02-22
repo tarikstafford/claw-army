@@ -1,5 +1,18 @@
 # Claw Bot Army
 
+## Current Milestone: v3.0 Bot Reliability & UX Overhaul
+
+**Goal:** Fix bot spawning and harden the full GCE/OpenClaw lifecycle, then rebuild the UI around the objective as the primary unit of navigation — souls visible, army status live, run history and DNA evolution all accessible from one place.
+
+**Target features:**
+- Bot lifecycle hardening: reliable GCE VM spawn, startup script verification, OpenClaw WebSocket validation, error recovery with user-visible failure messages
+- Named persistent objectives: users create objectives and run them repeatedly; history, soul evolution, and DNA progress tracked per objective
+- Objective hub UI: single screen shows all runs, aggregate stats, live status (if active), and DNA class progression
+- Soul inspector: users can inspect the full soul/constitution, lineage, and verdict outcome for any bot in any run
+- Run view enhancements: bot cards with soul tier badges, inline activity feed, post-run soul distribution, pending verdict highlights
+
+---
+
 ## What This Is
 
 Claw Bot Army is a platform that lets SMEs and individuals deploy fleets of AI bot workers against a high-level objective. Users define an objective, set a bot count and budget cap, and the system spawns isolated bot VMs that claim and execute tasks in parallel — with real-time monitoring, atomic budget enforcement, per-bot billing metering, and an evolutionary learning engine that compounds agent intelligence over time through behavioral constitutions, council evaluation, and a versioned DNA library.
@@ -74,7 +87,13 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ### Active
 
-<!-- No active requirements — planning next milestone -->
+<!-- v3.0 requirements — see .planning/REQUIREMENTS.md for full list with REQ-IDs -->
+
+- [ ] Fix GCE VM startup script so OpenClaw/SecureClaw install reliably (BOT-01 → BOT-06)
+- [ ] Named persistent objectives with multi-run history (OBJ-01 → OBJ-04)
+- [ ] Objective hub UI: all runs, aggregate stats, live status, DNA evolution (HUB-01 → HUB-04)
+- [ ] Soul inspector panel per bot: dimensions, lineage, verdict (SOUL-01 → SOUL-04)
+- [ ] Enhanced run view: soul tier badges on bot cards, inline feed, post-run distribution (RUN-01 → RUN-04)
 
 ### Out of Scope
 
@@ -169,4 +188,4 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 | Army Builder analysis triggered by explicit button click | Avoids LLM latency on each input event; UIEX-05 submission block uses button disabled (not hidden) | ✓ Good — never silently reduces agent count per requirement |
 
 ---
-*Last updated: 2026-02-22 after v2.0 milestone*
+*Last updated: 2026-02-22 after v3.0 milestone start*

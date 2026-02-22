@@ -1,0 +1,115 @@
+# Requirements: Claw Bot Army — v3.0
+
+**Defined:** 2026-02-22
+**Core Value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
+
+---
+
+## v3.0 Requirements
+
+### Bot Reliability
+
+- [ ] **BOT-01**: GCE VM startup script reliably installs OpenClaw and SecureClaw on first boot (idempotent, handles partial installs)
+- [ ] **BOT-02**: Startup script validates successful install before POSTing to `/bots/:botId/ready` (POST includes success/failure payload)
+- [ ] **BOT-03**: `/ready` handler validates OpenClaw WebSocket connection is alive before transitioning bot to `idle` status
+- [ ] **BOT-04**: Spawn failures (timeout, install error, ready timeout) transition bot to `error` status with failure reason written to DB
+- [ ] **BOT-05**: OpenClaw WebSocket task dispatch protocol validated end-to-end — task sent, executed, completion received, bot returns to idle
+- [ ] **BOT-06**: Bot error states surface human-readable failure message in the UI alongside affected bot card
+
+### Named Objectives
+
+- [ ] **OBJ-01**: User can create a named persistent objective with name, description, and default settings (bot count, budget cap, runtime limit, tool allowlist)
+- [ ] **OBJ-02**: User can launch a new run against a saved objective — default settings pre-filled, all fields overridable before submission
+- [ ] **OBJ-03**: User can view a list of all their saved objectives with last-run status, total run count, total spend, and best bot class achieved
+- [ ] **OBJ-04**: User can delete or archive a saved objective (archived objectives hidden from list but history preserved)
+
+### Objective Hub UI
+
+- [ ] **HUB-01**: Objective detail page lists all runs (executions) with date, status, cost, bot count, avg composite score, and link to run detail
+- [ ] **HUB-02**: Objective detail page shows aggregate stats across all runs: total spend, total tasks completed, total bot-hours, and soul class distribution trend (e.g. "0 → 3 Artisans over 5 runs")
+- [ ] **HUB-03**: If a run is currently active, the objective page shows live status inline — number of active bots, real-time budget burn, and last 5 activity events
+- [ ] **HUB-04**: Objective page shows DNA evolution summary: how many Novice → Understudy → Artisan class transitions have occurred across all runs on this objective
+
+### Soul Inspector
+
+- [ ] **SOUL-01**: User can open a soul inspector panel for any bot in any run, showing the full SOUL.md content: all 7 behavioral dimensions and inviolable constitution directives
+- [ ] **SOUL-02**: Soul inspector shows lineage metadata: generation counter, mutation operations applied, and parent soul reference (if not a seed)
+- [ ] **SOUL-03**: Soul inspector shows the bot's council verdict outcome (if evaluated): verdict type, confidence score, and per-judge summary
+- [ ] **SOUL-04**: Bot cards throughout the UI display the bot's soul tier badge (Novice / Understudy / Artisan) alongside existing performance metrics
+
+### Run View Enhancements
+
+- [ ] **RUN-01**: Bot cards in the live monitoring view show current task description, tool call count, token burn rate, and soul tier badge
+- [ ] **RUN-02**: Activity feed filtered to the current run is accessible directly from the objective hub view without navigating away
+- [ ] **RUN-03**: Post-run performance dashboard shows soul tier distribution across the army (count of Novice / Understudy / Artisan bots)
+- [ ] **RUN-04**: Run detail highlights bots with pending council verdicts and surfaces an inline confirmation panel (reuses CONF-* component)
+
+---
+
+## Future Requirements (v3.1+)
+
+### DNA Export (User-Facing)
+- **DNA-01**: User can view their top-performing soul documents from the DNA library
+- **DNA-02**: User can download a soul template derived from their best Artisan agents
+
+### Army Composition History
+- **ARMY-01**: Named armies with saved bot count / class mix presets
+- **ARMY-02**: Army composition sharing between users (invite-based)
+
+### Mutation Lineage Visualization
+- **VIZ-01**: Graphical mutation lineage tree (depth-3) for any soul in the inspector
+
+---
+
+## Out of Scope (v3.0)
+
+| Feature | Reason |
+|---------|--------|
+| DNA export (user-facing) | Deferred to v3.1 — DNA Library needs more depth first |
+| Army composition sharing | Post-validation — single-tenant MVP still |
+| Mutation lineage graph | Complex visualization deferred (UIEX-06 from v2.0 backlog) |
+| Real payment processing | Metering-only MVP; Stripe post-validation |
+| Multi-tenant isolation | Single-tenant sufficient for current scale |
+| Per-run soul mutation | Requires 3–5 confirmed runs minimum; not yet enough data |
+| User-editable soul text | Corrupts evolutionary lineage attribution |
+| Mobile app | Web-first |
+
+---
+
+## Traceability
+
+*(Populated by roadmapper)*
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BOT-01 | — | Pending |
+| BOT-02 | — | Pending |
+| BOT-03 | — | Pending |
+| BOT-04 | — | Pending |
+| BOT-05 | — | Pending |
+| BOT-06 | — | Pending |
+| OBJ-01 | — | Pending |
+| OBJ-02 | — | Pending |
+| OBJ-03 | — | Pending |
+| OBJ-04 | — | Pending |
+| HUB-01 | — | Pending |
+| HUB-02 | — | Pending |
+| HUB-03 | — | Pending |
+| HUB-04 | — | Pending |
+| SOUL-01 | — | Pending |
+| SOUL-02 | — | Pending |
+| SOUL-03 | — | Pending |
+| SOUL-04 | — | Pending |
+| RUN-01 | — | Pending |
+| RUN-02 | — | Pending |
+| RUN-03 | — | Pending |
+| RUN-04 | — | Pending |
+
+**Coverage:**
+- v3.0 requirements: 22 total
+- Mapped to phases: 0
+- Unmapped: 22 ⚠️ (roadmapper will fill)
+
+---
+*Requirements defined: 2026-02-22*
+*Last updated: 2026-02-22 after initial definition*
