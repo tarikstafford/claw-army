@@ -176,7 +176,13 @@ Plans:
 4. The Army Builder UI identifies task categories in the submitted objective, displays the available class mix per category with library-depth rationale, and presents a budget breakdown across three composition tiers (full, 75%, minimum viable at 3 Novices per task)
 5. Army Builder blocks submission when minimum viable composition (3 agents per task category) exceeds the budget — the block is accompanied by a plain explanation and never silently reduces the agent count
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 14-01-PLAN.md -- Leaderboard extension: agent class badges, pioneer flag, verdict summary (UIEX-01)
+- [ ] 14-02-PLAN.md -- Soul lifecycle SSE backend: event schemas, publisher, God Layer hooks, SSE endpoint (UIEX-03 backend)
+- [ ] 14-03-PLAN.md -- Frontend SSE notifications + verdict inbox alerts (UIEX-02 + UIEX-03 frontend)
+- [ ] 14-04-PLAN.md -- Army Builder: category detection, library depth, budget tiers, submission block (UIEX-04 + UIEX-05)
 
 ---
 
