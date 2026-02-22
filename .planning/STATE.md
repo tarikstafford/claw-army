@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 17 of 19 (Objective Hub UI)
-Plan: 2 of 3 in current phase (17-02 complete — /objectives list page with status badges and class badges; Objectives nav link added to layout)
-Status: Phase 17 in progress
-Last activity: 2026-02-22 — 17-02 complete: /objectives SvelteKit route (table with name/status/runs/spend/class columns) + Objectives nav link in layout
+Plan: 3 of 3 in current phase — 17-03 Task 1 complete, paused at human-verify checkpoint (Task 2)
+Status: Phase 17 in progress — awaiting visual verification of Objective Hub UI
+Last activity: 2026-02-22 — 17-03 Task 1 complete: /objectives/[id] detail page with header, aggregate stats (HUB-02), live status panel (HUB-03), run history table (HUB-01), DNA evolution summary (HUB-04)
 
-Progress: [████░░░░░░] 11% (v3.0 — Phase 17 plan 2 of 3 complete)
+Progress: [████░░░░░░] 11% (v3.0 — Phase 17 plan 3 of 3 in progress, awaiting human verify)
 
 ## Performance Metrics
 
@@ -88,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 17-02-PLAN.md — /objectives list page with table (name/status/runs/spend/class columns) and Objectives nav link in layout
+Stopped at: 17-03-PLAN.md Task 2 (checkpoint:human-verify) — visual verification of complete Objective Hub UI required
 Resume file: None
