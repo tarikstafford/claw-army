@@ -82,12 +82,12 @@ Plans:
   2. User can launch a new run from a saved objective — the submission form pre-fills with the objective's default settings, all fields remain editable before launch
   3. The objectives list screen shows each saved objective with its last-run status, total run count, cumulative spend, and highest bot class achieved
   4. User can delete an objective (removes it from the list) or archive it (hides it from the list but preserves all run history)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 16-01: `objectives` DB table + Drizzle migration + shared-types OBJ schema
-- [ ] 16-02: Execution-service API endpoints — POST /objectives, GET /objectives, GET /objectives/:id, DELETE /objectives/:id, PATCH /objectives/:id (archive)
-- [ ] 16-03: Link executions to objectives — execution schema update, launch-from-objective flow, list aggregation query
+- [ ] 16-01-PLAN.md — objectives DB table + Drizzle migration + executions FK + shared-types Objective schema
+- [ ] 16-02-PLAN.md — Objectives REST API: POST, GET (with aggregation), GET/:id, DELETE/:id, PATCH/:id + CORS update
+- [ ] 16-03-PLAN.md — Link executions to objectives: objectiveId in POST /executions + validation
 
 #### Phase 17: Objective Hub UI
 
@@ -160,7 +160,7 @@ Plans:
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 15. Bot Reliability | v3.0 | 0/4 | Planned | - |
-| 16. Named Objectives Data Model | v3.0 | 0/TBD | Not started | - |
+| 16. Named Objectives Data Model | v3.0 | 0/3 | Planned | - |
 | 17. Objective Hub UI | v3.0 | 0/TBD | Not started | - |
 | 18. Soul Inspector | v3.0 | 0/TBD | Not started | - |
 | 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |
