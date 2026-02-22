@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 15 — Bot Reliability
+**Current focus:** v3.0 Phase 16 — Named Objectives Data Model
 
 ## Current Position
 
-Phase: 15 of 19 (Bot Reliability)
-Plan: 3 of 3 in current phase (15-03 complete — phase complete)
+Phase: 16 of 19 (Named Objectives Data Model)
+Plan: 1 of 3 in current phase (16-01 complete — objectives schema + migrations + shared-types)
 Status: In progress
-Last activity: 2026-02-22 — 15-03 complete: dispatcher round-trip validation + UI error surfacing
+Last activity: 2026-02-22 — 16-01 complete: objectives Drizzle schema, SQL migrations 0009/0010, shared-types Objective interface
 
-Progress: [██░░░░░░░░] 5% (v3.0 — Phase 15 complete, Phase 16 next)
+Progress: [███░░░░░░░] 8% (v3.0 — Phase 16 Plan 01 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 40 (v1.0 + v1.1 + v2.0 + v3.0 P01-02)
-- Average duration: 4.6 min
-- Total execution time: 192 min
+- Total plans completed: 41 (v1.0 + v1.1 + v2.0 + v3.0 P01-03)
+- Average duration: 4.7 min
+- Total execution time: 200 min
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: [██░░░░░░░░] 5% (v3.0 — Phase 15 complete, Phase
 |-------|-------|-------|----------|
 | 01–07 (v1.0 + v1.1) | 25/25 | 147 min | 5.9 min |
 | 08–14 (v2.0) | 19/19 | 55 min | 2.9 min |
-| 15–19 (v3.0) | 3/TBD | 13 min | 4.3 min |
+| 15–19 (v3.0) | 4/TBD | 21 min | 5.3 min |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -54,6 +54,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [15-03] checkExecutionCompletion called fire-and-forget after task terminal state — completion check non-blocking, failures logged but don't affect task result
 - [15-03] bot-stopped class no longer applied to failed bots — failed bots need distinct visual treatment (red/pink) not faded opacity
 - [15-03] Connection-level errorMessage uses substring matching ('not connected', 'Connection closed') — matches openclaw-client error strings from Plan 02
+- [16-01] objectiveId on executions is nullable with ON DELETE SET NULL — existing executions unaffected, no backfill needed
+- [16-01] Migration 0010 uses DO $$ block with information_schema check for idempotent FK constraint addition
+- [16-01] NewObjective omits id, isArchived, createdAt, updatedAt — server always assigns these
 
 ### Pending Todos
 
@@ -73,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 15-03-PLAN.md — dispatcher round-trip validation, UI bot error surfacing; Phase 15 complete
+Stopped at: Completed 16-01-PLAN.md — objectives Drizzle schema, SQL migrations 0009/0010, shared-types Objective interface
 Resume file: None
