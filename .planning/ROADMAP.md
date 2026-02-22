@@ -117,11 +117,11 @@ Plans:
   2. The soul inspector shows lineage metadata: generation counter, mutation operations applied, and the parent soul reference (or "seed" if no parent)
   3. If the bot has been evaluated by the council, the soul inspector shows the verdict type, confidence score, and a summary from each judge
   4. Every bot card across the live monitoring view, post-run dashboard, and leaderboard displays the bot's soul tier badge (Novice / Understudy / Artisan)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 18-01: Soul inspector panel component — drawer/modal with SOUL.md content, lineage metadata, and verdict outcome
-- [ ] 18-02: Soul tier badge component + integration into all bot card contexts (monitoring, dashboard, leaderboard)
+- [ ] 18-01-PLAN.md — Soul inspector panel: GET /bots/:botId/soul endpoint + BotSoul type + SoulInspectorPanel drawer + wiring into all 3 bot card contexts (SOUL-01, SOUL-02, SOUL-03)
+- [ ] 18-02-PLAN.md — Soul tier badge: extend monitoring endpoint with agentClass + SoulTierBadge component + integration into monitoring, leaderboard, bot detail (SOUL-04)
 
 #### Phase 19: Run View Enhancements
 
@@ -162,5 +162,5 @@ Plans:
 | 15. Bot Reliability | v3.0 | 0/4 | Planned | - |
 | 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 17. Objective Hub UI | v3.0 | 0/3 | Planned | - |
-| 18. Soul Inspector | v3.0 | 0/TBD | Not started | - |
+| 18. Soul Inspector | v3.0 | 0/2 | Planned | - |
 | 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |
