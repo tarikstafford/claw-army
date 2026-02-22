@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 14-ui-extensions
-Plan: 03 (complete)
-Status: Phase 14 Plan 03 complete — LifecycleNotification type, connectLifecycleSSE() SSE client, global lifecycle toast container in +layout.svelte, new-verdict arrival banner in verdicts/+page.svelte. UIEX-03 frontend and UIEX-02 satisfied.
-Last activity: 2026-02-22 — Phase 14 Plan 03 complete (Frontend SSE lifecycle notifications and verdict arrival banner)
+Plan: 04 (complete)
+Status: Phase 14 Plan 04 complete — Army Builder analysis endpoint (GET /army-builder/analysis), ArmyBuilderAnalysis type, getArmyBuilderAnalysis() API helper, Army Builder panel in new-execution form with category detection, library depth, budget tiers, and submission block. UIEX-04 and UIEX-05 fully satisfied. Phase 14 complete.
+Last activity: 2026-02-22 — Phase 14 Plan 04 complete (Army Builder analysis — category detection, library depth, budget tiers, submission block)
 
 Progress: [██████░░░░░░░░░░░░░░░░░░░░░░] 31% (11/TBD v2.0 plans — Phase 13 complete)
 
@@ -50,6 +50,7 @@ Progress: [██████░░░░░░░░░░░░░░░░░
 | Phase 14-ui-extensions P01 | 2 | 2 tasks | 3 files |
 | Phase 14-ui-extensions P02 | 8 | 2 tasks | 5 files |
 | Phase 14-ui-extensions P03 | 2 | 2 tasks | 4 files |
+| Phase 14-ui-extensions P04 | 4 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,9 @@ Phase 08-02 decisions:
 - [Phase 14-02]: Artisan graduation publish handled in dedicated if(artisanGraduated) block before general promote check to prevent duplicate soul_promoted events for Understudy->Artisan graduations
 - [Phase 14-02]: previousClass hoisted before transaction to capture currentClass pre-mutation for soul_retired event payload (ClassTransition.retire has no from/to fields)
 - [Phase 14-03]: connectLifecycleSSE follows exact same EventSource + typed-listener pattern as connectSSE/connectBotLogs — no new patterns; previousCount=null sentinel prevents false positive new-verdict banners on initial load; toast stack capped at 5, 8s auto-dismiss per UIEX spec
+- [Phase 14-04]: maxTokens is not a valid property in AI SDK v6 generateText() CallSettings type — replaced with temperature: 0.2 (consistent with council judge pattern)
+- [Phase 14-04]: Army Builder analysis triggered by explicit button click (not keystroke) to avoid LLM latency on each input event; submission block uses button disabled (not hidden) — never silently reduces agent count per UIEX-05
+- [Phase 14-04]: Retired agents excluded from library depth pool; only Novice/Understudy/Artisan counted in available composition
 
 ### Roadmap Evolution
 
@@ -151,5 +155,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 14-03-PLAN.md (Frontend SSE lifecycle notifications — types.ts, sse.ts, +layout.svelte, verdicts/+page.svelte)
+Stopped at: Completed 14-04-PLAN.md (Army Builder analysis — army-builder.ts, app.ts, types.ts, api.ts, new-execution/+page.svelte)
 Resume file: None
