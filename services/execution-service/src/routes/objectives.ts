@@ -153,6 +153,202 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     return reply.code(200).send(rows);
   });
 
+  // GET /:id/executions — list all runs for an objective (HUB-01)
+  fastify.get('/:id/executions', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Array(Type.Object({
+          id: Type.String({ format: 'uuid' }),
+          status: Type.Union([
+            Type.Literal('queued'),
+            Type.Literal('running'),
+            Type.Literal('paused'),
+            Type.Literal('stopped'),
+            Type.Literal('completed'),
+            Type.Literal('failed'),
+          ]),
+          objective: Type.String(),
+          createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+          totalCostCents: Type.Integer(),
+          botCount: Type.Integer(),
+          avgCompositeScore: Type.Union([Type.Number(), Type.Null()]),
+        })),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    // Verify objective exists
+    const [obj] = await db
+      .select({ id: objectives.id })
+      .from(objectives)
+      .where(eq(objectives.id, id));
+
+    if (!obj) {
+      return reply.code(404).send({ error: 'Objective not found' });
+    }
+
+    const rows = await db
+      .select({
+        id: executions.id,
+        status: executions.status,
+        objective: executions.objective,
+        createdAt: executions.createdAt,
+        totalCostCents: sql<number>`(
+          SELECT CAST(COALESCE(SUM(be.amount_cents), 0) AS int)
+          FROM billing_events be
+          WHERE be.execution_id = ${executions.id}
+            AND be.event_type = 'tool_invoked'
+        )`,
+        botCount: sql<number>`(
+          SELECT CAST(COUNT(*) AS int)
+          FROM bots b
+          WHERE b.execution_id = ${executions.id}
+        )`,
+        avgCompositeScore: sql<number | null>`(
+          SELECT CAST(AVG(b.composite_score) AS float)
+          FROM bots b
+          WHERE b.execution_id = ${executions.id}
+            AND b.composite_score IS NOT NULL
+        )`,
+      })
+      .from(executions)
+      .where(eq(executions.objectiveId, id))
+      .orderBy(sql`${executions.createdAt} DESC`);
+
+    return reply.code(200).send(rows);
+  });
+
+  // GET /:id/stats — aggregate stats for an objective (HUB-02 + HUB-04)
+  fastify.get('/:id/stats', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Object({
+          totalSpendCents: Type.Integer(),
+          totalTasksCompleted: Type.Integer(),
+          totalBotHours: Type.Number(),
+          runCount: Type.Integer(),
+          classBreakdown: Type.Object({
+            novice: Type.Integer(),
+            understudy: Type.Integer(),
+            artisan: Type.Integer(),
+            retired: Type.Integer(),
+          }),
+          classTrendSummary: Type.String(),
+        }),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    // Verify objective exists
+    const [obj] = await db
+      .select({ id: objectives.id })
+      .from(objectives)
+      .where(eq(objectives.id, id));
+
+    if (!obj) {
+      return reply.code(404).send({ error: 'Objective not found' });
+    }
+
+    // Query aggregate stats using correlated subqueries from the objectives table
+    const [statsRow] = await db
+      .select({
+        runCount: sql<number>`(
+          SELECT CAST(COUNT(*) AS int)
+          FROM executions e
+          WHERE e.objective_id = ${objectives.id}
+        )`,
+        totalSpendCents: sql<number>`(
+          SELECT CAST(COALESCE(SUM(be.amount_cents), 0) AS int)
+          FROM billing_events be
+          JOIN executions e ON e.id = be.execution_id
+          WHERE e.objective_id = ${objectives.id}
+            AND be.event_type = 'tool_invoked'
+        )`,
+        totalTasksCompleted: sql<number>`(
+          SELECT CAST(COALESCE(COUNT(*), 0) AS int)
+          FROM tasks t
+          JOIN executions e ON e.id = t.execution_id
+          WHERE e.objective_id = ${objectives.id}
+            AND t.status = 'completed'
+        )`,
+        totalBotHours: sql<number>`(
+          SELECT CAST(COALESCE(SUM(tel.metric_value), 0) AS float)
+          FROM telemetry tel
+          JOIN executions e ON e.id = tel.execution_id
+          WHERE e.objective_id = ${objectives.id}
+            AND tel.metric_name = 'bot_hours'
+        )`,
+      })
+      .from(objectives)
+      .where(eq(objectives.id, id));
+
+    const runCount = Number(statsRow?.runCount ?? 0);
+    const totalSpendCents = Number(statsRow?.totalSpendCents ?? 0);
+    const totalTasksCompleted = Number(statsRow?.totalTasksCompleted ?? 0);
+    const totalBotHours = Number(statsRow?.totalBotHours ?? 0);
+
+    // Query class breakdown using agentClasses table reference
+    const classRows = await db
+      .select({
+        currentClass: sql<string>`ac.current_class`,
+        count: sql<number>`CAST(COUNT(*) AS int)`,
+      })
+      .from(sql`agent_classes ac`)
+      .innerJoin(sql`bots b`, sql`b.id = ac.bot_id`)
+      .innerJoin(executions, sql`${executions.id} = b.execution_id`)
+      .where(eq(executions.objectiveId, id))
+      .groupBy(sql`ac.current_class`);
+
+    const classBreakdown = {
+      novice: 0,
+      understudy: 0,
+      artisan: 0,
+      retired: 0,
+    };
+
+    for (const row of classRows) {
+      const count = Number(row.count);
+      if (row.currentClass === 'Novice') classBreakdown.novice = count;
+      else if (row.currentClass === 'Understudy') classBreakdown.understudy = count;
+      else if (row.currentClass === 'Artisan') classBreakdown.artisan = count;
+      else if (row.currentClass === 'Retired') classBreakdown.retired = count;
+    }
+
+    // Build readable class trend summary
+    let classTrendSummary: string;
+    if (runCount === 0) {
+      classTrendSummary = 'No runs yet';
+    } else {
+      const parts: string[] = [];
+      if (classBreakdown.artisan > 0) parts.push(`${classBreakdown.artisan} Artisan${classBreakdown.artisan !== 1 ? 's' : ''}`);
+      if (classBreakdown.understudy > 0) parts.push(`${classBreakdown.understudy} Understudy${classBreakdown.understudy !== 1 ? 's' : ''}`);
+      if (classBreakdown.novice > 0) parts.push(`${classBreakdown.novice} Novice${classBreakdown.novice !== 1 ? 's' : ''}`);
+      if (classBreakdown.retired > 0) parts.push(`${classBreakdown.retired} Retired`);
+      classTrendSummary = parts.length > 0
+        ? `${parts.join(', ')} across ${runCount} run${runCount !== 1 ? 's' : ''}`
+        : `No class data across ${runCount} run${runCount !== 1 ? 's' : ''}`;
+    }
+
+    return reply.code(200).send({
+      totalSpendCents,
+      totalTasksCompleted,
+      totalBotHours,
+      runCount,
+      classBreakdown,
+      classTrendSummary,
+    });
+  });
+
   // GET /:id — get a single objective by ID (supports OBJ-02 pre-fill)
   fastify.get('/:id', {
     schema: {
