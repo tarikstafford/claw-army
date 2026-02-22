@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 18 of 19 (Soul Inspector)
-Plan: 1 of 1 in current phase — COMPLETE
-Status: Phase 18 Plan 01 complete — Soul Inspector panel, endpoint, types, and all 3 bot card wirings delivered
-Last activity: 2026-02-22 — 18-01 complete: Soul Inspector (GET /bots/:botId/soul, SoulInspectorPanel, all 3 bot card contexts)
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Phase 18 complete — SoulTierBadge component, extended monitoring endpoint with agentClass, badges in all 3 bot card contexts
+Last activity: 2026-02-22 — 18-02 complete: SoulTierBadge (colored pills in monitoring, leaderboard, bot detail; monitoring endpoint extended)
 
-Progress: [█████░░░░░] 13% (v3.0 — Phase 18 complete, 1/1 plans done)
+Progress: [█████░░░░░] 13% (v3.0 — Phase 18 complete, 2/2 plans done)
 
 ## Performance Metrics
 
@@ -32,6 +32,7 @@ Progress: [█████░░░░░] 13% (v3.0 — Phase 18 complete, 1/1 
 | 15–19 (v3.0) | 7/TBD | 37 min | 5.3 min |
 
 | Phase 18-soul-inspector P01 | 12 min | 2 tasks | 7 files |
+| Phase 18-soul-inspector P02 | 3 min | 2 tasks | 5 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -75,6 +76,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [17-03] SSE effect cleanup: returns () => { clearInterval(interval); cleanup?.(); } — mirrors executions/[id] pattern; terminal status events clear activeRunId to auto-dismiss live panel
 - [17-03] activityFeed LIFO slice of 5: [event, ...activityFeed].slice(0, 5) — newest event always first
 - [Phase 18-01]: [18-01] constitutionDirectives jsonb column cast to string[] via TypeScript assertion — Drizzle infers jsonb as generic type, required to satisfy TypeBox string[] | null response schema
+- [18-02] inArray guarded with botIds.length > 0 — PostgreSQL rejects empty IN () clause; guard prevents SQL error when execution has no bots yet
+- [18-02] Bot detail page uses separate botAgentClass $state + $effect to fetch agentClass from getBotSoul() — badge visible without user opening inspector panel
+- [18-02] Report leaderboard class-badge span replaced with SoulTierBadge component — eliminates duplicated CSS, same hex values, single source of truth
 
 ### Pending Todos
 
@@ -94,5 +98,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 18-01-PLAN.md — Soul Inspector panel, GET /bots/:botId/soul endpoint, BotSoul type, SoulInspectorPanel component wired into all 3 bot card contexts
+Stopped at: Completed 18-02-PLAN.md — SoulTierBadge component, extended monitoring endpoint with agentClass, badges in all 3 bot card contexts
 Resume file: None
