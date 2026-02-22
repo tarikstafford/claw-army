@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 16 — Named Objectives Data Model
+**Current focus:** v3.0 Phase 17 — Objective Hub UI
 
 ## Current Position
 
-Phase: 16 of 19 (Named Objectives Data Model)
-Plan: 3 of 3 in current phase (16-03 complete — execution-objective FK wiring: POST /executions accepts objectiveId, validates non-archived)
-Status: Phase 16 complete
-Last activity: 2026-02-22 — 16-03 complete: POST /executions accepts optional objectiveId with FK pre-validation
+Phase: 17 of 19 (Objective Hub UI)
+Plan: 1 of 3 in current phase (17-01 complete — backend API extensions: GET /:id/executions, GET /:id/stats; UI types and API client functions)
+Status: Phase 17 in progress
+Last activity: 2026-02-22 — 17-01 complete: two new Fastify GET endpoints + Objective, ObjectiveListItem, ObjectiveRun, ObjectiveStats types + four API client functions
 
-Progress: [████░░░░░░] 10% (v3.0 — Phase 16 complete)
+Progress: [████░░░░░░] 11% (v3.0 — Phase 17 plan 1 of 3 complete)
 
 ## Performance Metrics
 
@@ -29,7 +29,7 @@ Progress: [████░░░░░░] 10% (v3.0 — Phase 16 complete)
 |-------|-------|-------|----------|
 | 01–07 (v1.0 + v1.1) | 25/25 | 147 min | 5.9 min |
 | 08–14 (v2.0) | 19/19 | 55 min | 2.9 min |
-| 15–19 (v3.0) | 5/TBD | 23 min | 4.6 min |
+| 15–19 (v3.0) | 6/TBD | 25 min | 4.2 min |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -62,6 +62,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [16-03] objectiveId validation in service layer (not route) keeps FK pre-check co-located with DB operations
 - [16-03] Error string matching in route catch block ('Objective not found or archived') creates clear service/route contract
 - [16-03] objectiveId ?? null passed to INSERT ensures nullable FK is always explicitly written as SQL NULL
+- [17-01] db.execute() returns non-iterable QueryResult — use db.select() with sql<T> correlated subqueries for all objectives route queries
+- [17-01] Stats endpoint uses single db.select().from(objectives) with 4 correlated subquery fields — clean pattern, avoids non-iterable QueryResult
+- [17-01] avgCompositeScore in executions endpoint CAST AS float to prevent PostgreSQL numeric-as-string coercion
+- [17-01] ObjectiveListItem extends Objective — base type for GET /objectives/:id, extended type for GET /objectives list aggregation
 
 ### Pending Todos
 
@@ -81,5 +85,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 16-03-PLAN.md — POST /executions objectiveId FK wiring, FK pre-validation, 400 error handling
+Stopped at: Completed 17-01-PLAN.md — GET /:id/executions, GET /:id/stats endpoints; Objective/ObjectiveListItem/ObjectiveRun/ObjectiveStats types; four API client functions
 Resume file: None
