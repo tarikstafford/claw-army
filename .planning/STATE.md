@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 16 of 19 (Named Objectives Data Model)
-Plan: 2 of 3 in current phase (16-02 complete — objectives REST API: 5 endpoints, aggregation, CORS)
-Status: In progress
-Last activity: 2026-02-22 — 16-02 complete: objectives CRUD REST API (POST, GET /, GET /:id, DELETE, PATCH) with correlated subquery aggregation
+Plan: 3 of 3 in current phase (16-03 complete — execution-objective FK wiring: POST /executions accepts objectiveId, validates non-archived)
+Status: Phase 16 complete
+Last activity: 2026-02-22 — 16-03 complete: POST /executions accepts optional objectiveId with FK pre-validation
 
-Progress: [████░░░░░░] 9% (v3.0 — Phase 16 Plan 02 complete)
+Progress: [████░░░░░░] 10% (v3.0 — Phase 16 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 41 (v1.0 + v1.1 + v2.0 + v3.0 P01-03)
+- Total plans completed: 42 (v1.0 + v1.1 + v2.0 + v3.0 P01-03)
 - Average duration: 4.7 min
-- Total execution time: 200 min
+- Total execution time: 202 min
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: [████░░░░░░] 9% (v3.0 — Phase 16 Plan 02 complet
 |-------|-------|-------|----------|
 | 01–07 (v1.0 + v1.1) | 25/25 | 147 min | 5.9 min |
 | 08–14 (v2.0) | 19/19 | 55 min | 2.9 min |
-| 15–19 (v3.0) | 4/TBD | 21 min | 5.3 min |
+| 15–19 (v3.0) | 5/TBD | 23 min | 4.6 min |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -59,6 +59,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [16-01] NewObjective omits id, isArchived, createdAt, updatedAt — server always assigns these
 - [16-02] TypeBox response schemas for auth-protected routes must declare 401 as valid response code or TS2345 is raised
 - [16-02] CORS methods expanded to include PATCH and DELETE for browser preflight support on objectives endpoints
+- [16-03] objectiveId validation in service layer (not route) keeps FK pre-check co-located with DB operations
+- [16-03] Error string matching in route catch block ('Objective not found or archived') creates clear service/route contract
+- [16-03] objectiveId ?? null passed to INSERT ensures nullable FK is always explicitly written as SQL NULL
 
 ### Pending Todos
 
@@ -78,5 +81,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 16-02-PLAN.md — objectives REST API with 5 endpoints, aggregation subqueries, CORS PATCH/DELETE
+Stopped at: Completed 16-03-PLAN.md — POST /executions objectiveId FK wiring, FK pre-validation, 400 error handling
 Resume file: None
