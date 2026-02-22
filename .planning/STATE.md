@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 11 Plan 01 complete — Council queue + three LLM judge modules shipped)
+**Current focus:** v2.0 — The SOUL System (Phase 11 Plan 02 complete — Full async Council evaluation pipeline complete, CNCL-01 through CNCL-06 satisfied)
 
 ## Current Position
 
 Phase: 11-the-council
-Plan: 01 (complete)
-Status: Plan 01 complete — council-queue.ts, performance-judge.ts, soul-analyst.ts, devils-advocate.ts all created and TypeScript clean
-Last activity: 2026-02-22 — Phase 11-01 complete (council queue definition + three independent LLM judge modules)
+Plan: 02 (complete — all plans in phase 11 complete)
+Status: Phase 11 complete — council-worker.ts created, completion-checker.ts enqueues council jobs fire-and-forget, main.ts starts worker with graceful shutdown. Full Council pipeline operational.
+Last activity: 2026-02-22 — Phase 11-02 complete (council worker processor + completion-checker integration)
 
 Progress: [███░░░░░░░░░░░░░░░░░░░░░░░░░] 15% (6/TBD v2.0 plans — Phase 11 Plan 01 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
+- Total plans completed: 36
 - Average duration: 4.8 min
-- Total execution time: 175 min
+- Total execution time: 178 min
 
 **By Phase:**
 
@@ -37,11 +37,11 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
 | 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
-| 11-the-council | 1/? | 3 min | 3 min |
+| 11-the-council | 2/2 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-03 (1 min), 10-01 (8 min), 10-02 (2 min), 11-01 (3 min)
-- Trend: ~1-8 min per plan for targeted gap-closure work.
+- Last 5 plans: 10-01 (8 min), 10-02 (2 min), 11-01 (3 min), 11-02 (3 min)
+- Trend: ~2-8 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
 
@@ -92,6 +92,9 @@ Phase 08-02 decisions:
 - [Phase 11-01]: Soul Analyst filters to attributionConfidence > 0.5 AND directiveReferenced non-null, capped at 20 traces for counterfactual verification
 - [Phase 11-01]: Devil's Advocate strongUnresolvedArgument deterministically computed as challenges.some(c => c.severity === 'strong') — structural guarantee for CNCL-05 human review escalation
 - [Phase 11-01]: councilQueue reuses queueConnection from task-queue (same Redis); council worker in Plan 02 imports workerConnection directly from task-queue
+- [Phase 11-02]: VERDICT_VALUES numeric map (Promote=4 to Retire=0) + weighted average + VERDICT_FROM_VALUE lookup enables clean weighted aggregation of three judge verdicts with bidirectional mapping
+- [Phase 11-02]: enqueueCouncilJobs not exported — internal to completion-checker, enforcing fire-and-forget contract at module boundary; callers cannot accidentally await it
+- [Phase 11-02]: councilQueue.addBulk used instead of individual add() calls — atomic bulk enqueue per execution is cleaner and reduces Redis round-trips
 
 ### Roadmap Evolution
 
@@ -116,5 +119,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 11-01-PLAN.md (council queue + three LLM judge modules)
+Stopped at: Completed 11-02-PLAN.md (council worker + completion-checker integration — full Council pipeline complete)
 Resume file: None
