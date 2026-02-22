@@ -8,6 +8,7 @@ import {
   billingEventSchema,
   budgetExceededEventSchema,
   guardrailTriggeredEventSchema,
+  soulLifecycleEventSchema,
   type BotStartedEvent,
   type BotStoppedEvent,
   type TaskClaimedEvent,
@@ -16,6 +17,7 @@ import {
   type BillingEvent,
   type BudgetExceededEvent,
   type GuardrailTriggeredEvent,
+  type SoulLifecycleEvent,
 } from '@claw/event-schemas';
 
 /**
@@ -35,6 +37,7 @@ const EXECUTION_LIFECYCLE_TOPIC = process.env.EXECUTION_LIFECYCLE_TOPIC ?? 'exec
 const TASK_LIFECYCLE_TOPIC = process.env.TASK_LIFECYCLE_TOPIC ?? 'task-lifecycle';
 const GUARDRAIL_EVENTS_TOPIC = process.env.GUARDRAIL_EVENTS_TOPIC ?? 'guardrail-events';
 const BILLING_EVENTS_TOPIC = process.env.BILLING_EVENTS_TOPIC ?? 'billing-events';
+const SOUL_LIFECYCLE_TOPIC = process.env.SOUL_LIFECYCLE_TOPIC ?? 'soul-lifecycle';
 
 /**
  * Internal helper: validate with Zod, serialize, and publish to a Pub/Sub topic.
@@ -122,4 +125,12 @@ export async function publishBudgetExceeded(event: BudgetExceededEvent): Promise
  */
 export async function publishGuardrailTriggered(event: GuardrailTriggeredEvent): Promise<void> {
   await publish(GUARDRAIL_EVENTS_TOPIC, guardrailTriggeredEventSchema, event);
+}
+
+/**
+ * Publish a soul lifecycle event (promotion, demotion, retirement, or pioneer detection).
+ * Emitted by the God Layer worker (Phase 14 — UIEX-03) after class transitions.
+ */
+export async function publishSoulLifecycleEvent(event: SoulLifecycleEvent): Promise<void> {
+  await publish(SOUL_LIFECYCLE_TOPIC, soulLifecycleEventSchema, event);
 }

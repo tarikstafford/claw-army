@@ -4,7 +4,8 @@ import { db, councilVerdicts, bots, botSouls, agentClasses } from '@claw/db';
 import { eq, and, isNull } from 'drizzle-orm';
 import { workerConnection } from './task-queue';
 import { GOD_LAYER_QUEUE_NAME, type GodLayerJobData } from './god-layer-queue';
-import { computeClassTransition } from '../god-layer/class-machine';
+import { computeClassTransition, type ClassTransition } from '../god-layer/class-machine';
+import { publishSoulLifecycleEvent } from '../events/publisher';
 import { writeVersionedDnaEntry } from '../god-layer/dna-writer';
 import { detectAndTrackPioneer } from '../god-layer/pioneer-tracker';
 import { writeNegativeSignal } from '../god-layer/negative-register';
@@ -221,6 +222,8 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
     let artisanGraduated = false;
     let isPioneer = false;
     let transitionType: string = 'none';
+    let transition: ClassTransition = { type: 'none' };
+    let previousClass: 'Novice' | 'Understudy' | 'Artisan' = 'Novice';
 
     await db.transaction(async (tx) => {
       // 5a. Pioneer detection (GODL-06, CLAS-06)
@@ -302,8 +305,11 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
         consecutiveBelowCount,
       } = existingRow;
 
+      // Hoist currentClass to outer scope for post-transaction retire event
+      previousClass = currentClass as 'Novice' | 'Understudy' | 'Artisan';
+
       // 5e. Compute class transition (CLAS-01 through CLAS-05)
-      const { newState, transition, artisanGraduated: graduated } = computeClassTransition(
+      const { newState, transition: transitionResult, artisanGraduated: graduated } = computeClassTransition(
         {
           currentClass,
           aboveBenchmarkCount,
@@ -323,7 +329,10 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       );
 
       artisanGraduated = graduated ?? false;
-      transitionType = transition.type;
+      transitionType = transitionResult.type;
+
+      // Hoist transition to outer scope for post-transaction publish calls
+      transition = transitionResult;
 
       // 5f. Update agent_classes row with newState + transition metadata
       await tx
@@ -336,7 +345,7 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
           consecutiveBelowCount: newState.consecutiveBelowCount,
           isPioneer: pioneer.isPioneer || existingRow.isPioneer,
           lastVerdictId: verdictId,
-          lastTransitionAt: transition.type !== 'none' ? new Date() : existingRow.lastTransitionAt,
+          lastTransitionAt: transitionResult.type !== 'none' ? new Date() : existingRow.lastTransitionAt,
           artisanGraduationAt: artisanGraduated ? new Date() : existingRow.artisanGraduationAt,
           updatedAt: new Date(),
         })
@@ -410,7 +419,7 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       // Write when retiring a soul-driven bot, or demoting a soul-driven bot
       if (
         effectiveSoulId &&
-        (transition.type === 'retire' || (transition.type === 'demote' && isSoulDriven))
+        (transitionResult.type === 'retire' || (transitionResult.type === 'demote' && isSoulDriven))
       ) {
         const failedDirectives = (
           soulAnalystOutput?.directiveAttributionVerification ?? []
@@ -422,7 +431,7 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
           soulId: effectiveSoulId,
           botId,
           executionId,
-          failureType: transition.type === 'retire' ? 'retirement' : 'demotion',
+          failureType: transitionResult.type === 'retire' ? 'retirement' : 'demotion',
           soulAnalystSummary: soulAnalystOutput?.summary ?? '',
           failedDirectives,
           parentSoulId: soul?.parentSoulId ?? null,
@@ -435,11 +444,28 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
     // Step 6 — Post-transaction side effects
     if (artisanGraduated) {
       console.log('[god-layer] Artisan graduation:', { botId, category: effectiveCategory });
-      // Full notification system deferred to Phase 14
+      publishSoulLifecycleEvent({
+        type: 'soul_promoted',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: 'Understudy',
+        toClass: 'Artisan',
+        description: `Agent ${botId.slice(0, 8)} has been promoted to Artisan in ${effectiveCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      }).catch((err) => console.error('[god-layer] Failed to publish promotion event:', err));
     }
 
     if (isPioneer) {
       console.log('[god-layer] Pioneer event:', { botId, category: effectiveCategory });
+      publishSoulLifecycleEvent({
+        type: 'pioneer_detected',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        description: `Agent ${botId.slice(0, 8)} is a pioneer — first confirmed run in ${effectiveCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      }).catch((err) => console.error('[god-layer] Failed to publish pioneer event:', err));
     }
 
     console.log('[god-layer] Class transition complete:', {
@@ -448,6 +474,43 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       category: effectiveCategory,
       transition: transitionType,
     });
+
+    // Publish lifecycle events for all transition types
+    // Cast to ClassTransition to restore discriminated union narrowing after async closure mutation
+    const resolvedTransition = transition as ClassTransition;
+    if (resolvedTransition.type === 'promote' && !artisanGraduated) {
+      publishSoulLifecycleEvent({
+        type: 'soul_promoted',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: 'Novice',
+        toClass: 'Understudy',
+        description: `Agent ${botId.slice(0, 8)} has been promoted to Understudy in ${effectiveCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      }).catch((err) => console.error('[god-layer] Failed to publish promotion event:', err));
+    } else if (resolvedTransition.type === 'demote') {
+      publishSoulLifecycleEvent({
+        type: 'soul_demoted',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: resolvedTransition.from,
+        toClass: resolvedTransition.to,
+        description: `Agent ${botId.slice(0, 8)} has been demoted from ${resolvedTransition.from} to ${resolvedTransition.to} in ${effectiveCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      }).catch((err) => console.error('[god-layer] Failed to publish demotion event:', err));
+    } else if (resolvedTransition.type === 'retire') {
+      publishSoulLifecycleEvent({
+        type: 'soul_retired',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: previousClass,
+        description: `Agent ${botId.slice(0, 8)} has been retired from ${effectiveCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      }).catch((err) => console.error('[god-layer] Failed to publish retirement event:', err));
+    }
   } finally {
     // Step 7 — Cleanup: clear intervals and release Redis locks
     if (lockRenewalInterval !== null) {
