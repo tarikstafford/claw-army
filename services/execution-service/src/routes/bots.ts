@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { db, bots, toolInvocations } from '@claw/db';
-import { eq, gt, and } from 'drizzle-orm';
+import { db, bots, toolInvocations, botSouls, councilVerdicts, agentClasses } from '@claw/db';
+import { eq, gt, and, desc } from 'drizzle-orm';
 import { computeBotMetrics } from '../performance/metrics-computer';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'node:crypto';
@@ -63,6 +63,144 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       .from(bots)
       .where(eq(bots.executionId, executionId))
       .orderBy(bots.startedAt);
+  });
+
+  // GET /:botId/soul — soul content, lineage metadata, council verdict, and agent class
+  fastify.get('/:botId/soul', {
+    schema: {
+      params: Type.Object({
+        botId: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Object({
+          soulId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
+          soulContent: Type.Union([Type.String(), Type.Null()]),
+          generation: Type.Union([Type.Integer(), Type.Null()]),
+          parentSoulId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
+          isArchetype: Type.Union([Type.Boolean(), Type.Null()]),
+          taskCategory: Type.Union([Type.String(), Type.Null()]),
+          constitutionDirectives: Type.Union([Type.Array(Type.String()), Type.Null()]),
+          dimensions: Type.Union([Type.Unknown(), Type.Null()]),
+          agentClass: Type.Union([
+            Type.Literal('Novice'),
+            Type.Literal('Understudy'),
+            Type.Literal('Artisan'),
+            Type.Literal('Retired'),
+            Type.Null(),
+          ]),
+          verdict: Type.Union([
+            Type.Object({
+              verdictType: Type.String(),
+              weightedConfidenceScore: Type.Number(),
+              verdictSummary: Type.String(),
+              soulAnalystOutput: Type.Unknown(),
+              performanceJudgeOutput: Type.Unknown(),
+            }),
+            Type.Null(),
+          ]),
+        }),
+        401: Type.Object({ error: Type.String() }),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { botId } = request.params;
+
+    // 1. Get bot record to find soulId
+    const [bot] = await db
+      .select({ soulId: bots.soulId })
+      .from(bots)
+      .where(eq(bots.id, botId));
+
+    if (!bot) {
+      return reply.code(404).send({ error: 'Bot not found' });
+    }
+
+    // 2. If soulId is non-null, fetch full soul data
+    let soulData: {
+      soulContent: string;
+      generation: number;
+      parentSoulId: string | null;
+      isArchetype: boolean;
+      taskCategory: string | null;
+      constitutionDirectives: unknown;
+      dimensions: unknown;
+    } | null = null;
+
+    if (bot.soulId) {
+      const [soul] = await db
+        .select({
+          soulContent: botSouls.soulContent,
+          generation: botSouls.generation,
+          parentSoulId: botSouls.parentSoulId,
+          isArchetype: botSouls.isArchetype,
+          taskCategory: botSouls.taskCategory,
+          constitutionDirectives: botSouls.constitutionDirectives,
+          dimensions: botSouls.dimensions,
+        })
+        .from(botSouls)
+        .where(eq(botSouls.id, bot.soulId));
+
+      soulData = soul ?? null;
+    }
+
+    // 3. Get most recent council verdict for this bot
+    const [verdictRow] = await db
+      .select({
+        verdictType: councilVerdicts.verdictType,
+        weightedConfidenceScore: councilVerdicts.weightedConfidenceScore,
+        verdictSummary: councilVerdicts.verdictSummary,
+        soulAnalystOutput: councilVerdicts.soulAnalystOutput,
+        performanceJudgeOutput: councilVerdicts.performanceJudgeOutput,
+      })
+      .from(councilVerdicts)
+      .where(eq(councilVerdicts.botId, botId))
+      .orderBy(desc(councilVerdicts.createdAt))
+      .limit(1);
+
+    // 4. Get best agent class using CLASS_RANK precedence map
+    const CLASS_RANK: Record<string, number> = {
+      Artisan: 3,
+      Understudy: 2,
+      Novice: 1,
+      Retired: 0,
+    };
+
+    const agentClassRows = await db
+      .select({ currentClass: agentClasses.currentClass })
+      .from(agentClasses)
+      .where(eq(agentClasses.botId, botId));
+
+    let bestAgentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null = null;
+    for (const row of agentClassRows) {
+      const rowRank = CLASS_RANK[row.currentClass] ?? -1;
+      const bestRank = bestAgentClass != null ? (CLASS_RANK[bestAgentClass] ?? -1) : -2;
+      if (rowRank > bestRank) {
+        bestAgentClass = row.currentClass;
+      }
+    }
+
+    return reply.code(200).send({
+      soulId: bot.soulId,
+      soulContent: soulData?.soulContent ?? null,
+      generation: soulData?.generation ?? null,
+      parentSoulId: soulData?.parentSoulId ?? null,
+      isArchetype: soulData?.isArchetype ?? null,
+      taskCategory: soulData?.taskCategory ?? null,
+      constitutionDirectives: (soulData?.constitutionDirectives as string[] | null) ?? null,
+      dimensions: soulData?.dimensions ?? null,
+      agentClass: bestAgentClass,
+      verdict: verdictRow
+        ? {
+            verdictType: verdictRow.verdictType,
+            // Cast to Number to avoid PG numeric-as-string (decision [17-01])
+            weightedConfidenceScore: Number(verdictRow.weightedConfidenceScore),
+            verdictSummary: verdictRow.verdictSummary,
+            soulAnalystOutput: verdictRow.soulAnalystOutput,
+            performanceJudgeOutput: verdictRow.performanceJudgeOutput,
+          }
+        : null,
+    });
   });
 
   // GET /:botId/detail — per-bot metrics and step trace from tool_invocations

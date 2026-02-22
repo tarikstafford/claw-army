@@ -15,6 +15,7 @@ import type {
   ObjectiveListItem,
   ObjectiveRun,
   ObjectiveStats,
+  BotSoul,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -159,4 +160,10 @@ export async function getObjectiveExecutions(id: string): Promise<ObjectiveRun[]
 
 export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
   return apiFetch(`${BASE}/objectives/${id}/stats`);
+}
+
+// Phase 18 — Soul Inspector
+
+export async function getBotSoul(botId: string): Promise<BotSoul> {
+  return apiFetch(`${BASE}/bots/${botId}/soul`);
 }

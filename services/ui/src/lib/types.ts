@@ -198,6 +198,35 @@ export interface ArmyBuilderAnalysis {
   blockReason: string | null;
 }
 
+// Phase 18 — Soul Inspector types
+
+export interface BotSoul {
+  soulId: string | null;
+  soulContent: string | null;
+  generation: number | null;
+  parentSoulId: string | null;
+  isArchetype: boolean | null;
+  taskCategory: string | null;
+  constitutionDirectives: string[] | null;
+  dimensions: {
+    identityRole: string;
+    decisionPriorities: string;
+    toolUsageDoctrine: string;
+    riskTolerance: string;
+    communicationStyle: string;
+    recoveryBehavior: string;
+    ethicalHardStops: string;
+  } | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  verdict: {
+    verdictType: string;
+    weightedConfidenceScore: number;
+    verdictSummary: string;
+    soulAnalystOutput: unknown;
+    performanceJudgeOutput: unknown;
+  } | null;
+}
+
 export interface LifecycleNotification {
   type: 'soul_promoted' | 'soul_demoted' | 'soul_retired' | 'pioneer_detected';
   botId: string;
