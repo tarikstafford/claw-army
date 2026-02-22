@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 18 — Soul Inspector
+**Current focus:** v3.0 Phase 19 — Run View Enhancements
 
 ## Current Position
 

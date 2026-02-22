@@ -120,8 +120,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 18-01-PLAN.md — Soul inspector panel: GET /bots/:botId/soul endpoint + BotSoul type + SoulInspectorPanel drawer + wiring into all 3 bot card contexts (SOUL-01, SOUL-02, SOUL-03)
-- [ ] 18-02-PLAN.md — Soul tier badge: extend monitoring endpoint with agentClass + SoulTierBadge component + integration into monitoring, leaderboard, bot detail (SOUL-04)
+- [x] 18-01-PLAN.md — Soul inspector panel: GET /bots/:botId/soul endpoint + BotSoul type + SoulInspectorPanel drawer + wiring into all 3 bot card contexts (SOUL-01, SOUL-02, SOUL-03)
+- [x] 18-02-PLAN.md — Soul tier badge: extend monitoring endpoint with agentClass + SoulTierBadge component + integration into monitoring, leaderboard, bot detail (SOUL-04)
 
 #### Phase 19: Run View Enhancements
 
@@ -161,6 +161,6 @@ Plans:
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 15. Bot Reliability | v3.0 | 0/4 | Planned | - |
 | 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
-| 17. Objective Hub UI | v3.0 | 0/3 | Planned | - |
-| 18. Soul Inspector | v3.0 | 0/2 | Planned | - |
+| 17. Objective Hub UI | v3.0 | 3/3 | Complete | 2026-02-22 |
+| 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |
 | 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |
