@@ -6,6 +6,7 @@ import {
   boolean,
   text,
   jsonb,
+  integer,
   timestamp,
   index,
   pgEnum,
@@ -46,6 +47,7 @@ export const councilVerdicts = pgTable(
     devilsAdvocateOutput: jsonb('devils_advocate_output'),
     confirmedAt: timestamp('confirmed_at', { withTimezone: true, precision: 3 }),
     confirmedBy: varchar('confirmed_by', { length: 255 }),
+    timeOnScreenMs: integer('time_on_screen_ms'), // nullable, no default — set on confirm/reject
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },

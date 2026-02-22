@@ -43,6 +43,13 @@
       "when": 1771692711273,
       "tag": "0005_decision_traces_unique_decision_id",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771727571605,
+      "tag": "0006_add_time_on_screen_ms",
+      "breakpoints": true
     }
   ]
 }
