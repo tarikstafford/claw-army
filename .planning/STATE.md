@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 
 ## Current Position
 
-Phase: 18 of 19 (Soul Inspector)
-Plan: 2 of 2 in current phase — COMPLETE
-Status: Phase 18 complete — SoulTierBadge component, extended monitoring endpoint with agentClass, badges in all 3 bot card contexts
-Last activity: 2026-02-22 — 18-02 complete: SoulTierBadge (colored pills in monitoring, leaderboard, bot detail; monitoring endpoint extended)
+Phase: 19 of 19 (Run View Enhancements)
+Plan: 1 of 2 in current phase — COMPLETE
+Status: Phase 19 plan 01 complete — /by-execution endpoint extended with currentTaskDescription, toolCallCount, tokenBurnRate; bot cards enriched; objective hub activity feed enriched
+Last activity: 2026-02-22 — 19-01 complete: per-bot live stats in bot cards, enriched objective hub activity feed
 
-Progress: [█████░░░░░] 13% (v3.0 — Phase 18 complete, 2/2 plans done)
+Progress: [█████░░░░░] 13% (v3.0 — Phase 19 P01 complete, 1/2 plans done)
 
 ## Performance Metrics
 
@@ -33,6 +33,7 @@ Progress: [█████░░░░░] 13% (v3.0 — Phase 18 complete, 2/2 
 
 | Phase 18-soul-inspector P01 | 12 min | 2 tasks | 7 files |
 | Phase 18-soul-inspector P02 | 3 min | 2 tasks | 5 files |
+| Phase 19-run-view-enhancements P01 | 3 min | 2 tasks | 4 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -80,6 +81,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [18-02] Bot detail page uses separate botAgentClass $state + $effect to fetch agentClass from getBotSoul() — badge visible without user opening inspector panel
 - [18-02] Report leaderboard class-badge span replaced with SoulTierBadge component — eliminates duplicated CSS, same hex values, single source of truth
 
+- [19-01] tokenBurnRate returned as null when bot has been active < 1 minute — avoids misleading spikes from early tool calls
+- [19-01] currentTaskDescription query uses tasks WHERE status='claimed' (not 'working') — claimed is the in-progress state in the task lifecycle
+- [19-01] toolCallCount excludes rejected=true invocations — counts only productive tool calls
+
 ### Pending Todos
 
 None.
@@ -98,5 +103,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 18-02-PLAN.md — SoulTierBadge component, extended monitoring endpoint with agentClass, badges in all 3 bot card contexts
+Stopped at: Completed 19-01-PLAN.md — per-bot live stats in bot cards, enriched objective hub activity feed with formatEventDetail and View full run link
 Resume file: None
