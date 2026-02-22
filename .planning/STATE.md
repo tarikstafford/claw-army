@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 12 complete — Human confirmation gate API + operator UI with evidence-first rendering, equal-weight buttons, time tracking, and calibration warning)
+**Current focus:** v2.0 — The SOUL System (Phase 13 in progress — God Layer and Agent Class System)
 
 ## Current Position
 
-Phase: 12-human-confirmation-gate
-Plan: 02 (complete — phase complete)
-Status: Phase 12 complete — verdictsRoutes API (Plan 01) + operator confirmation UI (Plan 02): /verdicts inbox with calibration warning, /verdicts/[verdictId] detail with evidence-gated action buttons, equal-weight confirm/reject, and time-on-screen tracking. CONF-01 through CONF-04 fully satisfied.
-Last activity: 2026-02-22 — Phase 12-02 complete (operator confirmation gate UI)
+Phase: 13-god-layer-and-agent-class-system
+Plan: 02 (complete)
+Status: Phase 13-02 complete — computeClassTransition pure function with 18 Vitest test cases covering CLAS-01 through CLAS-05 (Novice->Understudy, Understudy->Artisan, demotion, retirement, all blocking conditions).
+Last activity: 2026-02-22 — Phase 13-02 complete (agent class state machine)
 
-Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░] 18% (7/TBD v2.0 plans — Phase 12 complete)
+Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░] 21% (8/TBD v2.0 plans — Phase 13 Plan 02 complete)
 
 ## Performance Metrics
 
@@ -39,10 +39,11 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
 | 11-the-council | 2/2 | 6 min | 3 min |
 | 12-human-confirmation-gate | 2/2 | 8 min | 4 min |
+| 13-god-layer-and-agent-class-system | 1/4 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 11-01 (3 min), 11-02 (3 min), 12-01 (3 min), 12-02 (5 min)
-- Trend: ~3-5 min per plan for targeted gap-closure work.
+- Last 5 plans: 11-02 (3 min), 12-01 (3 min), 12-02 (5 min), 13-02 (2 min)
+- Trend: ~2-5 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
 
@@ -105,6 +106,10 @@ Phase 08-02 decisions:
 - [Phase 12-02]: arrivedAt = Date.now() on mount; timeOnScreenMs = Date.now() - arrivedAt at click time — captures actual reading time including scroll delay
 - [Phase 12-02]: Reject button labeled "Reject — Your feedback teaches the army" per CONF-03; both buttons use flex:1 so neither dominates visual weight (equal-weight met structurally)
 - [Phase 12-02]: Calibration warning uses amber color scheme (#fbbf24/#1a1100/#92400e) distinct from error (red) and info (blue) — signals behavioral feedback, not system failure
+- [Phase 13-god-layer-and-agent-class-system]: agentClassEnum uses pgEnum; DnaPayload GODL-02 fields all optional for backward compat with existing rows; dna_store version uniqueness excludes NULL soul_id rows by Postgres NULL semantics (intentional); godLayerProcessedAt nullable with no default for idempotency guard pattern
+- [Phase 13-02]: computeClassTransition counter update always runs before transition evaluation — updated counters used for all threshold checks; enables single-call idempotency; consistent with plan spec
+- [Phase 13-02]: Non-soul-driven Retire returns type:none (Monitor treatment) — mirrors CLAS-04 pattern where context-driven events never trigger irreversible transitions
+- [Phase 13-02]: VerdictInput exported as named interface to facilitate God Layer worker building VerdictInput from DB row fields without type assertion
 
 ### Roadmap Evolution
 
@@ -129,5 +134,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 12-02-PLAN.md (operator confirmation gate UI — /verdicts inbox + /verdicts/[verdictId] detail with evidence-gating, equal-weight buttons, time tracking, calibration warning)
+Stopped at: Completed 13-01-PLAN.md (God Layer + Agent Class schema foundation — agent_classes, category_benchmarks, DnaPayload GODL-02 fields, isProvisional, godLayerProcessedAt, migration 0007)
 Resume file: None
