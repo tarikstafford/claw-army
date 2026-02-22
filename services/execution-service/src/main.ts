@@ -5,6 +5,7 @@ import { startBillingEngine } from './events/billing-engine';
 import { startOpenClawDispatcher } from './queue/openclaw-dispatcher';
 import { startCouncilWorker } from './queue/council-worker';
 import { startGodLayerWorker } from './queue/god-layer-worker';
+import { startSpawnTimeoutChecker, stopSpawnTimeoutChecker } from './orchestrator/bot-orchestrator';
 
 const app = await buildApp();
 const port = Number(process.env['PORT'] ?? 3001);
@@ -29,6 +30,10 @@ const billingEngine = startBillingEngine();
 // Replaces the per-container bot-worker BullMQ worker process.
 const dispatcherWorker = startOpenClawDispatcher();
 
+// Start the spawn timeout checker — polls for bots stuck in 'spawning' status
+// and transitions them to 'failed' after SPAWN_TIMEOUT_MS (default 10 min).
+const spawnTimer = startSpawnTimeoutChecker();
+
 // Start the Council worker — evaluates bot performance asynchronously
 // after each execution completes. Runs 3 LLM judges per bot, produces verdicts.
 const councilWorker = startCouncilWorker();
@@ -37,9 +42,10 @@ const councilWorker = startCouncilWorker();
 // writes versioned DNA library entries, and manages the negative signal register.
 const godLayerWorker = startGodLayerWorker();
 
-// Graceful shutdown — clean up the watchdog timer, billing engine, and dispatcher
+// Graceful shutdown — clean up the watchdog timer, billing engine, dispatcher, and spawn checker
 function shutdown() {
   stopGuardrailWatchdog(watchdogTimer);
+  stopSpawnTimeoutChecker(spawnTimer);
   billingEngine.shutdown().catch((err) => {
     console.error('[main] Error during billing engine shutdown:', err);
   });
