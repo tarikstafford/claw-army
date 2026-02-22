@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 12 Plan 01 complete — Human confirmation gate API established, 5 verdict endpoints with idempotency guard and calibration tracking)
+**Current focus:** v2.0 — The SOUL System (Phase 12 complete — Human confirmation gate API + operator UI with evidence-first rendering, equal-weight buttons, time tracking, and calibration warning)
 
 ## Current Position
 
 Phase: 12-human-confirmation-gate
-Plan: 01 (complete)
-Status: Phase 12 Plan 01 complete — verdictsRoutes Fastify plugin with 5 endpoints (pending, single verdict, confirm, reject, calibration) registered at /verdicts. Migration 0006_add_time_on_screen_ms.sql generated. TypeScript compiles cleanly in both packages.
-Last activity: 2026-02-22 — Phase 12-01 complete (verdict confirmation gate API)
+Plan: 02 (complete — phase complete)
+Status: Phase 12 complete — verdictsRoutes API (Plan 01) + operator confirmation UI (Plan 02): /verdicts inbox with calibration warning, /verdicts/[verdictId] detail with evidence-gated action buttons, equal-weight confirm/reject, and time-on-screen tracking. CONF-01 through CONF-04 fully satisfied.
+Last activity: 2026-02-22 — Phase 12-02 complete (operator confirmation gate UI)
 
-Progress: [███░░░░░░░░░░░░░░░░░░░░░░░░░] 15% (6/TBD v2.0 plans — Phase 11 Plan 01 complete)
+Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░] 18% (7/TBD v2.0 plans — Phase 12 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 36
+- Total plans completed: 37
 - Average duration: 4.8 min
-- Total execution time: 178 min
+- Total execution time: 183 min
 
 **By Phase:**
 
@@ -38,11 +38,11 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
 | 11-the-council | 2/2 | 6 min | 3 min |
-| 12-human-confirmation-gate | 1/? | 3 min | 3 min |
+| 12-human-confirmation-gate | 2/2 | 8 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 10-02 (2 min), 11-01 (3 min), 11-02 (3 min), 12-01 (3 min)
-- Trend: ~2-3 min per plan for targeted gap-closure work.
+- Last 5 plans: 11-01 (3 min), 11-02 (3 min), 12-01 (3 min), 12-02 (5 min)
+- Trend: ~3-5 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
 
@@ -101,6 +101,10 @@ Phase 08-02 decisions:
 - [Phase 12-01]: reject endpoint does NOT set confirmedAt — only confirmedBy and timeOnScreenMs; rejection is not a confirmation event
 - [Phase 12-01]: warningTriggered threshold total>=10 AND rate>0.95 — requires meaningful sample size before anti-rubber-stamp alert triggers
 - [Phase 12-01]: Migration 0006 renamed from 0006_parallel_rage to 0006_add_time_on_screen_ms following established rename pattern (08-02, 09-03, 10-01)
+- [Phase 12-02]: evidenceLoaded flag set after getVerdict() resolves — action buttons not in DOM until evidence renders, enforcing CONF-02 at template level rather than CSS visibility
+- [Phase 12-02]: arrivedAt = Date.now() on mount; timeOnScreenMs = Date.now() - arrivedAt at click time — captures actual reading time including scroll delay
+- [Phase 12-02]: Reject button labeled "Reject — Your feedback teaches the army" per CONF-03; both buttons use flex:1 so neither dominates visual weight (equal-weight met structurally)
+- [Phase 12-02]: Calibration warning uses amber color scheme (#fbbf24/#1a1100/#92400e) distinct from error (red) and info (blue) — signals behavioral feedback, not system failure
 
 ### Roadmap Evolution
 
@@ -125,5 +129,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 12-01-PLAN.md (verdict confirmation gate API — 5 Fastify endpoints with idempotency guard and calibration tracking)
+Stopped at: Completed 12-02-PLAN.md (operator confirmation gate UI — /verdicts inbox + /verdicts/[verdictId] detail with evidence-gating, equal-weight buttons, time tracking, calibration warning)
 Resume file: None
