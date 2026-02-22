@@ -7,6 +7,9 @@ import type {
   BillingHistoryEntry,
   BillingSummary,
   ExecutionBot,
+  PendingVerdict,
+  VerdictDetail,
+  CalibrationData,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -84,4 +87,40 @@ export async function listAllExecutions(): Promise<AdminExecution[]> {
 
 export async function stopExecution(id: string): Promise<{ success: boolean }> {
   return apiFetch(`${BASE}/executions/${id}/stop`, { method: 'POST' });
+}
+
+// Verdicts (Phase 12 — confirmation gate)
+
+export async function getPendingVerdicts(): Promise<PendingVerdict[]> {
+  return apiFetch(`${BASE}/verdicts/pending`);
+}
+
+export async function getVerdict(verdictId: string): Promise<VerdictDetail> {
+  return apiFetch(`${BASE}/verdicts/${verdictId}`);
+}
+
+export async function confirmVerdict(
+  verdictId: string,
+  body: { userId: string; timeOnScreenMs: number },
+): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/verdicts/${verdictId}/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function rejectVerdict(
+  verdictId: string,
+  body: { userId: string; timeOnScreenMs: number },
+): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/verdicts/${verdictId}/reject`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getCalibration(userId: string): Promise<CalibrationData> {
+  return apiFetch(`${BASE}/verdicts/calibration?userId=${encodeURIComponent(userId)}`);
 }

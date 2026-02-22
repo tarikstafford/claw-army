@@ -128,3 +128,49 @@ export interface ExecutionBot {
   tasksFailed: number;
   startedAt: string | null;
 }
+
+export interface PendingVerdict {
+  id: string;
+  botId: string;
+  executionId: string;
+  verdictType: 'Promote' | 'Retire';
+  weightedConfidenceScore: number;
+  verdictSummary: string;
+  hasUnresolvedDevilsAdvocate: boolean;
+  createdAt: string;
+}
+
+export interface VerdictDetail {
+  id: string;
+  botId: string;
+  executionId: string;
+  verdictType: 'Promote' | 'Retire';
+  status: 'pending' | 'confirmed' | 'rejected';
+  weightedConfidenceScore: number;
+  verdictSummary: string;
+  hasUnresolvedDevilsAdvocate: boolean;
+  requiresHumanConfirmation: boolean;
+  devilsAdvocateOutput: {
+    verdict: string;
+    challenges: Array<{ claim: string; counterArgument: string; severity: 'strong' | 'moderate' | 'weak' }>;
+    strongUnresolvedArgument: boolean;
+  } | null;
+  performanceJudgeOutput: {
+    verdict: string;
+    summary: string;
+    metrics: Record<string, unknown>;
+  } | null;
+  soulAnalystOutput: {
+    verdict: string;
+    summary: string;
+    attributionAnalysis: Record<string, unknown>;
+  } | null;
+  createdAt: string;
+}
+
+export interface CalibrationData {
+  total: number;
+  confirmed: number;
+  rate: number;
+  warningTriggered: boolean;
+}
