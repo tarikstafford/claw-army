@@ -133,6 +133,9 @@ export interface ExecutionBot {
   startedAt: string | null;
   errorMessage: string | null;
   agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  currentTaskDescription: string | null;
+  toolCallCount: number;
+  tokenBurnRate: number | null;
 }
 
 export interface PendingVerdict {

@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { db, bots, toolInvocations, botSouls, councilVerdicts, agentClasses } from '@claw/db';
-import { eq, gt, and, desc, inArray } from 'drizzle-orm';
+import { db, bots, toolInvocations, botSouls, councilVerdicts, agentClasses, tasks } from '@claw/db';
+import { eq, gt, and, desc, inArray, sql } from 'drizzle-orm';
 import { computeBotMetrics } from '../performance/metrics-computer';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'node:crypto';
@@ -51,6 +51,9 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
               Type.Literal('Retired'),
               Type.Null(),
             ]),
+            currentTaskDescription: Type.Union([Type.String(), Type.Null()]),
+            toolCallCount: Type.Integer(),
+            tokenBurnRate: Type.Union([Type.Number(), Type.Null()]),
           }),
         ),
       },
@@ -90,7 +93,62 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       }
     }
 
-    return botRows.map(b => ({ ...b, agentClass: agentClassMap.get(b.id) ?? null }));
+    // Batch current task description lookup — tasks WHERE executionId AND status = 'claimed'
+    const taskDescMap = new Map<string, string>();
+    if (botIds.length > 0) {
+      const claimedTasks = await db
+        .select({ claimedByBotId: tasks.claimedByBotId, description: tasks.description })
+        .from(tasks)
+        .where(and(eq(tasks.executionId, executionId), eq(tasks.status, 'claimed')));
+      for (const t of claimedTasks) {
+        if (t.claimedByBotId) taskDescMap.set(t.claimedByBotId, t.description);
+      }
+    }
+
+    // Batch tool call count — COUNT from toolInvocations WHERE botId IN botIds AND rejected = false, grouped by botId
+    const toolCountMap = new Map<string, number>();
+    if (botIds.length > 0) {
+      const toolCountRows = await db
+        .select({
+          botId: toolInvocations.botId,
+          count: sql<number>`cast(count(*) as int)`,
+        })
+        .from(toolInvocations)
+        .where(and(inArray(toolInvocations.botId, botIds), eq(toolInvocations.rejected, false)))
+        .groupBy(toolInvocations.botId);
+      for (const row of toolCountRows) {
+        toolCountMap.set(row.botId, row.count);
+      }
+    }
+
+    // Batch token total — SUM(totalTokens) from toolInvocations WHERE botId IN botIds, grouped by botId
+    const tokenTotalMap = new Map<string, number>();
+    if (botIds.length > 0) {
+      const tokenRows = await db
+        .select({
+          botId: toolInvocations.botId,
+          totalTokens: sql<number>`cast(coalesce(sum(${toolInvocations.totalTokens}), 0) as int)`,
+        })
+        .from(toolInvocations)
+        .where(inArray(toolInvocations.botId, botIds))
+        .groupBy(toolInvocations.botId);
+      for (const row of tokenRows) {
+        tokenTotalMap.set(row.botId, row.totalTokens);
+      }
+    }
+
+    return botRows.map(b => {
+      const totalTokens = tokenTotalMap.get(b.id) ?? 0;
+      const activeMinutes = b.startedAt ? (Date.now() - new Date(b.startedAt).getTime()) / 60000 : 0;
+      const tokenBurnRate = activeMinutes >= 1 ? Math.round(totalTokens / activeMinutes) : null;
+      return {
+        ...b,
+        agentClass: agentClassMap.get(b.id) ?? null,
+        currentTaskDescription: taskDescMap.get(b.id) ?? null,
+        toolCallCount: toolCountMap.get(b.id) ?? 0,
+        tokenBurnRate,
+      };
+    });
   });
 
   // GET /:botId/soul — soul content, lineage metadata, council verdict, and agent class
