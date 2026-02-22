@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 17 of 19 (Objective Hub UI)
-Plan: 1 of 3 in current phase (17-01 complete — backend API extensions: GET /:id/executions, GET /:id/stats; UI types and API client functions)
+Plan: 2 of 3 in current phase (17-02 complete — /objectives list page with status badges and class badges; Objectives nav link added to layout)
 Status: Phase 17 in progress
-Last activity: 2026-02-22 — 17-01 complete: two new Fastify GET endpoints + Objective, ObjectiveListItem, ObjectiveRun, ObjectiveStats types + four API client functions
+Last activity: 2026-02-22 — 17-02 complete: /objectives SvelteKit route (table with name/status/runs/spend/class columns) + Objectives nav link in layout
 
-Progress: [████░░░░░░] 11% (v3.0 — Phase 17 plan 1 of 3 complete)
+Progress: [████░░░░░░] 11% (v3.0 — Phase 17 plan 2 of 3 complete)
 
 ## Performance Metrics
 
@@ -67,6 +67,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [17-01] avgCompositeScore in executions endpoint CAST AS float to prevent PostgreSQL numeric-as-string coercion
 - [17-01] ObjectiveListItem extends Objective — base type for GET /objectives/:id, extended type for GET /objectives list aggregation
 
+- [17-02] No CSS variable conversion on objectives page — kept hardcoded light-mode colors consistent with billing/+page.svelte
+- [17-02] Objectives nav link is first in nav-right (before Guide) — primary v3.0 navigation target
+
 ### Pending Todos
 
 None.
@@ -85,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 17-01-PLAN.md — GET /:id/executions, GET /:id/stats endpoints; Objective/ObjectiveListItem/ObjectiveRun/ObjectiveStats types; four API client functions
+Stopped at: Completed 17-02-PLAN.md — /objectives list page with table (name/status/runs/spend/class columns) and Objectives nav link in layout
 Resume file: None
