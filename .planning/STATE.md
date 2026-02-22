@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 15 of 19 (Bot Reliability)
-Plan: 1 of 3 in current phase (15-01 complete)
+Plan: 2 of 3 in current phase (15-02 complete)
 Status: In progress
-Last activity: 2026-02-22 — 15-01 complete: startup script hardened + errorMessage schema
+Last activity: 2026-02-22 — 15-02 complete: /ready handler hardened + spawn timeout checker
 
-Progress: [█░░░░░░░░░] 3% (v3.0 — Phase 15, Plan 1/3 complete)
+Progress: [█░░░░░░░░░] 4% (v3.0 — Phase 15, Plan 2/3 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 39 (v1.0 + v1.1 + v2.0)
-- Average duration: 4.7 min
-- Total execution time: 189 min
+- Total plans completed: 40 (v1.0 + v1.1 + v2.0 + v3.0 P01-02)
+- Average duration: 4.6 min
+- Total execution time: 192 min
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: [█░░░░░░░░░] 3% (v3.0 — Phase 15, Plan 1/3 compl
 |-------|-------|-------|----------|
 | 01–07 (v1.0 + v1.1) | 25/25 | 147 min | 5.9 min |
 | 08–14 (v2.0) | 19/19 | 55 min | 2.9 min |
-| 15–19 (v3.0) | 1/TBD | 8 min | 8 min |
+| 15–19 (v3.0) | 2/TBD | 11 min | 5.5 min |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -48,6 +48,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [15-01] Migration files belong in packages/db/migrations/ (drizzle out:./migrations), not src/migrations/ as initially planned
 - [15-01] Removed set -e from startup script in favor of explicit || { FAILURE_REASON=...; exit 1; } blocks — required for EXIT trap to fire post_failure()
 - [15-01] Double-validate openclaw: command -v guard (idempotency) + --version execution (correctness) as separate checks
+- [15-02] Return 200 for failure payload receipt — VM completed its job by reporting; ACK prevents retry spam
+- [15-02] Liveness check placed between connect() and registry update — never register a stale WebSocket client
+- [15-02] Spawn timeout uses botRegistry polling (not DB query) — avoids per-interval DB hit; registry is authoritative in-process state
 
 ### Pending Todos
 
@@ -67,5 +70,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 15-01-PLAN.md — startup script hardened, errorMessage schema added
+Stopped at: Completed 15-02-PLAN.md — /ready handler hardened, spawn timeout checker added
 Resume file: None
