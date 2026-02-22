@@ -9,8 +9,8 @@ import {
 import { planObjective } from '../services/planner.service';
 import { generateSoulPopulation } from '../services/soul-generator';
 import { addTaskToQueue } from '../queue/task-queue';
-import { db, executions, tasks, bots, telemetry } from '@claw/db';
-import { eq, and, sql, desc } from 'drizzle-orm';
+import { db, executions, tasks, bots, telemetry, agentClasses, councilVerdicts } from '@claw/db';
+import { eq, and, sql, desc, inArray } from 'drizzle-orm';
 import {
   spawnBotsForExecution,
   startIdleChecker,
@@ -353,6 +353,16 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
             tasksCompleted: Type.Integer(),
             tasksFailed: Type.Integer(),
             botHours: Type.Union([Type.Number(), Type.Null()]),
+            agentClass: Type.Union([
+              Type.Literal('Novice'),
+              Type.Literal('Understudy'),
+              Type.Literal('Artisan'),
+              Type.Literal('Retired'),
+              Type.Null(),
+            ]),
+            isPioneer: Type.Boolean(),
+            verdictSummary: Type.Union([Type.String(), Type.Null()]),
+            verdictType: Type.Union([Type.String(), Type.Null()]),
           }),
         ),
         404: Type.Object({ error: Type.String() }),
@@ -376,6 +386,78 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       .where(eq(bots.executionId, id))
       .orderBy(sql`${bots.compositeScore} DESC NULLS LAST`);
 
+    // Build botIds array for batch queries
+    const botIds = botRows.map((b) => b.botId);
+
+    // Rank map for agent class precedence: Artisan > Understudy > Novice > Retired
+    const CLASS_RANK: Record<string, number> = {
+      Artisan: 3,
+      Understudy: 2,
+      Novice: 1,
+      Retired: 0,
+    };
+
+    // Lookup maps keyed by botId
+    type AgentClassInfo = { agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired'; isPioneer: boolean };
+    type VerdictInfo = { verdictType: string; verdictSummary: string };
+
+    const agentClassMap = new Map<string, AgentClassInfo>();
+    const verdictMap = new Map<string, VerdictInfo>();
+
+    if (botIds.length > 0) {
+      // Batch query agent_classes for all bots in this execution
+      const agentClassRows = await db
+        .select({
+          botId: agentClasses.botId,
+          currentClass: agentClasses.currentClass,
+          isPioneer: agentClasses.isPioneer,
+        })
+        .from(agentClasses)
+        .where(inArray(agentClasses.botId, botIds));
+
+      // Build agent class map: pick highest-ranked class per bot; OR isPioneer across rows
+      for (const row of agentClassRows) {
+        const existing = agentClassMap.get(row.botId);
+        const rowRank = CLASS_RANK[row.currentClass] ?? -1;
+        if (!existing || rowRank > (CLASS_RANK[existing.agentClass] ?? -1)) {
+          agentClassMap.set(row.botId, {
+            agentClass: row.currentClass,
+            isPioneer: existing?.isPioneer || row.isPioneer,
+          });
+        } else if (row.isPioneer) {
+          // Same or lower rank but isPioneer=true — propagate pioneer flag
+          agentClassMap.set(row.botId, { ...existing, isPioneer: true });
+        }
+      }
+
+      // Batch query council_verdicts for all bots in this execution, most recent first
+      const verdictRows = await db
+        .select({
+          botId: councilVerdicts.botId,
+          verdictType: councilVerdicts.verdictType,
+          verdictSummary: councilVerdicts.verdictSummary,
+          createdAt: councilVerdicts.createdAt,
+        })
+        .from(councilVerdicts)
+        .where(
+          and(
+            inArray(councilVerdicts.botId, botIds),
+            eq(councilVerdicts.executionId, id),
+          ),
+        )
+        .orderBy(desc(councilVerdicts.createdAt));
+
+      // Build verdict map: take first (most recent) verdict per bot
+      for (const row of verdictRows) {
+        if (!verdictMap.has(row.botId)) {
+          verdictMap.set(row.botId, {
+            verdictType: row.verdictType,
+            verdictSummary: row.verdictSummary,
+          });
+        }
+      }
+    }
+
     // For each bot, get task counts and bot-hours
     // N+1 is acceptable for MVP where executions have at most 20 bots (maxBots cap)
     const leaderboard = await Promise.all(
@@ -395,6 +477,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           .from(telemetry)
           .where(and(eq(telemetry.botId, bot.botId), eq(telemetry.metricName, 'bot_hours')));
 
+        const classInfo = agentClassMap.get(bot.botId);
+        const verdictInfo = verdictMap.get(bot.botId);
+
         return {
           botId: bot.botId,
           compositeScore: bot.compositeScore ? Number(bot.compositeScore) : null,
@@ -402,6 +487,10 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           tasksCompleted: completedRow?.count ?? 0,
           tasksFailed: failedRow?.count ?? 0,
           botHours: hoursRow?.value ? Number(hoursRow.value) : null,
+          agentClass: classInfo?.agentClass ?? null,
+          isPioneer: classInfo?.isPioneer ?? false,
+          verdictSummary: verdictInfo?.verdictSummary ?? null,
+          verdictType: verdictInfo?.verdictType ?? null,
         };
       }),
     );
