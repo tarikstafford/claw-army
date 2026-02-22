@@ -9,6 +9,8 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
   let calibration = $state<CalibrationData | null>(null);
+  let previousCount = $state<number | null>(null);
+  let showNewVerdictsBanner = $state(false);
 
   let userId = $derived(data.session?.user?.email ?? 'operator');
 
@@ -18,6 +20,12 @@
         getPendingVerdicts(),
         getCalibration(userId),
       ]);
+      // Detect new verdicts
+      if (previousCount !== null && verdicts.length > previousCount) {
+        showNewVerdictsBanner = true;
+        setTimeout(() => { showNewVerdictsBanner = false; }, 5000);
+      }
+      previousCount = verdicts.length;
       error = null;
     } catch (err) {
       error = (err as Error).message;
@@ -60,6 +68,12 @@
     <div class="calibration-warning">
       <strong>Calibration Notice:</strong> You have confirmed {calibration.confirmed} of {calibration.total} verdicts ({(calibration.rate * 100).toFixed(0)}%).
       A high confirmation rate may indicate rubber-stamping. Consider reviewing evidence more carefully.
+    </div>
+  {/if}
+
+  {#if showNewVerdictsBanner}
+    <div class="new-verdicts-banner">
+      New verdicts have arrived. Review them below.
     </div>
   {/if}
 
@@ -254,5 +268,22 @@
     font-size: 0.75rem;
     color: #fbbf24;
     font-weight: 600;
+  }
+
+  .new-verdicts-banner {
+    border: 1px solid #166534;
+    background: #052e16;
+    color: #4ade80;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 </style>
