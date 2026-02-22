@@ -153,7 +153,13 @@ Plans:
 5. Pioneer events (first confirmed run in a novel task category) instantiate a benchmark, receive a permanent Pioneer designation in the library, and gate promotion eligibility until 3 confirmed comparable runs mature the benchmark
 6. God Layer holds a Redis lock on the category soul library during active campaigns and evaluates only the `bot_souls` snapshot recorded at execution start — mid-run library mutations never affect agents in flight
 
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 13-01-PLAN.md -- DB schema: agent_classes + category_benchmarks tables, DnaPayload extension, migration 0007
+- [ ] 13-02-PLAN.md -- TDD: Agent class state machine (computeClassTransition pure function)
+- [ ] 13-03-PLAN.md -- God Layer support modules: queue definition, DNA writer, pioneer tracker, negative register
+- [ ] 13-04-PLAN.md -- God Layer worker + enqueue integration (verdicts.ts, council-worker.ts, main.ts)
 
 ---
 
