@@ -34,6 +34,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         allowedTools: Type.Optional(Type.Array(Type.String())),
         llmProvider: Type.Optional(Type.String()),
         allowedDomains: Type.Optional(Type.Array(Type.String())),
+        objectiveId: Type.Optional(Type.String({ format: 'uuid' })),
       }),
       response: {
         201: Type.Object({
@@ -63,6 +64,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       budgetCapCents,
       runtimeLimitSeconds,
       allowedTools = [],
+      objectiveId,
     } = request.body;
 
     const MIN_POPULATION = 3;
@@ -76,13 +78,23 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
     }
 
-    const result = await createExecution({
-      objective,
-      maxBots,
-      budgetCapCents: budgetCapCents ?? 0,
-      runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
-      allowedTools,
-    });
+    let result: { executionId: string; status: 'queued' };
+    try {
+      result = await createExecution({
+        objective,
+        maxBots,
+        budgetCapCents: budgetCapCents ?? 0,
+        runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
+        allowedTools,
+        objectiveId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      if (message === 'Objective not found or archived') {
+        return reply.code(400).send({ error: message });
+      }
+      throw err;
+    }
 
     const { executionId } = result;
 
