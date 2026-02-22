@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 10 complete — DTRC-01 + DTRC-02 done; admin cleanup endpoint shipped)
+**Current focus:** v2.0 — The SOUL System (Phase 11 Plan 01 complete — Council queue + three LLM judge modules shipped)
 
 ## Current Position
 
-Phase: 10-decision-trace-collection
-Plan: 02 (complete)
-Status: Phase 10 complete — post-hoc attribution compiler (Plan 01) + admin TTL cleanup endpoint (Plan 02); DTRC-01 and DTRC-02 fully satisfied
-Last activity: 2026-02-22 — Phase 10-02 complete (admin.ts route, app.ts registration, openclaw-client.ts stub)
+Phase: 11-the-council
+Plan: 01 (complete)
+Status: Plan 01 complete — council-queue.ts, performance-judge.ts, soul-analyst.ts, devils-advocate.ts all created and TypeScript clean
+Last activity: 2026-02-22 — Phase 11-01 complete (council queue definition + three independent LLM judge modules)
 
-Progress: [██░░░░░░░░░░░░░░░░░░░░░░░░░░] 13% (5/TBD v2.0 plans — Phase 10 Plan 02 complete)
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░░░░] 15% (6/TBD v2.0 plans — Phase 11 Plan 01 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34
+- Total plans completed: 35
 - Average duration: 4.8 min
-- Total execution time: 172 min
+- Total execution time: 175 min
 
 **By Phase:**
 
@@ -37,9 +37,10 @@ Progress: [██░░░░░░░░░░░░░░░░░░░░░
 | 08-database-schema-and-shared-types | 2/? | 5 min | 2.5 min |
 | 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
+| 11-the-council | 1/? | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 09-01 (3 min), 09-03 (1 min), 10-01 (8 min), 10-02 (2 min)
+- Last 5 plans: 09-03 (1 min), 10-01 (8 min), 10-02 (2 min), 11-01 (3 min)
 - Trend: ~1-8 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
@@ -85,6 +86,12 @@ Phase 08-02 decisions:
 - [Phase 10-02]: Admin route uses plain FastifyInstance (not FastifyPluginAsyncTypebox) — no TypeBox schema needed for internal Cloud Scheduler trigger endpoint
 - [Phase 10-02]: No auth middleware on /admin prefix at this stage — execution service is internal, protected by GCP firewall rules; auth hook can be added later as a Fastify onRequest hook on the prefix
 - [Phase 10-02]: decision_annotation stub placed after task_failed handler inside handleMessage() — natural extension point when OpenClaw adds annotation support
+- [Phase 11-01]: Output import from AI SDK 6 is 'Output' (capital O) — the package re-exports lowercase 'output' namespace as 'Output'; import { Output } from 'ai'
+- [Phase 11-01]: Devil's Advocate uses google('gemini-2.5-flash') per CNCL-03 heterogeneous provider family requirement; Performance Judge and Soul Analyst use anthropic('claude-sonnet-4-6')
+- [Phase 11-01]: COUNTERFACTUAL_OVERRIDE_THRESHOLD=0.25 exported as named constant; threshold logic is deterministic post-processing after LLM call — overrides LLM-reported booleans
+- [Phase 11-01]: Soul Analyst filters to attributionConfidence > 0.5 AND directiveReferenced non-null, capped at 20 traces for counterfactual verification
+- [Phase 11-01]: Devil's Advocate strongUnresolvedArgument deterministically computed as challenges.some(c => c.severity === 'strong') — structural guarantee for CNCL-05 human review escalation
+- [Phase 11-01]: councilQueue reuses queueConnection from task-queue (same Redis); council worker in Plan 02 imports workerConnection directly from task-queue
 
 ### Roadmap Evolution
 
@@ -109,5 +116,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 10-02-PLAN.md (admin cleanup endpoint + OpenClaw decision_annotation stub)
+Stopped at: Completed 11-01-PLAN.md (council queue + three LLM judge modules)
 Resume file: None
