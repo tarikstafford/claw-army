@@ -133,11 +133,11 @@ Plans:
   2. The activity feed for a run is accessible directly from the objective hub page (embedded or linked inline) without navigating away to the run detail view
   3. The post-run performance dashboard displays a soul tier distribution panel showing the count of Novice, Understudy, and Artisan bots across the completed army
   4. The run detail view highlights any bots with pending council verdicts and shows an inline confirmation panel (reusing the existing CONF-* component) — verdict actions available without navigating to a separate screen
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 19-01: Bot card enhancements — task description, tool call count, token burn rate fields wired to live SSE data
-- [ ] 19-02: Post-run soul tier distribution panel + pending verdict highlights with inline CONF-* panel
+- [ ] 19-01-PLAN.md — Bot card enhancements: extend /by-execution with currentTaskDescription, toolCallCount, tokenBurnRate + enriched objective hub activity feed (RUN-01, RUN-02)
+- [ ] 19-02-PLAN.md — Soul tier distribution on report + VerdictConfirmPanel extraction + inline verdict highlights in run view (RUN-03, RUN-04)
 
 ---
 
