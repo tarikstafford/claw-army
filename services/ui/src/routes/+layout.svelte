@@ -59,6 +59,7 @@
       <span>Claw Army</span>
     </a>
     <div class="nav-right">
+      <a href="/objectives" class="nav-link">Objectives</a>
       <a href="/guide" class="nav-link">Guide</a>
       <a href="/verdicts" class="nav-link">Verdicts</a>
       <a href="/billing" class="nav-link">Billing</a>
