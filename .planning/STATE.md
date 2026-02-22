@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 13-god-layer-and-agent-class-system
-Plan: 03 (complete)
-Status: Phase 13-03 complete — God Layer queue (soul-verdicts) + three transaction-scoped domain modules: versioned DNA writer (MAX(version)+1, GODL-03/04), pioneer tracker (category_benchmarks lifecycle, GODL-06), negative signal register writer (mutationBlacklist JSONB, GODL-05).
-Last activity: 2026-02-22 — Phase 13-03 complete (God Layer queue and support modules)
+Plan: 04 (complete)
+Status: Phase 13-04 complete — God Layer BullMQ worker (god-layer-worker.ts): idempotency claim via godLayerProcessedAt IS NULL, Redis category lock (GODL-07), atomic DB transaction (pioneer detection GODL-06, class transitions CLAS-01 through CLAS-05, versioned DNA writes GODL-02 through GODL-04, negative signal GODL-05). Wired auto-enqueue from council-worker.ts and human-confirmation enqueue from verdicts.ts. Registered in main.ts startup/shutdown.
+Last activity: 2026-02-22 — Phase 13-04 complete (God Layer worker + wiring)
 
-Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░] 24% (9/TBD v2.0 plans — Phase 13 Plan 03 complete)
+Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░] 27% (10/TBD v2.0 plans — Phase 13 Plan 04 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 38
+- Total plans completed: 39
 - Average duration: 4.7 min
-- Total execution time: 185 min
+- Total execution time: 189 min
 
 **By Phase:**
 
@@ -39,13 +39,14 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
 | 11-the-council | 2/2 | 6 min | 3 min |
 | 12-human-confirmation-gate | 2/2 | 8 min | 4 min |
-| 13-god-layer-and-agent-class-system | 2/4 | 7 min | 3.5 min |
+| 13-god-layer-and-agent-class-system | 4/4 | 11 min | 2.75 min |
 
 **Recent Trend:**
-- Last 5 plans: 12-01 (3 min), 12-02 (5 min), 13-02 (2 min), 13-03 (5 min)
+- Last 5 plans: 13-02 (2 min), 13-03 (5 min), 13-04 (4 min)
 - Trend: ~2-5 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
+| Phase 13-god-layer-and-agent-class-system P04 | 4 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Phase 08-02 decisions:
 - [Phase 13-03]: pioneer-tracker uses single SELECT + existingRow === undefined check for pioneer detection — no separate COUNT query needed
 - [Phase 13-03]: MATURE_THRESHOLD=3 and THIN_DATA_CLEAR_THRESHOLD=5 defined as module-internal constants in pioneer-tracker — not over-exported since they are implementation details
 - [Phase 13-03]: mutationBlacklist key avoidMutationOps matches research spec (different from params field name mutationOpsApplied)
+- [Phase 13-04]: IORedis v5 set() overload order requires EX, seconds, NX — not NX, EX, seconds; TypeScript enforces this via overload resolution
+- [Phase 13-04]: God Layer processor skips DNA write and negative signal write when effectiveSoulId is null — soul-less executions produce class transitions only
+- [Phase 13-04]: effectiveCategory resolved from job.data.taskCategory first, then soul.taskCategory fallback — ensures Redis lock key is consistent with enqueue-time category
 
 ### Roadmap Evolution
 
@@ -138,5 +142,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 13-03-PLAN.md (God Layer queue and support modules — god-layer-queue.ts, dna-writer.ts, pioneer-tracker.ts, negative-register.ts)
+Stopped at: Completed 13-04-PLAN.md (God Layer worker + wiring — god-layer-worker.ts, council-worker.ts, verdicts.ts, main.ts)
 Resume file: None
