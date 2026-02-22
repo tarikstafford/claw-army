@@ -132,6 +132,7 @@ export interface ExecutionBot {
   tasksFailed: number;
   startedAt: string | null;
   errorMessage: string | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
 }
 
 export interface PendingVerdict {

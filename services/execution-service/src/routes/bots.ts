@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { db, bots, toolInvocations, botSouls, councilVerdicts, agentClasses } from '@claw/db';
-import { eq, gt, and, desc } from 'drizzle-orm';
+import { eq, gt, and, desc, inArray } from 'drizzle-orm';
 import { computeBotMetrics } from '../performance/metrics-computer';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'node:crypto';
@@ -44,13 +44,20 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
               Type.Null(),
             ]),
             errorMessage: Type.Union([Type.String(), Type.Null()]),
+            agentClass: Type.Union([
+              Type.Literal('Novice'),
+              Type.Literal('Understudy'),
+              Type.Literal('Artisan'),
+              Type.Literal('Retired'),
+              Type.Null(),
+            ]),
           }),
         ),
       },
     },
   }, async (request) => {
     const { executionId } = request.params;
-    return db
+    const botRows = await db
       .select({
         id: bots.id,
         status: bots.status,
@@ -63,6 +70,27 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       .from(bots)
       .where(eq(bots.executionId, executionId))
       .orderBy(bots.startedAt);
+
+    const botIds = botRows.map(b => b.id);
+
+    // Batch agent class lookup using CLASS_RANK precedence map (Artisan > Understudy > Novice > Retired)
+    const CLASS_RANK: Record<string, number> = { Artisan: 3, Understudy: 2, Novice: 1, Retired: 0 };
+    const agentClassMap = new Map<string, 'Novice' | 'Understudy' | 'Artisan' | 'Retired'>();
+
+    if (botIds.length > 0) {
+      const agentClassRows = await db
+        .select({ botId: agentClasses.botId, currentClass: agentClasses.currentClass })
+        .from(agentClasses)
+        .where(inArray(agentClasses.botId, botIds));
+      for (const row of agentClassRows) {
+        const existing = agentClassMap.get(row.botId);
+        if (!existing || (CLASS_RANK[row.currentClass] ?? -1) > (CLASS_RANK[existing] ?? -1)) {
+          agentClassMap.set(row.botId, row.currentClass as 'Novice' | 'Understudy' | 'Artisan' | 'Retired');
+        }
+      }
+    }
+
+    return botRows.map(b => ({ ...b, agentClass: agentClassMap.get(b.id) ?? null }));
   });
 
   // GET /:botId/soul — soul content, lineage metadata, council verdict, and agent class
