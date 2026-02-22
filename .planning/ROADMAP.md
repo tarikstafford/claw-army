@@ -85,9 +85,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 16-01-PLAN.md — objectives DB table + Drizzle migration + executions FK + shared-types Objective schema
-- [ ] 16-02-PLAN.md — Objectives REST API: POST, GET (with aggregation), GET/:id, DELETE/:id, PATCH/:id + CORS update
-- [ ] 16-03-PLAN.md — Link executions to objectives: objectiveId in POST /executions + validation
+- [x] 16-01-PLAN.md — objectives DB table + Drizzle migration + executions FK + shared-types Objective schema
+- [x] 16-02-PLAN.md — Objectives REST API: POST, GET (with aggregation), GET/:id, DELETE/:id, PATCH/:id + CORS update
+- [x] 16-03-PLAN.md — Link executions to objectives: objectiveId in POST /executions + validation
 
 #### Phase 17: Objective Hub UI
 
@@ -160,7 +160,7 @@ Plans:
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 15. Bot Reliability | v3.0 | 0/4 | Planned | - |
-| 16. Named Objectives Data Model | v3.0 | 0/3 | Planned | - |
+| 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 17. Objective Hub UI | v3.0 | 0/TBD | Not started | - |
 | 18. Soul Inspector | v3.0 | 0/TBD | Not started | - |
 | 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |
