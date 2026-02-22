@@ -6,6 +6,7 @@ import { COUNCIL_QUEUE_NAME, type CouncilJobData, type CouncilContext } from './
 import { runPerformanceJudge, type PerformanceJudgeOutput } from '../council/performance-judge';
 import { runSoulAnalyst, type SoulAnalystOutput } from '../council/soul-analyst';
 import { runDevilsAdvocate, type DevilsAdvocateOutput } from '../council/devils-advocate';
+import { godLayerQueue } from './god-layer-queue';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -250,7 +251,7 @@ async function councilProcessor(job: Job<CouncilJobData>): Promise<void> {
     const verdict = aggregateVerdicts(performanceOutput, soulOutput, devilOutput);
 
     // Step 4: Persist to council_verdicts (CNCL-06)
-    await db.insert(councilVerdicts).values({
+    const [insertedVerdict] = await db.insert(councilVerdicts).values({
       executionId,
       botId,
       soulId,
@@ -263,7 +264,7 @@ async function councilProcessor(job: Job<CouncilJobData>): Promise<void> {
       performanceJudgeOutput: performanceOutput,
       soulAnalystOutput: soulOutput,
       devilsAdvocateOutput: devilOutput,
-    });
+    }).returning({ id: councilVerdicts.id });
 
     // Step 5: Log verdict and health metrics
     console.log('[council-worker] Verdict persisted:', {
@@ -280,6 +281,23 @@ async function councilProcessor(job: Job<CouncilJobData>): Promise<void> {
       botId,
       disagreementRate: (soulOutput.disagreementRate ?? 0).toFixed(3),
     });
+
+    // Phase 13: Auto-execute God Layer for verdicts that do NOT require human confirmation.
+    // Promote/Retire with requiresHumanConfirmation=true are handled by the confirm route.
+    if (!verdict.requiresHumanConfirmation) {
+      godLayerQueue.add('process-verdict', {
+        verdictId: insertedVerdict!.id,
+        executionId,
+        botId,
+        soulId,
+        taskCategory: context.taskCategory,
+      }, {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      }).catch((err) => {
+        console.error('[council-worker] God Layer enqueue failed (non-fatal):', err);
+      });
+    }
   } finally {
     clearInterval(renewInterval);
   }

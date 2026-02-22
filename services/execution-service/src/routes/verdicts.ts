@@ -1,7 +1,8 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { db, councilVerdicts } from '@claw/db';
+import { db, councilVerdicts, botSouls } from '@claw/db';
 import { eq, and, inArray } from 'drizzle-orm';
+import { godLayerQueue } from '../queue/god-layer-queue';
 
 export const verdictsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // GET /verdicts/pending — List pending Promote/Retire verdicts awaiting operator action
@@ -146,6 +147,40 @@ export const verdictsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     if (updated.length === 0) {
       return reply.code(409).send({
         error: 'Verdict already resolved or not eligible for confirmation',
+      });
+    }
+
+    // Enqueue God Layer job for confirmed verdict (fire-and-forget)
+    const [confirmedRow] = await db
+      .select({
+        executionId: councilVerdicts.executionId,
+        botId: councilVerdicts.botId,
+        soulId: councilVerdicts.soulId,
+      })
+      .from(councilVerdicts)
+      .where(eq(councilVerdicts.id, verdictId));
+
+    if (confirmedRow) {
+      let taskCategory: string | null = null;
+      if (confirmedRow.soulId) {
+        const [soulRow] = await db
+          .select({ taskCategory: botSouls.taskCategory })
+          .from(botSouls)
+          .where(eq(botSouls.id, confirmedRow.soulId));
+        taskCategory = soulRow?.taskCategory ?? null;
+      }
+
+      godLayerQueue.add('process-verdict', {
+        verdictId,
+        executionId: confirmedRow.executionId,
+        botId: confirmedRow.botId,
+        soulId: confirmedRow.soulId ?? null,
+        taskCategory,
+      }, {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+      }).catch((err) => {
+        console.error('[verdicts] God Layer enqueue failed (non-fatal):', err);
       });
     }
 
