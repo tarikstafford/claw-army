@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 13-god-layer-and-agent-class-system
-Plan: 02 (complete)
-Status: Phase 13-02 complete — computeClassTransition pure function with 18 Vitest test cases covering CLAS-01 through CLAS-05 (Novice->Understudy, Understudy->Artisan, demotion, retirement, all blocking conditions).
-Last activity: 2026-02-22 — Phase 13-02 complete (agent class state machine)
+Plan: 03 (complete)
+Status: Phase 13-03 complete — God Layer queue (soul-verdicts) + three transaction-scoped domain modules: versioned DNA writer (MAX(version)+1, GODL-03/04), pioneer tracker (category_benchmarks lifecycle, GODL-06), negative signal register writer (mutationBlacklist JSONB, GODL-05).
+Last activity: 2026-02-22 — Phase 13-03 complete (God Layer queue and support modules)
 
-Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░] 21% (8/TBD v2.0 plans — Phase 13 Plan 02 complete)
+Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░] 24% (9/TBD v2.0 plans — Phase 13 Plan 03 complete)
 
 ## Performance Metrics
 
@@ -39,10 +39,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
 | 11-the-council | 2/2 | 6 min | 3 min |
 | 12-human-confirmation-gate | 2/2 | 8 min | 4 min |
-| 13-god-layer-and-agent-class-system | 1/4 | 2 min | 2 min |
+| 13-god-layer-and-agent-class-system | 2/4 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 11-02 (3 min), 12-01 (3 min), 12-02 (5 min), 13-02 (2 min)
+- Last 5 plans: 12-01 (3 min), 12-02 (5 min), 13-02 (2 min), 13-03 (5 min)
 - Trend: ~2-5 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
@@ -110,6 +110,10 @@ Phase 08-02 decisions:
 - [Phase 13-02]: computeClassTransition counter update always runs before transition evaluation — updated counters used for all threshold checks; enables single-call idempotency; consistent with plan spec
 - [Phase 13-02]: Non-soul-driven Retire returns type:none (Monitor treatment) — mirrors CLAS-04 pattern where context-driven events never trigger irreversible transitions
 - [Phase 13-02]: VerdictInput exported as named interface to facilitate God Layer worker building VerdictInput from DB row fields without type assertion
+- [Phase 13-03]: Transaction type alias (type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0]) avoids importing PgTransaction generics from drizzle-orm/pg-core — cleaner and does not require explicit generic params
+- [Phase 13-03]: pioneer-tracker uses single SELECT + existingRow === undefined check for pioneer detection — no separate COUNT query needed
+- [Phase 13-03]: MATURE_THRESHOLD=3 and THIN_DATA_CLEAR_THRESHOLD=5 defined as module-internal constants in pioneer-tracker — not over-exported since they are implementation details
+- [Phase 13-03]: mutationBlacklist key avoidMutationOps matches research spec (different from params field name mutationOpsApplied)
 
 ### Roadmap Evolution
 
@@ -134,5 +138,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 13-02-PLAN.md (Agent class state machine — computeClassTransition pure function + 18-test Vitest suite covering CLAS-01 through CLAS-05)
+Stopped at: Completed 13-03-PLAN.md (God Layer queue and support modules — god-layer-queue.ts, dna-writer.ts, pioneer-tracker.ts, negative-register.ts)
 Resume file: None
