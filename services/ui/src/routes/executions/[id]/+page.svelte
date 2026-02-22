@@ -4,6 +4,7 @@
   import { getExecution, getExecutionMetrics, getExecutionBots } from '$lib/api';
   import { connectSSE } from '$lib/sse';
   import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot } from '$lib/types';
+  import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
 
   const executionId = $derived(page.params.id ?? '');
 
@@ -13,6 +14,7 @@
   let activityFeed = $state<ActivityEvent[]>([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let selectedBotId = $state<string | null>(null);
 
   // Initial load
   $effect(() => {
@@ -177,6 +179,10 @@
               <div class="bot-card-top">
                 <span class="bot-id">{bot.id.slice(0, 8)}</span>
                 <span class="bot-status-pill bot-status-{bot.status}">{bot.status}</span>
+                <button
+                  class="inspect-soul-btn"
+                  onclick={(e) => { e.stopPropagation(); e.preventDefault(); selectedBotId = bot.id; }}
+                >Soul</button>
               </div>
               <div class="bot-card-stats">
                 <span>{bot.tasksCompleted} done</span>
@@ -196,6 +202,8 @@
         </div>
       </section>
     {/if}
+
+    <SoulInspectorPanel botId={selectedBotId} onClose={() => selectedBotId = null} />
 
     <!-- Activity feed (UI-05) -->
     <section class="activity-section">
@@ -481,6 +489,26 @@
     color: #6366f1;
     font-weight: 500;
     margin-top: 0.15rem;
+  }
+
+  .inspect-soul-btn {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+    color: #4f46e5;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s, border-color 0.1s;
+  }
+
+  .inspect-soul-btn:hover {
+    background: #e0e7ff;
+    border-color: #a5b4fc;
   }
 
   /* Activity feed */

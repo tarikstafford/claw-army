@@ -4,6 +4,7 @@
   import { getBotDetail } from '$lib/api';
   import { connectBotLogs } from '$lib/sse';
   import type { BotDetail, BotLogEntry, StepTrace } from '$lib/types';
+  import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
 
   const executionId = $derived((page.params as Record<string, string>).id ?? '');
   const botId = $derived((page.params as Record<string, string>).botId ?? '');
@@ -14,6 +15,7 @@
   let logEntries = $state<BotLogEntry[]>([]);
   let logContainer = $state<HTMLElement | null>(null);
   let liveConnected = $state(false);
+  let showInspector = $state(false);
 
   const ACTIVE_STATUSES = new Set(['spawning', 'idle', 'working', 'stopping']);
 
@@ -168,6 +170,9 @@
       {#if liveConnected}
         <span class="live-badge">● LIVE</span>
       {/if}
+      <button class="inspect-soul-btn" onclick={() => showInspector = true}>
+        Inspect Soul
+      </button>
     </div>
 
     <!-- Process Log (live when active, historical when stopped) -->
@@ -321,6 +326,8 @@
   {/if}
 </div>
 
+<SoulInspectorPanel botId={showInspector ? detail?.bot.id ?? null : null} onClose={() => showInspector = false} />
+
 <style>
   .page {
     max-width: 1100px;
@@ -386,6 +393,27 @@
     color: #16a34a;
     letter-spacing: 0.05em;
     animation: pulse 2s ease-in-out infinite;
+  }
+
+  .inspect-soul-btn {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+    color: #4f46e5;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s, border-color 0.1s;
+    margin-left: auto;
+  }
+
+  .inspect-soul-btn:hover {
+    background: #e0e7ff;
+    border-color: #a5b4fc;
   }
 
   @keyframes pulse {

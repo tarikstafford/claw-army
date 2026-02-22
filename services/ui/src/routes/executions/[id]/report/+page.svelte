@@ -3,6 +3,7 @@
   import { browser } from '$app/environment';
   import { getExecutionReport, getLeaderboard } from '$lib/api';
   import type { ExecutionReport, LeaderboardEntry } from '$lib/types';
+  import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
 
   const executionId = $derived(page.params.id ?? '');
 
@@ -10,6 +11,7 @@
   let leaderboard = $state<LeaderboardEntry[]>([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let selectedBotId = $state<string | null>(null);
 
   $effect(() => {
     if (!browser) return;
@@ -100,6 +102,7 @@
                 <th>Class</th>
                 <th>Verdict</th>
                 <th>Pioneer</th>
+                <th>Soul</th>
               </tr>
             </thead>
             <tbody>
@@ -142,6 +145,11 @@
                       <span class="no-data">-</span>
                     {/if}
                   </td>
+                  <td>
+                    <button class="inspect-soul-btn" onclick={() => selectedBotId = entry.botId}>
+                      Inspect
+                    </button>
+                  </td>
                 </tr>
               {/each}
             </tbody>
@@ -151,6 +159,8 @@
     </section>
   {/if}
 </div>
+
+<SoulInspectorPanel botId={selectedBotId} onClose={() => selectedBotId = null} />
 
 <style>
   .page {
@@ -447,5 +457,25 @@
 
   .no-data {
     color: #9ca3af;
+  }
+
+  .inspect-soul-btn {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+    color: #4f46e5;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s, border-color 0.1s;
+  }
+
+  .inspect-soul-btn:hover {
+    background: #e0e7ff;
+    border-color: #a5b4fc;
   }
 </style>
