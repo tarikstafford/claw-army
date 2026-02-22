@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 
 ## Current Position
 
-Phase: 13-god-layer-and-agent-class-system
-Plan: 04 (complete — phase complete)
-Status: Phase 13 complete — DB schema (agent_classes, category_benchmarks, migration 0007), class state machine (computeClassTransition pure function, 18 tests passing), God Layer support modules (dna-writer, pioneer-tracker, negative-register), God Layer BullMQ worker with idempotency, Redis category lock, atomic DB transaction, and full enqueue wiring. All GODL-01 through GODL-07 + CLAS-01 through CLAS-06 satisfied.
-Last activity: 2026-02-22 — Phase 13 complete (God Layer and Agent Class System)
+Phase: 14-ui-extensions
+Plan: 01 (complete)
+Status: Phase 14 Plan 01 complete — Leaderboard endpoint extended with agent class (Novice/Understudy/Artisan/Retired), isPioneer, verdictType, verdictSummary. Report page leaderboard table has 10 columns (7 existing + 3 new: Class, Verdict, Pioneer). UIEX-01 satisfied.
+Last activity: 2026-02-22 — Phase 14 Plan 01 complete (Leaderboard SOUL data — UIEX-01)
 
 Progress: [██████░░░░░░░░░░░░░░░░░░░░░░] 31% (11/TBD v2.0 plans — Phase 13 complete)
 
@@ -47,6 +47,7 @@ Progress: [██████░░░░░░░░░░░░░░░░░
 
 *Updated after each plan completion*
 | Phase 13-god-layer-and-agent-class-system P04 | 4 | 2 tasks | 4 files |
+| Phase 14-ui-extensions P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,7 @@ Phase 08-02 decisions:
 - [Phase 13-04]: IORedis v5 set() overload order requires EX, seconds, NX — not NX, EX, seconds; TypeScript enforces this via overload resolution
 - [Phase 13-04]: God Layer processor skips DNA write and negative signal write when effectiveSoulId is null — soul-less executions produce class transitions only
 - [Phase 13-04]: effectiveCategory resolved from job.data.taskCategory first, then soul.taskCategory fallback — ensures Redis lock key is consistent with enqueue-time category
+- [Phase 14-01]: Batch queries with inArray for agent_classes and council_verdicts after botRows fetch; CLASS_RANK map (Artisan=3, Understudy=2, Novice=1, Retired=0) picks highest-ranked class per bot; isPioneer OR'd across all rows; most recent verdict by createdAt DESC first-seen pattern; empty botIds guard skips both queries
 
 ### Roadmap Evolution
 
@@ -142,5 +144,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 13-04-PLAN.md (God Layer worker + wiring — god-layer-worker.ts, council-worker.ts, verdicts.ts, main.ts)
+Stopped at: Completed 14-01-PLAN.md (Leaderboard SOUL data — executions.ts, types.ts, +page.svelte)
 Resume file: None
