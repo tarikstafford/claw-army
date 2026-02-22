@@ -17,6 +17,7 @@
       <span>Claw Army</span>
     </a>
     <div class="nav-right">
+      <a href="/verdicts" class="nav-link">Verdicts</a>
       <a href="/billing" class="nav-link">Billing</a>
       {#if session?.user}
         <div class="user-info">
