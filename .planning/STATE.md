@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 19 of 19 (Run View Enhancements)
-Plan: 1 of 2 in current phase — COMPLETE
-Status: Phase 19 plan 01 complete — /by-execution endpoint extended with currentTaskDescription, toolCallCount, tokenBurnRate; bot cards enriched; objective hub activity feed enriched
-Last activity: 2026-02-22 — 19-01 complete: per-bot live stats in bot cards, enriched objective hub activity feed
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Phase 19 complete — soul tier distribution on report, inline verdict confirmation panel (VerdictConfirmPanel), pending-verdicts endpoint, bot card verdict indicators
+Last activity: 2026-02-22 — 19-02 complete: VerdictConfirmPanel, soul tier distribution, GET /pending-verdicts, run detail inline verdict confirmation
 
-Progress: [█████░░░░░] 13% (v3.0 — Phase 19 P01 complete, 1/2 plans done)
+Progress: [██████████] 100% (v3.0 — Phase 19 complete, 2/2 plans done)
 
 ## Performance Metrics
 
@@ -34,6 +34,7 @@ Progress: [█████░░░░░] 13% (v3.0 — Phase 19 P01 complete, 
 | Phase 18-soul-inspector P01 | 12 min | 2 tasks | 7 files |
 | Phase 18-soul-inspector P02 | 3 min | 2 tasks | 5 files |
 | Phase 19-run-view-enhancements P01 | 3 min | 2 tasks | 4 files |
+| Phase 19-run-view-enhancements P02 | 3 min | 2 tasks | 7 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -85,6 +86,11 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [19-01] currentTaskDescription query uses tasks WHERE status='claimed' (not 'working') — claimed is the in-progress state in the task lifecycle
 - [19-01] toolCallCount excludes rejected=true invocations — counts only productive tool calls
 
+- [19-02] VerdictConfirmPanel calls onResolved() instead of goto() — inline panel must not navigate away from run detail view
+- [19-02] arrivedAt initialized in let declaration (not $effect) — verdict data passed as prop so timing starts at component mount
+- [19-02] Pending verdicts polling at 10s vs bots at 5s — verdicts change less frequently than bot status
+- [19-02] pending-verdicts endpoint filters verdictType IN ('Promote','Retire') — only promotion-path verdicts require human confirmation
+
 ### Pending Todos
 
 None.
@@ -103,5 +109,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 19-01-PLAN.md — per-bot live stats in bot cards, enriched objective hub activity feed with formatEventDetail and View full run link
+Stopped at: Completed 19-02-PLAN.md — Phase 19 fully complete: soul tier distribution on report, VerdictConfirmPanel inline, pending-verdicts endpoint, bot card verdict indicators
 Resume file: None
