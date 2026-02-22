@@ -9,6 +9,7 @@ import { botsRoutes } from './routes/bots';
 import { billingRoutes } from './routes/billing';
 import { adminRoutes } from './routes/admin';
 import { verdictsRoutes } from './routes/verdicts';
+import { armyBuilderRoutes } from './routes/army-builder';
 
 export async function buildApp() {
   const app = Fastify({
@@ -41,6 +42,9 @@ export async function buildApp() {
 
   // Soul lifecycle SSE (Phase 14 — UIEX-03)
   app.register(lifecycleSseRoutes, { prefix: '/events' });
+
+  // Army Builder analysis (Phase 14 — UIEX-04/05)
+  app.register(armyBuilderRoutes, { prefix: '/army-builder' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
