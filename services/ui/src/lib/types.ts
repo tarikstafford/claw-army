@@ -178,3 +178,15 @@ export interface CalibrationData {
   rate: number;
   warningTriggered: boolean;
 }
+
+export interface LifecycleNotification {
+  type: 'soul_promoted' | 'soul_demoted' | 'soul_retired' | 'pioneer_detected';
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  description: string;
+  timestamp: string;
+  // Promotion-specific
+  fromClass?: string;
+  toClass?: string;
+}

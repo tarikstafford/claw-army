@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import type { ActivityEvent, BotLogEntry } from './types';
+import type { ActivityEvent, BotLogEntry, LifecycleNotification } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -63,6 +63,37 @@ export function connectBotLogs(
       try {
         const payload = JSON.parse(e.data) as Record<string, unknown>;
         onEvent({ ...payload, type } as BotLogEntry);
+      } catch {
+        // ignore malformed events
+      }
+    });
+  }
+
+  if (onError) es.onerror = onError;
+
+  return () => es.close();
+}
+
+const LIFECYCLE_EVENT_TYPES = [
+  'soul_promoted',
+  'soul_demoted',
+  'soul_retired',
+  'pioneer_detected',
+] as const;
+
+export function connectLifecycleSSE(
+  onEvent: (event: LifecycleNotification) => void,
+  onError?: (err: Event) => void,
+): (() => void) | null {
+  if (!browser) return null;
+
+  const es = new EventSource(`${BASE}/events/lifecycle`);
+
+  for (const type of LIFECYCLE_EVENT_TYPES) {
+    es.addEventListener(type, (e: MessageEvent) => {
+      try {
+        const payload = JSON.parse(e.data) as Record<string, unknown>;
+        onEvent({ ...payload, type } as LifecycleNotification);
       } catch {
         // ignore malformed events
       }
