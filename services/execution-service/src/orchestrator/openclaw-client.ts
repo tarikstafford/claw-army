@@ -171,7 +171,22 @@ export class OpenClawClient {
       this.failureCallbacks.forEach((cb) => cb(failure.error));
       this.failureCallbacks = [];
     }
-    // Other message types (progress, logs, etc.) are forwarded to onMessage handlers if added later
+    // ── Future: decision_annotation handler ──────────────────────────────────
+    // OpenClaw does not currently emit 'decision_annotation' messages from agent
+    // reasoning (confirmed Feb 2026 — GitHub Issues #6467, #8901 closed without
+    // implementing structured annotation events).
+    //
+    // When OpenClaw adds decision_annotation support, add a handler here:
+    //   if (msg.type === 'decision_annotation') {
+    //     // Write directly to decision_traces table — this becomes the primary path.
+    //     // The post-hoc attribution compiler (attribution-compiler.ts) can then be
+    //     // deprecated or used as a fallback for older OpenClaw versions.
+    //   }
+    //
+    // OpenClaw tool streaming events (stream:'tool') are display-only metadata
+    // bubbles (tool name + argument prefix). They do NOT carry directive attribution
+    // fields (directiveText, confidence, outcome). Do not use them for traces.
+    // ─────────────────────────────────────────────────────────────────────────
   }
 
   // ── Task dispatch ───────────────────────────────────────────────────────────

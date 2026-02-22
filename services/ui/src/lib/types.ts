@@ -40,6 +40,10 @@ export interface LeaderboardEntry {
   tasksCompleted: number;
   tasksFailed: number;
   botHours: number | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  isPioneer: boolean;
+  verdictSummary: string | null;
+  verdictType: string | null;
 }
 
 export interface BotDetail {
@@ -127,4 +131,80 @@ export interface ExecutionBot {
   tasksCompleted: number;
   tasksFailed: number;
   startedAt: string | null;
+}
+
+export interface PendingVerdict {
+  id: string;
+  botId: string;
+  executionId: string;
+  verdictType: 'Promote' | 'Retire';
+  weightedConfidenceScore: number;
+  verdictSummary: string;
+  hasUnresolvedDevilsAdvocate: boolean;
+  createdAt: string;
+}
+
+export interface VerdictDetail {
+  id: string;
+  botId: string;
+  executionId: string;
+  verdictType: 'Promote' | 'Retire';
+  status: 'pending' | 'confirmed' | 'rejected';
+  weightedConfidenceScore: number;
+  verdictSummary: string;
+  hasUnresolvedDevilsAdvocate: boolean;
+  requiresHumanConfirmation: boolean;
+  devilsAdvocateOutput: {
+    verdict: string;
+    challenges: Array<{ claim: string; counterArgument: string; severity: 'strong' | 'moderate' | 'weak' }>;
+    strongUnresolvedArgument: boolean;
+  } | null;
+  performanceJudgeOutput: {
+    verdict: string;
+    summary: string;
+    metrics: Record<string, unknown>;
+  } | null;
+  soulAnalystOutput: {
+    verdict: string;
+    summary: string;
+    attributionAnalysis: Record<string, unknown>;
+  } | null;
+  createdAt: string;
+}
+
+export interface CalibrationData {
+  total: number;
+  confirmed: number;
+  rate: number;
+  warningTriggered: boolean;
+}
+
+export interface ArmyBuilderAnalysis {
+  categories: string[];
+  libraryDepth: Array<{
+    taskCategory: string;
+    noviceCount: number;
+    understudyCount: number;
+    artisanCount: number;
+    totalAgents: number;
+  }>;
+  budgetTiers: {
+    full: { label: string; agentCount: number; perCategory: number };
+    reduced: { label: string; agentCount: number; perCategory: number };
+    minimumViable: { label: string; agentCount: number; perCategory: number };
+  };
+  blocked: boolean;
+  blockReason: string | null;
+}
+
+export interface LifecycleNotification {
+  type: 'soul_promoted' | 'soul_demoted' | 'soul_retired' | 'pioneer_detected';
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  description: string;
+  timestamp: string;
+  // Promotion-specific
+  fromClass?: string;
+  toClass?: string;
 }

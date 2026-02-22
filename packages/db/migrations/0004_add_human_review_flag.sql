@@ -1,0 +1,1 @@
+ALTER TABLE "bot_souls" ADD COLUMN "human_review_flag" boolean DEFAULT false NOT NULL;

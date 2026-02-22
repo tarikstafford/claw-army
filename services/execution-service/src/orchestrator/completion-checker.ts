@@ -1,8 +1,43 @@
-import { db, tasks, executions } from '@claw/db';
+import { db, tasks, executions, bots } from '@claw/db';
 import { eq, and, notInArray, count } from 'drizzle-orm';
 import { transitionExecution } from '../services/execution.service';
 import { publishExecutionStatusChanged, publishBillingEvent } from '../events/publisher';
 import { runPerformancePipeline } from '../performance/performance-engine';
+import { councilQueue, type CouncilJobData } from '../queue/council-queue';
+
+/**
+ * Enqueue one council evaluation job per bot for a completed execution.
+ * Council jobs evaluate each bot independently (CNCL-01 async pipeline).
+ *
+ * NOT exported — internal to this module. Called fire-and-forget after execution completes.
+ */
+async function enqueueCouncilJobs(executionId: string): Promise<void> {
+  const executionBots = await db
+    .select({ id: bots.id, soulId: bots.soulId })
+    .from(bots)
+    .where(eq(bots.executionId, executionId));
+
+  if (executionBots.length === 0) return;
+
+  await councilQueue.addBulk(
+    executionBots.map((bot) => ({
+      name: 'council-eval',
+      data: {
+        executionId,
+        botId: bot.id,
+        soulId: bot.soulId ?? null,
+      } satisfies CouncilJobData,
+      opts: {
+        attempts: 2,
+        backoff: { type: 'exponential' as const, delay: 5000 },
+      },
+    })),
+  );
+
+  console.log(
+    `[completion-checker] Enqueued ${executionBots.length} council jobs for execution ${executionId}`,
+  );
+}
 
 /**
  * Check if all tasks for an execution are in a terminal state (completed or failed).
@@ -56,6 +91,12 @@ export async function checkExecutionCompletion(executionId: string): Promise<boo
       // Must NOT block or roll back the completed status
       runPerformancePipeline(executionId).catch((err) => {
         console.error('[performance-engine] Pipeline error (non-fatal):', err);
+      });
+
+      // Phase 11: Fire-and-forget council evaluation enqueue
+      // One job per bot — council worker evaluates independently on council-queue
+      enqueueCouncilJobs(executionId).catch((err) => {
+        console.error('[completion-checker] Failed to enqueue council jobs (non-fatal):', err);
       });
     }
 

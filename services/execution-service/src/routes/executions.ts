@@ -7,9 +7,10 @@ import {
   transitionExecution,
 } from '../services/execution.service';
 import { planObjective } from '../services/planner.service';
+import { generateSoulPopulation } from '../services/soul-generator';
 import { addTaskToQueue } from '../queue/task-queue';
-import { db, executions, tasks, bots, telemetry } from '@claw/db';
-import { eq, and, sql, desc } from 'drizzle-orm';
+import { db, executions, tasks, bots, telemetry, agentClasses, councilVerdicts } from '@claw/db';
+import { eq, and, sql, desc, inArray } from 'drizzle-orm';
 import {
   spawnBotsForExecution,
   startIdleChecker,
@@ -27,7 +28,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     schema: {
       body: Type.Object({
         objective: Type.String({ minLength: 1 }),
-        maxBots: Type.Integer({ minimum: 1, maximum: 20 }),
+        maxBots: Type.Integer({ minimum: 3, maximum: 20 }),
         budgetCapCents: Type.Optional(Type.Integer({ minimum: 0 })),
         runtimeLimitSeconds: Type.Optional(Type.Integer({ minimum: 60 })),
         allowedTools: Type.Optional(Type.Array(Type.String())),
@@ -38,6 +39,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         201: Type.Object({
           executionId: Type.String({ format: 'uuid' }),
           status: Type.Literal('queued'),
+        }),
+        400: Type.Object({
+          error: Type.String(),
         }),
         401: Type.Object({
           error: Type.String(),
@@ -61,6 +65,17 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       allowedTools = [],
     } = request.body;
 
+    const MIN_POPULATION = 3;
+
+    // SOUL-02: Custom guard for human-readable minimum population message.
+    // TypeBox schema also enforces minimum:3 as defense-in-depth, but its
+    // error message is a generic JSON Schema validation string.
+    if (maxBots < MIN_POPULATION) {
+      return reply.code(400).send({
+        error: `A minimum of ${MIN_POPULATION} bots is required to maintain a meaningfully differentiated soul population. Increase maxBots to at least ${MIN_POPULATION}.`,
+      });
+    }
+
     const result = await createExecution({
       objective,
       maxBots,
@@ -78,6 +93,13 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       try {
         // 1. Plan tasks (LLM decomposition)
         const plannedTasks = await planObjective(objective, maxBots);
+
+        // 1b. Generate differentiated soul population for this execution
+        const souls = await generateSoulPopulation(executionId, objective, maxBots);
+        fastify.log.info(
+          { executionId, soulCount: souls.length },
+          'Soul population generated',
+        );
 
         // 2. Dual-write: Postgres first, then BullMQ
         // Per RESEARCH.md: write to DB first so task rows always exist.
@@ -120,10 +142,10 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           fastify.log.error({ err, executionId }, 'Failed to publish execution_status_changed (non-fatal)');
         });
 
-        // 4. Spawn bots for this execution
-        await spawnBotsForExecution(executionId, maxBots);
+        // 4. Spawn bots for this execution (each bot receives its assigned soul)
+        await spawnBotsForExecution(executionId, souls);
         fastify.log.info(
-          { executionId, botCount: maxBots, taskCount: plannedTasks.length },
+          { executionId, botCount: souls.length, taskCount: plannedTasks.length },
           'Bots spawned, execution running',
         );
 
@@ -331,6 +353,16 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
             tasksCompleted: Type.Integer(),
             tasksFailed: Type.Integer(),
             botHours: Type.Union([Type.Number(), Type.Null()]),
+            agentClass: Type.Union([
+              Type.Literal('Novice'),
+              Type.Literal('Understudy'),
+              Type.Literal('Artisan'),
+              Type.Literal('Retired'),
+              Type.Null(),
+            ]),
+            isPioneer: Type.Boolean(),
+            verdictSummary: Type.Union([Type.String(), Type.Null()]),
+            verdictType: Type.Union([Type.String(), Type.Null()]),
           }),
         ),
         404: Type.Object({ error: Type.String() }),
@@ -354,6 +386,78 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       .where(eq(bots.executionId, id))
       .orderBy(sql`${bots.compositeScore} DESC NULLS LAST`);
 
+    // Build botIds array for batch queries
+    const botIds = botRows.map((b) => b.botId);
+
+    // Rank map for agent class precedence: Artisan > Understudy > Novice > Retired
+    const CLASS_RANK: Record<string, number> = {
+      Artisan: 3,
+      Understudy: 2,
+      Novice: 1,
+      Retired: 0,
+    };
+
+    // Lookup maps keyed by botId
+    type AgentClassInfo = { agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired'; isPioneer: boolean };
+    type VerdictInfo = { verdictType: string; verdictSummary: string };
+
+    const agentClassMap = new Map<string, AgentClassInfo>();
+    const verdictMap = new Map<string, VerdictInfo>();
+
+    if (botIds.length > 0) {
+      // Batch query agent_classes for all bots in this execution
+      const agentClassRows = await db
+        .select({
+          botId: agentClasses.botId,
+          currentClass: agentClasses.currentClass,
+          isPioneer: agentClasses.isPioneer,
+        })
+        .from(agentClasses)
+        .where(inArray(agentClasses.botId, botIds));
+
+      // Build agent class map: pick highest-ranked class per bot; OR isPioneer across rows
+      for (const row of agentClassRows) {
+        const existing = agentClassMap.get(row.botId);
+        const rowRank = CLASS_RANK[row.currentClass] ?? -1;
+        if (!existing || rowRank > (CLASS_RANK[existing.agentClass] ?? -1)) {
+          agentClassMap.set(row.botId, {
+            agentClass: row.currentClass,
+            isPioneer: existing?.isPioneer || row.isPioneer,
+          });
+        } else if (row.isPioneer) {
+          // Same or lower rank but isPioneer=true — propagate pioneer flag
+          agentClassMap.set(row.botId, { ...existing, isPioneer: true });
+        }
+      }
+
+      // Batch query council_verdicts for all bots in this execution, most recent first
+      const verdictRows = await db
+        .select({
+          botId: councilVerdicts.botId,
+          verdictType: councilVerdicts.verdictType,
+          verdictSummary: councilVerdicts.verdictSummary,
+          createdAt: councilVerdicts.createdAt,
+        })
+        .from(councilVerdicts)
+        .where(
+          and(
+            inArray(councilVerdicts.botId, botIds),
+            eq(councilVerdicts.executionId, id),
+          ),
+        )
+        .orderBy(desc(councilVerdicts.createdAt));
+
+      // Build verdict map: take first (most recent) verdict per bot
+      for (const row of verdictRows) {
+        if (!verdictMap.has(row.botId)) {
+          verdictMap.set(row.botId, {
+            verdictType: row.verdictType,
+            verdictSummary: row.verdictSummary,
+          });
+        }
+      }
+    }
+
     // For each bot, get task counts and bot-hours
     // N+1 is acceptable for MVP where executions have at most 20 bots (maxBots cap)
     const leaderboard = await Promise.all(
@@ -373,6 +477,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           .from(telemetry)
           .where(and(eq(telemetry.botId, bot.botId), eq(telemetry.metricName, 'bot_hours')));
 
+        const classInfo = agentClassMap.get(bot.botId);
+        const verdictInfo = verdictMap.get(bot.botId);
+
         return {
           botId: bot.botId,
           compositeScore: bot.compositeScore ? Number(bot.compositeScore) : null,
@@ -380,6 +487,10 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           tasksCompleted: completedRow?.count ?? 0,
           tasksFailed: failedRow?.count ?? 0,
           botHours: hoursRow?.value ? Number(hoursRow.value) : null,
+          agentClass: classInfo?.agentClass ?? null,
+          isPioneer: classInfo?.isPioneer ?? false,
+          verdictSummary: verdictInfo?.verdictSummary ?? null,
+          verdictType: verdictInfo?.verdictType ?? null,
         };
       }),
     );

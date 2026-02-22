@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, varchar, integer, timestamp, pgEnum } from 'drizzle-orm/pg-core';
 
 export const executionStatusEnum = pgEnum('execution_status', [
   'queued',
@@ -17,6 +17,7 @@ export const executions = pgTable('executions', {
   budgetCapCents: integer('budget_cap_cents').notNull(),
   runtimeLimitSeconds: integer('runtime_limit_seconds').notNull(),
   allowedTools: text('allowed_tools').array().notNull(),
+  taskCategory: varchar('task_category', { length: 255 }), // nullable; derived from objective for soul seeding (Phase 9)
   createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
 });

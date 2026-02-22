@@ -1,0 +1,1 @@
+ALTER TABLE "council_verdicts" ADD COLUMN "time_on_screen_ms" integer;

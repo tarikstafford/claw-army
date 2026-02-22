@@ -21,6 +21,8 @@ function buildStartupScript(opts: {
   toolGatewayUrl: string;
   executionServiceUrl: string;
   gatewayToken: string;
+  /** Full SOUL.md markdown to write to the VM workspace before OpenClaw starts */
+  soulContent: string;
 }): string {
   const {
     botId,
@@ -30,7 +32,10 @@ function buildStartupScript(opts: {
     toolGatewayUrl,
     executionServiceUrl,
     gatewayToken,
+    soulContent,
   } = opts;
+
+  const soulContentB64 = Buffer.from(soulContent).toString('base64');
 
   return `#!/bin/bash
 set -euo pipefail
@@ -43,6 +48,7 @@ TOOL_GATEWAY_URL="${toolGatewayUrl}"
 EXECUTION_SERVICE_URL="${executionServiceUrl}"
 GATEWAY_TOKEN="${gatewayToken}"
 GATEWAY_PORT="18789"
+SOUL_CONTENT_B64="${soulContentB64}"
 
 exec > >(tee /var/log/bot-startup.log | logger -t bot-startup) 2>&1
 
@@ -58,6 +64,11 @@ echo "[startup] Internal IP: $INTERNAL_IP"
 # ── 2. Install Node.js 22 ─────────────────────────────────────────────────────
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs git
+
+# ── 2b. Write SOUL.md to OpenClaw workspace ──────────────────────────────────
+mkdir -p /root/.openclaw/workspace
+echo "$SOUL_CONTENT_B64" | base64 --decode > /root/.openclaw/workspace/SOUL.md
+echo "[startup] SOUL.md written ($(wc -c < /root/.openclaw/workspace/SOUL.md) bytes)"
 
 # ── 3. Install OpenClaw ───────────────────────────────────────────────────────
 npm install -g openclaw@latest
@@ -131,6 +142,8 @@ export interface LaunchBotVMOptions {
   botServiceAccount: string;
   /** Pre-generated token the OpenClaw Gateway will require for WebSocket connections. */
   gatewayToken: string;
+  /** Full SOUL.md markdown content for this bot's behavioral constitution */
+  soulContent: string;
 }
 
 /**
@@ -158,6 +171,7 @@ export async function launchBotVM(opts: LaunchBotVMOptions): Promise<{ instanceN
     toolGatewayUrl: opts.toolGatewayUrl,
     executionServiceUrl: opts.executionServiceUrl,
     gatewayToken: opts.gatewayToken,
+    soulContent: opts.soulContent,
   });
 
   console.log('[gce-bot-launcher] Submitting GCE insert:', {

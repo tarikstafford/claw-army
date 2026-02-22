@@ -1,6 +1,8 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import type { ActionData } from './$types';
+  import { getArmyBuilderAnalysis } from '$lib/api';
+  import type { ArmyBuilderAnalysis } from '$lib/types';
 
   const LLM_PROVIDERS: { id: string; label: string; description: string }[] = [
     { id: 'anthropic', label: 'Anthropic', description: 'Claude models via Anthropic API' },
@@ -18,7 +20,26 @@
   let allowedDomains   = $state(DEFAULT_DOMAINS);
   let submitting       = $state(false);
 
+  let armyAnalysis = $state<ArmyBuilderAnalysis | null>(null);
+  let analysisLoading = $state(false);
+  let analysisError = $state<string | null>(null);
+
   let error = $derived(form?.error ?? null);
+  let submissionBlocked = $derived(armyAnalysis?.blocked ?? false);
+
+  async function analyzeObjective() {
+    if (!objective.trim()) return;
+    analysisLoading = true;
+    analysisError = null;
+    try {
+      armyAnalysis = await getArmyBuilderAnalysis(objective, maxBots);
+    } catch (err) {
+      analysisError = (err as Error).message;
+      armyAnalysis = null;
+    } finally {
+      analysisLoading = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -176,6 +197,111 @@
 
     </div>
 
+    <!-- Army Builder Analysis (UIEX-04) -->
+    <div class="panel" id="army-analysis">
+      <div class="panel-label">
+        <span class="panel-tag">06</span>
+        Army Composition Analysis
+      </div>
+      <p class="panel-hint">Analyze your objective to see the available agent pool and composition tiers.</p>
+
+      <button
+        type="button"
+        class="analyze-btn"
+        onclick={analyzeObjective}
+        disabled={analysisLoading || !objective.trim()}
+      >
+        {#if analysisLoading}
+          <span class="launch-spinner"></span>
+          Analyzing...
+        {:else}
+          Analyze Objective
+        {/if}
+      </button>
+
+      {#if analysisError}
+        <div class="analysis-error">{analysisError}</div>
+      {/if}
+
+      {#if armyAnalysis}
+        <!-- Detected Categories -->
+        <div class="analysis-section">
+          <h3 class="analysis-heading">Task Categories Detected</h3>
+          <div class="category-tags">
+            {#each armyAnalysis.categories as cat}
+              <span class="category-tag">{cat}</span>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Library Depth -->
+        <div class="analysis-section">
+          <h3 class="analysis-heading">Agent Library Depth</h3>
+          <p class="analysis-hint">Available agents in the DNA library for each detected category.</p>
+          <div class="depth-table-wrapper">
+            <table class="depth-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Novice</th>
+                  <th>Understudy</th>
+                  <th>Artisan</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each armyAnalysis.libraryDepth as depth}
+                  <tr>
+                    <td class="cat-name">{depth.taskCategory}</td>
+                    <td>{depth.noviceCount}</td>
+                    <td>{depth.understudyCount}</td>
+                    <td>{depth.artisanCount}</td>
+                    <td class="total-cell">{depth.totalAgents}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+          {#if armyAnalysis.libraryDepth.every(d => d.totalAgents === 0)}
+            <p class="library-empty-note">No existing agents found for these categories. New Novice agents will be spawned.</p>
+          {/if}
+        </div>
+
+        <!-- Budget Tiers -->
+        <div class="analysis-section">
+          <h3 class="analysis-heading">Composition Tiers</h3>
+          <div class="tier-cards">
+            <div class="tier-card">
+              <span class="tier-card-label">FULL</span>
+              <span class="tier-card-value">{armyAnalysis.budgetTiers.full.agentCount} agents</span>
+              <span class="tier-card-detail">{armyAnalysis.budgetTiers.full.label}</span>
+            </div>
+            <div class="tier-card">
+              <span class="tier-card-label">75%</span>
+              <span class="tier-card-value">{armyAnalysis.budgetTiers.reduced.agentCount} agents</span>
+              <span class="tier-card-detail">{armyAnalysis.budgetTiers.reduced.label}</span>
+            </div>
+            <div class="tier-card tier-card-minimum">
+              <span class="tier-card-label">MINIMUM</span>
+              <span class="tier-card-value">{armyAnalysis.budgetTiers.minimumViable.agentCount} agents</span>
+              <span class="tier-card-detail">{armyAnalysis.budgetTiers.minimumViable.label}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block Warning -->
+        {#if armyAnalysis.blocked}
+          <div class="block-warning">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7 4v3.5M7 9.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            {armyAnalysis.blockReason}
+          </div>
+        {/if}
+      {/if}
+    </div>
+
     {#if error}
       <div class="error-banner">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -186,8 +312,10 @@
       </div>
     {/if}
 
-    <button type="submit" class="launch-btn" disabled={submitting}>
-      {#if submitting}
+    <button type="submit" class="launch-btn" disabled={submitting || submissionBlocked}>
+      {#if submissionBlocked}
+        Blocked — Adjust Crew Size
+      {:else if submitting}
         <span class="launch-spinner"></span>
         Deploying crew...
       {:else}
@@ -581,5 +709,184 @@
     .row-panels {
       grid-template-columns: 1fr;
     }
+
+    .tier-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Army Builder Analysis ── */
+  .analyze-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-2);
+    padding: 0.625rem var(--s-4);
+    background: var(--surface-3, #1f2937);
+    color: var(--text-primary, #f9fafb);
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid var(--border, #374151);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    width: fit-content;
+  }
+
+  .analyze-btn:hover:not(:disabled) {
+    background: var(--surface-2, #374151);
+    border-color: var(--text-muted, #6b7280);
+  }
+
+  .analyze-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .analysis-error {
+    padding: 0.625rem 0.875rem;
+    background: var(--critical-tint, #1f0909);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--r-sm);
+    font-size: 0.8125rem;
+    color: var(--critical, #f87171);
+  }
+
+  .analysis-section {
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--border, #1f2937);
+  }
+
+  .analysis-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary, #9ca3af);
+    margin: 0 0 var(--s-2);
+  }
+
+  .analysis-hint {
+    font-size: 0.8125rem;
+    color: var(--text-muted, #6b7280);
+    margin: 0 0 var(--s-3);
+  }
+
+  .category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .category-tag {
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    background: var(--signal-tint, rgba(61, 126, 255, 0.08));
+    color: var(--signal, #3d7eff);
+    border: 1px solid var(--signal-border, rgba(61, 126, 255, 0.2));
+    border-radius: 9999px;
+  }
+
+  .depth-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .depth-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+
+  .depth-table thead th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary, #9ca3af);
+    border-bottom: 1px solid var(--border, #1f2937);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .depth-table tbody td {
+    padding: 0.5rem 0.75rem;
+    color: var(--text-primary, #f9fafb);
+    border-bottom: 1px solid var(--border, #1f2937);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cat-name {
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-weight: 600;
+  }
+
+  .total-cell {
+    font-weight: 700;
+  }
+
+  .library-empty-note {
+    font-size: 0.8125rem;
+    color: var(--text-muted, #6b7280);
+    font-style: italic;
+    margin: var(--s-2) 0 0;
+  }
+
+  .tier-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-3);
+  }
+
+  .tier-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: var(--s-3) var(--s-4);
+    background: var(--surface-2, #111827);
+    border: 1px solid var(--border, #1f2937);
+    border-radius: var(--r-sm);
+  }
+
+  .tier-card-minimum {
+    border-color: var(--signal-border, rgba(61, 126, 255, 0.2));
+  }
+
+  .tier-card-label {
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #6b7280);
+  }
+
+  .tier-card-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary, #f9fafb);
+  }
+
+  .tier-card-detail {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #9ca3af);
+  }
+
+  .block-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s-2);
+    padding: var(--s-3) var(--s-4);
+    background: #1f0909;
+    border: 1px solid #7f1d1d;
+    border-radius: var(--r-sm);
+    font-size: 0.875rem;
+    color: #fca5a5;
+    line-height: 1.5;
+  }
+
+  .block-warning svg {
+    flex-shrink: 0;
+    margin-top: 2px;
   }
 </style>

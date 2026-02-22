@@ -22,6 +22,41 @@
       "when": 1771425330768,
       "tag": "0002_melted_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1771657742722,
+      "tag": "0003_soul_system_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1771669259361,
+      "tag": "0004_add_human_review_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771692711273,
+      "tag": "0005_decision_traces_unique_decision_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771727571605,
+      "tag": "0006_add_time_on_screen_ms",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771730229256,
+      "tag": "0007_god_layer_schema",
+      "breakpoints": true
     }
   ]
 }
