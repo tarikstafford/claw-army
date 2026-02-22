@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Users can deploy a crew of AI bots, watch them work in real-time, and see exactly what each bot cost and how well it performed — so they can trust and improve every run.
-**Current focus:** v2.0 — The SOUL System (Phase 11 Plan 02 complete — Full async Council evaluation pipeline complete, CNCL-01 through CNCL-06 satisfied)
+**Current focus:** v2.0 — The SOUL System (Phase 12 Plan 01 complete — Human confirmation gate API established, 5 verdict endpoints with idempotency guard and calibration tracking)
 
 ## Current Position
 
-Phase: 11-the-council
-Plan: 02 (complete — all plans in phase 11 complete)
-Status: Phase 11 complete — council-worker.ts created, completion-checker.ts enqueues council jobs fire-and-forget, main.ts starts worker with graceful shutdown. Full Council pipeline operational.
-Last activity: 2026-02-22 — Phase 11-02 complete (council worker processor + completion-checker integration)
+Phase: 12-human-confirmation-gate
+Plan: 01 (complete)
+Status: Phase 12 Plan 01 complete — verdictsRoutes Fastify plugin with 5 endpoints (pending, single verdict, confirm, reject, calibration) registered at /verdicts. Migration 0006_add_time_on_screen_ms.sql generated. TypeScript compiles cleanly in both packages.
+Last activity: 2026-02-22 — Phase 12-01 complete (verdict confirmation gate API)
 
 Progress: [███░░░░░░░░░░░░░░░░░░░░░░░░░] 15% (6/TBD v2.0 plans — Phase 11 Plan 01 complete)
 
@@ -38,10 +38,11 @@ Progress: [███░░░░░░░░░░░░░░░░░░░░
 | 09-soul-generation-and-dispatch-integration | 3/? | 4 min | 1.3 min |
 | 10-decision-trace-collection | 2/2 | 10 min | 5 min |
 | 11-the-council | 2/2 | 6 min | 3 min |
+| 12-human-confirmation-gate | 1/? | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 10-01 (8 min), 10-02 (2 min), 11-01 (3 min), 11-02 (3 min)
-- Trend: ~2-8 min per plan for targeted gap-closure work.
+- Last 5 plans: 10-02 (2 min), 11-01 (3 min), 11-02 (3 min), 12-01 (3 min)
+- Trend: ~2-3 min per plan for targeted gap-closure work.
 
 *Updated after each plan completion*
 
@@ -95,6 +96,11 @@ Phase 08-02 decisions:
 - [Phase 11-02]: VERDICT_VALUES numeric map (Promote=4 to Retire=0) + weighted average + VERDICT_FROM_VALUE lookup enables clean weighted aggregation of three judge verdicts with bidirectional mapping
 - [Phase 11-02]: enqueueCouncilJobs not exported — internal to completion-checker, enforcing fire-and-forget contract at module boundary; callers cannot accidentally await it
 - [Phase 11-02]: councilQueue.addBulk used instead of individual add() calls — atomic bulk enqueue per execution is cleaner and reduces Redis round-trips
+- [Phase 12-01]: GET /verdicts/pending only surfaces Promote and Retire verdicts — Maintain/Monitor/Demote never require human confirmation per CONF requirements
+- [Phase 12-01]: Confirm and reject use single atomic UPDATE WHERE status=pending AND verdictType IN (Promote,Retire) plus .returning() — eliminates race conditions vs SELECT-then-UPDATE; 0 rows returned means 409
+- [Phase 12-01]: reject endpoint does NOT set confirmedAt — only confirmedBy and timeOnScreenMs; rejection is not a confirmation event
+- [Phase 12-01]: warningTriggered threshold total>=10 AND rate>0.95 — requires meaningful sample size before anti-rubber-stamp alert triggers
+- [Phase 12-01]: Migration 0006 renamed from 0006_parallel_rage to 0006_add_time_on_screen_ms following established rename pattern (08-02, 09-03, 10-01)
 
 ### Roadmap Evolution
 
@@ -119,5 +125,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 11-02-PLAN.md (council worker + completion-checker integration — full Council pipeline complete)
+Stopped at: Completed 12-01-PLAN.md (verdict confirmation gate API — 5 Fastify endpoints with idempotency guard and calibration tracking)
 Resume file: None
