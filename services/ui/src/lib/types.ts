@@ -179,6 +179,24 @@ export interface CalibrationData {
   warningTriggered: boolean;
 }
 
+export interface ArmyBuilderAnalysis {
+  categories: string[];
+  libraryDepth: Array<{
+    taskCategory: string;
+    noviceCount: number;
+    understudyCount: number;
+    artisanCount: number;
+    totalAgents: number;
+  }>;
+  budgetTiers: {
+    full: { label: string; agentCount: number; perCategory: number };
+    reduced: { label: string; agentCount: number; perCategory: number };
+    minimumViable: { label: string; agentCount: number; perCategory: number };
+  };
+  blocked: boolean;
+  blockReason: string | null;
+}
+
 export interface LifecycleNotification {
   type: 'soul_promoted' | 'soul_demoted' | 'soul_retired' | 'pioneer_detected';
   botId: string;

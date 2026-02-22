@@ -10,6 +10,7 @@ import type {
   PendingVerdict,
   VerdictDetail,
   CalibrationData,
+  ArmyBuilderAnalysis,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -123,4 +124,17 @@ export async function rejectVerdict(
 
 export async function getCalibration(userId: string): Promise<CalibrationData> {
   return apiFetch(`${BASE}/verdicts/calibration?userId=${encodeURIComponent(userId)}`);
+}
+
+// Army Builder (Phase 14 — UIEX-04/05)
+
+export async function getArmyBuilderAnalysis(
+  objective: string,
+  maxBots: number,
+): Promise<ArmyBuilderAnalysis> {
+  const params = new URLSearchParams({
+    objective,
+    maxBots: String(maxBots),
+  });
+  return apiFetch(`${BASE}/army-builder/analysis?${params}`);
 }
