@@ -4,6 +4,7 @@ import {
   varchar,
   integer,
   numeric,
+  text,
   timestamp,
   pgEnum,
   index,
@@ -37,6 +38,7 @@ export const bots = pgTable(
     tasksFailed: integer('tasks_failed').notNull().default(0),
     compositeScore: numeric('composite_score', { precision: 5, scale: 2 }),
     tier: varchar('tier', { length: 10 }),
+    errorMessage: text('error_message'),
     soulId: uuid('soul_id'), // nullable; logical FK to bot_souls.id (no explicit FK to avoid circular dependency)
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
