@@ -136,8 +136,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 19-01-PLAN.md — Bot card enhancements: extend /by-execution with currentTaskDescription, toolCallCount, tokenBurnRate + enriched objective hub activity feed (RUN-01, RUN-02)
-- [ ] 19-02-PLAN.md — Soul tier distribution on report + VerdictConfirmPanel extraction + inline verdict highlights in run view (RUN-03, RUN-04)
+- [x] 19-01-PLAN.md — Bot card enhancements: extend /by-execution with currentTaskDescription, toolCallCount, tokenBurnRate + enriched objective hub activity feed (RUN-01, RUN-02)
+- [x] 19-02-PLAN.md — Soul tier distribution on report + VerdictConfirmPanel extraction + inline verdict highlights in run view (RUN-03, RUN-04)
 
 ---
 
@@ -163,4 +163,4 @@ Plans:
 | 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 17. Objective Hub UI | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |
-| 19. Run View Enhancements | v3.0 | 0/TBD | Not started | - |
+| 19. Run View Enhancements | v3.0 | 2/2 | Complete | 2026-02-23 |
