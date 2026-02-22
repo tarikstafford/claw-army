@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 17 of 19 (Objective Hub UI)
-Plan: 3 of 3 in current phase — 17-03 Task 1 complete, paused at human-verify checkpoint (Task 2)
-Status: Phase 17 in progress — awaiting visual verification of Objective Hub UI
-Last activity: 2026-02-22 — 17-03 Task 1 complete: /objectives/[id] detail page with header, aggregate stats (HUB-02), live status panel (HUB-03), run history table (HUB-01), DNA evolution summary (HUB-04)
+Plan: 3 of 3 in current phase — COMPLETE
+Status: Phase 17 complete — Objective Hub UI fully delivered and visually verified
+Last activity: 2026-02-22 — 17-03 complete: /objectives/[id] detail page (HUB-01, HUB-02, HUB-03, HUB-04) — human verified and approved
 
-Progress: [████░░░░░░] 11% (v3.0 — Phase 17 plan 3 of 3 in progress, awaiting human verify)
+Progress: [████░░░░░░] 11% (v3.0 — Phase 17 complete, 3/3 plans done)
 
 ## Performance Metrics
 
@@ -69,6 +69,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 
 - [17-02] No CSS variable conversion on objectives page — kept hardcoded light-mode colors consistent with billing/+page.svelte
 - [17-02] Objectives nav link is first in nav-right (before Guide) — primary v3.0 navigation target
+- [17-03] activeRunId is plain $state (not $derived from runs) — prevents Svelte 5 infinite re-run loop in SSE/polling effect
+- [17-03] SSE effect cleanup: returns () => { clearInterval(interval); cleanup?.(); } — mirrors executions/[id] pattern; terminal status events clear activeRunId to auto-dismiss live panel
+- [17-03] activityFeed LIFO slice of 5: [event, ...activityFeed].slice(0, 5) — newest event always first
 
 ### Pending Todos
 
@@ -88,5 +91,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: 17-03-PLAN.md Task 2 (checkpoint:human-verify) — visual verification of complete Objective Hub UI required
+Stopped at: Completed 17-03-PLAN.md — Phase 17 (Objective Hub UI) fully complete
 Resume file: None
