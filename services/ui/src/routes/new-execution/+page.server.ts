@@ -30,6 +30,7 @@ export const actions: Actions = {
     const llmProvider = (formData.get('llmProvider') as string | null) ?? 'anthropic';
     const allowedDomainsRaw = (formData.get('allowedDomains') as string | null) ?? '';
     const allowedDomains = allowedDomainsRaw.split(',').map(d => d.trim()).filter(Boolean);
+    const objectiveId = (formData.get('objectiveId') as string | null)?.trim() || null;
 
     // Extract Auth.js session token from cookies
     // Auth.js uses 'authjs.session-token' on HTTP (dev) and '__Secure-authjs.session-token' on HTTPS (prod)
@@ -50,7 +51,14 @@ export const actions: Actions = {
           'Content-Type': 'application/json',
           ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
         },
-        body: JSON.stringify({ objective, maxBots, budgetCapCents, llmProvider, allowedDomains }),
+        body: JSON.stringify({
+          objective,
+          maxBots,
+          budgetCapCents,
+          llmProvider,
+          allowedDomains,
+          ...(objectiveId ? { objectiveId } : {}),
+        }),
       });
     } catch (err) {
       return fail(503, { error: 'Could not reach execution service. Please try again.' });

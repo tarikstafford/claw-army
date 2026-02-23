@@ -34,6 +34,7 @@ export async function createExecution(body: {
   maxBots: number;
   budgetCapCents: number;
   allowedTools: string[];
+  objectiveId?: string;
 }): Promise<{ executionId: string; status: 'queued' }> {
   return apiFetch(`${BASE}/executions`, {
     method: 'POST',
