@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 — Phase 21 complete, Phase 22 next (v3.0 Tech Debt Cleanup)
+**Current focus:** v3.0 — Phase 22 complete (v3.0 Tech Debt Cleanup — final plan done)
 
 ## Current Position
 
-Phase: 21 of 22 (Launch-from-Objective UI)
-Plan: 2 of 2 complete — Phase 21 complete
-Status: Phase 21 complete — launch-from-objective flow wired end-to-end: button on objective detail page navigates to /new-execution with pre-filled URL params
-Last activity: 2026-02-23 — 21-02 complete: "Launch from this objective" button added to objective detail page header with pre-wired URL params
+Phase: 22 of 22 (v3.0 Tech Debt Cleanup)
+Plan: 1 of 1 complete — Phase 22 complete
+Status: Phase 22 complete — dead CSS removed, real userId wired into VerdictConfirmPanel, Phase 15 ROADMAP checkboxes corrected
+Last activity: 2026-02-23 — 22-01 complete: v3.0 tech debt cleanup finished
 
-Progress: [█████████░] ~90% (gap-closure phases 20-22 in progress)
+Progress: [██████████] ~100% (v3.0 all phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 43 (v1.0 + v1.1 + v2.0 + v3.0 P01-04)
+- Total plans completed: 44 (v1.0 + v1.1 + v2.0 + v3.0 P01-22)
 - Average duration: 4.7 min
-- Total execution time: 214 min
+- Total execution time: 216 min
 
 **By Phase:**
 
@@ -38,6 +38,7 @@ Progress: [█████████░] ~90% (gap-closure phases 20-22 in pro
 | Phase 20-spawn-timeout-error-preservation P01 | 5 min | 1 task | 1 file |
 | Phase 21-launch-from-objective-ui P01 | 8 min | 2 tasks | 3 files |
 | Phase 21-launch-from-objective-ui P02 | 2 min | 1 task | 1 file |
+| Phase 22-v3-tech-debt-cleanup P01 | 2 min | 2 tasks | 3 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -105,6 +106,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [21-02] budgetCapDollars fallback of 10 (dollars) when defaultBudgetCapCents is null — aligns with plan specification
 - [21-02] Indigo #4f46e5 (slightly deeper than page's existing #6366f1) distinguishes the primary action button from secondary view/navigation links
 
+- [22-01] Dead agent class CSS removed from report page — SoulTierBadge component replaced raw spans in Phase 18-02, making 40 lines of .class-* CSS orphaned
+- [22-01] userId derived from data.session?.user?.email with 'operator' fallback — follows established pattern from verdicts/+page.svelte and verdicts/[verdictId]/+page.svelte
+- [22-01] let { data } = $props() used (not page.data.session) — codebase convention reserves page store for route params only
+
 ### Pending Todos
 
 None.
@@ -123,5 +128,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 21-02-PLAN.md — Phase 21 complete: "Launch from this objective" button added to objective detail page, completing end-to-end launch-from-objective flow
+Stopped at: Completed 22-01-PLAN.md — Phase 22 complete: v3.0 tech debt cleanup done (dead CSS, real userId, Phase 15 ROADMAP accuracy)
 Resume file: None
