@@ -110,6 +110,18 @@
     {/if}
     <p class="meta">Created {new Date(objective?.createdAt ?? '').toLocaleDateString()} | Default bots: {objective?.defaultMaxBots}</p>
 
+    <div class="launch-row">
+      <a
+        href="/new-execution?objectiveId={objectiveId}&maxBots={objective?.defaultMaxBots ?? 3}&budgetCapDollars={objective?.defaultBudgetCapCents ? objective.defaultBudgetCapCents / 100 : 10}"
+        class="launch-objective-btn"
+      >
+        Launch from this objective
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2.5 7h9M8 3.5L11.5 7 8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
     <!-- Section 2: Aggregate Stats Panel (HUB-02) -->
     <section class="section">
       <h2>Aggregate Stats</h2>
@@ -254,7 +266,29 @@
     font-size: 0.9rem;
   }
 
-  .meta { font-size: 0.85rem; color: #6b7280; margin: 0 0 2rem; }
+  .meta { font-size: 0.85rem; color: #6b7280; margin: 0 0 0.5rem; }
+
+  .launch-row {
+    margin: 1rem 0 2rem;
+  }
+
+  .launch-objective-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: #4f46e5;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .launch-objective-btn:hover {
+    background: #4338ca;
+  }
 
   .loading {
     padding: 2rem;
