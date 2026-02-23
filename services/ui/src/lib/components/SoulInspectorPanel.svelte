@@ -62,22 +62,22 @@
 
   function agentClassStyle(cls: string | null): string {
     switch (cls) {
-      case 'Artisan': return 'background:#fff7ed;color:#d97706;border:1px solid #fde68a;';
-      case 'Understudy': return 'background:#f5f3ff;color:#8b5cf6;border:1px solid #ddd6fe;';
-      case 'Novice': return 'background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;';
-      case 'Retired': return 'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;';
-      default: return 'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;';
+      case 'Artisan':   return 'color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,0.2);';
+      case 'Understudy': return 'color:var(--teal);background:var(--teal-dim);border:1px solid rgba(45,212,191,0.2);';
+      case 'Novice':    return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
+      case 'Retired':   return 'color:var(--rose);background:var(--rose-dim);border:1px solid rgba(244,114,182,0.15);';
+      default:          return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
     }
   }
 
   function verdictBadgeStyle(type: string): string {
     switch (type) {
-      case 'Promote': return 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;';
-      case 'Retire': return 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;';
-      case 'Demote': return 'background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;';
-      case 'Monitor': return 'background:#fefce8;color:#ca8a04;border:1px solid #fde68a;';
-      case 'Maintain': return 'background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;';
-      default: return 'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;';
+      case 'Promote':  return 'color:var(--teal);background:var(--teal-dim);border:1px solid rgba(45,212,191,0.2);';
+      case 'Retire':   return 'color:var(--rose);background:var(--rose-dim);border:1px solid rgba(244,114,182,0.15);';
+      case 'Demote':   return 'color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,0.2);';
+      case 'Monitor':  return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
+      case 'Maintain': return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
+      default:         return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
     }
   }
 
@@ -228,7 +228,7 @@
   .backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(7,6,15,0.7);
     z-index: 100;
   }
 
@@ -239,12 +239,13 @@
     bottom: 0;
     width: 100%;
     max-width: 480px;
-    background: #fff;
-    color: #111827;
+    background: var(--bg-card);
+    color: var(--text);
+    border-left: 1px solid var(--border-mid);
     z-index: 101;
     display: flex;
     flex-direction: column;
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+    box-shadow: -4px 0 40px rgba(7,6,15,0.6);
     animation: slideIn 0.25s ease-out;
     outline: none;
   }
@@ -259,7 +260,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
 
@@ -267,24 +268,26 @@
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text);
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 
   .close-btn {
     background: none;
-    border: none;
+    border: 1px solid var(--border);
     font-size: 1rem;
     cursor: pointer;
-    color: #6b7280;
+    color: var(--text-muted);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     line-height: 1;
-    transition: background 0.1s;
+    transition: color 0.15s, border-color 0.15s;
   }
 
   .close-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
+    border-color: var(--border-mid);
+    color: var(--text);
   }
 
   .panel-body {
@@ -294,7 +297,7 @@
   }
 
   .loading-text {
-    color: #6b7280;
+    color: var(--text-faint);
     font-size: 0.9rem;
     font-style: italic;
     margin: 0;
@@ -302,17 +305,17 @@
   }
 
   .error-text {
-    color: #dc2626;
+    color: var(--error);
     font-size: 0.875rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--error-dim);
+    border: 1px solid rgba(248,113,113,0.2);
     border-radius: 6px;
     padding: 0.75rem 1rem;
     margin: 0;
   }
 
   .empty-text {
-    color: #9ca3af;
+    color: var(--text-faint);
     font-size: 0.875rem;
     font-style: italic;
     margin: 0;
@@ -323,7 +326,7 @@
   .section {
     padding-bottom: 1.25rem;
     margin-bottom: 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
   }
 
   .section:last-child {
@@ -333,11 +336,12 @@
 
   .section-title {
     margin: 0 0 0.75rem;
-    font-size: 0.8rem;
+    font-size: 10px;
+    font-family: var(--font-mono);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #6b7280;
+    letter-spacing: 0.15em;
+    color: var(--text-faint);
   }
 
   /* Agent Class Badge */
@@ -345,10 +349,11 @@
     display: inline-block;
     padding: 0.2rem 0.75rem;
     border-radius: 9999px;
-    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
   }
 
   /* Lineage */
@@ -365,22 +370,24 @@
   }
 
   .lineage-label {
-    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #9ca3af;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
   }
 
   .lineage-value {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--text);
   }
 
   .monospace {
-    font-family: ui-monospace, 'Cascadia Code', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
+    color: var(--text-muted);
   }
 
   /* Dimensions */
@@ -396,15 +403,21 @@
     margin: 0 0 0.3rem;
     font-size: 0.8rem;
     font-weight: 700;
-    color: #374151;
+    color: var(--text-muted);
   }
 
   .dimension-content {
     margin: 0;
     font-size: 0.875rem;
-    color: #4b5563;
+    color: var(--text);
     line-height: 1.55;
     white-space: pre-wrap;
+    background: var(--bg-2);
+    padding: 0.625rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
   }
 
   /* Directives */
@@ -418,7 +431,7 @@
 
   .directive-item {
     font-size: 0.875rem;
-    color: #374151;
+    color: var(--text);
     line-height: 1.5;
   }
 
@@ -434,37 +447,41 @@
     display: inline-block;
     padding: 0.2rem 0.65rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.08em;
   }
 
   .confidence-score {
+    font-family: var(--font-mono);
     font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-muted);
   }
 
   .verdict-summary {
     margin: 0 0 1rem;
     font-size: 0.875rem;
-    color: #4b5563;
+    color: var(--text);
     line-height: 1.55;
   }
 
   /* Per-judge details */
   .judge-details {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     border-radius: 6px;
     margin-bottom: 0.5rem;
+    background: var(--bg-3);
   }
 
   .judge-summary {
     padding: 0.6rem 0.875rem;
-    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-muted);
     cursor: pointer;
     user-select: none;
     list-style: none;
@@ -477,7 +494,7 @@
   .judge-summary::before {
     content: '+ ';
     font-weight: 700;
-    color: #6366f1;
+    color: var(--violet-bright);
   }
 
   details[open] > .judge-summary::before {
@@ -487,9 +504,9 @@
   .judge-output {
     margin: 0;
     padding: 0.75rem 0.875rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
     font-size: 0.8rem;
-    color: #4b5563;
+    color: var(--text-muted);
     line-height: 1.5;
   }
 </style>
