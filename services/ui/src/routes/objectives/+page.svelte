@@ -16,7 +16,7 @@
 </script>
 
 <svelte:head>
-  <title>Objectives | Claw Army</title>
+  <title>Objectives | Akasa</title>
 </svelte:head>
 
 <div class="page">
@@ -85,10 +85,12 @@
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0 0 0.25rem;
+    font-family: var(--font-display);
+    color: var(--text);
   }
 
   .subtitle {
-    color: #6b7280;
+    color: var(--text-muted);
     margin: 0 0 2rem;
     font-size: 0.9rem;
   }
@@ -96,19 +98,19 @@
   .loading {
     padding: 2rem;
     text-align: center;
-    color: #6b7280;
+    color: var(--text-muted);
   }
 
   .error {
     padding: 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--error-dim);
+    border: 1px solid rgba(248,113,113,0.25);
     border-radius: 0.5rem;
-    color: #dc2626;
+    color: var(--error);
   }
 
   .empty {
-    color: #9ca3af;
+    color: var(--text-muted);
     font-style: italic;
   }
 
@@ -126,25 +128,33 @@
   thead th {
     text-align: left;
     padding: 0.75rem 1rem;
-    background: #f3f4f6;
-    border-bottom: 2px solid #e5e7eb;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
     font-weight: 600;
-    color: #374151;
+    color: var(--text-faint);
     white-space: nowrap;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.15em;
   }
 
   tbody td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    color: #374151;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tbody tr {
+    background: var(--bg-card);
   }
 
   tbody tr:nth-child(even) {
-    background: #f9fafb;
+    background: var(--bg-3);
   }
 
   tbody tr:hover {
-    background: #f0f4ff;
+    background: var(--bg-card-2);
   }
 
   tbody tr:last-child td {
@@ -156,7 +166,7 @@
   }
 
   .col-name a {
-    color: #6366f1;
+    color: var(--violet-bright);
     text-decoration: none;
     display: block;
     overflow: hidden;
@@ -171,15 +181,16 @@
   .col-cost {
     text-align: right;
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .no-runs {
-    color: #9ca3af;
+    color: var(--text-faint);
     font-size: 0.85rem;
   }
 
   .no-class {
-    color: #9ca3af;
+    color: var(--text-faint);
     font-size: 0.85rem;
   }
 
@@ -192,42 +203,43 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
   .status-completed {
-    color: #16a34a;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid rgba(167,139,250,0.2);
   }
 
   .status-failed {
-    color: #dc2626;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    color: var(--error);
+    background: var(--error-dim);
+    border: 1px solid rgba(248,113,113,0.2);
   }
 
   .status-running {
-    color: #0066cc;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(45,212,191,0.2);
   }
 
   .status-queued {
-    color: #6b7280;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    color: var(--text-faint);
+    background: rgba(236,232,255,0.05);
+    border: 1px solid var(--border);
   }
 
   .status-stopped {
-    color: #ca8a04;
-    background: #fefce8;
-    border: 1px solid #fde68a;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
   }
 
   .status-paused {
-    color: #ca8a04;
-    background: #fefce8;
-    border: 1px solid #fde68a;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
   }
 
   /* Class badge */
@@ -238,29 +250,30 @@
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
   .class-novice {
-    color: #6b7280;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    color: var(--text-muted);
+    background: rgba(236,232,255,0.05);
+    border: 1px solid var(--border);
   }
 
   .class-understudy {
-    color: #7c3aed;
-    background: #f5f3ff;
-    border: 1px solid #ddd6fe;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(45,212,191,0.2);
   }
 
   .class-artisan {
-    color: #d97706;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
   }
 
   .class-retired {
-    color: #9ca3af;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    color: var(--rose);
+    background: var(--rose-dim);
+    border: 1px solid rgba(244,114,182,0.15);
   }
 </style>
