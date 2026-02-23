@@ -127,13 +127,19 @@ if [[ -z "$LLM_API_KEY" ]]; then
 fi
 
 # ── 5. Configure OpenClaw non-interactively ───────────────────────────────────
+# Set OPENCLAW_GATEWAY_HOST so the gateway daemon binds to the LAN interface
+# (not loopback). Without this, openclaw defaults to 127.0.0.1 and the
+# execution-service cannot reach it over the VPC network.
+export OPENCLAW_GATEWAY_HOST="$INTERNAL_IP"
+export OPENCLAW_GATEWAY_PORT="$GATEWAY_PORT"
+
 # Run onboard WITHOUT HTTP_PROXY so openclaw can reach any setup URLs it needs
 # (npm CDNs, update checks, etc.) without being blocked by the Tool Gateway allowlist.
 # The proxy is injected into the openclaw systemd service AFTER onboard completes.
 #
-# NOTE: openclaw onboard --gateway-bind lan will exit non-zero because its internal
-# verification step connects to ws://127.0.0.1:18789 (loopback) but the gateway is
-# bound to the LAN interface, not loopback. The gateway IS running correctly — the
+# NOTE: openclaw onboard internal verification connects to ws://127.0.0.1:18789
+# (loopback) even when OPENCLAW_GATEWAY_HOST is set to the LAN IP. The verification
+# step will report a failure, but the gateway IS running on the LAN IP — the
 # health check (step 6) is the authoritative check. Do NOT exit on this false failure.
 OPENCLAW_ONBOARD_OUT=$(openclaw onboard \\
   --non-interactive \\
@@ -149,9 +155,11 @@ OPENCLAW_EXIT=$?
 ONBOARD_TAIL=$(echo "$OPENCLAW_ONBOARD_OUT" | tail -10 | tr '\\n' '|')
 echo "[startup] openclaw onboard exit: $OPENCLAW_EXIT — $ONBOARD_TAIL"
 
-# ── 5b. Inject Tool Gateway proxy into openclaw systemd service ───────────────
+# ── 5b. Inject Tool Gateway proxy + gateway host into openclaw systemd service ──
 # Find the openclaw gateway systemd service and add HTTP_PROXY so the running
 # daemon routes its LLM API calls through the Tool Gateway for metering/allowlisting.
+# Also re-inject OPENCLAW_GATEWAY_HOST so the service keeps binding to the LAN IP
+# after restart (env vars from the parent shell are not inherited by systemd units).
 OPENCLAW_SERVICE=$(systemctl list-units --type=service --all --no-legend 2>/dev/null \\
   | awk '{print $1}' | grep -i openclaw | head -1 || true)
 if [[ -n "$OPENCLAW_SERVICE" ]]; then
@@ -160,6 +168,8 @@ if [[ -n "$OPENCLAW_SERVICE" ]]; then
   mkdir -p "$SVCDIR"
   cat > "\${SVCDIR}/proxy.conf" << 'SVCEOF'
 [Service]
+Environment="OPENCLAW_GATEWAY_HOST=INTERNAL_IP_PLACEHOLDER"
+Environment="OPENCLAW_GATEWAY_PORT=GW_PORT_PLACEHOLDER"
 Environment="HTTP_PROXY=TOOL_GATEWAY_PLACEHOLDER"
 Environment="HTTPS_PROXY=TOOL_GATEWAY_PLACEHOLDER"
 Environment="NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,INTERNAL_IP_PLACEHOLDER"
@@ -167,9 +177,10 @@ SVCEOF
   # Replace placeholders with actual values (heredoc can't expand vars when quoted)
   sed -i "s|TOOL_GATEWAY_PLACEHOLDER|$TOOL_GATEWAY_URL|g" "\${SVCDIR}/proxy.conf"
   sed -i "s|INTERNAL_IP_PLACEHOLDER|$INTERNAL_IP|g" "\${SVCDIR}/proxy.conf"
+  sed -i "s|GW_PORT_PLACEHOLDER|$GATEWAY_PORT|g" "\${SVCDIR}/proxy.conf"
   systemctl daemon-reload
   systemctl restart "$OPENCLAW_SERVICE" || true
-  echo "[startup] Proxy injected and service restarted: $OPENCLAW_SERVICE"
+  echo "[startup] Proxy + gateway host injected and service restarted: $OPENCLAW_SERVICE"
 else
   echo "[startup] WARNING: No openclaw systemd service found — proxy not injected (LLM calls unmetered)"
 fi

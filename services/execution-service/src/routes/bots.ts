@@ -5,7 +5,7 @@ import { eq, gt, and, desc, inArray, sql } from 'drizzle-orm';
 import { computeBotMetrics } from '../performance/metrics-computer';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'node:crypto';
-import { getBot } from '../orchestrator/bot-registry';
+import { getBot, unregisterBot } from '../orchestrator/bot-registry';
 import { OpenClawClient } from '../orchestrator/openclaw-client';
 import { publishBotStarted } from '../events/publisher';
 
@@ -546,7 +546,8 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
     // ── Failure payload path ─────────────────────────────────────────────────
     // The startup script encountered an error and reported back.
-    // Write errorMessage + set status to failed. Return 200 to acknowledge receipt.
+    // Write errorMessage + set status to failed. Remove from registry so the
+    // spawn timeout checker doesn't overwrite this error with a generic timeout message.
     if (body.success === false) {
       console.error('[bots/ready] Bot VM startup script reported failure:', {
         botId,
@@ -560,6 +561,9 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           updatedAt: new Date(),
         })
         .where(eq(bots.id, botId));
+      // Remove from in-memory registry so spawn timeout checker doesn't
+      // overwrite the actual error message with a generic "Spawn timeout" message.
+      unregisterBot(botId);
       return reply.code(200).send({ ok: true });
     }
 
