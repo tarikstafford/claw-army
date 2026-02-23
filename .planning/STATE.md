@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 
 ## Current Position
 
-Phase: 19 of 19 (Run View Enhancements)
-Plan: 2 of 2 in current phase — COMPLETE
-Status: Phase 19 complete — soul tier distribution on report, inline verdict confirmation panel (VerdictConfirmPanel), pending-verdicts endpoint, bot card verdict indicators
-Last activity: 2026-02-22 — 19-02 complete: VerdictConfirmPanel, soul tier distribution, GET /pending-verdicts, run detail inline verdict confirmation
+Phase: 20 of 22 (Spawn Timeout Error Preservation)
+Plan: 1 of 1 in current phase — COMPLETE
+Status: Phase 20 complete — stopBot() skipDbUpdate option; spawn-timeout path preserves 'failed' status + errorMessage; BOT-04 gap closed
+Last activity: 2026-02-23 — 20-01 complete: stopBot() optional skipDbUpdate flag, spawn-timeout call site updated
 
-Progress: [██████████] 100% (v3.0 — Phase 19 complete, 2/2 plans done)
+Progress: [█████████░] ~90% (gap-closure phases 20-22 in progress)
 
 ## Performance Metrics
 
@@ -35,6 +35,7 @@ Progress: [██████████] 100% (v3.0 — Phase 19 complete, 2/2
 | Phase 18-soul-inspector P02 | 3 min | 2 tasks | 5 files |
 | Phase 19-run-view-enhancements P01 | 3 min | 2 tasks | 4 files |
 | Phase 19-run-view-enhancements P02 | 3 min | 2 tasks | 7 files |
+| Phase 20-spawn-timeout-error-preservation P01 | 5 min | 1 task | 1 file |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -91,6 +92,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [19-02] Pending verdicts polling at 10s vs bots at 5s — verdicts change less frequently than bot status
 - [19-02] pending-verdicts endpoint filters verdictType IN ('Promote','Retire') — only promotion-path verdicts require human confirmation
 
+- [20-01] stopBot() skipDbUpdate option added as optional third param — existing callers unaffected (2-arg calls pass undefined, guard evaluates false, DB write proceeds as before)
+- [20-01] Only spawn-timeout call site passes skipDbUpdate:true — idle checker and all other callers continue writing status:'stopped' unconditionally
+- [20-01] publishBotStopped remains unconditional — event correctly signals VM termination regardless of which terminal status the bot ended with
+
 ### Pending Todos
 
 None.
@@ -108,6 +113,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-22
-Stopped at: Completed 19-02-PLAN.md — Phase 19 fully complete: soul tier distribution on report, VerdictConfirmPanel inline, pending-verdicts endpoint, bot card verdict indicators
+Last session: 2026-02-23
+Stopped at: Completed 20-01-PLAN.md — Phase 20 complete: stopBot() skipDbUpdate option preserves failed status + errorMessage on spawn timeout
 Resume file: None
