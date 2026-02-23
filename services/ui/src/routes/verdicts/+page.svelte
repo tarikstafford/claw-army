@@ -53,7 +53,7 @@
 </script>
 
 <svelte:head>
-  <title>Verdicts | Claw Army</title>
+  <title>Verdicts | Akasa</title>
 </svelte:head>
 
 <div class="page">
@@ -129,18 +129,20 @@
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0 0 0.25rem;
+    font-family: var(--font-display);
+    color: var(--text);
   }
 
   .subtitle {
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-size: 0.875rem;
     margin: 0;
   }
 
   .calibration-warning {
-    border: 1px solid #92400e;
-    background: #1a1100;
-    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.3);
+    background: var(--amber-dim);
+    color: var(--amber);
     border-radius: 0.5rem;
     padding: 0.875rem 1rem;
     font-size: 0.875rem;
@@ -151,20 +153,20 @@
   .loading {
     padding: 2rem;
     text-align: center;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
   }
 
   .error-banner {
     padding: 0.875rem 1rem;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
+    background: var(--error-dim);
+    border: 1px solid rgba(248,113,113,0.25);
     border-radius: 0.5rem;
-    color: #fca5a5;
+    color: var(--error);
     font-size: 0.875rem;
   }
 
   .empty {
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-style: italic;
   }
 
@@ -182,17 +184,19 @@
 
   .verdict-card {
     display: block;
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
-    border-radius: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 1.25rem;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.15s;
+    transition: border-color 0.3s, transform 0.35s, box-shadow 0.35s;
   }
 
   .verdict-card:hover {
-    border-color: #374151;
+    border-color: var(--border-mid);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
   }
 
   .card-header {
@@ -210,23 +214,42 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
+  /* Promote → teal (confirmed, progressing soul) */
   .verdict-type-promote {
-    color: #4ade80;
-    background: #052e16;
-    border: 1px solid #166534;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(45,212,191,0.2);
   }
 
+  /* Retire → rose (soul lifecycle end) */
   .verdict-type-retire {
-    color: #f87171;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
+    color: var(--rose);
+    background: var(--rose-dim);
+    border: 1px solid rgba(244,114,182,0.15);
+  }
+
+  /* Demote → amber (soul soul-mechanic intervention) */
+  .verdict-type-demote {
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
+  }
+
+  /* Monitor / Maintain → violet-dim treatment */
+  .verdict-type-monitor,
+  .verdict-type-maintain {
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid rgba(167,139,250,0.2);
   }
 
   .card-date {
     font-size: 0.75rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
   }
 
   .card-meta {
@@ -243,22 +266,24 @@
 
   .meta-label {
     font-size: 0.65rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .meta-value {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   .card-summary {
     font-size: 0.875rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     line-height: 1.5;
     margin: 0;
   }
@@ -266,14 +291,15 @@
   .da-flag {
     margin-top: 0.75rem;
     font-size: 0.75rem;
-    color: #fbbf24;
+    color: var(--amber);
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .new-verdicts-banner {
-    border: 1px solid #166534;
-    background: #052e16;
-    color: #4ade80;
+    border: 1px solid rgba(45,212,191,0.3);
+    background: var(--teal-dim);
+    color: var(--teal);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
