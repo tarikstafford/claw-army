@@ -177,10 +177,15 @@ export async function spawnBot(
  *
  * @param botId - UUID of the bot to stop
  * @param reason - Why the bot was stopped (for event metadata)
+ * @param options - Optional behaviour flags
+ * @param options.skipDbUpdate - When true, skips the DB write of status:'stopped'.
+ *   Use this when the caller has already written a terminal state (e.g. 'failed' + errorMessage)
+ *   and must not have it overwritten by stopBot's default update.
  */
 export async function stopBot(
   botId: string,
   reason: 'completed' | 'terminated' | 'failed' | 'idle_timeout',
+  options?: { skipDbUpdate?: boolean },
 ): Promise<void> {
   const botEntry = getBot(botId);
 
@@ -207,11 +212,13 @@ export async function stopBot(
     });
   });
 
-  // Update bot row in Postgres
-  await db
-    .update(bots)
-    .set({ status: 'stopped', stoppedAt: new Date(), updatedAt: new Date() })
-    .where(eq(bots.id, botId));
+  // Update bot row in Postgres — skip if caller already wrote terminal state
+  if (!options?.skipDbUpdate) {
+    await db
+      .update(bots)
+      .set({ status: 'stopped', stoppedAt: new Date(), updatedAt: new Date() })
+      .where(eq(bots.id, botId));
+  }
 
   // Remove from in-memory registry
   unregisterBot(botId);
@@ -379,8 +386,8 @@ export function startSpawnTimeoutChecker(): NodeJS.Timeout {
             })
             .where(eq(bots.id, entry.botId));
 
-          // Terminate the stale VM
-          await stopBot(entry.botId, 'failed');
+          // Terminate the stale VM — skip DB update so the 'failed' status + errorMessage above are preserved
+          await stopBot(entry.botId, 'failed', { skipDbUpdate: true });
         } catch (err) {
           console.error('[bot-orchestrator] Error handling spawn timeout:', {
             botId: entry.botId,
