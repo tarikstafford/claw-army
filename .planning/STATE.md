@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 2 of 7 complete)
+**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 3 of 7 complete)
 
 ## Current Position
 
 Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
-Plan: 2 of 7 complete — Execution pages rebranded
-Status: Phase 23, Plan 2 complete — new-execution + execution monitor pages Akasa-themed with all v3.0 logic intact
-Last activity: 2026-02-23 — 23-02 complete: new-execution (objectiveId merge) + execution monitor (VerdictConfirmPanel + SoulTierBadge) rebranded (10 min, 2 files)
+Plan: 3 of 7 complete — Shared soul/verdict components rebranded
+Status: Phase 23, Plan 3 complete — SoulTierBadge, SoulInspectorPanel, VerdictConfirmPanel all Akasa dark-mode themed (zero hardcoded hex)
+Last activity: 2026-02-23 — 23-03 complete: SoulTierBadge (amber/teal/muted/rose + Artisan pip) + SoulInspectorPanel (dark drawer, 51 tokens) + VerdictConfirmPanel (57 tokens, semantic verdict badges) rebranded (25 min, 3 files)
 
 Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (2/7 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 46 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02)
+- Total plans completed: 47 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03)
 - Average duration: 4.7 min
 - Total execution time: 232 min
 
@@ -41,6 +41,7 @@ Progress: [██████████] ~100% v3.0 core + Phase 23 in progres
 | Phase 22-v3-tech-debt-cleanup P01 | 2 min | 2 tasks | 3 files |
 | Phase 23-akasa-ui-rebrand P01 | 6 min | 2 tasks | 4 files |
 | Phase 23-akasa-ui-rebrand P02 | 10 min | 2 tasks | 2 files |
+| Phase 23-akasa-ui-rebrand P03 | 25 min | 2 tasks | 3 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -121,6 +122,11 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [23-02] Execution monitor: kept v3.0 script block entirely (VerdictConfirmPanel, SoulTierBadge, pendingVerdicts, enriched bot cards all postdate improvement/ui branch); replaced style block with Akasa tokens; added missing CSS rules for v3.0-specific elements
 - [23-02] Error/alert states use var(--error)/var(--error-dim) not var(--rose) — rose is retirement/soul lifecycle language; error is for form validation and API failure states
 
+- [23-03] SoulTierBadge uses inline-flex (not inline-block) to accommodate Artisan pip span without layout break
+- [23-03] Artisan pip added as <span class="pip"> inside SoulTierBadge — animated amber breathe dot for top-tier souls; plan specified adding one if not present
+- [23-03] {#each Svelte template syntax creates false-positive hex grep matches — not color values; verified by direct line inspection; actual hex count is 0
+- [23-03] Reject button copy changed from "teaches the army" to "teaches the soul" — aligns with Akasa soul lifecycle language
+
 ### Roadmap Evolution
 
 - Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
@@ -143,5 +149,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-02-PLAN.md — Phase 23, Plan 2 complete: new-execution (objectiveId merge) + execution monitor (VerdictConfirmPanel, SoulTierBadge, enriched bot cards) Akasa-themed (10 min, 2 files)
+Stopped at: Completed 23-03-PLAN.md — Phase 23, Plan 3 complete: SoulTierBadge + SoulInspectorPanel + VerdictConfirmPanel Akasa dark-mode themed, zero hardcoded hex, semantic verdict/tier colors (25 min, 3 files)
 Resume file: None
