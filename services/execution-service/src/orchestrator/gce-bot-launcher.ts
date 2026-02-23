@@ -127,15 +127,16 @@ if [[ -z "$LLM_API_KEY" ]]; then
 fi
 
 # ── 5. Configure OpenClaw non-interactively ───────────────────────────────────
-# Route LLM API calls through the Tool Gateway (HTTP forward proxy)
-export HTTP_PROXY="$TOOL_GATEWAY_URL"
-export HTTPS_PROXY="$TOOL_GATEWAY_URL"
-export NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1"
-
-# Non-interactive quickstart: sets LLM credentials, binds gateway to 0.0.0.0
-# so the execution service can reach it over the VPC internal IP, and installs
-# the openclaw-gw systemd service.
-openclaw onboard \\
+# Run onboard WITHOUT HTTP_PROXY so openclaw can reach any setup URLs it needs
+# (npm CDNs, update checks, etc.) without being blocked by the Tool Gateway allowlist.
+# The proxy is injected into the openclaw systemd service AFTER onboard completes.
+#
+# NOTE: openclaw onboard --gateway-bind lan will exit non-zero because its internal
+# verification step connects to ws://127.0.0.1:18789 (loopback) but the gateway is
+# bound to the LAN interface, not loopback. The gateway IS running correctly — the
+# health check (step 6) is the authoritative check. Do NOT exit on this false failure.
+OPENCLAW_ONBOARD_OUT=$(openclaw onboard \\
+  --non-interactive \\
   --accept-risk \\
   --flow quickstart \\
   --auth-choice anthropic-api-key \\
@@ -143,15 +144,42 @@ openclaw onboard \\
   --gateway-port "$GATEWAY_PORT" \\
   --gateway-bind lan \\
   --gateway-auth token \\
-  --gateway-token "$GATEWAY_TOKEN" || {
-  FAILURE_REASON="openclaw onboard command failed — exit code $?"
-  exit 1
-}
+  --gateway-token "$GATEWAY_TOKEN" 2>&1)
+OPENCLAW_EXIT=$?
+ONBOARD_TAIL=$(echo "$OPENCLAW_ONBOARD_OUT" | tail -10 | tr '\\n' '|')
+echo "[startup] openclaw onboard exit: $OPENCLAW_EXIT — $ONBOARD_TAIL"
+
+# ── 5b. Inject Tool Gateway proxy into openclaw systemd service ───────────────
+# Find the openclaw gateway systemd service and add HTTP_PROXY so the running
+# daemon routes its LLM API calls through the Tool Gateway for metering/allowlisting.
+OPENCLAW_SERVICE=$(systemctl list-units --type=service --all --no-legend 2>/dev/null \\
+  | awk '{print $1}' | grep -i openclaw | head -1 || true)
+if [[ -n "$OPENCLAW_SERVICE" ]]; then
+  echo "[startup] Injecting proxy into openclaw service: $OPENCLAW_SERVICE"
+  SVCDIR="/etc/systemd/system/\${OPENCLAW_SERVICE}.d"
+  mkdir -p "$SVCDIR"
+  cat > "\${SVCDIR}/proxy.conf" << 'SVCEOF'
+[Service]
+Environment="HTTP_PROXY=TOOL_GATEWAY_PLACEHOLDER"
+Environment="HTTPS_PROXY=TOOL_GATEWAY_PLACEHOLDER"
+Environment="NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,INTERNAL_IP_PLACEHOLDER"
+SVCEOF
+  # Replace placeholders with actual values (heredoc can't expand vars when quoted)
+  sed -i "s|TOOL_GATEWAY_PLACEHOLDER|$TOOL_GATEWAY_URL|g" "\${SVCDIR}/proxy.conf"
+  sed -i "s|INTERNAL_IP_PLACEHOLDER|$INTERNAL_IP|g" "\${SVCDIR}/proxy.conf"
+  systemctl daemon-reload
+  systemctl restart "$OPENCLAW_SERVICE" || true
+  echo "[startup] Proxy injected and service restarted: $OPENCLAW_SERVICE"
+else
+  echo "[startup] WARNING: No openclaw systemd service found — proxy not injected (LLM calls unmetered)"
+fi
 
 # ── 6. Wait for OpenClaw Gateway to be ready ──────────────────────────────────
+# Use --noproxy as belt-and-suspenders: even if NO_PROXY is not honoured by
+# this curl build, the request will still go direct to the local gateway.
 MAX_WAIT=120
 WAITED=0
-until curl -sf "http://$INTERNAL_IP:$GATEWAY_PORT/health" > /dev/null 2>&1; do
+until curl -sf --noproxy '*' "http://$INTERNAL_IP:$GATEWAY_PORT/health" > /dev/null 2>&1; do
   if [[ $WAITED -ge $MAX_WAIT ]]; then
     FAILURE_REASON="OpenClaw Gateway did not become healthy within \${MAX_WAIT}s"
     exit 1

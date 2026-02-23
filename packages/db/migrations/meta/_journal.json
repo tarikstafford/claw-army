@@ -57,6 +57,27 @@
       "when": 1771730229256,
       "tag": "0007_god_layer_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771833900000,
+      "tag": "0008_add_error_message_to_bots",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1771833901000,
+      "tag": "0009_objectives",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1771833902000,
+      "tag": "0010_executions_objective_id",
+      "breakpoints": true
     }
   ]
 }
