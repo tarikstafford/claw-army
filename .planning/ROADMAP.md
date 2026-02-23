@@ -166,8 +166,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 21-01-PLAN.md — Wire objectiveId into execution creation: api.ts createExecution() + new-execution server action extraction and forwarding
-- [ ] 21-02-PLAN.md — Add "Launch from objective" button on /objectives/[id] page + URL param passing + smoke-test run history populates
+- [x] 21-01-PLAN.md — Wire objectiveId into execution creation: api.ts createExecution() + new-execution server action extraction and forwarding
+- [x] 21-02-PLAN.md — Add "Launch from objective" button on /objectives/[id] page + URL param passing + smoke-test run history populates
 
 #### Phase 22: v3.0 Tech Debt Cleanup
 **Goal**: Clear non-critical tech debt items surfaced by the audit — dead CSS, hardcoded userId, and ROADMAP/STATE status corrections
@@ -208,5 +208,5 @@ Plans:
 | 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |
 | 19. Run View Enhancements | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 20. Spawn Timeout Error Preservation | v3.0 | 1/1 | Complete | 2026-02-23 |
-| 21. Launch-from-Objective UI | v3.0 | 0/2 | Planned | - |
+| 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 0/1 | Planned | - |
