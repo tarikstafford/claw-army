@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 — Phase 22 complete (v3.0 Tech Debt Cleanup — final plan done)
+**Current focus:** v3.0 — Phase 22 complete, Phase 23 added (Akasa UI Rebrand — Design System Rollout)
 
 ## Current Position
 
@@ -109,6 +109,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [22-01] Dead agent class CSS removed from report page — SoulTierBadge component replaced raw spans in Phase 18-02, making 40 lines of .class-* CSS orphaned
 - [22-01] userId derived from data.session?.user?.email with 'operator' fallback — follows established pattern from verdicts/+page.svelte and verdicts/[verdictId]/+page.svelte
 - [22-01] let { data } = $props() used (not page.data.session) — codebase convention reserves page store for route params only
+
+### Roadmap Evolution
+
+- Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
 
 ### Pending Todos
 

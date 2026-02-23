@@ -182,6 +182,22 @@ Plans:
 Plans:
 - [x] 22-01-PLAN.md — Remove dead CSS from report page + wire real userId into VerdictConfirmPanel + correct Phase 15 ROADMAP status
 
+#### Phase 23: Akasa UI Rebrand — Design System Rollout
+
+**Goal**: Merge the Akasa brand from `improvement/ui` and apply the design system to every page in the platform — dark violet theme, CSS custom properties, soul-concept amber accents — so the full app presents a unified, production-ready look
+**Depends on**: Phase 22
+**Requirements**: Akasa design guide (`docs/akasa-design-guide.md` on `improvement/ui` branch)
+**Success Criteria** (what must be TRUE):
+  1. The Akasa CSS token system (`--bg`, `--violet`, `--amber`, `--teal`, `--rose`, etc.) is defined in `app.css` and used consistently across all pages — no hardcoded hex values
+  2. All 13 route pages use the Akasa dark theme — none retain the old light-mode or v1 styles
+  3. Pages already rebranded in `improvement/ui` (landing, layout, login, new-execution, execution monitor) are merged in without regression
+  4. Pages not yet rebranded (report, bot detail, objectives list, objective detail, verdicts list, verdict detail, billing, guide, admin) are restyled to match the Akasa design guide
+  5. Soul-concept language uses amber (`--amber`) accents exclusively — soul tier badges, SOUL.md panel, council verdict language all reflect the brand identity
+**Plans**: TBD
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 23 to break down)
+
 ---
 
 ## Progress
@@ -210,3 +226,4 @@ Plans:
 | 20. Spawn Timeout Error Preservation | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
+| 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 0/TBD | Planned | - |
