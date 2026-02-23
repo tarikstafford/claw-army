@@ -2,39 +2,32 @@ import WebSocket from 'ws';
 import { randomUUID } from 'node:crypto';
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Types
+// Protocol types — OpenClaw Gateway JSON-RPC-style protocol
 // ──────────────────────────────────────────────────────────────────────────────
 
-/**
- * Message sent to OpenClaw Gateway to start a task session.
- * NOTE: The exact OpenClaw sessions API message schema is pending verification
- * from the OpenClaw Gateway source. Adjust `type` and field names once confirmed.
- */
-interface RunTaskMessage {
-  type: 'run_task';
-  sessionId: string;
-  prompt: string;
+interface RpcRequest {
+  type: 'req';
+  id: string;
+  method: string;
+  params: Record<string, unknown>;
 }
 
-/**
- * Completion message received from OpenClaw Gateway when a task finishes.
- */
-interface TaskCompleteMessage {
-  type: 'task_complete';
-  sessionId: string;
-  result: string;
+interface RpcResponse {
+  type: 'res';
+  id: string;
+  ok: boolean;
+  payload?: unknown;
+  error?: string;
 }
 
-/**
- * Error message received from OpenClaw Gateway when a task fails.
- */
-interface TaskFailedMessage {
-  type: 'task_failed';
-  sessionId: string;
-  error: string;
+interface GatewayEvent {
+  type: 'event';
+  event: string;
+  payload: Record<string, unknown>;
+  seq?: number;
 }
 
-type InboundMessage = TaskCompleteMessage | TaskFailedMessage | { type: string; [key: string]: unknown };
+type InboundMessage = RpcResponse | GatewayEvent | { type: string; [key: string]: unknown };
 
 // ──────────────────────────────────────────────────────────────────────────────
 // OpenClawClient
@@ -48,13 +41,15 @@ const CONNECT_TIMEOUT_MS = 10_000;
  * WebSocket client for OpenClaw Gateway.
  *
  * Connects to the OpenClaw Gateway running on a bot VM and dispatches tasks
- * via the sessions WebSocket API. Handles reconnection up to MAX_RECONNECT_ATTEMPTS
- * before marking the bot as failed.
+ * via the Gateway JSON-RPC protocol:
+ *   - Request:  { type: "req", id, method, params }
+ *   - Response: { type: "res", id, ok, payload?, error? }
+ *   - Event:    { type: "event", event, payload, seq? }
  *
  * Usage:
- *   const client = new OpenClawClient('ws://10.0.0.5:18789');
- *   await client.connect();
- *   await client.sendTask('Write a summary of...');
+ *   const client = new OpenClawClient('ws://10.0.0.5:18789', token);
+ *   await client.connect();         // authenticates via connect RPC
+ *   const sessionId = await client.sendTask('Write a summary of...');
  *   client.onComplete((result) => console.log(result));
  */
 export class OpenClawClient {
@@ -63,16 +58,47 @@ export class OpenClawClient {
   private completionCallbacks: Array<(result: string) => void> = [];
   private failureCallbacks: Array<(error: string) => void> = [];
   private _isConnected = false;
+  private pendingRequests = new Map<
+    string,
+    { resolve: (res: RpcResponse) => void; reject: (err: Error) => void }
+  >();
 
   constructor(
     private readonly wsUrl: string,
     private readonly token?: string,
   ) {}
 
+  // ── RPC helpers ─────────────────────────────────────────────────────────────
+
+  /**
+   * Send a JSON-RPC request and await the matching response.
+   * Rejects if the response has ok:false or the send itself fails.
+   */
+  private rpc(method: string, params: Record<string, unknown>): Promise<RpcResponse> {
+    return new Promise<RpcResponse>((resolve, reject) => {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        reject(new Error('[openclaw-client] Cannot send RPC: WebSocket not open'));
+        return;
+      }
+
+      const id = randomUUID();
+      const request: RpcRequest = { type: 'req', id, method, params };
+
+      this.pendingRequests.set(id, { resolve, reject });
+
+      this.ws.send(JSON.stringify(request), (err) => {
+        if (err) {
+          this.pendingRequests.delete(id);
+          reject(new Error(`[openclaw-client] RPC send failed (${method}): ${err.message}`));
+        }
+      });
+    });
+  }
+
   // ── Connection ──────────────────────────────────────────────────────────────
 
   /**
-   * Connect to the OpenClaw Gateway WebSocket.
+   * Connect to the OpenClaw Gateway WebSocket and authenticate.
    * Retries up to MAX_RECONNECT_ATTEMPTS times on failure.
    * Throws if all attempts are exhausted.
    */
@@ -84,22 +110,40 @@ export class OpenClawClient {
           attempt: this.reconnectAttempts + 1,
         });
 
-        const wsOptions = this.token
-          ? { headers: { 'OpenClaw-Token': this.token } }
-          : undefined;
-        const ws = new WebSocket(this.wsUrl, wsOptions);
+        const ws = new WebSocket(this.wsUrl);
         const connectTimeout = setTimeout(() => {
           ws.terminate();
           this.handleReconnect(resolve, reject);
         }, CONNECT_TIMEOUT_MS);
 
         ws.on('open', () => {
-          clearTimeout(connectTimeout);
           this.ws = ws;
           this._isConnected = true;
           this.reconnectAttempts = 0;
-          console.log('[openclaw-client] Connected:', this.wsUrl);
-          resolve();
+
+          // Authenticate via in-connection RPC if a token was provided
+          if (this.token) {
+            this.rpc('connect', { auth: { token: this.token } })
+              .then((res) => {
+                clearTimeout(connectTimeout);
+                if (!res.ok) {
+                  ws.terminate();
+                  reject(new Error(`[openclaw-client] Auth rejected: ${res.error ?? 'unknown'}`));
+                } else {
+                  console.log('[openclaw-client] Authenticated:', this.wsUrl);
+                  resolve();
+                }
+              })
+              .catch((err: unknown) => {
+                clearTimeout(connectTimeout);
+                ws.terminate();
+                reject(err instanceof Error ? err : new Error(String(err)));
+              });
+          } else {
+            clearTimeout(connectTimeout);
+            console.log('[openclaw-client] Connected (no auth):', this.wsUrl);
+            resolve();
+          }
         });
 
         ws.on('message', (data: Buffer) => {
@@ -120,10 +164,15 @@ export class OpenClawClient {
             reason: reason.toString(),
             url: this.wsUrl,
           });
+
+          // Reject all pending RPCs so callers don't hang
+          for (const [id, { reject: rej }] of this.pendingRequests) {
+            rej(new Error(`[openclaw-client] Connection closed (code=${code}) — RPC ${id} aborted`));
+          }
+          this.pendingRequests.clear();
+
           // Notify failure callbacks so pending tasks don't hang
-          this.failureCallbacks.forEach((cb) =>
-            cb(`Connection closed (code=${code})`),
-          );
+          this.failureCallbacks.forEach((cb) => cb(`Connection closed (code=${code})`));
           this.failureCallbacks = [];
         });
       };
@@ -162,41 +211,54 @@ export class OpenClawClient {
       return;
     }
 
-    if (msg.type === 'task_complete') {
-      const completion = msg as TaskCompleteMessage;
-      this.completionCallbacks.forEach((cb) => cb(completion.result));
-      this.completionCallbacks = [];
-    } else if (msg.type === 'task_failed') {
-      const failure = msg as TaskFailedMessage;
-      this.failureCallbacks.forEach((cb) => cb(failure.error));
-      this.failureCallbacks = [];
+    if (msg.type === 'res') {
+      const res = msg as RpcResponse;
+      const pending = this.pendingRequests.get(res.id);
+      if (pending) {
+        this.pendingRequests.delete(res.id);
+        if (res.ok) {
+          pending.resolve(res);
+        } else {
+          pending.reject(new Error(`[openclaw-client] RPC error: ${res.error ?? 'unknown'}`));
+        }
+      } else {
+        console.warn('[openclaw-client] Received res for unknown id:', res.id);
+      }
+    } else if (msg.type === 'event') {
+      const evt = msg as GatewayEvent;
+      console.log('[openclaw-client] Gateway event:', evt.event, evt.seq ?? '');
+      // ── Future: decision_annotation handler ────────────────────────────────
+      // OpenClaw does not currently emit 'decision_annotation' messages from agent
+      // reasoning (confirmed Feb 2026 — GitHub Issues #6467, #8901 closed without
+      // implementing structured annotation events).
+      //
+      // When OpenClaw adds decision_annotation support, add a handler here:
+      //   if (evt.event === 'decision_annotation') {
+      //     // Write directly to decision_traces table — this becomes the primary path.
+      //     // The post-hoc attribution compiler (attribution-compiler.ts) can then be
+      //     // deprecated or used as a fallback for older OpenClaw versions.
+      //   }
+      //
+      // OpenClaw tool streaming events (stream:'tool') are display-only metadata
+      // bubbles (tool name + argument prefix). They do NOT carry directive attribution
+      // fields (directiveText, confidence, outcome). Do not use them for traces.
+      // ───────────────────────────────────────────────────────────────────────
+    } else {
+      console.warn('[openclaw-client] Unknown message type:', (msg as { type: string }).type);
     }
-    // ── Future: decision_annotation handler ──────────────────────────────────
-    // OpenClaw does not currently emit 'decision_annotation' messages from agent
-    // reasoning (confirmed Feb 2026 — GitHub Issues #6467, #8901 closed without
-    // implementing structured annotation events).
-    //
-    // When OpenClaw adds decision_annotation support, add a handler here:
-    //   if (msg.type === 'decision_annotation') {
-    //     // Write directly to decision_traces table — this becomes the primary path.
-    //     // The post-hoc attribution compiler (attribution-compiler.ts) can then be
-    //     // deprecated or used as a fallback for older OpenClaw versions.
-    //   }
-    //
-    // OpenClaw tool streaming events (stream:'tool') are display-only metadata
-    // bubbles (tool name + argument prefix). They do NOT carry directive attribution
-    // fields (directiveText, confidence, outcome). Do not use them for traces.
-    // ─────────────────────────────────────────────────────────────────────────
   }
 
   // ── Task dispatch ───────────────────────────────────────────────────────────
 
   /**
-   * Send a task to the OpenClaw Gateway.
-   * The task runs asynchronously; listen for results via onComplete / onError.
+   * Send a task to the OpenClaw Gateway using the agent.request + agent.wait protocol.
+   *
+   * 1. Calls `agent.request` to queue the message for the main agent session.
+   * 2. Calls `agent.wait` (fire-and-forget) which blocks until the agent finishes;
+   *    on resolve → fires completionCallbacks; on reject → fires failureCallbacks.
    *
    * @param taskDescription - The plain-text task prompt for OpenClaw to execute
-   * @returns sessionId — the unique identifier for this task session
+   * @returns sessionId — a UUID for dispatcher tracing (not used in the protocol)
    */
   async sendTask(taskDescription: string): Promise<string> {
     if (!this.ws || !this._isConnected) {
@@ -204,22 +266,36 @@ export class OpenClawClient {
     }
 
     const sessionId = randomUUID();
-    const message: RunTaskMessage = {
-      type: 'run_task',
-      sessionId,
-      prompt: taskDescription,
-    };
+    const sessionKey = 'agent:main:main';
 
-    return new Promise<string>((resolve, reject) => {
-      this.ws!.send(JSON.stringify(message), (err) => {
-        if (err) {
-          reject(new Error(`[openclaw-client] Failed to send task: ${err.message}`));
-        } else {
-          console.log('[openclaw-client] Task sent:', { sessionId, promptPreview: taskDescription.slice(0, 80) });
-          resolve(sessionId);
-        }
-      });
+    console.log('[openclaw-client] Sending agent.request:', {
+      sessionId,
+      promptPreview: taskDescription.slice(0, 80),
     });
+
+    await this.rpc('agent.request', {
+      agentId: 'main',
+      sessionKey,
+      message: taskDescription,
+    });
+
+    // Fire-and-forget: agent.wait blocks until the agent finishes
+    this.rpc('agent.wait', { sessionKey })
+      .then((res) => {
+        const payload = res.payload as Record<string, unknown> | undefined;
+        const result = String(payload?.result ?? JSON.stringify(payload));
+        console.log('[openclaw-client] Task complete:', { sessionId, resultPreview: result.slice(0, 80) });
+        this.completionCallbacks.forEach((cb) => cb(result));
+        this.completionCallbacks = [];
+      })
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('[openclaw-client] Task failed:', { sessionId, error: message });
+        this.failureCallbacks.forEach((cb) => cb(message));
+        this.failureCallbacks = [];
+      });
+
+    return sessionId;
   }
 
   // ── Callbacks ───────────────────────────────────────────────────────────────
