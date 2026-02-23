@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 6 of 7 complete)
+**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 7 of 7 — audit complete, visual verification pending)
 
 ## Current Position
 
 Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
-Plan: 6 of 7 complete — Guide, admin & billing pages Akasa-themed
-Status: Phase 23, Plan 6 complete — Guide page (brand substitution: Claw Army→Akasa + 239 tokens); admin page (danger states: --critical→--error + 71 tokens); billing page (full light-to-dark restyle + 40 tokens); all three pages zero old tokens, zero hardcoded hex
-Last activity: 2026-02-23 — 23-06 complete: Guide brand substitution + full Akasa restyle (239 tokens), admin --critical→--error migration (71 tokens), billing light→dark restyle (40 tokens) (6 min, 3 files)
+Plan: 7 of 7 — App-wide compliance audit complete; human visual verification pending
+Status: Phase 23, Plan 7 audit complete — 4 compliance checks passed: 0 old CSS tokens, 0 Claw Army brand references, 0 old token definitions in app.css; hex audit passed with all values classified as acceptable exceptions (SVG fills, #fff on violet, Google brand colors); 1 minor: .tok #4ade80 on landing page (no --green token); Task 2 (visual verification) awaiting human sign-off
+Last activity: 2026-02-23 — 23-07 compliance audit complete: 4/4 audits pass, all remaining hex values classified (2 min, 0 files modified)
 
-Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (6/7 plans done)
+Progress: [██████████] ~100% v3.0 core + Phase 23 audit complete (7/7 plans, visual sign-off pending)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 50 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03 + P23-04 + P23-05 + P23-06)
+- Total plans completed: 51 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03 + P23-04 + P23-05 + P23-06 + P23-07)
 - Average duration: 4.7 min
-- Total execution time: 245 min
+- Total execution time: 247 min
 
 **By Phase:**
 
@@ -45,6 +45,7 @@ Progress: [██████████] ~100% v3.0 core + Phase 23 in progres
 | Phase 23-akasa-ui-rebrand P04 | 3 min | 2 tasks | 2 files |
 | Phase 23-akasa-ui-rebrand P05 | 4 min | 2 tasks | 4 files |
 | Phase 23-akasa-ui-rebrand P06 | 6 min | 2 tasks | 3 files |
+| Phase 23-akasa-ui-rebrand P07 | 2 min | 1 task (audit) | 0 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -151,6 +152,12 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [23-06] Billing status-completed uses violet-bright/violet-dim — positive outcome maps to violet (signal) not teal (live)
 - [23-06] #fff retained for button text on var(--violet) background — no --white token in app.css; universally correct neutral
 
+- [23-07] All 4 compliance audits pass: 0 old CSS tokens, 0 Claw Army brand references, 0 old token definitions in app.css
+- [23-07] SVG fill hex values (#a78bfa in logo circles, Google brand colors in Sign-In icon) are acceptable exceptions — CSS vars cannot be used in SVG fill attributes inline
+- [23-07] #fff in button/spinner CSS is acceptable exception — no --white token in design system (confirmed 23-06 decision applies app-wide)
+- [23-07] .tok { color: #4ade80; } on landing page terminal mockup is only actionable non-tokenized hex — no --green token in app.css; low-priority cosmetic; document as known issue post-launch
+- [23-07] Svelte {#each}, href="#...", &#entity patterns are all false-positive hex grep matches — verified by direct line inspection in each case
+
 ### Roadmap Evolution
 
 - Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
@@ -173,5 +180,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-06-PLAN.md — Phase 23, Plan 6 complete: Guide brand substitution (Claw Army→Akasa) + full Akasa restyle (239 tokens); admin --critical→--error migration (71 tokens); billing light→dark restyle (40 tokens) (6 min, 3 files)
+Stopped at: Completed 23-07-PLAN.md — Phase 23, Plan 7 audit complete: 4/4 compliance checks passed (0 old tokens, 0 brand refs, 0 old token defs); all hex values classified; visual sign-off (Task 2) pending human review (2 min, 0 files modified)
 Resume file: None
