@@ -67,9 +67,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — GCE startup script hardening + errorMessage DB column (BOT-01, BOT-02, BOT-04 foundation)
-- [ ] 15-02-PLAN.md — Ready handler validation + spawn timeout (BOT-03, BOT-04)
-- [ ] 15-03-PLAN.md — Dispatch round-trip validation + UI error surface (BOT-05, BOT-06)
+- [x] 15-01-PLAN.md — GCE startup script hardening + errorMessage DB column (BOT-01, BOT-02, BOT-04 foundation)
+- [x] 15-02-PLAN.md — Ready handler validation + spawn timeout (BOT-03, BOT-04)
+- [x] 15-03-PLAN.md — Dispatch round-trip validation + UI error surface (BOT-05, BOT-06)
 - [ ] 15-04-PLAN.md — Fix spawn timeout status overwrite (gap closure)
 
 #### Phase 16: Named Objectives Data Model
