@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 4 of 7 complete)
+**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 5 of 7 complete)
 
 ## Current Position
 
 Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
-Plan: 4 of 7 complete — Bot detail and report pages rebranded
-Status: Phase 23, Plan 4 complete — Bot detail page (87 tokens, zero hex) + Report page (88 tokens, zero hex) both Akasa dark-mode themed; podium rank badges, tier distribution counts, verdict badges all use semantic Akasa tokens
-Last activity: 2026-02-23 — 23-04 complete: Bot detail page (87 CSS tokens) + Report page (88 CSS tokens) Akasa dark-mode styled, 137+ hex replaced, podium colors + tier distribution counts + verdict badges (3 min, 2 files)
+Plan: 5 of 7 complete — Objectives pages + verdicts pages Akasa-themed
+Status: Phase 23, Plan 5 complete — Objectives list (42 tokens) + detail (77 tokens) full Akasa restyle; verdicts list (32 tokens) + detail (62 tokens) migration completed; all four pages zero hex, zero old tokens, semantic badge colors
+Last activity: 2026-02-23 — 23-05 complete: Objectives pages full Akasa restyle + verdicts pages migration complete, all 4 pages zero hex, semantic badge colors (Promote=teal, Retire=rose, Demote=amber) (4 min, 4 files)
 
-Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (4/7 plans done)
+Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (5/7 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 48 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03 + P23-04)
+- Total plans completed: 49 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03 + P23-04 + P23-05)
 - Average duration: 4.6 min
-- Total execution time: 235 min
+- Total execution time: 239 min
 
 **By Phase:**
 
@@ -43,6 +43,7 @@ Progress: [██████████] ~100% v3.0 core + Phase 23 in progres
 | Phase 23-akasa-ui-rebrand P02 | 10 min | 2 tasks | 2 files |
 | Phase 23-akasa-ui-rebrand P03 | 25 min | 2 tasks | 3 files |
 | Phase 23-akasa-ui-rebrand P04 | 3 min | 2 tasks | 2 files |
+| Phase 23-akasa-ui-rebrand P05 | 4 min | 2 tasks | 4 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -134,6 +135,14 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [23-04] Verdict retire uses var(--rose)/var(--rose-dim) not var(--error) — retire is soul lifecycle language, not a failure state
 - [23-04] Soul tier distribution counts use per-tier color classes — allows semantic color per tier without inline styles
 
+- [23-05] Score column in run history table uses var(--amber) — composite score is a soul metric, amber is soul-language
+- [23-05] Live panel border: 1px solid var(--teal) — teal border signals active/live state; matches active-indicator pattern
+- [23-05] Verdict confirm button uses var(--violet) not var(--teal) — primary action buttons use violet; teal is reserved for liveness/active states
+- [23-05] Reject button uses amber treatment (amber-dim background, amber text) — rejection is soul-mechanic correction, not error; amber = intervention language
+- [23-05] status-completed badge uses violet-bright/violet-dim — positive outcome maps to violet (signal), not teal (live) or amber (soul)
+- [23-05] Verdict type semantic colors: Promote=teal (soul progression), Retire=rose (soul lifecycle end), Demote=amber (soul-mechanic intervention), Monitor/Maintain=violet-dim (administrative)
+- [23-05] Severity badge semantic colors: strong=rose (critical soul risk), moderate=amber (intervention needed), weak=text-muted (low priority)
+
 ### Roadmap Evolution
 
 - Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
@@ -156,5 +165,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-04-PLAN.md — Phase 23, Plan 4 complete: Bot detail page (87 tokens) + Report page (88 tokens) Akasa dark-mode styled, 137+ hex replaced, podium rank badges, tier distribution colors, semantic verdict badges (3 min, 2 files)
+Stopped at: Completed 23-05-PLAN.md — Phase 23, Plan 5 complete: Objectives pages full Akasa restyle (42 + 77 CSS tokens) + verdicts pages migration complete (32 + 62 CSS tokens), zero hex, semantic badge colors (Promote=teal, Retire=rose, Demote=amber) (4 min, 4 files)
 Resume file: None
