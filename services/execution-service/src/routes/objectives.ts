@@ -114,20 +114,20 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         lastRunStatus: sql<string | null>`(
           SELECT e.status
           FROM ${executions} e
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
           ORDER BY e.created_at DESC
           LIMIT 1
         )`,
         runCount: sql<number>`(
           SELECT CAST(COUNT(*) AS int)
           FROM ${executions} e
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
         )`,
         totalSpendCents: sql<number>`(
           SELECT CAST(COALESCE(SUM(be.amount_cents), 0) AS int)
           FROM billing_events be
           JOIN ${executions} e ON e.id = be.execution_id
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
             AND be.event_type = 'tool_invoked'
         )`,
         bestBotClass: sql<string | null>`(
@@ -135,7 +135,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           FROM agent_classes ac
           JOIN bots b ON b.id = ac.bot_id
           JOIN ${executions} e ON e.id = b.execution_id
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
           ORDER BY CASE ac.current_class
             WHEN 'Artisan'    THEN 3
             WHEN 'Understudy' THEN 2
