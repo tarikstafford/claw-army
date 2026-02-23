@@ -59,6 +59,7 @@
 <div class="page">
   <div class="page-header">
     <div>
+      <div class="sec-label">Governance</div>
       <h1>Pending Verdicts</h1>
       <p class="subtitle">Promote and Retire verdicts require your review.</p>
     </div>
@@ -115,28 +116,31 @@
   .page {
     max-width: 1100px;
     margin: 0 auto;
+    padding: 100px 36px 80px;
   }
 
   .page-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     gap: 1rem;
   }
 
   h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin: 0 0 0.25rem;
     font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem;
     color: var(--text);
   }
 
   .subtitle {
     color: var(--text-muted);
-    font-size: 0.875rem;
+    font-size: 1rem;
     margin: 0;
+    line-height: 1.6;
   }
 
   .calibration-warning {
@@ -174,6 +178,10 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  @media (max-width: 960px) {
+    .page { padding: 100px 24px 60px; }
   }
 
   @media (min-width: 768px) {

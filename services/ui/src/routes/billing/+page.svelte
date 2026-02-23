@@ -21,7 +21,8 @@
 </svelte:head>
 
 <div class="page">
-  <h1>Usage & Billing</h1>
+  <div class="sec-label">Usage & Billing</div>
+  <h1>This month at a glance.</h1>
   <p class="subtitle">Monthly usage summary and historical execution costs.</p>
 
   {#if loading}
@@ -95,21 +96,24 @@
   .page {
     max-width: 1000px;
     margin: 0 auto;
+    padding: 100px 36px 80px;
   }
 
   h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
     font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
     color: var(--text);
-    margin: 0 0 0.25rem;
+    margin: 0 0 0.5rem;
   }
 
   .subtitle {
     color: var(--text-muted);
-    margin: 0 0 2rem;
-    font-size: 0.9rem;
+    margin: 0 0 2.5rem;
+    font-size: 1rem;
     font-family: var(--font-body);
+    line-height: 1.6;
   }
 
   .loading {
@@ -145,6 +149,10 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+  }
+
+  @media (max-width: 960px) {
+    .page { padding: 100px 24px 60px; }
   }
 
   @media (max-width: 768px) {
