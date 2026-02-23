@@ -48,9 +48,12 @@
 
   function verdictTypeBadgeStyle(type: string): string {
     switch (type) {
-      case 'Promote': return 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;';
-      case 'Retire': return 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;';
-      default: return 'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;';
+      case 'Promote':  return 'color:var(--teal);background:var(--teal-dim);border:1px solid rgba(45,212,191,0.2);';
+      case 'Retire':   return 'color:var(--rose);background:var(--rose-dim);border:1px solid rgba(244,114,182,0.15);';
+      case 'Demote':   return 'color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,0.2);';
+      case 'Monitor':  return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
+      case 'Maintain': return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
+      default:         return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
     }
   }
 </script>
@@ -137,7 +140,7 @@
           disabled={submitting}
           onclick={doReject}
         >
-          Reject — Your feedback teaches the army
+          Reject — Your feedback teaches the soul
         </button>
         <button
           class="action-btn confirm-btn"
@@ -159,7 +162,7 @@
   .backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(7,6,15,0.7);
     z-index: 100;
   }
 
@@ -170,12 +173,13 @@
     bottom: 0;
     width: 100%;
     max-width: 520px;
-    background: #fff;
-    color: #111827;
+    background: var(--bg-card);
+    color: var(--text);
+    border-left: 1px solid var(--border-mid);
     z-index: 101;
     display: flex;
     flex-direction: column;
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+    box-shadow: -4px 0 40px rgba(7,6,15,0.6);
     animation: slideIn 0.25s ease-out;
     outline: none;
   }
@@ -190,7 +194,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.25rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
 
@@ -198,24 +202,26 @@
     margin: 0;
     font-size: 1.1rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text);
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 
   .close-btn {
     background: none;
-    border: none;
+    border: 1px solid var(--border);
     font-size: 1rem;
     cursor: pointer;
-    color: #6b7280;
+    color: var(--text-muted);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     line-height: 1;
-    transition: background 0.1s;
+    transition: color 0.15s, border-color 0.15s;
   }
 
   .close-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
+    border-color: var(--border-mid);
+    color: var(--text);
   }
 
   .panel-body {
@@ -236,62 +242,70 @@
     display: inline-block;
     padding: 0.2rem 0.65rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.08em;
   }
 
   .confidence-score {
+    font-family: var(--font-mono);
     font-size: 0.85rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-muted);
   }
 
   /* Summary */
   .verdict-summary {
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: #4b5563;
+    color: var(--text);
     margin: 0 0 1.5rem;
   }
 
   /* Evidence */
   .evidence-section {
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
     padding-top: 1.25rem;
     margin-bottom: 1.25rem;
   }
 
   .evidence-heading {
-    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #6b7280;
+    letter-spacing: 0.15em;
+    color: var(--text-faint);
     margin: 0 0 0.75rem;
   }
 
   .evidence-note {
     font-size: 0.875rem;
-    color: #d97706;
+    color: var(--amber);
     margin: 0 0 1rem;
   }
 
   .evidence-text {
     font-size: 0.9rem;
     line-height: 1.6;
-    color: #4b5563;
+    color: var(--text-muted);
     margin: 0 0 1rem;
   }
 
-  /* Challenge cards — light mode */
+  /* Challenge cards */
   .challenge-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 1rem;
     margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+  }
+
+  .challenge-card:hover {
+    border-color: var(--border-mid);
   }
 
   .challenge-header {
@@ -302,41 +316,42 @@
     display: inline-block;
     padding: 0.15rem 0.45rem;
     border-radius: 9999px;
-    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.025em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .severity-strong {
-    color: #dc2626;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    color: var(--rose);
+    background: var(--rose-dim);
+    border: 1px solid rgba(244,114,182,0.15);
   }
 
   .severity-moderate {
-    color: #d97706;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
   }
 
   .severity-weak {
-    color: #6b7280;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    color: var(--text-muted);
+    background: rgba(236,232,255,0.05);
+    border: 1px solid var(--border);
   }
 
   .challenge-claim {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--text);
     margin: 0 0 0.5rem;
     line-height: 1.5;
   }
 
   .challenge-counter {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.5;
   }
@@ -350,27 +365,34 @@
   }
 
   .metric-item {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
     border-radius: 0.375rem;
     padding: 0.625rem 0.875rem;
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    transition: border-color 0.2s;
+  }
+
+  .metric-item:hover {
+    border-color: var(--border-mid);
   }
 
   .metric-key {
-    font-size: 0.65rem;
-    color: #6b7280;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-faint);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.1em;
     font-weight: 600;
   }
 
   .metric-val {
+    font-family: var(--font-mono);
     font-size: 0.875rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text);
     font-variant-numeric: tabular-nums;
   }
 
@@ -378,16 +400,16 @@
   .soul-section {
     margin-top: 1.25rem;
     padding-top: 1.25rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
   }
 
   /* Error */
   .error-banner {
     padding: 0.75rem 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--error-dim);
+    border: 1px solid rgba(248,113,113,0.2);
     border-radius: 0.5rem;
-    color: #dc2626;
+    color: var(--error);
     font-size: 0.875rem;
     margin-bottom: 1rem;
   }
@@ -398,7 +420,7 @@
     gap: 0.75rem;
     margin-top: 1.5rem;
     padding-top: 1.25rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border);
   }
 
   .action-btn {
@@ -409,27 +431,27 @@
     border-radius: 0.375rem;
     cursor: pointer;
     border: 1px solid;
-    transition: background 0.15s;
+    transition: background 0.15s, opacity 0.15s;
   }
 
   .reject-btn {
-    background: #92400e;
-    border-color: #92400e;
-    color: #fef3c7;
+    background: transparent;
+    border-color: var(--rose);
+    color: var(--rose);
   }
 
   .reject-btn:hover:not(:disabled) {
-    background: #a14b0f;
+    background: var(--rose-dim);
   }
 
   .confirm-btn {
-    background: #6366f1;
-    border-color: #6366f1;
-    color: #fff;
+    background: var(--teal);
+    border-color: var(--teal);
+    color: var(--bg);
   }
 
   .confirm-btn:hover:not(:disabled) {
-    background: #5457d4;
+    opacity: 0.85;
   }
 
   .action-btn:disabled {
@@ -441,11 +463,11 @@
   .already-resolved {
     margin-top: 1.5rem;
     padding: 0.875rem 1rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-3);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--text-faint);
     font-style: italic;
   }
 </style>
