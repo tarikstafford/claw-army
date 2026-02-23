@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import { db, bots, toolInvocations } from '@claw/db';
-import { eq, gt, and } from 'drizzle-orm';
+import { db, bots, toolInvocations, botSouls, councilVerdicts, agentClasses, tasks } from '@claw/db';
+import { eq, gt, and, desc, inArray, sql } from 'drizzle-orm';
 import { computeBotMetrics } from '../performance/metrics-computer';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'node:crypto';
@@ -43,13 +43,24 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
               Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
               Type.Null(),
             ]),
+            errorMessage: Type.Union([Type.String(), Type.Null()]),
+            agentClass: Type.Union([
+              Type.Literal('Novice'),
+              Type.Literal('Understudy'),
+              Type.Literal('Artisan'),
+              Type.Literal('Retired'),
+              Type.Null(),
+            ]),
+            currentTaskDescription: Type.Union([Type.String(), Type.Null()]),
+            toolCallCount: Type.Integer(),
+            tokenBurnRate: Type.Union([Type.Number(), Type.Null()]),
           }),
         ),
       },
     },
   }, async (request) => {
     const { executionId } = request.params;
-    return db
+    const botRows = await db
       .select({
         id: bots.id,
         status: bots.status,
@@ -57,10 +68,225 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         tasksCompleted: bots.tasksCompleted,
         tasksFailed: bots.tasksFailed,
         startedAt: bots.startedAt,
+        errorMessage: bots.errorMessage,
       })
       .from(bots)
       .where(eq(bots.executionId, executionId))
       .orderBy(bots.startedAt);
+
+    const botIds = botRows.map(b => b.id);
+
+    // Batch agent class lookup using CLASS_RANK precedence map (Artisan > Understudy > Novice > Retired)
+    const CLASS_RANK: Record<string, number> = { Artisan: 3, Understudy: 2, Novice: 1, Retired: 0 };
+    const agentClassMap = new Map<string, 'Novice' | 'Understudy' | 'Artisan' | 'Retired'>();
+
+    if (botIds.length > 0) {
+      const agentClassRows = await db
+        .select({ botId: agentClasses.botId, currentClass: agentClasses.currentClass })
+        .from(agentClasses)
+        .where(inArray(agentClasses.botId, botIds));
+      for (const row of agentClassRows) {
+        const existing = agentClassMap.get(row.botId);
+        if (!existing || (CLASS_RANK[row.currentClass] ?? -1) > (CLASS_RANK[existing] ?? -1)) {
+          agentClassMap.set(row.botId, row.currentClass as 'Novice' | 'Understudy' | 'Artisan' | 'Retired');
+        }
+      }
+    }
+
+    // Batch current task description lookup — tasks WHERE executionId AND status = 'claimed'
+    const taskDescMap = new Map<string, string>();
+    if (botIds.length > 0) {
+      const claimedTasks = await db
+        .select({ claimedByBotId: tasks.claimedByBotId, description: tasks.description })
+        .from(tasks)
+        .where(and(eq(tasks.executionId, executionId), eq(tasks.status, 'claimed')));
+      for (const t of claimedTasks) {
+        if (t.claimedByBotId) taskDescMap.set(t.claimedByBotId, t.description);
+      }
+    }
+
+    // Batch tool call count — COUNT from toolInvocations WHERE botId IN botIds AND rejected = false, grouped by botId
+    const toolCountMap = new Map<string, number>();
+    if (botIds.length > 0) {
+      const toolCountRows = await db
+        .select({
+          botId: toolInvocations.botId,
+          count: sql<number>`cast(count(*) as int)`,
+        })
+        .from(toolInvocations)
+        .where(and(inArray(toolInvocations.botId, botIds), eq(toolInvocations.rejected, false)))
+        .groupBy(toolInvocations.botId);
+      for (const row of toolCountRows) {
+        toolCountMap.set(row.botId, row.count);
+      }
+    }
+
+    // Batch token total — SUM(totalTokens) from toolInvocations WHERE botId IN botIds, grouped by botId
+    const tokenTotalMap = new Map<string, number>();
+    if (botIds.length > 0) {
+      const tokenRows = await db
+        .select({
+          botId: toolInvocations.botId,
+          totalTokens: sql<number>`cast(coalesce(sum(${toolInvocations.totalTokens}), 0) as int)`,
+        })
+        .from(toolInvocations)
+        .where(inArray(toolInvocations.botId, botIds))
+        .groupBy(toolInvocations.botId);
+      for (const row of tokenRows) {
+        tokenTotalMap.set(row.botId, row.totalTokens);
+      }
+    }
+
+    return botRows.map(b => {
+      const totalTokens = tokenTotalMap.get(b.id) ?? 0;
+      const activeMinutes = b.startedAt ? (Date.now() - new Date(b.startedAt).getTime()) / 60000 : 0;
+      const tokenBurnRate = activeMinutes >= 1 ? Math.round(totalTokens / activeMinutes) : null;
+      return {
+        ...b,
+        agentClass: agentClassMap.get(b.id) ?? null,
+        currentTaskDescription: taskDescMap.get(b.id) ?? null,
+        toolCallCount: toolCountMap.get(b.id) ?? 0,
+        tokenBurnRate,
+      };
+    });
+  });
+
+  // GET /:botId/soul — soul content, lineage metadata, council verdict, and agent class
+  fastify.get('/:botId/soul', {
+    schema: {
+      params: Type.Object({
+        botId: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Object({
+          soulId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
+          soulContent: Type.Union([Type.String(), Type.Null()]),
+          generation: Type.Union([Type.Integer(), Type.Null()]),
+          parentSoulId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
+          isArchetype: Type.Union([Type.Boolean(), Type.Null()]),
+          taskCategory: Type.Union([Type.String(), Type.Null()]),
+          constitutionDirectives: Type.Union([Type.Array(Type.String()), Type.Null()]),
+          dimensions: Type.Union([Type.Unknown(), Type.Null()]),
+          agentClass: Type.Union([
+            Type.Literal('Novice'),
+            Type.Literal('Understudy'),
+            Type.Literal('Artisan'),
+            Type.Literal('Retired'),
+            Type.Null(),
+          ]),
+          verdict: Type.Union([
+            Type.Object({
+              verdictType: Type.String(),
+              weightedConfidenceScore: Type.Number(),
+              verdictSummary: Type.String(),
+              soulAnalystOutput: Type.Unknown(),
+              performanceJudgeOutput: Type.Unknown(),
+            }),
+            Type.Null(),
+          ]),
+        }),
+        401: Type.Object({ error: Type.String() }),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { botId } = request.params;
+
+    // 1. Get bot record to find soulId
+    const [bot] = await db
+      .select({ soulId: bots.soulId })
+      .from(bots)
+      .where(eq(bots.id, botId));
+
+    if (!bot) {
+      return reply.code(404).send({ error: 'Bot not found' });
+    }
+
+    // 2. If soulId is non-null, fetch full soul data
+    let soulData: {
+      soulContent: string;
+      generation: number;
+      parentSoulId: string | null;
+      isArchetype: boolean;
+      taskCategory: string | null;
+      constitutionDirectives: unknown;
+      dimensions: unknown;
+    } | null = null;
+
+    if (bot.soulId) {
+      const [soul] = await db
+        .select({
+          soulContent: botSouls.soulContent,
+          generation: botSouls.generation,
+          parentSoulId: botSouls.parentSoulId,
+          isArchetype: botSouls.isArchetype,
+          taskCategory: botSouls.taskCategory,
+          constitutionDirectives: botSouls.constitutionDirectives,
+          dimensions: botSouls.dimensions,
+        })
+        .from(botSouls)
+        .where(eq(botSouls.id, bot.soulId));
+
+      soulData = soul ?? null;
+    }
+
+    // 3. Get most recent council verdict for this bot
+    const [verdictRow] = await db
+      .select({
+        verdictType: councilVerdicts.verdictType,
+        weightedConfidenceScore: councilVerdicts.weightedConfidenceScore,
+        verdictSummary: councilVerdicts.verdictSummary,
+        soulAnalystOutput: councilVerdicts.soulAnalystOutput,
+        performanceJudgeOutput: councilVerdicts.performanceJudgeOutput,
+      })
+      .from(councilVerdicts)
+      .where(eq(councilVerdicts.botId, botId))
+      .orderBy(desc(councilVerdicts.createdAt))
+      .limit(1);
+
+    // 4. Get best agent class using CLASS_RANK precedence map
+    const CLASS_RANK: Record<string, number> = {
+      Artisan: 3,
+      Understudy: 2,
+      Novice: 1,
+      Retired: 0,
+    };
+
+    const agentClassRows = await db
+      .select({ currentClass: agentClasses.currentClass })
+      .from(agentClasses)
+      .where(eq(agentClasses.botId, botId));
+
+    let bestAgentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null = null;
+    for (const row of agentClassRows) {
+      const rowRank = CLASS_RANK[row.currentClass] ?? -1;
+      const bestRank = bestAgentClass != null ? (CLASS_RANK[bestAgentClass] ?? -1) : -2;
+      if (rowRank > bestRank) {
+        bestAgentClass = row.currentClass;
+      }
+    }
+
+    return reply.code(200).send({
+      soulId: bot.soulId,
+      soulContent: soulData?.soulContent ?? null,
+      generation: soulData?.generation ?? null,
+      parentSoulId: soulData?.parentSoulId ?? null,
+      isArchetype: soulData?.isArchetype ?? null,
+      taskCategory: soulData?.taskCategory ?? null,
+      constitutionDirectives: (soulData?.constitutionDirectives as string[] | null) ?? null,
+      dimensions: soulData?.dimensions ?? null,
+      agentClass: bestAgentClass,
+      verdict: verdictRow
+        ? {
+            verdictType: verdictRow.verdictType,
+            // Cast to Number to avoid PG numeric-as-string (decision [17-01])
+            weightedConfidenceScore: Number(verdictRow.weightedConfidenceScore),
+            verdictSummary: verdictRow.verdictSummary,
+            soulAnalystOutput: verdictRow.soulAnalystOutput,
+            performanceJudgeOutput: verdictRow.performanceJudgeOutput,
+          }
+        : null,
+    });
   });
 
   // GET /:botId/detail — per-bot metrics and step trace from tool_invocations
@@ -286,16 +512,27 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   });
 
   // POST /:botId/ready — called by bot VM startup script when OpenClaw Gateway is ready
+  // Accepts either a success payload (success:true) or a failure payload (success:false).
   fastify.post('/:botId/ready', {
     schema: {
       params: Type.Object({
         botId: Type.String({ format: 'uuid' }),
       }),
-      body: Type.Object({
-        internalIp: Type.String(),
-        port: Type.Integer({ minimum: 1, maximum: 65535 }),
-        gatewayToken: Type.String(),
-      }),
+      body: Type.Union([
+        // Success payload — startup script completed successfully
+        Type.Object({
+          success: Type.Literal(true),
+          internalIp: Type.String(),
+          port: Type.Integer({ minimum: 1, maximum: 65535 }),
+          gatewayToken: Type.String(),
+          openclawVersion: Type.Optional(Type.String()),
+        }),
+        // Failure payload — startup script encountered an error
+        Type.Object({
+          success: Type.Literal(false),
+          error: Type.String(),
+        }),
+      ]),
       response: {
         200: Type.Object({ ok: Type.Boolean() }),
         404: Type.Object({ error: Type.String() }),
@@ -305,7 +542,29 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     },
   }, async (request, reply) => {
     const { botId } = request.params;
-    const { internalIp, port, gatewayToken } = request.body;
+    const body = request.body;
+
+    // ── Failure payload path ─────────────────────────────────────────────────
+    // The startup script encountered an error and reported back.
+    // Write errorMessage + set status to failed. Return 200 to acknowledge receipt.
+    if (body.success === false) {
+      console.error('[bots/ready] Bot VM startup script reported failure:', {
+        botId,
+        error: body.error,
+      });
+      await db
+        .update(bots)
+        .set({
+          status: 'failed',
+          errorMessage: body.error,
+          updatedAt: new Date(),
+        })
+        .where(eq(bots.id, botId));
+      return reply.code(200).send({ ok: true });
+    }
+
+    // ── Success payload path ─────────────────────────────────────────────────
+    const { internalIp, port, gatewayToken } = body;
 
     // Verify bot exists in Postgres
     const [bot] = await db.select().from(bots).where(eq(bots.id, botId));
@@ -337,9 +596,32 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
       await db
         .update(bots)
-        .set({ status: 'failed', updatedAt: new Date() })
+        .set({
+          status: 'failed',
+          errorMessage: `Failed to connect to OpenClaw Gateway at ${wsUrl}: ${(err as Error).message}`,
+          updatedAt: new Date(),
+        })
         .where(eq(bots.id, botId));
       return reply.code(503).send({ error: 'Failed to connect to OpenClaw Gateway' } as never);
+    }
+
+    // WebSocket liveness check — confirm the connection is still open after connect().
+    // A stale connection that opened but immediately closed (e.g. token mismatch,
+    // gateway crash) is caught here before we transition the bot to idle.
+    if (!client.isConnected) {
+      console.error('[bots/ready] WebSocket connected but immediately disconnected:', {
+        botId,
+        wsUrl,
+      });
+      await db
+        .update(bots)
+        .set({
+          status: 'failed',
+          errorMessage: 'WebSocket connected but immediately disconnected — gateway may have rejected the token',
+          updatedAt: new Date(),
+        })
+        .where(eq(bots.id, botId));
+      return reply.code(503).send({ error: 'WebSocket not live after connect' });
     }
 
     // Update registry entry with internalIp, token, and connected client

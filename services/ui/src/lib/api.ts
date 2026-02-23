@@ -9,8 +9,14 @@ import type {
   ExecutionBot,
   PendingVerdict,
   VerdictDetail,
+  ExecutionPendingVerdict,
   CalibrationData,
   ArmyBuilderAnalysis,
+  Objective,
+  ObjectiveListItem,
+  ObjectiveRun,
+  ObjectiveStats,
+  BotSoul,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -28,6 +34,7 @@ export async function createExecution(body: {
   maxBots: number;
   budgetCapCents: number;
   allowedTools: string[];
+  objectiveId?: string;
 }): Promise<{ executionId: string; status: 'queued' }> {
   return apiFetch(`${BASE}/executions`, {
     method: 'POST',
@@ -137,4 +144,34 @@ export async function getArmyBuilderAnalysis(
     maxBots: String(maxBots),
   });
   return apiFetch(`${BASE}/army-builder/analysis?${params}`);
+}
+
+// Phase 17 — Objectives API
+
+export async function getObjectives(): Promise<ObjectiveListItem[]> {
+  return apiFetch(`${BASE}/objectives`);
+}
+
+export async function getObjective(id: string): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives/${id}`);
+}
+
+export async function getObjectiveExecutions(id: string): Promise<ObjectiveRun[]> {
+  return apiFetch(`${BASE}/objectives/${id}/executions`);
+}
+
+export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
+  return apiFetch(`${BASE}/objectives/${id}/stats`);
+}
+
+// Phase 18 — Soul Inspector
+
+export async function getBotSoul(botId: string): Promise<BotSoul> {
+  return apiFetch(`${BASE}/bots/${botId}/soul`);
+}
+
+// Phase 19 — Run View Enhancements
+
+export async function getExecutionPendingVerdicts(executionId: string): Promise<ExecutionPendingVerdict[]> {
+  return apiFetch(`${BASE}/executions/${executionId}/pending-verdicts`);
 }

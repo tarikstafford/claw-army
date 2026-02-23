@@ -12,6 +12,7 @@ import {
   getBotsForExecution,
 } from '../orchestrator/bot-registry';
 import { publishTaskClaimed, publishTaskCompleted } from '../events/publisher';
+import { checkExecutionCompletion } from '../orchestrator/completion-checker';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -192,7 +193,18 @@ async function dispatchTaskToBot(
       console.error('[openclaw-dispatcher] Failed to publish task_completed (non-fatal):', err.message);
     });
 
-    console.log('[openclaw-dispatcher] Task completed:', { taskId, botId, resultPreview: result.slice(0, 100) });
+    console.log('[openclaw-dispatcher] Round-trip complete — task sent, completed, bot released to idle:', {
+      taskId,
+      botId,
+      executionId,
+      durationMs: Date.now() - taskStartMs,
+    });
+
+    // Check if all tasks for this execution are now done
+    checkExecutionCompletion(executionId).catch((err: Error) => {
+      console.error('[openclaw-dispatcher] Completion check failed (non-fatal):', err.message);
+    });
+
     return result;
   } catch (err) {
     // Task failed — update DB
@@ -211,6 +223,21 @@ async function dispatchTaskToBot(
       .where(eq(bots.id, botId));
 
     console.error('[openclaw-dispatcher] Task failed:', { taskId, botId, error: (err as Error).message });
+
+    // Write errorMessage for connection-level failures (not just task-level failures)
+    const errMsg = (err as Error).message;
+    if (errMsg.includes('not connected') || errMsg.includes('Connection closed')) {
+      await db.update(bots).set({
+        errorMessage: `Lost connection to OpenClaw during task execution: ${errMsg}`,
+        updatedAt: new Date(),
+      }).where(eq(bots.id, botId));
+    }
+
+    // A failed task still counts as terminal — check if execution is complete
+    checkExecutionCompletion(executionId).catch((completionErr: Error) => {
+      console.error('[openclaw-dispatcher] Completion check failed (non-fatal):', completionErr.message);
+    });
+
     throw err;
   } finally {
     clearInterval(renewInterval);

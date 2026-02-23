@@ -3,18 +3,30 @@
 </script>
 
 <svelte:head>
-  <title>Sign In | Claw Army</title>
+  <title>Sign In | Akasa</title>
 </svelte:head>
 
 <div class="login-wrap">
   <div class="login-card">
     <div class="brand">
-      <svg width="28" height="28" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="M10 1.5L17.5 5.75V14.25L10 18.5L2.5 14.25V5.75L10 1.5Z"
-          stroke="#3d7eff" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
-        <circle cx="10" cy="10" r="3" fill="#3d7eff"/>
-      </svg>
-      <span class="brand-name">Claw Army</span>
+      <div class="logo-mark">
+        <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="lm-glow-login">
+              <feGaussianBlur stdDeviation="1.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <g class="lm-outer">
+            <polygon points="17,3 31,17 17,31 3,17" stroke="rgba(167,139,250,0.5)" stroke-width="1" fill="none"/>
+          </g>
+          <g class="lm-inner">
+            <polygon points="17,8 26,17 17,26 8,17" stroke="rgba(167,139,250,0.35)" stroke-width="1" fill="rgba(124,58,237,0.08)"/>
+          </g>
+          <circle class="lm-core" cx="17" cy="17" r="2.5" fill="#a78bfa"/>
+        </svg>
+      </div>
+      <span class="brand-name">Akasa</span>
     </div>
 
     <h1>Sign in to deploy</h1>
@@ -40,51 +52,79 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 52px);
-    padding: var(--s-8) var(--s-6);
+    min-height: 100vh;
+    padding: 40px 24px;
   }
 
   .login-card {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: var(--s-8) var(--s-8);
+    border-radius: 14px;
+    padding: 40px 36px;
     max-width: 380px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--s-4);
+    gap: 20px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle violet top-edge highlight */
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(167,139,250,0.3), transparent);
   }
 
   .brand {
     display: flex;
     align-items: center;
-    gap: var(--s-2);
-    margin-bottom: var(--s-2);
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .logo-mark svg {
+    width: 28px;
+    height: 28px;
+    overflow: visible;
   }
 
   .brand-name {
-    font-weight: 700;
-    font-size: 0.875rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
   }
 
   h1 {
-    font-size: 1.375rem;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3vw, 26px);
+    font-weight: 600;
     letter-spacing: -0.02em;
-    color: var(--text-primary);
+    line-height: 1.1;
+    color: var(--text);
     margin: 0;
   }
 
   .sub {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.65;
     margin: 0;
   }
 
@@ -92,23 +132,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--s-3);
+    gap: 12px;
     width: 100%;
-    padding: 0.75rem var(--s-5);
-    background: var(--surface-2);
+    padding: 13px 24px;
+    background: var(--bg-3);
     border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    color: var(--text-primary);
-    font-size: 0.9375rem;
-    font-weight: 600;
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    margin-top: var(--s-2);
+    transition: border-color 0.2s, background 0.2s;
+    margin-top: 4px;
   }
 
   .google-btn:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    background: var(--surface-3);
+    border-color: var(--border-mid);
+    background: var(--bg-2);
   }
 
   .google-icon {

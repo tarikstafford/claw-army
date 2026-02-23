@@ -5,6 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 1-6 (shipped 2026-02-19)
 - ✅ **v1.1 Google Auth Gate** — Phase 7 (shipped 2026-02-19)
 - ✅ **v2.0 The SOUL System** — Phases 8-14 (shipped 2026-02-22)
+- ✅ **v3.0 Bot Reliability & UX Overhaul** — Phases 15-23 (shipped 2026-02-23)
 
 ## Phases
 
@@ -46,6 +47,25 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
 
 </details>
 
+<details>
+<summary>✅ v3.0 Bot Reliability & UX Overhaul (Phases 15-23) — SHIPPED 2026-02-23</summary>
+
+- [x] Phase 15: Bot Reliability (3/4 plans — 15-04 gap promoted to Phase 20) — completed 2026-02-23
+- [x] Phase 16: Named Objectives Data Model (3/3 plans) — completed 2026-02-22
+- [x] Phase 17: Objective Hub UI (3/3 plans) — completed 2026-02-22
+- [x] Phase 18: Soul Inspector (2/2 plans) — completed 2026-02-22
+- [x] Phase 19: Run View Enhancements (2/2 plans) — completed 2026-02-23
+- [x] Phase 20: Spawn Timeout Error Preservation (1/1 plan) — completed 2026-02-23
+- [x] Phase 21: Launch-from-Objective UI (2/2 plans) — completed 2026-02-23
+- [x] Phase 22: v3.0 Tech Debt Cleanup (1/1 plan) — completed 2026-02-23
+- [x] Phase 23: Akasa UI Rebrand — Design System Rollout (7/7 plans) — completed 2026-02-23
+
+See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
+
+</details>
+
+---
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -64,3 +84,12 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
 | 12. Human Confirmation Gate | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
+| 15. Bot Reliability | v3.0 | 3/4 | Complete | 2026-02-23 |
+| 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
+| 17. Objective Hub UI | v3.0 | 3/3 | Complete | 2026-02-22 |
+| 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |
+| 19. Run View Enhancements | v3.0 | 2/2 | Complete | 2026-02-23 |
+| 20. Spawn Timeout Error Preservation | v3.0 | 1/1 | Complete | 2026-02-23 |
+| 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
+| 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
+| 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |

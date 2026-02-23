@@ -34,6 +34,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         allowedTools: Type.Optional(Type.Array(Type.String())),
         llmProvider: Type.Optional(Type.String()),
         allowedDomains: Type.Optional(Type.Array(Type.String())),
+        objectiveId: Type.Optional(Type.String({ format: 'uuid' })),
       }),
       response: {
         201: Type.Object({
@@ -63,6 +64,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       budgetCapCents,
       runtimeLimitSeconds,
       allowedTools = [],
+      objectiveId,
     } = request.body;
 
     const MIN_POPULATION = 3;
@@ -76,13 +78,23 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
     }
 
-    const result = await createExecution({
-      objective,
-      maxBots,
-      budgetCapCents: budgetCapCents ?? 0,
-      runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
-      allowedTools,
-    });
+    let result: { executionId: string; status: 'queued' };
+    try {
+      result = await createExecution({
+        objective,
+        maxBots,
+        budgetCapCents: budgetCapCents ?? 0,
+        runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
+        allowedTools,
+        objectiveId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      if (message === 'Objective not found or archived') {
+        return reply.code(400).send({ error: message });
+      }
+      throw err;
+    }
 
     const { executionId } = result;
 
@@ -324,6 +336,12 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           totalTasks: Type.Integer(),
           completedTasks: Type.Integer(),
           failedTasks: Type.Integer(),
+          soulTierDistribution: Type.Object({
+            novice: Type.Integer(),
+            understudy: Type.Integer(),
+            artisan: Type.Integer(),
+            retired: Type.Integer(),
+          }),
         }),
         404: Type.Object({ error: Type.String() }),
       },
@@ -496,6 +514,72 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     );
 
     return reply.code(200).send(leaderboard);
+  });
+
+  // GET /executions/:id/pending-verdicts — pending Promote/Retire verdicts for a specific execution (RUN-04)
+  fastify.get('/:id/pending-verdicts', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Array(
+          Type.Object({
+            id: Type.String({ format: 'uuid' }),
+            botId: Type.String({ format: 'uuid' }),
+            executionId: Type.String({ format: 'uuid' }),
+            verdictType: Type.String(),
+            status: Type.String(),
+            weightedConfidenceScore: Type.Number(),
+            verdictSummary: Type.String(),
+            hasUnresolvedDevilsAdvocate: Type.Boolean(),
+            devilsAdvocateOutput: Type.Unknown(),
+            performanceJudgeOutput: Type.Unknown(),
+            soulAnalystOutput: Type.Unknown(),
+            requiresHumanConfirmation: Type.Boolean(),
+            createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+          }),
+        ),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+    const execution = await getExecution(id);
+    if (!execution) {
+      return reply.code(404).send({ error: 'Execution not found' });
+    }
+
+    const rows = await db
+      .select({
+        id: councilVerdicts.id,
+        botId: councilVerdicts.botId,
+        executionId: councilVerdicts.executionId,
+        verdictType: councilVerdicts.verdictType,
+        status: councilVerdicts.status,
+        weightedConfidenceScore: councilVerdicts.weightedConfidenceScore,
+        verdictSummary: councilVerdicts.verdictSummary,
+        hasUnresolvedDevilsAdvocate: councilVerdicts.hasUnresolvedDevilsAdvocate,
+        devilsAdvocateOutput: councilVerdicts.devilsAdvocateOutput,
+        performanceJudgeOutput: councilVerdicts.performanceJudgeOutput,
+        soulAnalystOutput: councilVerdicts.soulAnalystOutput,
+        requiresHumanConfirmation: councilVerdicts.requiresHumanConfirmation,
+        createdAt: councilVerdicts.createdAt,
+      })
+      .from(councilVerdicts)
+      .where(
+        and(
+          eq(councilVerdicts.executionId, id),
+          inArray(councilVerdicts.verdictType, ['Promote', 'Retire']),
+          eq(councilVerdicts.status, 'pending'),
+        ),
+      )
+      .orderBy(councilVerdicts.createdAt);
+
+    return rows.map((r) => ({
+      ...r,
+      weightedConfidenceScore: Number(r.weightedConfidenceScore),
+    }));
   });
 
   // GET / — list all executions (admin)

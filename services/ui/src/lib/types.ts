@@ -31,7 +31,15 @@ export interface ExecutionReport {
   totalTasks: number;
   completedTasks: number;
   failedTasks: number;
+  soulTierDistribution: {
+    novice: number;
+    understudy: number;
+    artisan: number;
+    retired: number;
+  };
 }
+
+export type ExecutionPendingVerdict = VerdictDetail;
 
 export interface LeaderboardEntry {
   botId: string;
@@ -131,6 +139,11 @@ export interface ExecutionBot {
   tasksCompleted: number;
   tasksFailed: number;
   startedAt: string | null;
+  errorMessage: string | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  currentTaskDescription: string | null;
+  toolCallCount: number;
+  tokenBurnRate: number | null;
 }
 
 export interface PendingVerdict {
@@ -197,6 +210,35 @@ export interface ArmyBuilderAnalysis {
   blockReason: string | null;
 }
 
+// Phase 18 — Soul Inspector types
+
+export interface BotSoul {
+  soulId: string | null;
+  soulContent: string | null;
+  generation: number | null;
+  parentSoulId: string | null;
+  isArchetype: boolean | null;
+  taskCategory: string | null;
+  constitutionDirectives: string[] | null;
+  dimensions: {
+    identityRole: string;
+    decisionPriorities: string;
+    toolUsageDoctrine: string;
+    riskTolerance: string;
+    communicationStyle: string;
+    recoveryBehavior: string;
+    ethicalHardStops: string;
+  } | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  verdict: {
+    verdictType: string;
+    weightedConfidenceScore: number;
+    verdictSummary: string;
+    soulAnalystOutput: unknown;
+    performanceJudgeOutput: unknown;
+  } | null;
+}
+
 export interface LifecycleNotification {
   type: 'soul_promoted' | 'soul_demoted' | 'soul_retired' | 'pioneer_detected';
   botId: string;
@@ -207,4 +249,50 @@ export interface LifecycleNotification {
   // Promotion-specific
   fromClass?: string;
   toClass?: string;
+}
+
+// Phase 17 — Objective Hub types
+
+export interface Objective {
+  id: string;
+  name: string;
+  description: string | null;
+  defaultMaxBots: number;
+  defaultBudgetCapCents: number | null;
+  defaultRuntimeLimitSeconds: number | null;
+  defaultAllowedTools: string[];
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ObjectiveListItem extends Objective {
+  lastRunStatus: string | null;
+  runCount: number;
+  totalSpendCents: number;
+  bestBotClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+}
+
+export interface ObjectiveRun {
+  id: string;
+  status: 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  objective: string;
+  createdAt: string;
+  totalCostCents: number;
+  botCount: number;
+  avgCompositeScore: number | null;
+}
+
+export interface ObjectiveStats {
+  totalSpendCents: number;
+  totalTasksCompleted: number;
+  totalBotHours: number;
+  runCount: number;
+  classBreakdown: {
+    novice: number;
+    understudy: number;
+    artisan: number;
+    retired: number;
+  };
+  classTrendSummary: string;
 }

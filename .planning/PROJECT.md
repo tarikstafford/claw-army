@@ -1,8 +1,19 @@
 # Claw Bot Army
 
+## Milestone Status
+
+- ✅ v1.0 MVP — shipped 2026-02-19
+- ✅ v1.1 Google Auth Gate — shipped 2026-02-19
+- ✅ v2.0 The SOUL System — shipped 2026-02-22
+- ✅ v3.0 Bot Reliability & UX Overhaul — shipped 2026-02-23
+
+**Next:** Start v4.0 with `/gsd:new-milestone`
+
+---
+
 ## What This Is
 
-Claw Bot Army is a platform that lets SMEs and individuals deploy fleets of AI bot workers against a high-level objective. Users define an objective, set a bot count and budget cap, and the system spawns isolated bot VMs that claim and execute tasks in parallel — with real-time monitoring, atomic budget enforcement, per-bot billing metering, and an evolutionary learning engine that compounds agent intelligence over time through behavioral constitutions, council evaluation, and a versioned DNA library.
+Akasa is a platform that lets SMEs and individuals deploy fleets of AI bot workers against a named objective. Users create persistent objectives, set a bot count and budget cap, and the system spawns isolated GCE VMs running OpenClaw that claim and execute tasks in parallel — with real-time monitoring, atomic budget enforcement, per-bot billing metering, and an evolutionary learning engine that compounds agent intelligence over time through behavioral constitutions (SOUL.md), council evaluation, and a versioned DNA library. The Objective Hub gives users a single page per objective showing all runs, aggregate stats, live status, and the bot class progression arc from Novice to Artisan.
 
 ## Core Value
 
@@ -72,9 +83,25 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 - ✓ Army Builder identifies task categories, displays class mix per category, library-depth rationale, and budget breakdown across three composition tiers — v2.0
 - ✓ Army Builder blocks submission when minimum viable composition (3 agents/task) exceeds budget — v2.0
 
+- ✓ GCE startup script installs OpenClaw/SecureClaw idempotently with structured failure reporting to /ready — v3.0
+- ✓ Bot spawn failures write errorMessage to DB; UI displays human-readable error on bot card — v3.0
+- ✓ /ready handler validates OpenClaw WebSocket liveness before setting bot to idle — v3.0
+- ✓ Spawn-timeout bots write failed status + errorMessage before stopBot() runs (skipDbUpdate guard) — v3.0
+- ✓ Named persistent objectives: CRUD API + DB table with ON DELETE SET NULL executions FK — v3.0
+- ✓ Objectives list page shows each objective with last-run status, run count, spend, best class achieved — v3.0
+- ✓ Objective detail page: run history table, aggregate stats, live SSE status panel, DNA evolution summary — v3.0
+- ✓ Launch-from-objective: objectiveId wired end-to-end from /objectives/:id button through createExecution() to DB — v3.0
+- ✓ Soul inspector panel: GET /bots/:botId/soul endpoint + SoulInspectorPanel drawer with 7 dimensions, lineage, verdict — v3.0
+- ✓ Soul tier badges (Novice/Understudy/Artisan/Retired) on bot cards in monitoring, leaderboard, and bot detail — v3.0
+- ✓ Bot cards in live view show currentTaskDescription, toolCallCount, tokenBurnRate, soul tier badge — v3.0
+- ✓ Post-run report shows soul tier distribution panel — v3.0
+- ✓ Pending Promote/Retire verdicts highlighted in run view with inline VerdictConfirmPanel — v3.0
+- ✓ Akasa dark violet design system: 28 CSS tokens, Clash Display/Inter/JetBrains Mono, 13 routes — v3.0
+- ✓ Platform brand: "Claw Army" → "Akasa" across all UI surfaces — v3.0
+
 ### Active
 
-<!-- No active requirements — planning next milestone -->
+<!-- No active requirements — planning v4.0 -->
 
 ### Out of Scope
 
@@ -102,14 +129,14 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ## Context
 
-**Shipped v2.0 with ~19,625 LOC total** (14 phases, 19 plans in v2.0, 2 days).
+**Shipped v3.0 with ~13,800 LOC** (9 phases, 25 plans, 2 days, 104 files changed).
 
 **Tech stack:**
 - Backend: Node.js TypeScript (Fastify), pnpm monorepo
-- Frontend: SvelteKit (Svelte 5 runes, adapter-vercel, Auth.js v5 Google OAuth)
-- Database: PostgreSQL via Drizzle ORM (10 tables: executions, tasks, bots, billing_events, telemetry, dna_store, bot_souls, decision_traces, council_verdicts, negative_signal_register, agent_classes, category_benchmarks)
+- Frontend: SvelteKit (Svelte 5 runes, adapter-vercel, Auth.js v5 Google OAuth) — Akasa dark violet design system
+- Database: PostgreSQL via Drizzle ORM (12 tables: + objectives, + errorMessage column on bots)
 - Task queue: BullMQ 5 on Redis (3 queues: task-queue, council-queue, god-layer-queue)
-- Bot isolation: GCE VMs with OpenClaw (migrated from Docker containers)
+- Bot isolation: GCE VMs with OpenClaw (migrated from Docker containers in v1.0)
 - Event bus: Google Cloud Pub/Sub (emulator in local dev)
 - LLM routing: Vercel AI SDK 6, multi-provider (Anthropic claude-sonnet-4-6, Google gemini-2.5-flash, text-embedding-3-small via OpenAI)
 - Billing: Metering and display only — atomic Redis Lua budget enforcement
@@ -120,13 +147,14 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 **Known issues / tech debt:**
 - pgvector extension must be confirmed on Cloud SQL before running migrations 0003–0007 (`psql -c '\dx'`)
 - Archetype seed must be run after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
-- OpenClaw WebSocket task dispatch protocol: confirm whether `run_task` accepts extra soul fields or requires prompt-prefix injection before Phase 9 dispatch code goes live
+- OpenClaw WebSocket task dispatch protocol: confirm whether `run_task` accepts extra soul fields or requires prompt-prefix injection
 - Composite score weights (40/30/20/10) not empirically validated — iterate after first real execution data
 - Production Terraform needs `bot-lifecycle-billing-sub` Pub/Sub subscription added for Billing Engine
 - N+1 leaderboard enrichment acceptable for MVP (maxBots cap 20); add JOIN when bot counts grow
-- Any new service or Dockerfile using `@claw/db` or internal packages must add `NODE_OPTIONS --conditions @claw/source`
-- AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be configured in Vercel env vars for production
-- Cloud Scheduler should be configured to POST /admin/cleanup/decision-traces on a cron schedule for 90-day TTL enforcement
+- Any new service using `@claw/db` or internal packages must add `NODE_OPTIONS --conditions @claw/source`
+- AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be configured in Vercel env vars
+- Cloud Scheduler should POST /admin/cleanup/decision-traces on cron for 90-day TTL enforcement
+- landing page `.tok { color: #4ade80 }` uses raw hex (no --green token) — low-priority cosmetic
 
 ## Constraints
 
@@ -167,6 +195,15 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 | evidenceLoaded flag gates action buttons at template level | CONF-02 requirement: evidence must render before confirm/reject appear | ✓ Good — enforced structurally, not via CSS visibility hack |
 | lifecycleSseRoutes registered at /events prefix (not /executions) | Avoids /:id=events routing ambiguity with existing execution-scoped SSE route | ✓ Good — clean namespace separation |
 | Army Builder analysis triggered by explicit button click | Avoids LLM latency on each input event; UIEX-05 submission block uses button disabled (not hidden) | ✓ Good — never silently reduces agent count per requirement |
+| Startup script uses EXIT trap + FAILURE_REASON (not set -e) | set -e prevents EXIT trap from firing post-failure; explicit || blocks required for structured failure reporting | ✓ Good — reliable structured error delivery to /ready |
+| /ready returns 200 for failure payloads | VM completed its job by reporting; ACK prevents retry spam | ✓ Good — idempotent, no retry loops |
+| Spawn timeout uses botRegistry polling (not DB query) | Avoids per-interval DB hit; registry is authoritative in-process state | ✓ Good — zero DB load per timeout tick |
+| stopBot() skipDbUpdate optional third param | Existing 2-arg callers unaffected; only spawn-timeout path passes true | ✓ Good — non-breaking, surgical fix for BOT-04 |
+| objectiveId nullable FK with ON DELETE SET NULL | Existing executions unaffected; no backfill needed | ✓ Good — clean migration path |
+| db.select() with sql<T> correlated subqueries for objectives aggregation | db.execute() returns non-iterable QueryResult | ✓ Good — avoids QueryResult iteration bug |
+| objectiveId conditional spread in createExecution() | TypeBox Optional(Type.String({format:'uuid'})) rejects null; omit field when absent | ✓ Good — TypeBox compliant without nullable workarounds |
+| Hidden input pattern for objectiveId in form | URL search params NOT included in formData on POST; hidden input is reliable | ✓ Good — standard SvelteKit form pattern |
+| Akasa CSS tokens: 28 custom properties in app.css | Zero hardcoded hex across 13 routes (acceptable exceptions: SVG fills, #fff on violet, Google brand) | ✓ Good — audit confirms zero old tokens remaining |
 
 ---
-*Last updated: 2026-02-22 after v2.0 milestone*
+*Last updated: 2026-02-23 after v3.0 milestone*

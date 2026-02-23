@@ -24,6 +24,13 @@ const IDLE_TIMEOUT_MS = Number(process.env.IDLE_TIMEOUT_MS ?? 5 * 60 * 1000);
 /** Default 30 seconds. Env override enables short-interval E2E testing. */
 const IDLE_CHECK_INTERVAL_MS = Number(process.env.IDLE_CHECK_INTERVAL_MS ?? 30_000);
 
+/** How long to wait for a bot VM startup script to call /ready before marking it failed.
+ *  Default 10 minutes. GCE boot + Node.js install + OpenClaw install typically takes 3-6 min. */
+const SPAWN_TIMEOUT_MS = Number(process.env.SPAWN_TIMEOUT_MS ?? 10 * 60 * 1000);
+
+/** How often to check for stale spawning bots. Default 30 seconds. */
+const SPAWN_CHECK_INTERVAL_MS = Number(process.env.SPAWN_CHECK_INTERVAL_MS ?? 30_000);
+
 // GCE configuration — all required for production; defaults are for local dev stubs only
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID ?? 'claw-local';
 const GCP_ZONE = process.env.GCP_ZONE ?? 'us-central1-a';
@@ -107,7 +114,11 @@ export async function spawnBot(
     });
     await db
       .update(bots)
-      .set({ status: 'failed', updatedAt: new Date() })
+      .set({
+        status: 'failed',
+        errorMessage: `GCE VM launch failed: ${(err as Error).message}`,
+        updatedAt: new Date(),
+      })
       .where(eq(bots.id, botId));
     throw err;
   }
@@ -166,10 +177,15 @@ export async function spawnBot(
  *
  * @param botId - UUID of the bot to stop
  * @param reason - Why the bot was stopped (for event metadata)
+ * @param options - Optional behaviour flags
+ * @param options.skipDbUpdate - When true, skips the DB write of status:'stopped'.
+ *   Use this when the caller has already written a terminal state (e.g. 'failed' + errorMessage)
+ *   and must not have it overwritten by stopBot's default update.
  */
 export async function stopBot(
   botId: string,
   reason: 'completed' | 'terminated' | 'failed' | 'idle_timeout',
+  options?: { skipDbUpdate?: boolean },
 ): Promise<void> {
   const botEntry = getBot(botId);
 
@@ -196,11 +212,13 @@ export async function stopBot(
     });
   });
 
-  // Update bot row in Postgres
-  await db
-    .update(bots)
-    .set({ status: 'stopped', stoppedAt: new Date(), updatedAt: new Date() })
-    .where(eq(bots.id, botId));
+  // Update bot row in Postgres — skip if caller already wrote terminal state
+  if (!options?.skipDbUpdate) {
+    await db
+      .update(bots)
+      .set({ status: 'stopped', stoppedAt: new Date(), updatedAt: new Date() })
+      .where(eq(bots.id, botId));
+  }
 
   // Remove from in-memory registry
   unregisterBot(botId);
@@ -322,6 +340,70 @@ export function startIdleChecker(): NodeJS.Timeout {
  * @param timer - The timer handle returned by startIdleChecker
  */
 export function stopIdleChecker(timer: NodeJS.Timeout): void {
+  clearInterval(timer);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Spawn timeout checker
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Start the spawn timeout checker.
+ * Runs every SPAWN_CHECK_INTERVAL_MS and transitions bots stuck in 'spawning'
+ * for longer than SPAWN_TIMEOUT_MS to 'failed' with a descriptive errorMessage.
+ *
+ * Only considers bots that have not yet called /ready (openclawClient is null and
+ * internalIp is null). Bots that called /ready but failed the WebSocket liveness
+ * check are already handled in the /ready handler itself.
+ *
+ * @returns The interval timer handle (pass to stopSpawnTimeoutChecker to clear)
+ */
+export function startSpawnTimeoutChecker(): NodeJS.Timeout {
+  return setInterval(async () => {
+    const now = Date.now();
+
+    for (const entry of botRegistry.values()) {
+      // Only check bots that are still waiting for /ready callback
+      if (entry.openclawClient !== null) continue; // Already connected
+      if (entry.internalIp !== null) continue; // /ready was called
+
+      if (now - entry.startedAt > SPAWN_TIMEOUT_MS) {
+        console.error('[bot-orchestrator] Spawn timeout — bot VM never called /ready:', {
+          botId: entry.botId,
+          executionId: entry.executionId,
+          instanceName: entry.instanceName,
+          elapsedMs: now - entry.startedAt,
+        });
+
+        const timeoutMinutes = Math.round(SPAWN_TIMEOUT_MS / 60_000);
+        try {
+          await db
+            .update(bots)
+            .set({
+              status: 'failed',
+              errorMessage: `Spawn timeout — VM did not call /ready within ${timeoutMinutes}m. The startup script may have failed silently or the VM may not have booted.`,
+              updatedAt: new Date(),
+            })
+            .where(eq(bots.id, entry.botId));
+
+          // Terminate the stale VM — skip DB update so the 'failed' status + errorMessage above are preserved
+          await stopBot(entry.botId, 'failed', { skipDbUpdate: true });
+        } catch (err) {
+          console.error('[bot-orchestrator] Error handling spawn timeout:', {
+            botId: entry.botId,
+            error: (err as Error).message,
+          });
+        }
+      }
+    }
+  }, SPAWN_CHECK_INTERVAL_MS);
+}
+
+/**
+ * Stop the spawn timeout checker.
+ * @param timer - The timer handle returned by startSpawnTimeoutChecker
+ */
+export function stopSpawnTimeoutChecker(timer: NodeJS.Timeout): void {
   clearInterval(timer);
 }
 

@@ -89,7 +89,7 @@
 </script>
 
 <svelte:head>
-  <title>Admin | Claw Army</title>
+  <title>Admin | Akasa</title>
 </svelte:head>
 
 {#if !authenticated}
@@ -223,9 +223,9 @@
   }
 
   .login-card {
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
-    border-radius: 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 2.5rem 2rem;
     width: 100%;
     max-width: 360px;
@@ -240,11 +240,12 @@
   .login-card h1 {
     font-size: 1.25rem;
     font-weight: 700;
+    color: var(--text);
     margin: 0 0 0.5rem;
   }
 
   .login-card p {
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-size: 0.875rem;
     margin: 0 0 1.5rem;
   }
@@ -256,10 +257,10 @@
   }
 
   .login-card input {
-    background: var(--bg, #0d1117);
-    border: 1px solid var(--border, #1f2937);
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: 0.375rem;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     font-size: 0.9rem;
     padding: 0.625rem 0.875rem;
     width: 100%;
@@ -267,23 +268,23 @@
   }
 
   .login-card input.input-error {
-    border-color: #ef4444;
+    border-color: var(--error);
   }
 
   .login-card input:focus {
     outline: none;
-    border-color: var(--signal, #3d7eff);
+    border-color: var(--violet-bright);
   }
 
   .error-msg {
-    color: #ef4444;
+    color: var(--error);
     font-size: 0.8rem;
     margin: 0;
     text-align: left;
   }
 
   .login-card button[type="submit"] {
-    background: var(--signal, #3d7eff);
+    background: var(--violet);
     color: #fff;
     border: none;
     border-radius: 0.375rem;
@@ -295,7 +296,7 @@
   }
 
   .login-card button[type="submit"]:hover {
-    background: #5a8fff;
+    background: var(--violet-bright);
   }
 
   /* Page */
@@ -315,20 +316,21 @@
   h1 {
     font-size: 1.75rem;
     font-weight: 700;
+    color: var(--text);
     margin: 0 0 0.25rem;
   }
 
   .subtitle {
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-size: 0.875rem;
     margin: 0;
   }
 
   .logout-btn {
     background: transparent;
-    border: 1px solid var(--border, #1f2937);
+    border: 1px solid var(--border);
     border-radius: 0.375rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 0.8rem;
     padding: 0.375rem 0.75rem;
@@ -337,8 +339,8 @@
   }
 
   .logout-btn:hover {
-    color: var(--text-primary, #f9fafb);
-    border-color: var(--text-secondary, #9ca3af);
+    color: var(--text);
+    border-color: var(--border-mid);
   }
 
   /* Stats */
@@ -354,9 +356,9 @@
   }
 
   .stat-card {
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
-    border-radius: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 1rem 1.25rem;
     display: flex;
     flex-direction: column;
@@ -365,54 +367,56 @@
   }
 
   .stat-card.stat-running {
-    border-color: #1d4ed8;
-    background: #0f172a;
+    border-color: var(--teal);
+    background: var(--teal-dim);
   }
 
   .stat-card.stat-failed {
-    border-color: #7f1d1d;
-    background: #0f172a;
+    border-color: var(--error);
+    background: var(--error-dim);
   }
 
   .stat-label {
     font-size: 0.7rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .stat-value {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
+    font-family: var(--font-mono);
   }
 
   /* Table */
   .loading {
     padding: 2rem;
     text-align: center;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
   }
 
   .error-banner {
     padding: 0.875rem 1rem;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
-    border-radius: 0.5rem;
-    color: #fca5a5;
+    background: var(--error-dim);
+    border: 1px solid var(--error);
+    border-radius: 14px;
+    color: var(--error);
     font-size: 0.875rem;
   }
 
   .empty {
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-style: italic;
   }
 
   .table-wrapper {
     overflow-x: auto;
-    border: 1px solid var(--border, #1f2937);
-    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
   }
 
   table {
@@ -424,20 +428,22 @@
   thead th {
     text-align: left;
     padding: 0.75rem 1rem;
-    background: var(--surface, #111827);
-    border-bottom: 1px solid var(--border, #1f2937);
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
     font-weight: 600;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     white-space: nowrap;
+    font-family: var(--font-mono);
   }
 
   tbody td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border, #1f2937);
-    color: var(--text-primary, #f9fafb);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    background: var(--bg-card);
   }
 
   tbody tr:last-child td {
@@ -445,7 +451,7 @@
   }
 
   tbody tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-2);
   }
 
   .col-objective {
@@ -453,7 +459,7 @@
   }
 
   .col-objective a {
-    color: var(--signal, #3d7eff);
+    color: var(--violet-bright);
     text-decoration: none;
     display: block;
     overflow: hidden;
@@ -462,23 +468,28 @@
   }
 
   .col-objective a:hover {
+    color: var(--violet-light);
     text-decoration: underline;
   }
 
   .col-bots {
     font-variant-numeric: tabular-nums;
-    color: var(--text-secondary, #9ca3af);
+    font-family: var(--font-mono);
+    color: var(--text-muted);
   }
 
   .col-budget {
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
     font-weight: 600;
+    color: var(--text);
   }
 
   .col-date {
     white-space: nowrap;
     font-size: 0.8rem;
-    color: var(--text-secondary, #9ca3af);
+    font-family: var(--font-mono);
+    color: var(--text-muted);
   }
 
   .col-action {
@@ -486,7 +497,7 @@
     width: 80px;
   }
 
-  /* Status badges — matches billing page */
+  /* Status badges */
   .status {
     display: inline-block;
     padding: 0.2rem 0.55rem;
@@ -495,21 +506,22 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
-  .status-running  { color: #60a5fa; background: #0c1a2e; border: 1px solid #1d4ed8; }
-  .status-queued   { color: #9ca3af; background: #111827; border: 1px solid #374151; }
-  .status-completed{ color: #4ade80; background: #052e16; border: 1px solid #166534; }
-  .status-failed   { color: #f87171; background: #1f0909; border: 1px solid #7f1d1d; }
-  .status-stopped  { color: #fbbf24; background: #1a1100; border: 1px solid #92400e; }
-  .status-paused   { color: #fbbf24; background: #1a1100; border: 1px solid #92400e; }
+  .status-running   { color: var(--teal);         background: var(--teal-dim);   border: 1px solid var(--teal); }
+  .status-queued    { color: var(--text-faint);    background: var(--bg-3);       border: 1px solid var(--border); }
+  .status-completed { color: var(--violet-bright); background: var(--violet-dim); border: 1px solid var(--violet-bright); }
+  .status-failed    { color: var(--error);         background: var(--error-dim);  border: 1px solid var(--error); }
+  .status-stopped   { color: var(--amber);         background: var(--amber-dim);  border: 1px solid var(--amber); }
+  .status-paused    { color: var(--amber);         background: var(--amber-dim);  border: 1px solid var(--amber); }
 
-  /* Stop button */
+  /* Stop button — danger state uses --error */
   .stop-btn {
     background: transparent;
-    border: 1px solid #7f1d1d;
+    border: 1px solid var(--error);
     border-radius: 0.25rem;
-    color: #f87171;
+    color: var(--error);
     cursor: pointer;
     font-size: 0.75rem;
     font-weight: 600;
@@ -518,7 +530,7 @@
   }
 
   .stop-btn:hover:not(:disabled) {
-    background: #1f0909;
+    background: var(--error-dim);
   }
 
   .stop-btn:disabled {
@@ -538,9 +550,9 @@
   }
 
   .dialog {
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
-    border-radius: 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 2rem;
     max-width: 400px;
     width: 90%;
@@ -549,11 +561,12 @@
   .dialog h2 {
     font-size: 1.1rem;
     font-weight: 700;
+    color: var(--text);
     margin: 0 0 0.75rem;
   }
 
   .dialog p {
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-size: 0.875rem;
     margin: 0 0 1.5rem;
     line-height: 1.5;
@@ -567,24 +580,25 @@
 
   .cancel-btn {
     background: transparent;
-    border: 1px solid var(--border, #1f2937);
+    border: 1px solid var(--border);
     border-radius: 0.375rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     cursor: pointer;
     font-size: 0.875rem;
     padding: 0.5rem 1rem;
-    transition: color 0.15s;
+    transition: color 0.15s, border-color 0.15s;
   }
 
   .cancel-btn:hover {
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
+    border-color: var(--border-mid);
   }
 
   .confirm-stop-btn {
-    background: #7f1d1d;
-    border: none;
+    background: transparent;
+    border: 1px solid var(--error);
     border-radius: 0.375rem;
-    color: #fca5a5;
+    color: var(--error);
     cursor: pointer;
     font-size: 0.875rem;
     font-weight: 600;
@@ -593,6 +607,6 @@
   }
 
   .confirm-stop-btn:hover {
-    background: #991b1b;
+    background: var(--error-dim);
   }
 </style>

@@ -1,4 +1,4 @@
-import { db, executions, executionStatusEnum } from '@claw/db';
+import { db, executions, executionStatusEnum, objectives } from '@claw/db';
 import { eq, and } from 'drizzle-orm';
 import IORedis from 'ioredis';
 
@@ -17,11 +17,27 @@ export interface CreateExecutionInput {
   budgetCapCents: number;
   runtimeLimitSeconds: number;
   allowedTools: string[];
+  objectiveId?: string;
 }
 
 export async function createExecution(
   input: CreateExecutionInput,
 ): Promise<{ executionId: string; status: 'queued' }> {
+  if (input.objectiveId) {
+    const [objective] = await db
+      .select({ id: objectives.id })
+      .from(objectives)
+      .where(
+        and(
+          eq(objectives.id, input.objectiveId),
+          eq(objectives.isArchived, false),
+        ),
+      );
+    if (!objective) {
+      throw new Error('Objective not found or archived');
+    }
+  }
+
   const result = await db
     .insert(executions)
     .values({
@@ -30,6 +46,7 @@ export async function createExecution(
       budgetCapCents: input.budgetCapCents,
       runtimeLimitSeconds: input.runtimeLimitSeconds,
       allowedTools: input.allowedTools,
+      objectiveId: input.objectiveId ?? null,
       status: 'queued',
     })
     .returning({ id: executions.id });

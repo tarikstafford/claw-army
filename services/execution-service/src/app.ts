@@ -10,6 +10,7 @@ import { billingRoutes } from './routes/billing';
 import { adminRoutes } from './routes/admin';
 import { verdictsRoutes } from './routes/verdicts';
 import { armyBuilderRoutes } from './routes/army-builder';
+import { objectivesRoutes } from './routes/objectives';
 
 export async function buildApp() {
   const app = Fastify({
@@ -19,7 +20,7 @@ export async function buildApp() {
   // CORS must be registered BEFORE routes — Fastify plugin registration order matters
   await app.register(cors, {
     origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   // SSE plugin — enables { sse: true } route option and reply.sse API
@@ -45,6 +46,9 @@ export async function buildApp() {
 
   // Army Builder analysis (Phase 14 — UIEX-04/05)
   app.register(armyBuilderRoutes, { prefix: '/army-builder' });
+
+  // Objectives CRUD (Phase 16 — OBJ-01 through OBJ-04)
+  app.register(objectivesRoutes, { prefix: '/objectives' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));

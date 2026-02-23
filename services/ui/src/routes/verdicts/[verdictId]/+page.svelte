@@ -69,7 +69,7 @@
 </script>
 
 <svelte:head>
-  <title>Verdict | Claw Army</title>
+  <title>Verdict | Akasa</title>
 </svelte:head>
 
 <div class="page">
@@ -151,7 +151,7 @@
             disabled={submitting}
             onclick={doReject}
           >
-            Reject — Your feedback teaches the army
+            Reject — Your feedback teaches the soul
           </button>
           <button
             class="action-btn confirm-btn"
@@ -183,27 +183,27 @@
 
   .back-link {
     font-size: 0.875rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     text-decoration: none;
     transition: color 0.15s;
   }
 
   .back-link:hover {
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
   }
 
   .loading {
     padding: 2rem;
     text-align: center;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
   }
 
   .error-banner {
     padding: 0.875rem 1rem;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
+    background: var(--error-dim);
+    border: 1px solid rgba(248,113,113,0.25);
     border-radius: 0.5rem;
-    color: #fca5a5;
+    color: var(--error);
     font-size: 0.875rem;
   }
 
@@ -221,7 +221,7 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border, #1f2937);
+    border-bottom: 1px solid var(--border);
   }
 
   .header-left {
@@ -238,18 +238,36 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
+  /* Promote → teal (soul lifecycle progression) */
   .verdict-type-promote {
-    color: #4ade80;
-    background: #052e16;
-    border: 1px solid #166534;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(45,212,191,0.2);
   }
 
+  /* Retire → rose (soul lifecycle end) */
   .verdict-type-retire {
-    color: #f87171;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
+    color: var(--rose);
+    background: var(--rose-dim);
+    border: 1px solid rgba(244,114,182,0.15);
+  }
+
+  /* Demote → amber (soul-mechanic intervention) */
+  .verdict-type-demote {
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
+  }
+
+  /* Monitor / Maintain → violet-dim */
+  .verdict-type-monitor,
+  .verdict-type-maintain {
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid rgba(167,139,250,0.2);
   }
 
   .status-notice {
@@ -260,18 +278,19 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
   .status-confirmed {
-    color: #4ade80;
-    background: #052e16;
-    border: 1px solid #166534;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(45,212,191,0.2);
   }
 
   .status-rejected {
-    color: #fbbf24;
-    background: #1a1100;
-    border: 1px solid #92400e;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
   }
 
   .header-meta {
@@ -288,17 +307,19 @@
 
   .meta-label {
     font-size: 0.65rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .meta-value {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   /* Summary */
@@ -309,52 +330,54 @@
   .summary-section h2 {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0 0 0.75rem;
+    font-family: var(--font-mono);
   }
 
   .summary-text {
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     margin: 0;
   }
 
   /* Evidence */
   .evidence-section {
     margin-top: 2rem;
-    border-top: 1px solid var(--border, #1f2937);
+    border-top: 1px solid var(--border);
     padding-top: 1.5rem;
   }
 
   .evidence-section h2 {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0 0 0.75rem;
+    font-family: var(--font-mono);
   }
 
   .evidence-note {
     font-size: 0.875rem;
-    color: #fbbf24;
+    color: var(--amber);
     margin: 0 0 1rem;
   }
 
   .evidence-text {
     font-size: 0.9rem;
     line-height: 1.6;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     margin: 0 0 1rem;
   }
 
   /* Challenge cards */
   .challenge-card {
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
+    background: var(--bg-3);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 1rem;
     margin-bottom: 0.75rem;
@@ -372,37 +395,41 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
+  /* Strong challenge → rose (high severity) */
   .severity-strong {
-    color: #f87171;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
+    color: var(--rose);
+    background: var(--rose-dim);
+    border: 1px solid rgba(244,114,182,0.15);
   }
 
+  /* Moderate challenge → amber */
   .severity-moderate {
-    color: #fbbf24;
-    background: #1a1100;
-    border: 1px solid #92400e;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
   }
 
+  /* Weak challenge → muted */
   .severity-weak {
-    color: #9ca3af;
-    background: #111827;
-    border: 1px solid #374151;
+    color: var(--text-muted);
+    background: rgba(236,232,255,0.05);
+    border: 1px solid var(--border);
   }
 
   .challenge-claim {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     margin: 0 0 0.5rem;
     line-height: 1.5;
   }
 
   .challenge-counter {
     font-size: 0.875rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.5;
   }
@@ -416,8 +443,8 @@
   }
 
   .metric-item {
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
+    background: var(--bg-3);
+    border: 1px solid var(--border);
     border-radius: 0.375rem;
     padding: 0.625rem 0.875rem;
     display: flex;
@@ -427,33 +454,36 @@
 
   .metric-key {
     font-size: 0.65rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .metric-val {
     font-size: 0.875rem;
     font-weight: 700;
-    color: var(--text-primary, #f9fafb);
+    color: var(--text);
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   /* Soul section */
   .soul-section {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--border, #1f2937);
+    border-top: 1px solid var(--border);
   }
 
   .soul-section h2 {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0 0 0.75rem;
+    font-family: var(--font-mono);
   }
 
   /* Action buttons (CONF-03 — equal visual weight) */
@@ -462,7 +492,7 @@
     gap: 0.75rem;
     margin-top: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--border, #1f2937);
+    border-top: 1px solid var(--border);
   }
 
   .action-btn {
@@ -477,24 +507,27 @@
     min-width: 200px;
   }
 
+  /* Reject → amber treatment (soul-mechanic correction, not an error) */
   .reject-btn {
-    background: #92400e;
-    border-color: #92400e;
-    color: #fbbf24;
+    background: var(--amber-dim);
+    border-color: rgba(251,191,36,0.3);
+    color: var(--amber);
   }
 
   .reject-btn:hover:not(:disabled) {
-    background: #a14b0f;
+    background: rgba(251,191,36,0.2);
   }
 
+  /* Confirm → violet (primary action) */
   .confirm-btn {
-    background: var(--signal, #3d7eff);
-    border-color: var(--signal, #3d7eff);
-    color: #fff;
+    background: var(--violet);
+    border-color: var(--violet);
+    color: white;
   }
 
   .confirm-btn:hover:not(:disabled) {
-    background: #5a8fff;
+    background: var(--violet-bright);
+    border-color: var(--violet-bright);
   }
 
   .action-btn:disabled {
@@ -506,11 +539,11 @@
   .already-resolved {
     margin-top: 2rem;
     padding: 0.875rem 1rem;
-    background: var(--surface, #111827);
-    border: 1px solid var(--border, #1f2937);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    color: var(--text-secondary, #9ca3af);
+    color: var(--text-muted);
     font-style: italic;
   }
 </style>
