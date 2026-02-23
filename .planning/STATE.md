@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 — Phase 22 complete, Phase 23 added (Akasa UI Rebrand — Design System Rollout)
+**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 1 of 7 complete)
 
 ## Current Position
 
-Phase: 22 of 22 (v3.0 Tech Debt Cleanup)
-Plan: 1 of 1 complete — Phase 22 complete
-Status: Phase 22 complete — dead CSS removed, real userId wired into VerdictConfirmPanel, Phase 15 ROADMAP checkboxes corrected
-Last activity: 2026-02-23 — 22-01 complete: v3.0 tech debt cleanup finished
+Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
+Plan: 1 of 7 complete — Design system foundation done
+Status: Phase 23, Plan 1 complete — Akasa token system + particle canvas nav + landing + login pages rebranded
+Last activity: 2026-02-23 — 23-01 complete: Akasa CSS token system, layout shell, landing page, login page
 
-Progress: [██████████] ~100% (v3.0 all phases complete)
+Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (1/7 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 44 (v1.0 + v1.1 + v2.0 + v3.0 P01-22)
+- Total plans completed: 45 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01)
 - Average duration: 4.7 min
-- Total execution time: 216 min
+- Total execution time: 222 min
 
 **By Phase:**
 
@@ -39,6 +39,7 @@ Progress: [██████████] ~100% (v3.0 all phases complete)
 | Phase 21-launch-from-objective-ui P01 | 8 min | 2 tasks | 3 files |
 | Phase 21-launch-from-objective-ui P02 | 2 min | 1 task | 1 file |
 | Phase 22-v3-tech-debt-cleanup P01 | 2 min | 2 tasks | 3 files |
+| Phase 23-akasa-ui-rebrand P01 | 6 min | 2 tasks | 4 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -110,6 +111,11 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [22-01] userId derived from data.session?.user?.email with 'operator' fallback — follows established pattern from verdicts/+page.svelte and verdicts/[verdictId]/+page.svelte
 - [22-01] let { data } = $props() used (not page.data.session) — codebase convention reserves page store for route params only
 
+- [23-01] --error/#f87171 and --error-dim added for form validation/API failures; --rose reserved for retirement/soul language only — distinct semantic purposes prevent token confusion across rebrand plans
+- [23-01] Font link tags in layout svelte:head (not per-page) — global availability across all routes; removed duplicate from landing page svelte:head
+- [23-01] Objectives nav link placed first in nav-links ul — matches v3.0 nav order: Objectives, Guide, Verdicts, Billing
+- [23-01] Particle class defined at module scope in layout — avoids Svelte 5 nested-class performance warning
+
 ### Roadmap Evolution
 
 - Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
@@ -132,5 +138,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 22-01-PLAN.md — Phase 22 complete: v3.0 tech debt cleanup done (dead CSS, real userId, Phase 15 ROADMAP accuracy)
+Stopped at: Completed 23-01-PLAN.md — Phase 23, Plan 1 complete: Akasa token system, particle canvas nav, landing + login pages rebranded (6 min, 4 files)
 Resume file: None
