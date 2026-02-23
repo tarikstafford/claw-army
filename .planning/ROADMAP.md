@@ -193,10 +193,16 @@ Plans:
   3. Pages already rebranded in `improvement/ui` (landing, layout, login, new-execution, execution monitor) are merged in without regression
   4. Pages not yet rebranded (report, bot detail, objectives list, objective detail, verdicts list, verdict detail, billing, guide, admin) are restyled to match the Akasa design guide
   5. Soul-concept language uses amber (`--amber`) accents exclusively — soul tier badges, SOUL.md panel, council verdict language all reflect the brand identity
-**Plans**: TBD
+**Plans**: 7 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 23 to break down)
+- [ ] 23-01-PLAN.md — Akasa foundation: app.css token system + layout (nav, particle canvas, fonts) + landing + login merge from improvement/ui
+- [ ] 23-02-PLAN.md — Merge new-execution (preserve objectiveId logic) + execution monitor from improvement/ui
+- [ ] 23-03-PLAN.md — Restyle shared components: SoulTierBadge + SoulInspectorPanel + VerdictConfirmPanel to Akasa dark theme
+- [ ] 23-04-PLAN.md — Restyle bot detail + report pages to Akasa dark theme
+- [ ] 23-05-PLAN.md — Restyle objectives list/detail + complete verdicts list/detail migration to Akasa tokens
+- [ ] 23-06-PLAN.md — Restyle guide (brand copy substitution) + admin + billing pages to Akasa dark theme
+- [ ] 23-07-PLAN.md — App-wide compliance audit + visual verification checkpoint
 
 ---
 
@@ -226,4 +232,4 @@ Plans:
 | 20. Spawn Timeout Error Preservation | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
-| 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 0/TBD | Planned | - |
+| 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 0/7 | Planned | - |
