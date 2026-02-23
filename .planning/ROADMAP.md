@@ -47,162 +47,22 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase details.
 
 </details>
 
----
+<details>
+<summary>✅ v3.0 Bot Reliability & UX Overhaul (Phases 15-23) — SHIPPED 2026-02-23</summary>
 
-### 🚧 v3.0 Bot Reliability & UX Overhaul (In Progress)
+- [x] Phase 15: Bot Reliability (3/4 plans — 15-04 gap promoted to Phase 20) — completed 2026-02-23
+- [x] Phase 16: Named Objectives Data Model (3/3 plans) — completed 2026-02-22
+- [x] Phase 17: Objective Hub UI (3/3 plans) — completed 2026-02-22
+- [x] Phase 18: Soul Inspector (2/2 plans) — completed 2026-02-22
+- [x] Phase 19: Run View Enhancements (2/2 plans) — completed 2026-02-23
+- [x] Phase 20: Spawn Timeout Error Preservation (1/1 plan) — completed 2026-02-23
+- [x] Phase 21: Launch-from-Objective UI (2/2 plans) — completed 2026-02-23
+- [x] Phase 22: v3.0 Tech Debt Cleanup (1/1 plan) — completed 2026-02-23
+- [x] Phase 23: Akasa UI Rebrand — Design System Rollout (7/7 plans) — completed 2026-02-23
 
-**Milestone Goal:** Fix bot spawning and harden the full GCE/OpenClaw lifecycle, then rebuild the UI around the objective as the primary unit of navigation — souls visible, army status live, run history and DNA evolution all accessible from one place.
+See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
 
-#### Phase 15: Bot Reliability
-
-**Goal**: Bots spawn reliably, fail visibly, and execute tasks end-to-end without operator intervention
-**Depends on**: Phase 14 (v2.0 complete)
-**Requirements**: BOT-01, BOT-02, BOT-03, BOT-04, BOT-05, BOT-06
-**Success Criteria** (what must be TRUE):
-  1. A bot VM that successfully starts OpenClaw transitions to `idle` status without manual intervention — verified across cold boot and restart
-  2. A bot VM that fails to install OpenClaw or SecureClaw transitions to `error` status with a human-readable failure reason stored in the database
-  3. A bot assigned a task sends it to OpenClaw via WebSocket, receives a completion event, and returns to `idle` — the full dispatch round-trip is confirmed working
-  4. The UI displays a human-readable error message on any bot card that has entered `error` status — the user knows what went wrong without checking logs
-  5. The `/bots/:botId/ready` handler refuses to set a bot to `idle` unless it can confirm the OpenClaw WebSocket connection is live
-**Plans**: 4 plans
-
-Plans:
-- [x] 15-01-PLAN.md — GCE startup script hardening + errorMessage DB column (BOT-01, BOT-02, BOT-04 foundation)
-- [x] 15-02-PLAN.md — Ready handler validation + spawn timeout (BOT-03, BOT-04)
-- [x] 15-03-PLAN.md — Dispatch round-trip validation + UI error surface (BOT-05, BOT-06)
-- [ ] 15-04-PLAN.md — Fix spawn timeout status overwrite (gap closure)
-
-#### Phase 16: Named Objectives Data Model
-
-**Goal**: Users can save, launch from, list, and archive named objectives — objectives persist across runs and accumulate history
-**Depends on**: Phase 15
-**Requirements**: OBJ-01, OBJ-02, OBJ-03, OBJ-04
-**Success Criteria** (what must be TRUE):
-  1. User can create a named objective with name, description, default bot count, budget cap, runtime limit, and tool allowlist — and it persists after page reload
-  2. User can launch a new run from a saved objective — the submission form pre-fills with the objective's default settings, all fields remain editable before launch
-  3. The objectives list screen shows each saved objective with its last-run status, total run count, cumulative spend, and highest bot class achieved
-  4. User can delete an objective (removes it from the list) or archive it (hides it from the list but preserves all run history)
-**Plans**: 3 plans
-
-Plans:
-- [x] 16-01-PLAN.md — objectives DB table + Drizzle migration + executions FK + shared-types Objective schema
-- [x] 16-02-PLAN.md — Objectives REST API: POST, GET (with aggregation), GET/:id, DELETE/:id, PATCH/:id + CORS update
-- [x] 16-03-PLAN.md — Link executions to objectives: objectiveId in POST /executions + validation
-
-#### Phase 17: Objective Hub UI
-
-**Goal**: Users navigate the platform through objectives — each objective page shows all runs, aggregate stats, live status (if active), and DNA class progression
-**Depends on**: Phase 16
-**Requirements**: HUB-01, HUB-02, HUB-03, HUB-04
-**Success Criteria** (what must be TRUE):
-  1. The `/objectives` list page renders all saved objectives with last-run status, run count, total spend, and best class achieved — clicking any objective navigates to its detail page
-  2. The `/objectives/:id` detail page lists every run with date, status, cost, bot count, avg composite score, and a link to the run detail view
-  3. The objective detail page shows aggregate stats across all runs: total spend, total tasks completed, total bot-hours, and a readable soul class distribution trend
-  4. If a run on this objective is currently active, the objective detail page shows live status inline: active bot count, real-time budget burn, and the last 5 activity events — without navigating away
-  5. The objective detail page shows a DNA evolution summary: how many Novice → Understudy → Artisan class transitions have occurred across all runs on this objective
-**Plans**: 3 plans
-
-Plans:
-- [ ] 17-01-PLAN.md — Backend API extensions: GET /:id/executions + GET /:id/stats endpoints, UI types, API client functions
-- [ ] 17-02-PLAN.md — /objectives list page + nav link: objective table with status badges, stats, and navigation
-- [ ] 17-03-PLAN.md — /objectives/:id detail page: run history table, aggregate stats, live status panel, DNA evolution summary
-
-#### Phase 18: Soul Inspector
-
-**Goal**: Users can inspect the full soul, lineage, and verdict for any bot in any run — and can see soul tier badges on bot cards throughout the UI
-**Depends on**: Phase 17
-**Requirements**: SOUL-01, SOUL-02, SOUL-03, SOUL-04
-**Success Criteria** (what must be TRUE):
-  1. Clicking any bot in any run opens a soul inspector panel showing the full SOUL.md content: all 7 behavioral dimensions and the inviolable constitution directives
-  2. The soul inspector shows lineage metadata: generation counter, mutation operations applied, and the parent soul reference (or "seed" if no parent)
-  3. If the bot has been evaluated by the council, the soul inspector shows the verdict type, confidence score, and a summary from each judge
-  4. Every bot card across the live monitoring view, post-run dashboard, and leaderboard displays the bot's soul tier badge (Novice / Understudy / Artisan)
-**Plans**: 2 plans
-
-Plans:
-- [x] 18-01-PLAN.md — Soul inspector panel: GET /bots/:botId/soul endpoint + BotSoul type + SoulInspectorPanel drawer + wiring into all 3 bot card contexts (SOUL-01, SOUL-02, SOUL-03)
-- [x] 18-02-PLAN.md — Soul tier badge: extend monitoring endpoint with agentClass + SoulTierBadge component + integration into monitoring, leaderboard, bot detail (SOUL-04)
-
-#### Phase 19: Run View Enhancements
-
-**Goal**: The live and post-run views are richer — bot cards show task context and soul tier, the activity feed is accessible from the objective hub, and pending verdicts are highlighted with inline confirmation
-**Depends on**: Phase 18
-**Requirements**: RUN-01, RUN-02, RUN-03, RUN-04
-**Success Criteria** (what must be TRUE):
-  1. Bot cards in the live monitoring view show the current task description, tool call count, token burn rate, and soul tier badge — all updating in real time
-  2. The activity feed for a run is accessible directly from the objective hub page (embedded or linked inline) without navigating away to the run detail view
-  3. The post-run performance dashboard displays a soul tier distribution panel showing the count of Novice, Understudy, and Artisan bots across the completed army
-  4. The run detail view highlights any bots with pending council verdicts and shows an inline confirmation panel (reusing the existing CONF-* component) — verdict actions available without navigating to a separate screen
-**Plans**: 2 plans
-
-Plans:
-- [x] 19-01-PLAN.md — Bot card enhancements: extend /by-execution with currentTaskDescription, toolCallCount, tokenBurnRate + enriched objective hub activity feed (RUN-01, RUN-02)
-- [x] 19-02-PLAN.md — Soul tier distribution on report + VerdictConfirmPanel extraction + inline verdict highlights in run view (RUN-03, RUN-04)
-
-#### Phase 20: Spawn Timeout Error Preservation
-**Goal**: Bots that time out during spawn show as `failed` with a human-readable error message in the UI — not silently overwritten to `stopped`
-**Depends on**: Phase 19
-**Requirements**: BOT-04 (gap closure)
-**Gap Closure:** Closes BOT-04 partial gap and spawn-timeout UI flow from audit
-**Success Criteria** (what must be TRUE):
-  1. A bot that times out during spawn (never POSTs to /ready within the timeout window) has status `failed` and a non-null `errorMessage` in the DB after the timeout fires
-  2. `stopBot()` called from the spawn-timeout path does NOT overwrite the `failed` status or `errorMessage` already written by the timeout checker
-  3. The bot card in the UI displays the human-readable timeout error message for a timed-out bot
-**Plans**: 1 plan
-
-Plans:
-- [x] 20-01-PLAN.md — Add `skipDbUpdate` option to `stopBot()` in bot-orchestrator.ts; call with `{ skipDbUpdate: true }` from spawn-timeout path (executes pre-specced 15-04 fix)
-
-#### Phase 21: Launch-from-Objective UI
-**Goal**: Users can launch a new execution directly from an objective page — the objectiveId is wired end-to-end so runs appear in the objective hub run history
-**Depends on**: Phase 20
-**Requirements**: OBJ-02 (gap closure)
-**Gap Closure:** Closes OBJ-02 broken requirement and launch-from-objective E2E flow from audit
-**Success Criteria** (what must be TRUE):
-  1. `createExecution()` in `api.ts` accepts and sends `objectiveId` in the request body
-  2. `new-execution/+page.server.ts` extracts `objectiveId` from the incoming request and forwards it to the backend
-  3. `/objectives/[id]/+page.svelte` has a "Launch from this objective" affordance that navigates to `/new-execution` with the objective's ID pre-wired (via URL param or store)
-  4. After launching, the run appears in the objective hub's run history table for that objective
-**Plans**: 2 plans
-
-Plans:
-- [x] 21-01-PLAN.md — Wire objectiveId into execution creation: api.ts createExecution() + new-execution server action extraction and forwarding
-- [x] 21-02-PLAN.md — Add "Launch from objective" button on /objectives/[id] page + URL param passing + smoke-test run history populates
-
-#### Phase 22: v3.0 Tech Debt Cleanup
-**Goal**: Clear non-critical tech debt items surfaced by the audit — dead CSS, hardcoded userId, and ROADMAP/STATE status corrections
-**Depends on**: Phase 21
-**Gap Closure:** Addresses tech debt items from audit (non-blocking for milestone, but clean before archive)
-**Success Criteria** (what must be TRUE):
-  1. Dead CSS rules (`.class-badge`, `.class-novice`, `.class-understudy`, `.class-artisan`, `.class-retired`, `.class-none`) removed from `report/+page.svelte`
-  2. `VerdictConfirmPanel` reads real user ID from the Auth.js session token instead of hardcoded `"operator"`
-  3. ROADMAP.md Phase 15 progress entry updated to reflect 3/4 plans complete (not "0/4 Planned")
-**Plans**: 1 plan
-
-Plans:
-- [x] 22-01-PLAN.md — Remove dead CSS from report page + wire real userId into VerdictConfirmPanel + correct Phase 15 ROADMAP status
-
-#### Phase 23: Akasa UI Rebrand — Design System Rollout
-
-**Goal**: Merge the Akasa brand from `improvement/ui` and apply the design system to every page in the platform — dark violet theme, CSS custom properties, soul-concept amber accents — so the full app presents a unified, production-ready look
-**Depends on**: Phase 22
-**Requirements**: Akasa design guide (`docs/akasa-design-guide.md` on `improvement/ui` branch)
-**Success Criteria** (what must be TRUE):
-  1. The Akasa CSS token system (`--bg`, `--violet`, `--amber`, `--teal`, `--rose`, etc.) is defined in `app.css` and used consistently across all pages — no hardcoded hex values
-  2. All 13 route pages use the Akasa dark theme — none retain the old light-mode or v1 styles
-  3. Pages already rebranded in `improvement/ui` (landing, layout, login, new-execution, execution monitor) are merged in without regression
-  4. Pages not yet rebranded (report, bot detail, objectives list, objective detail, verdicts list, verdict detail, billing, guide, admin) are restyled to match the Akasa design guide
-  5. Soul-concept language uses amber (`--amber`) accents exclusively — soul tier badges, SOUL.md panel, council verdict language all reflect the brand identity
-**Plans**: 7 plans
-
-Plans:
-- [x] 23-01-PLAN.md — Akasa foundation: app.css token system + layout (nav, particle canvas, fonts) + landing + login merge from improvement/ui
-- [x] 23-02-PLAN.md — Merge new-execution (preserve objectiveId logic) + execution monitor from improvement/ui
-- [x] 23-03-PLAN.md — Restyle shared components: SoulTierBadge + SoulInspectorPanel + VerdictConfirmPanel to Akasa dark theme
-- [x] 23-04-PLAN.md — Restyle bot detail + report pages to Akasa dark theme
-- [x] 23-05-PLAN.md — Restyle objectives list/detail + complete verdicts list/detail migration to Akasa tokens
-- [x] 23-06-PLAN.md — Restyle guide (brand copy substitution) + admin + billing pages to Akasa dark theme
-- [x] 23-07-PLAN.md — App-wide compliance audit + visual verification checkpoint
+</details>
 
 ---
 
@@ -224,7 +84,7 @@ Plans:
 | 12. Human Confirmation Gate | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
-| 15. Bot Reliability | v3.0 | 3/4 | In Progress | - |
+| 15. Bot Reliability | v3.0 | 3/4 | Complete | 2026-02-23 |
 | 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 17. Objective Hub UI | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |

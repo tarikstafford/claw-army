@@ -67,3 +67,13 @@
 
 ---
 
+
+## v3.0 Bot Reliability & UX Overhaul (Shipped: 2026-02-23)
+
+**Phases completed:** 23 phases, 73 plans, 8 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

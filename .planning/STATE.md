@@ -2,19 +2,18 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22)
+See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 complete — Phase 23 (Akasa UI Rebrand) shipped 2026-02-23
+**Current focus:** v3.0 archived — planning v4.0
 
 ## Current Position
 
-Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
-Plan: 7 of 7 complete — Phase 23 complete
-Status: v3.0 milestone complete — all 9 phases (15-23) done. Akasa dark violet theme applied across all 13 UI routes, zero old tokens, zero Claw Army references, all soul-concept elements use amber accents.
-Last activity: 2026-02-23 — 23-07 visual verification approved by user, Phase 23 complete
+Milestone: v3.0 archived 2026-02-23
+Status: All phases complete (23 phases, 73 plans across v1.0–v3.0). Milestone archived to .planning/milestones/v3.0-ROADMAP.md. Git tagged v3.0.
+Last activity: 2026-02-23 — v3.0 milestone completion: Akasa UI rebrand shipped, milestone archived
 
-Progress: [██████████] 100% v3.0 complete
+Progress: [██████████] 100% v3.0 archived — ready for v4.0
 
 ## Performance Metrics
 
@@ -160,25 +159,27 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 
 ### Roadmap Evolution
 
-- Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
+- v3.0 archived to .planning/milestones/v3.0-ROADMAP.md — full phase details preserved
+- ROADMAP.md collapsed to one-line summary per milestone; REQUIREMENTS.md deleted (fresh for v4.0)
 
 ### Pending Todos
 
 None.
 
-### Blockers/Concerns (carry forward to v3.0)
+### Blockers/Concerns (carry forward to v4.0)
 
 - [Production]: Confirm pgvector extension enabled on Cloud SQL before running migrations 0003–0007.
 - [Production]: Run archetype seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
-- [BOT — Phase 15]: Verify OpenClaw WebSocket `run_task` schema accepts extra soul fields or use prompt-prefix injection.
+- [Production]: Verify OpenClaw WebSocket `run_task` schema accepts extra soul fields or requires prompt-prefix injection.
 - [Production]: Configure Cloud Scheduler to POST /admin/cleanup/decision-traces for 90-day TTL enforcement.
 - [Production]: Terraform needs bot-lifecycle-billing-sub subscription for Billing Engine.
 - [Production]: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be set in Vercel env vars.
 - [Production]: Composite score weights (40/30/20/10) not empirically validated — iterate after first real execution data.
 - [Production]: GCP resources not yet provisioned. Terraform config valid. Run terraform apply when GCP project is ready.
+- [Cosmetic]: landing page .tok { color: #4ade80 } uses raw hex — no --green token in Akasa design system.
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-07-PLAN.md — Phase 23, Plan 7 audit complete: 4/4 compliance checks passed (0 old tokens, 0 brand refs, 0 old token defs); all hex values classified; visual sign-off (Task 2) pending human review (2 min, 0 files modified)
+Stopped at: v3.0 milestone archived — ROADMAP collapsed, REQUIREMENTS.md deleted, PROJECT.md evolved, git tagged v3.0. Ready for /gsd:new-milestone v4.0.
 Resume file: None
