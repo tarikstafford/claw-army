@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP** — Phases 1-6 (shipped 2026-02-19)
 - ✅ **v1.1 Google Auth Gate** — Phase 7 (shipped 2026-02-19)
 - ✅ **v2.0 The SOUL System** — Phases 8-14 (shipped 2026-02-22)
-- 🚧 **v3.0 Bot Reliability & UX Overhaul** — Phases 15-19 (in progress)
+- 🚧 **v3.0 Bot Reliability & UX Overhaul** — Phases 15-22 (in progress)
 
 ## Phases
 
@@ -139,6 +139,49 @@ Plans:
 - [x] 19-01-PLAN.md — Bot card enhancements: extend /by-execution with currentTaskDescription, toolCallCount, tokenBurnRate + enriched objective hub activity feed (RUN-01, RUN-02)
 - [x] 19-02-PLAN.md — Soul tier distribution on report + VerdictConfirmPanel extraction + inline verdict highlights in run view (RUN-03, RUN-04)
 
+#### Phase 20: Spawn Timeout Error Preservation
+**Goal**: Bots that time out during spawn show as `failed` with a human-readable error message in the UI — not silently overwritten to `stopped`
+**Depends on**: Phase 19
+**Requirements**: BOT-04 (gap closure)
+**Gap Closure:** Closes BOT-04 partial gap and spawn-timeout UI flow from audit
+**Success Criteria** (what must be TRUE):
+  1. A bot that times out during spawn (never POSTs to /ready within the timeout window) has status `failed` and a non-null `errorMessage` in the DB after the timeout fires
+  2. `stopBot()` called from the spawn-timeout path does NOT overwrite the `failed` status or `errorMessage` already written by the timeout checker
+  3. The bot card in the UI displays the human-readable timeout error message for a timed-out bot
+**Plans**: 1 plan
+
+Plans:
+- [ ] 20-01-PLAN.md — Add `skipDbUpdate` option to `stopBot()` in bot-orchestrator.ts; call with `{ skipDbUpdate: true }` from spawn-timeout path (executes pre-specced 15-04 fix)
+
+#### Phase 21: Launch-from-Objective UI
+**Goal**: Users can launch a new execution directly from an objective page — the objectiveId is wired end-to-end so runs appear in the objective hub run history
+**Depends on**: Phase 20
+**Requirements**: OBJ-02 (gap closure)
+**Gap Closure:** Closes OBJ-02 broken requirement and launch-from-objective E2E flow from audit
+**Success Criteria** (what must be TRUE):
+  1. `createExecution()` in `api.ts` accepts and sends `objectiveId` in the request body
+  2. `new-execution/+page.server.ts` extracts `objectiveId` from the incoming request and forwards it to the backend
+  3. `/objectives/[id]/+page.svelte` has a "Launch from this objective" affordance that navigates to `/new-execution` with the objective's ID pre-wired (via URL param or store)
+  4. After launching, the run appears in the objective hub's run history table for that objective
+**Plans**: 2 plans
+
+Plans:
+- [ ] 21-01-PLAN.md — Wire objectiveId into execution creation: api.ts createExecution() + new-execution server action extraction and forwarding
+- [ ] 21-02-PLAN.md — Add "Launch from objective" button on /objectives/[id] page + URL param passing + smoke-test run history populates
+
+#### Phase 22: v3.0 Tech Debt Cleanup
+**Goal**: Clear non-critical tech debt items surfaced by the audit — dead CSS, hardcoded userId, and ROADMAP/STATE status corrections
+**Depends on**: Phase 21
+**Gap Closure:** Addresses tech debt items from audit (non-blocking for milestone, but clean before archive)
+**Success Criteria** (what must be TRUE):
+  1. Dead CSS rules (`.class-badge`, `.class-novice`, `.class-understudy`, `.class-artisan`, `.class-retired`, `.class-none`) removed from `report/+page.svelte`
+  2. `VerdictConfirmPanel` reads real user ID from the Auth.js session token instead of hardcoded `"operator"`
+  3. ROADMAP.md Phase 15 progress entry updated to reflect 3/4 plans complete (not "0/4 Planned")
+**Plans**: 1 plan
+
+Plans:
+- [ ] 22-01-PLAN.md — Remove dead CSS from report page + wire real userId into VerdictConfirmPanel + correct Phase 15 ROADMAP status
+
 ---
 
 ## Progress
@@ -159,8 +202,11 @@ Plans:
 | 12. Human Confirmation Gate | v2.0 | 2/2 | Complete | 2026-02-22 |
 | 13. God Layer and Agent Class System | v2.0 | 4/4 | Complete | 2026-02-22 |
 | 14. UI Extensions | v2.0 | 4/4 | Complete | 2026-02-22 |
-| 15. Bot Reliability | v3.0 | 0/4 | Planned | - |
+| 15. Bot Reliability | v3.0 | 3/4 | In Progress | - |
 | 16. Named Objectives Data Model | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 17. Objective Hub UI | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |
 | 19. Run View Enhancements | v3.0 | 2/2 | Complete | 2026-02-23 |
+| 20. Spawn Timeout Error Preservation | v3.0 | 0/1 | Planned | - |
+| 21. Launch-from-Objective UI | v3.0 | 0/2 | Planned | - |
+| 22. v3.0 Tech Debt Cleanup | v3.0 | 0/1 | Planned | - |
