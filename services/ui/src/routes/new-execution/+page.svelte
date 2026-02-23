@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import type { ActionData } from './$types';
   import { getArmyBuilderAnalysis } from '$lib/api';
@@ -83,9 +84,13 @@
     method="POST"
     use:enhance={() => {
       submitting = true;
-      return async ({ update }) => {
+      return async ({ result, update }) => {
         submitting = false;
-        await update({ reset: false });
+        if (result.type === 'redirect') {
+          await goto(result.location);
+        } else {
+          await update({ reset: false });
+        }
       };
     }}
   >

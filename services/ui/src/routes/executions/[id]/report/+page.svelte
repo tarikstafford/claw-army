@@ -204,9 +204,15 @@
   .page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: 96px 36px 80px;
     background: var(--bg);
     min-height: 100vh;
+  }
+
+  @media (max-width: 600px) {
+    .page {
+      padding: 88px 20px 60px;
+    }
   }
 
   .breadcrumb {
