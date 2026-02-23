@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 1 of 7 complete)
+**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 2 of 7 complete)
 
 ## Current Position
 
 Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
-Plan: 1 of 7 complete — Design system foundation done
-Status: Phase 23, Plan 1 complete — Akasa token system + particle canvas nav + landing + login pages rebranded
-Last activity: 2026-02-23 — 23-01 complete: Akasa CSS token system, layout shell, landing page, login page
+Plan: 2 of 7 complete — Execution pages rebranded
+Status: Phase 23, Plan 2 complete — new-execution + execution monitor pages Akasa-themed with all v3.0 logic intact
+Last activity: 2026-02-23 — 23-02 complete: new-execution (objectiveId merge) + execution monitor (VerdictConfirmPanel + SoulTierBadge) rebranded (10 min, 2 files)
 
-Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (1/7 plans done)
+Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (2/7 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 45 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01)
+- Total plans completed: 46 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02)
 - Average duration: 4.7 min
-- Total execution time: 222 min
+- Total execution time: 232 min
 
 **By Phase:**
 
@@ -40,6 +40,7 @@ Progress: [██████████] ~100% v3.0 core + Phase 23 in progres
 | Phase 21-launch-from-objective-ui P02 | 2 min | 1 task | 1 file |
 | Phase 22-v3-tech-debt-cleanup P01 | 2 min | 2 tasks | 3 files |
 | Phase 23-akasa-ui-rebrand P01 | 6 min | 2 tasks | 4 files |
+| Phase 23-akasa-ui-rebrand P02 | 10 min | 2 tasks | 2 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -116,6 +117,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [23-01] Objectives nav link placed first in nav-links ul — matches v3.0 nav order: Objectives, Guide, Verdicts, Billing
 - [23-01] Particle class defined at module scope in layout — avoids Svelte 5 nested-class performance warning
 
+- [23-02] new-execution page: took improvement/ui as CSS base + layered v3.0 objectiveId $state/$derived/$effect/hidden-input — both branches modified this file, manual merge required
+- [23-02] Execution monitor: kept v3.0 script block entirely (VerdictConfirmPanel, SoulTierBadge, pendingVerdicts, enriched bot cards all postdate improvement/ui branch); replaced style block with Akasa tokens; added missing CSS rules for v3.0-specific elements
+- [23-02] Error/alert states use var(--error)/var(--error-dim) not var(--rose) — rose is retirement/soul lifecycle language; error is for form validation and API failure states
+
 ### Roadmap Evolution
 
 - Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
@@ -138,5 +143,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-01-PLAN.md — Phase 23, Plan 1 complete: Akasa token system, particle canvas nav, landing + login pages rebranded (6 min, 4 files)
+Stopped at: Completed 23-02-PLAN.md — Phase 23, Plan 2 complete: new-execution (objectiveId merge) + execution monitor (VerdictConfirmPanel, SoulTierBadge, enriched bot cards) Akasa-themed (10 min, 2 files)
 Resume file: None
