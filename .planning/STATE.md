@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 — Phase 20 complete, Phase 21 next (Launch-from-Objective UI)
+**Current focus:** v3.0 — Phase 21 in progress (Launch-from-Objective UI)
 
 ## Current Position
 
-Phase: 20 of 22 (Spawn Timeout Error Preservation)
-Plan: 1 of 1 in current phase — COMPLETE
-Status: Phase 20 complete — stopBot() skipDbUpdate option; spawn-timeout path preserves 'failed' status + errorMessage; BOT-04 gap closed
-Last activity: 2026-02-23 — 20-01 complete: stopBot() optional skipDbUpdate flag, spawn-timeout call site updated
+Phase: 21 of 22 (Launch-from-Objective UI)
+Plan: 1 of 2 complete — Plan 02 next
+Status: Phase 21 Plan 01 complete — objectiveId wired from URL params through hidden form input through server action to backend POST
+Last activity: 2026-02-23 — 21-01 complete: objectiveId in api.ts createExecution(), server action, new-execution page URL params + hidden input
 
 Progress: [█████████░] ~90% (gap-closure phases 20-22 in progress)
 
@@ -36,6 +36,7 @@ Progress: [█████████░] ~90% (gap-closure phases 20-22 in pro
 | Phase 19-run-view-enhancements P01 | 3 min | 2 tasks | 4 files |
 | Phase 19-run-view-enhancements P02 | 3 min | 2 tasks | 7 files |
 | Phase 20-spawn-timeout-error-preservation P01 | 5 min | 1 task | 1 file |
+| Phase 21-launch-from-objective-ui P01 | 8 min | 2 tasks | 3 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -96,6 +97,10 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [20-01] Only spawn-timeout call site passes skipDbUpdate:true — idle checker and all other callers continue writing status:'stopped' unconditionally
 - [20-01] publishBotStopped remains unconditional — event correctly signals VM termination regardless of which terminal status the bot ended with
 
+- [21-01] objectiveId conditional spread ...(objectiveId ? { objectiveId } : {}) — TypeBox Optional(Type.String({ format: 'uuid' })) rejects null; omitting the field entirely when absent is the correct approach
+- [21-01] $effect for form initialization from URL params — $derived would make values read-only and break bind:value; $state + $effect allows user-overridable initialization
+- [21-01] Hidden input pattern for objectiveId — URL search params are NOT included in formData on POST; hidden input inside form is the only reliable mechanism
+
 ### Pending Todos
 
 None.
@@ -114,5 +119,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 20-01-PLAN.md — Phase 20 complete: stopBot() skipDbUpdate option preserves failed status + errorMessage on spawn timeout
+Stopped at: Completed 21-01-PLAN.md — Phase 21 Plan 01 complete: objectiveId wired from URL params through hidden input through server action to backend POST
 Resume file: None
