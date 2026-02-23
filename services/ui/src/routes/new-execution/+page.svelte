@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { page } from '$app/state';
   import type { ActionData } from './$types';
   import { getArmyBuilderAnalysis } from '$lib/api';
   import type { ArmyBuilderAnalysis } from '$lib/types';
@@ -19,6 +20,23 @@
   let llmProvider      = $state('anthropic');
   let allowedDomains   = $state(DEFAULT_DOMAINS);
   let submitting       = $state(false);
+  let objectiveId      = $state('');
+
+  const urlObjectiveId = $derived(page.url.searchParams.get('objectiveId') ?? '');
+  const urlMaxBots = $derived(Number(page.url.searchParams.get('maxBots') ?? '0'));
+  const urlBudgetCapDollars = $derived(Number(page.url.searchParams.get('budgetCapDollars') ?? '0'));
+
+  $effect(() => {
+    if (urlObjectiveId) {
+      objectiveId = urlObjectiveId;
+    }
+    if (urlMaxBots > 0) {
+      maxBots = urlMaxBots;
+    }
+    if (urlBudgetCapDollars > 0) {
+      budgetCapDollars = urlBudgetCapDollars;
+    }
+  });
 
   let armyAnalysis = $state<ArmyBuilderAnalysis | null>(null);
   let analysisLoading = $state(false);
@@ -71,6 +89,9 @@
       };
     }}
   >
+    {#if objectiveId}
+      <input type="hidden" name="objectiveId" value={objectiveId} />
+    {/if}
 
     <!-- Objective -->
     <div class="panel">
