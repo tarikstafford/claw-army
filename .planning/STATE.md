@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-22)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 3 of 7 complete)
+**Current focus:** v3.0 Phase 23 — Akasa UI Rebrand Design System Rollout (Plan 4 of 7 complete)
 
 ## Current Position
 
 Phase: 23 of 23 (Akasa UI Rebrand — Design System Rollout)
-Plan: 3 of 7 complete — Shared soul/verdict components rebranded
-Status: Phase 23, Plan 3 complete — SoulTierBadge, SoulInspectorPanel, VerdictConfirmPanel all Akasa dark-mode themed (zero hardcoded hex)
-Last activity: 2026-02-23 — 23-03 complete: SoulTierBadge (amber/teal/muted/rose + Artisan pip) + SoulInspectorPanel (dark drawer, 51 tokens) + VerdictConfirmPanel (57 tokens, semantic verdict badges) rebranded (25 min, 3 files)
+Plan: 4 of 7 complete — Bot detail and report pages rebranded
+Status: Phase 23, Plan 4 complete — Bot detail page (87 tokens, zero hex) + Report page (88 tokens, zero hex) both Akasa dark-mode themed; podium rank badges, tier distribution counts, verdict badges all use semantic Akasa tokens
+Last activity: 2026-02-23 — 23-04 complete: Bot detail page (87 CSS tokens) + Report page (88 CSS tokens) Akasa dark-mode styled, 137+ hex replaced, podium colors + tier distribution counts + verdict badges (3 min, 2 files)
 
-Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (2/7 plans done)
+Progress: [██████████] ~100% v3.0 core + Phase 23 in progress (4/7 plans done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 47 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03)
-- Average duration: 4.7 min
-- Total execution time: 232 min
+- Total plans completed: 48 (v1.0 + v1.1 + v2.0 + v3.0 P01-22 + P23-01 + P23-02 + P23-03 + P23-04)
+- Average duration: 4.6 min
+- Total execution time: 235 min
 
 **By Phase:**
 
@@ -42,6 +42,7 @@ Progress: [██████████] ~100% v3.0 core + Phase 23 in progres
 | Phase 23-akasa-ui-rebrand P01 | 6 min | 2 tasks | 4 files |
 | Phase 23-akasa-ui-rebrand P02 | 10 min | 2 tasks | 2 files |
 | Phase 23-akasa-ui-rebrand P03 | 25 min | 2 tasks | 3 files |
+| Phase 23-akasa-ui-rebrand P04 | 3 min | 2 tasks | 2 files |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -127,6 +128,12 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [23-03] {#each Svelte template syntax creates false-positive hex grep matches — not color values; verified by direct line inspection; actual hex count is 0
 - [23-03] Reject button copy changed from "teaches the army" to "teaches the soul" — aligns with Akasa soul lifecycle language
 
+- [23-04] Svelte {#each} template syntax with ?? generates false-positive hex grep matches — not color values; actual hex count is 0 in both files
+- [23-04] Leaderboard rows alternate var(--bg-card)/var(--bg-3) with class:row-alt — cleaner than nth-child selector for Svelte
+- [23-04] Rank badges use podium colors: amber (1st), violet-bright (2nd), teal (3rd) — maps to Akasa's three primary accent colors
+- [23-04] Verdict retire uses var(--rose)/var(--rose-dim) not var(--error) — retire is soul lifecycle language, not a failure state
+- [23-04] Soul tier distribution counts use per-tier color classes — allows semantic color per tier without inline styles
+
 ### Roadmap Evolution
 
 - Phase 23 added: Akasa UI Rebrand — Design System Rollout (merge improvement/ui + apply to all 8 remaining pages)
@@ -149,5 +156,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-03-PLAN.md — Phase 23, Plan 3 complete: SoulTierBadge + SoulInspectorPanel + VerdictConfirmPanel Akasa dark-mode themed, zero hardcoded hex, semantic verdict/tier colors (25 min, 3 files)
+Stopped at: Completed 23-04-PLAN.md — Phase 23, Plan 4 complete: Bot detail page (87 tokens) + Report page (88 tokens) Akasa dark-mode styled, 137+ hex replaced, podium rank badges, tier distribution colors, semantic verdict badges (3 min, 2 files)
 Resume file: None
