@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-  <title>Usage & Billing | Claw Army</title>
+  <title>Billing | Akasa</title>
 </svelte:head>
 
 <div class="page">
@@ -100,27 +100,30 @@
   h1 {
     font-size: 1.75rem;
     font-weight: 700;
+    font-family: var(--font-display);
+    color: var(--text);
     margin: 0 0 0.25rem;
   }
 
   .subtitle {
-    color: #6b7280;
+    color: var(--text-muted);
     margin: 0 0 2rem;
     font-size: 0.9rem;
+    font-family: var(--font-body);
   }
 
   .loading {
     padding: 2rem;
     text-align: center;
-    color: #6b7280;
+    color: var(--text-muted);
   }
 
   .error {
     padding: 1rem;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 0.5rem;
-    color: #dc2626;
+    background: var(--error-dim);
+    border: 1px solid var(--error);
+    border-radius: 14px;
+    color: var(--error);
   }
 
   .section {
@@ -129,12 +132,15 @@
 
   .section h2 {
     font-size: 1.25rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    color: var(--text);
     margin: 0 0 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border);
   }
 
-  /* Summary stat cards — same pattern as other screens */
+  /* Summary stat cards */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -154,9 +160,9 @@
   }
 
   .stat-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 1rem 1.25rem;
     display: flex;
     flex-direction: column;
@@ -166,26 +172,30 @@
 
   .stat-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
+    font-family: var(--font-mono);
   }
 
   .stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text);
+    font-family: var(--font-mono);
   }
 
   .empty {
-    color: #9ca3af;
+    color: var(--text-muted);
     font-style: italic;
   }
 
   /* Execution history table */
   .table-wrapper {
     overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
   }
 
   table {
@@ -197,25 +207,26 @@
   thead th {
     text-align: left;
     padding: 0.75rem 1rem;
-    background: #f3f4f6;
-    border-bottom: 2px solid #e5e7eb;
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
     font-weight: 600;
-    color: #374151;
+    color: var(--text-faint);
     white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   tbody td {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    color: #374151;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    background: var(--bg-card);
   }
 
-  tbody tr:nth-child(even) {
-    background: #f9fafb;
-  }
-
-  tbody tr:hover {
-    background: #f0f4ff;
+  tbody tr:hover td {
+    background: var(--bg-2);
   }
 
   tbody tr:last-child td {
@@ -225,7 +236,8 @@
   .col-date {
     white-space: nowrap;
     font-size: 0.85rem;
-    color: #6b7280;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
   }
 
   .col-objective {
@@ -233,7 +245,7 @@
   }
 
   .col-objective a {
-    color: #6366f1;
+    color: var(--violet-bright);
     text-decoration: none;
     display: block;
     overflow: hidden;
@@ -242,12 +254,15 @@
   }
 
   .col-objective a:hover {
+    color: var(--violet-light);
     text-decoration: underline;
   }
 
   .col-cost {
     text-align: right;
     font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text);
   }
 
   /* Status badge */
@@ -259,41 +274,13 @@
     font-weight: 700;
     letter-spacing: 0.025em;
     text-transform: uppercase;
+    font-family: var(--font-mono);
   }
 
-  .status-completed {
-    color: #16a34a;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-  }
-
-  .status-failed {
-    color: #dc2626;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-  }
-
-  .status-running {
-    color: #0066cc;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-  }
-
-  .status-queued {
-    color: #6b7280;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-  }
-
-  .status-stopped {
-    color: #ca8a04;
-    background: #fefce8;
-    border: 1px solid #fde68a;
-  }
-
-  .status-paused {
-    color: #ca8a04;
-    background: #fefce8;
-    border: 1px solid #fde68a;
-  }
+  .status-completed { color: var(--violet-bright); background: var(--violet-dim);  border: 1px solid var(--violet-bright); }
+  .status-failed    { color: var(--error);          background: var(--error-dim);   border: 1px solid var(--error); }
+  .status-running   { color: var(--teal);           background: var(--teal-dim);    border: 1px solid var(--teal); }
+  .status-queued    { color: var(--text-faint);     background: var(--bg-3);        border: 1px solid var(--border); }
+  .status-stopped   { color: var(--amber);          background: var(--amber-dim);   border: 1px solid var(--amber); }
+  .status-paused    { color: var(--amber);          background: var(--amber-dim);   border: 1px solid var(--amber); }
 </style>
