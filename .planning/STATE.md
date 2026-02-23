@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-22)
 ## Current Position
 
 Phase: 21 of 22 (Launch-from-Objective UI)
-Plan: 1 of 2 complete — Plan 02 next
-Status: Phase 21 Plan 01 complete — objectiveId wired from URL params through hidden form input through server action to backend POST
-Last activity: 2026-02-23 — 21-01 complete: objectiveId in api.ts createExecution(), server action, new-execution page URL params + hidden input
+Plan: 2 of 2 complete — Phase 21 complete
+Status: Phase 21 complete — launch-from-objective flow wired end-to-end: button on objective detail page navigates to /new-execution with pre-filled URL params
+Last activity: 2026-02-23 — 21-02 complete: "Launch from this objective" button added to objective detail page header with pre-wired URL params
 
 Progress: [█████████░] ~90% (gap-closure phases 20-22 in progress)
 
@@ -37,6 +37,7 @@ Progress: [█████████░] ~90% (gap-closure phases 20-22 in pro
 | Phase 19-run-view-enhancements P02 | 3 min | 2 tasks | 7 files |
 | Phase 20-spawn-timeout-error-preservation P01 | 5 min | 1 task | 1 file |
 | Phase 21-launch-from-objective-ui P01 | 8 min | 2 tasks | 3 files |
+| Phase 21-launch-from-objective-ui P02 | 2 min | 1 task | 1 file |
 
 **Recent Trend:**
 - v2.0 plans averaged 2.9 min — targeted, incremental additions to existing systems.
@@ -100,6 +101,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full phase-level decision log.
 - [21-01] objectiveId conditional spread ...(objectiveId ? { objectiveId } : {}) — TypeBox Optional(Type.String({ format: 'uuid' })) rejects null; omitting the field entirely when absent is the correct approach
 - [21-01] $effect for form initialization from URL params — $derived would make values read-only and break bind:value; $state + $effect allows user-overridable initialization
 - [21-01] Hidden input pattern for objectiveId — URL search params are NOT included in formData on POST; hidden input inside form is the only reliable mechanism
+- [21-02] Button placed between .meta paragraph and Aggregate Stats section — primary action visually follows objective identity, precedes data sections for natural scan order
+- [21-02] budgetCapDollars fallback of 10 (dollars) when defaultBudgetCapCents is null — aligns with plan specification
+- [21-02] Indigo #4f46e5 (slightly deeper than page's existing #6366f1) distinguishes the primary action button from secondary view/navigation links
 
 ### Pending Todos
 
@@ -119,5 +123,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 21-01-PLAN.md — Phase 21 Plan 01 complete: objectiveId wired from URL params through hidden input through server action to backend POST
+Stopped at: Completed 21-02-PLAN.md — Phase 21 complete: "Launch from this objective" button added to objective detail page, completing end-to-end launch-from-objective flow
 Resume file: None
