@@ -180,7 +180,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 22-01-PLAN.md — Remove dead CSS from report page + wire real userId into VerdictConfirmPanel + correct Phase 15 ROADMAP status
+- [x] 22-01-PLAN.md — Remove dead CSS from report page + wire real userId into VerdictConfirmPanel + correct Phase 15 ROADMAP status
 
 ---
 
@@ -209,4 +209,4 @@ Plans:
 | 19. Run View Enhancements | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 20. Spawn Timeout Error Preservation | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
-| 22. v3.0 Tech Debt Cleanup | v3.0 | 0/1 | Planned | - |
+| 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
