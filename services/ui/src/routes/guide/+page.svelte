@@ -1,5 +1,5 @@
 <svelte:head>
-  <title>Guide | Claw Army</title>
+  <title>Guide | Akasa</title>
 </svelte:head>
 
 <div class="guide">
@@ -7,7 +7,7 @@
   <!-- ── PAGE HEADER ── -->
   <div class="guide-header">
     <span class="eyebrow">Documentation</span>
-    <h1>How Claw Army works</h1>
+    <h1>How Akasa works</h1>
     <p class="subtitle">Everything you need to deploy, monitor, and evolve your AI workforce.</p>
   </div>
 
@@ -39,7 +39,7 @@
       Quick Start
     </div>
     <h2>Run your first mission in three steps</h2>
-    <p class="section-lead">Claw Army turns a plain-language objective into a fleet of AI bots working in parallel. Here's the loop:</p>
+    <p class="section-lead">Akasa turns a plain-language objective into a fleet of AI bots working in parallel. Here's the loop:</p>
 
     <div class="steps-row">
       <div class="step-card">
@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <div class="callout callout--signal">
+    <div class="callout callout--violet">
       <span class="callout-label">TIP</span>
       <p>Start with a small crew (3–5 bots) and a conservative budget ($5–$10) on your first run. Once you understand the cost profile of your objective type, scale up.</p>
     </div>
@@ -79,7 +79,7 @@
     <div class="two-col">
       <div class="col-card col-card--good">
         <div class="col-card-label">
-          <span class="badge badge--active">Good</span>
+          <span class="badge badge--good">Good</span>
         </div>
         <ul class="check-list">
           <li>Describe the <strong>outcome</strong>, not the steps ("Extract all product names and prices from these 50 URLs and write them to a CSV")</li>
@@ -91,7 +91,7 @@
       </div>
       <div class="col-card col-card--bad">
         <div class="col-card-label">
-          <span class="badge badge--critical">Avoid</span>
+          <span class="badge badge--avoid">Avoid</span>
         </div>
         <ul class="check-list">
           <li>Vague goals ("Research my competitors")</li>
@@ -147,8 +147,8 @@
       </div>
     </div>
 
-    <div class="callout callout--alert">
-      <span class="callout-label">NOTE</span>
+    <div class="callout callout--amber">
+      <span class="callout-label callout-label--amber">NOTE</span>
       <p>If Army Builder shows zero agents in your library for a detected category, new Novice agents will be spawned for this mission. They'll earn DNA as they work — subsequent missions in the same category will benefit from their experience.</p>
     </div>
 
@@ -330,8 +330,8 @@
       </div>
     </div>
 
-    <div class="callout callout--signal">
-      <span class="callout-label">HOW IT COMPOUNDS</span>
+    <div class="callout callout--amber">
+      <span class="callout-label callout-label--amber">HOW IT COMPOUNDS</span>
       <p>The more you run missions in the same category (e.g. web research, data extraction), the deeper your specialized agent library becomes. After 5–10 missions, Army Builder will consistently surface Artisan-tier agents for those categories, significantly improving output quality.</p>
     </div>
   </section>
@@ -370,8 +370,8 @@
     <h3 class="subsection-head">Calibration warnings</h3>
     <p>The system tracks your verdict confirmation rate. If you confirm a very high percentage of verdicts without engaging Devil's Advocate, a calibration warning appears. This is a nudge to review more carefully — rubber-stamping verdicts degrades the quality filter over time.</p>
 
-    <div class="callout callout--alert">
-      <span class="callout-label">BEST PRACTICE</span>
+    <div class="callout callout--amber">
+      <span class="callout-label callout-label--amber">BEST PRACTICE</span>
       <p>Don't dismiss low-confidence verdicts without reading the evidence. A borderline Promote may still be valid for a specific task category even if the overall score is marginal. Context matters.</p>
     </div>
   </section>
@@ -383,7 +383,7 @@
       Billing &amp; Usage
     </div>
     <h2>How costs are calculated</h2>
-    <p class="section-lead">Claw Army charges on a bot-hour basis, plus metered tool usage through the gateway. There are no seat fees or subscriptions — you pay for what you run.</p>
+    <p class="section-lead">Akasa charges on a bot-hour basis, plus metered tool usage through the gateway. There are no seat fees or subscriptions — you pay for what you run.</p>
 
     <div class="billing-formula">
       <div class="formula-line">
@@ -417,7 +417,7 @@
       </div>
     </div>
 
-    <div class="callout callout--signal">
+    <div class="callout callout--violet">
       <span class="callout-label">COST CONTROL</span>
       <p>The budget cap you set at mission creation is enforced in real time. Execution halts the moment the cap is hit — you will never be charged more than you authorized for a given mission.</p>
     </div>
@@ -430,7 +430,7 @@
       Guardrails
     </div>
     <h2>How bots are kept safe and in bounds</h2>
-    <p class="section-lead">Claw Army runs hard safety controls on every bot. These are non-negotiable — they can't be disabled by mission configuration.</p>
+    <p class="section-lead">Akasa runs hard safety controls on every bot. These are non-negotiable — they can't be disabled by mission configuration.</p>
 
     <div class="guardrail-list">
 
@@ -484,7 +484,7 @@
 
     </div>
 
-    <div class="callout callout--signal">
+    <div class="callout callout--violet">
       <span class="callout-label">WHAT HAPPENS ON GUARDRAIL TRIGGER</span>
       <p>When a guardrail fires: the offending bot is revoked, the event is logged in the activity feed as <code>guardrail_triggered</code>, and the execution may be paused or stopped depending on severity. The bot's task is returned to the queue for reassignment to a healthy bot if the mission continues.</p>
     </div>
@@ -517,7 +517,8 @@
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--signal);
+    font-family: var(--font-mono);
+    color: var(--text-faint);
     margin-bottom: var(--s-3);
   }
 
@@ -525,13 +526,15 @@
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 700;
     letter-spacing: -0.025em;
-    color: var(--text-primary);
+    font-family: var(--font-display);
+    color: var(--text);
     margin-bottom: var(--s-3);
   }
 
   .subtitle {
     font-size: 1rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.6;
   }
 
@@ -542,21 +545,21 @@
     align-items: center;
     gap: var(--s-2);
     padding: var(--s-3) var(--s-4);
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     margin-bottom: var(--s-12);
   }
 
   .toc a {
     font-size: 0.8125rem;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     transition: color 0.15s;
     white-space: nowrap;
   }
 
   .toc a:hover {
-    color: var(--text-primary);
+    color: var(--violet-bright);
   }
 
   .toc-div {
@@ -585,26 +588,29 @@
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    font-family: var(--font-mono);
+    color: var(--text-faint);
     margin-bottom: var(--s-3);
   }
 
   .tag {
-    font-family: ui-monospace, 'SF Mono', monospace;
-    color: var(--signal);
+    font-family: var(--font-mono);
+    color: var(--violet-bright);
   }
 
   .section h2 {
     font-size: clamp(1.25rem, 3vw, 1.625rem);
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--text-primary);
+    font-family: var(--font-display);
+    color: var(--text);
     margin-bottom: var(--s-4);
   }
 
   .section-lead {
     font-size: 0.9375rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.7;
     margin-bottom: var(--s-8);
   }
@@ -612,7 +618,7 @@
   .subsection-head {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
     margin: var(--s-8) 0 var(--s-4);
   }
 
@@ -626,18 +632,23 @@
 
   .step-card {
     flex: 1;
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5);
+    transition: border-color 0.15s;
+  }
+
+  .step-card:hover {
+    border-color: var(--border-mid);
   }
 
   .step-num {
     display: block;
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.6875rem;
     font-weight: 700;
-    color: var(--signal);
+    color: var(--violet-bright);
     letter-spacing: 0.06em;
     margin-bottom: var(--s-3);
   }
@@ -645,13 +656,14 @@
   .step-card h3 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
     margin-bottom: var(--s-2);
   }
 
   .step-card p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
   }
 
@@ -668,43 +680,45 @@
     align-items: flex-start;
     gap: var(--s-4);
     padding: var(--s-4) var(--s-5);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     margin-top: var(--s-6);
   }
 
-  .callout--signal {
-    background: var(--signal-tint);
-    border: 1px solid var(--signal-border);
+  .callout--violet {
+    background: var(--violet-dim);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--violet);
   }
 
-  .callout--alert {
-    background: var(--alert-tint);
-    border: 1px solid rgba(245, 158, 11, 0.25);
+  .callout--amber {
+    background: var(--amber-dim);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
   }
 
   .callout-label {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.1em;
-    color: var(--signal);
-    background: var(--surface-1);
-    border: 1px solid var(--signal-border);
+    color: var(--violet-bright);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     padding: 0.1875rem 0.4375rem;
-    border-radius: var(--r-sm);
+    border-radius: 4px;
     flex-shrink: 0;
     margin-top: 2px;
     white-space: nowrap;
   }
 
-  .callout--alert .callout-label {
-    color: var(--alert);
-    border-color: rgba(245, 158, 11, 0.3);
+  .callout-label--amber {
+    color: var(--amber);
   }
 
   .callout p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
     margin: 0;
   }
@@ -718,9 +732,9 @@
   }
 
   .col-card {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5);
   }
 
@@ -730,7 +744,7 @@
 
   .badge {
     display: inline-block;
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -738,16 +752,16 @@
     border-radius: 9999px;
   }
 
-  .badge--active {
-    color: var(--active);
-    background: var(--active-tint);
-    border: 1px solid var(--active-border);
+  .badge--good {
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
   }
 
-  .badge--critical {
-    color: var(--critical);
-    background: var(--critical-tint);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+  .badge--avoid {
+    color: var(--error);
+    background: var(--error-dim);
+    border: 1px solid var(--error);
   }
 
   .check-list {
@@ -760,7 +774,8 @@
 
   .check-list li {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.6;
     padding-left: var(--s-4);
     position: relative;
@@ -770,7 +785,7 @@
     content: '✓';
     position: absolute;
     left: 0;
-    color: var(--active);
+    color: var(--teal);
     font-weight: 700;
   }
 
@@ -778,7 +793,7 @@
     content: '×';
     position: absolute;
     left: 0;
-    color: var(--critical);
+    color: var(--error);
     font-weight: 700;
   }
 
@@ -790,25 +805,30 @@
   }
 
   .example {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-4) var(--s-5);
     display: flex;
     gap: var(--s-4);
     align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+
+  .example:hover {
+    border-color: var(--border-mid);
   }
 
   .example-tag {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: var(--signal);
-    background: var(--signal-tint);
-    border: 1px solid var(--signal-border);
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid var(--border);
     padding: 0.1875rem 0.5rem;
-    border-radius: var(--r-sm);
+    border-radius: 4px;
     flex-shrink: 0;
     white-space: nowrap;
     margin-top: 2px;
@@ -816,7 +836,8 @@
 
   .example p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
     margin: 0;
     font-style: italic;
@@ -831,18 +852,23 @@
   }
 
   .feature-card {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5);
+    transition: border-color 0.15s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--border-mid);
   }
 
   .feature-tag {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: var(--signal);
+    color: var(--violet-bright);
     margin-bottom: var(--s-2);
     text-transform: uppercase;
   }
@@ -850,13 +876,14 @@
   .feature-card h3 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
     margin-bottom: var(--s-2);
   }
 
   .feature-card p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
   }
 
@@ -868,13 +895,18 @@
   }
 
   .config-item {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5) var(--s-6);
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: var(--s-6);
+    transition: border-color 0.15s;
+  }
+
+  .config-item:hover {
+    border-color: var(--border-mid);
   }
 
   .config-meta {
@@ -884,44 +916,46 @@
   }
 
   .config-num {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
-    color: var(--signal);
+    color: var(--violet-bright);
     letter-spacing: 0.06em;
   }
 
   .config-meta h3 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
   }
 
   .config-range {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--text-muted);
   }
 
   .config-body p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
     margin-bottom: var(--s-3);
   }
 
   .config-tip {
     font-size: 0.8125rem;
+    font-family: var(--font-body);
     color: var(--text-muted);
     line-height: 1.6;
     padding: var(--s-3) var(--s-4);
-    background: var(--surface-2);
-    border-radius: var(--r-sm);
-    border-left: 2px solid var(--signal);
+    background: var(--bg-2);
+    border-radius: 4px;
+    border-left: 2px solid var(--violet-bright);
   }
 
   .config-tip strong {
-    color: var(--text-secondary);
+    color: var(--text);
   }
 
   /* ── Provider table ── */
@@ -941,24 +975,25 @@
 
   .provider-name {
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
     min-width: 80px;
     flex-shrink: 0;
   }
 
   .provider-desc {
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.6;
   }
 
   /* ── Code block ── */
   .code-block {
-    font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8125rem;
-    color: var(--text-secondary);
-    background: var(--surface-2);
+    color: var(--text);
+    background: var(--bg-2);
     border: 1px solid var(--border);
-    border-radius: var(--r-sm);
+    border-radius: 4px;
     padding: var(--s-3) var(--s-4);
     margin: var(--s-2) 0;
     line-height: 1.7;
@@ -966,7 +1001,7 @@
   }
 
   .code-comment {
-    color: var(--text-muted);
+    color: var(--text-faint);
     display: block;
     margin-bottom: var(--s-1);
   }
@@ -983,18 +1018,19 @@
 
   .event-list li {
     font-size: 0.8125rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.5;
   }
 
   code {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.8125rem;
-    background: var(--surface-2);
+    background: var(--bg-2);
     border: 1px solid var(--border);
     border-radius: 3px;
     padding: 0.1rem 0.35rem;
-    color: var(--text-primary);
+    color: var(--text);
   }
 
   /* ── Tier row ── */
@@ -1007,15 +1043,20 @@
 
   .tier-card {
     flex: 1;
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5);
+    transition: border-color 0.15s;
+  }
+
+  .tier-card:hover {
+    border-color: var(--border-mid);
   }
 
   .tier-label {
     display: block;
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -1023,16 +1064,17 @@
   }
 
   .tier-novice .tier-label { color: var(--text-muted); }
-  .tier-understudy .tier-label { color: var(--alert); }
-  .tier-artisan .tier-label { color: var(--active); }
+  .tier-understudy .tier-label { color: var(--teal); }
+  .tier-artisan .tier-label { color: var(--amber); }
 
   .tier-artisan {
-    border-color: rgba(34, 197, 94, 0.2);
+    border-color: rgba(251, 191, 36, 0.2);
   }
 
   .tier-card p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
   }
 
@@ -1052,51 +1094,63 @@
   }
 
   .dna-item {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-4);
     display: flex;
     flex-direction: column;
     gap: var(--s-1);
+    transition: border-color 0.15s;
+  }
+
+  .dna-item:hover {
+    border-color: var(--border-mid);
   }
 
   .dna-label {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--amber);
   }
 
   .dna-desc {
     font-size: 0.8125rem;
+    font-family: var(--font-body);
     color: var(--text-muted);
     line-height: 1.5;
   }
 
   /* ── Verdict cards ── */
   .verdict-card {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5);
+    transition: border-color 0.15s;
+  }
+
+  .verdict-card:hover {
+    border-color: var(--border-mid);
   }
 
   .verdict-card h3 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
     margin: var(--s-3) 0 var(--s-2);
   }
 
   .verdict-card p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
   }
 
   .verdict-badge {
     display: inline-block;
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -1105,15 +1159,15 @@
   }
 
   .verdict-badge--promote {
-    color: #4ade80;
-    background: #052e16;
-    border: 1px solid #166534;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
   }
 
   .verdict-badge--retire {
-    color: #f87171;
-    background: #1f0909;
-    border: 1px solid #7f1d1d;
+    color: var(--rose);
+    background: var(--rose-dim);
+    border: 1px solid var(--rose);
   }
 
   /* ── Numbered list ── */
@@ -1127,21 +1181,22 @@
 
   .numbered-list li {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
   }
 
   .numbered-list li::marker {
-    color: var(--signal);
+    color: var(--violet-bright);
     font-weight: 600;
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
   }
 
   /* ── Billing formula ── */
   .billing-formula {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-6);
     margin-bottom: var(--s-8);
     display: flex;
@@ -1166,14 +1221,14 @@
   }
 
   .formula-expr {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.875rem;
-    color: var(--text-primary);
+    color: var(--text);
   }
 
   .formula-plus {
     font-size: 1rem;
-    color: var(--signal);
+    color: var(--violet-bright);
     font-weight: 700;
     padding-left: var(--s-2);
   }
@@ -1181,7 +1236,7 @@
   .formula-eq {
     font-size: 0.9375rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: var(--text);
     padding-top: var(--s-3);
     border-top: 1px solid var(--border);
     text-align: right;
@@ -1196,14 +1251,19 @@
   }
 
   .guardrail-item {
-    background: var(--surface-1);
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--r-md);
+    border-radius: 14px;
     padding: var(--s-5) var(--s-6);
     display: grid;
     grid-template-columns: 180px 1fr;
     gap: var(--s-6);
     align-items: start;
+    transition: border-color 0.15s;
+  }
+
+  .guardrail-item:hover {
+    border-color: var(--border-mid);
   }
 
   .guardrail-meta {
@@ -1213,14 +1273,14 @@
   }
 
   .guardrail-tag {
-    font-family: ui-monospace, 'SF Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 0.6875rem;
     font-weight: 700;
-    color: var(--signal);
-    background: var(--signal-tint);
-    border: 1px solid var(--signal-border);
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid var(--border);
     padding: 0.125rem 0.375rem;
-    border-radius: var(--r-sm);
+    border-radius: 4px;
     letter-spacing: 0.06em;
     width: fit-content;
   }
@@ -1228,12 +1288,13 @@
   .guardrail-meta h3 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text);
   }
 
   .guardrail-item > p {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-family: var(--font-body);
+    color: var(--text-muted);
     line-height: 1.65;
     padding-top: 2px;
   }
@@ -1250,27 +1311,27 @@
     display: inline-flex;
     align-items: center;
     padding: 0.625rem 1.25rem;
-    background: var(--signal);
+    background: var(--violet);
     color: #fff;
     font-size: 0.875rem;
     font-weight: 600;
-    border-radius: var(--r-sm);
+    border-radius: 4px;
     transition: background 0.15s;
   }
 
   .btn-primary:hover {
-    background: #5a8fff;
+    background: var(--violet-bright);
     color: #fff;
   }
 
   .btn-ghost {
     font-size: 0.875rem;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     transition: color 0.15s;
   }
 
   .btn-ghost:hover {
-    color: var(--text-primary);
+    color: var(--violet-bright);
   }
 
   /* ── Responsive ── */
