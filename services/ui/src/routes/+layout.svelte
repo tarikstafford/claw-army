@@ -185,6 +185,7 @@
           <span class="live-dot"></span>Platform live
         </div>
         {#if session?.user}
+          <a href="/new-execution" class="btn-deploy">Deploy crew</a>
           <button class="btn-nav" onclick={() => signOut({ redirectTo: '/' })}>Sign out</button>
         {:else}
           <a href="#access" class="btn-nav">Request access</a>
@@ -278,7 +279,20 @@
 
   .nav-links a:hover { color: var(--violet-light); }
 
-  .nav-right { display: flex; align-items: center; gap: 20px; }
+  .nav-right { display: flex; align-items: center; gap: 14px; }
+
+  .btn-deploy {
+    display: inline-flex; align-items: center;
+    padding: 0.45rem 1rem;
+    background: var(--violet);
+    color: white;
+    font-size: 13px; font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .btn-deploy:hover { background: var(--violet-bright); }
 
   .status-pill {
     display: flex; align-items: center; gap: 7px;

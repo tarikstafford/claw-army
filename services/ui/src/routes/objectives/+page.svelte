@@ -20,9 +20,14 @@
 </svelte:head>
 
 <div class="page">
-  <div class="sec-label">Objectives</div>
-  <h1>Mission library.</h1>
-  <p class="subtitle">Your saved objectives and their run history.</p>
+  <div class="page-header">
+    <div>
+      <div class="sec-label">Objectives</div>
+      <h1>Mission library.</h1>
+      <p class="subtitle">Your saved objectives and their run history.</p>
+    </div>
+    <a href="/new-execution" class="btn-deploy">Deploy new crew</a>
+  </div>
 
   {#if loading}
     <div class="loading">Loading...</div>
@@ -33,7 +38,7 @@
     </div>
   {:else}
     {#if objectives.length === 0}
-      <p class="empty">No objectives yet. Create one from the Deploy Crew page.</p>
+      <p class="empty">No objectives yet. Deploy a crew above to get started.</p>
     {:else}
       <div class="table-wrapper">
         <table>
@@ -85,6 +90,32 @@
     margin: 0 auto;
     padding: 100px 36px 80px;
   }
+
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 0;
+  }
+
+  .btn-deploy {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1.1rem;
+    background: var(--violet);
+    color: white;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 10px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2.25rem;
+    transition: background 0.15s;
+  }
+
+  .btn-deploy:hover { background: var(--violet-bright); }
 
   h1 {
     font-family: var(--font-display);
