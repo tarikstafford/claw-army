@@ -8,6 +8,9 @@
   import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
   import VerdictConfirmPanel from '$lib/components/VerdictConfirmPanel.svelte';
 
+  let { data } = $props();
+  let userId = $derived(data.session?.user?.email ?? 'operator');
+
   const executionId = $derived(page.params.id ?? '');
 
   let execution = $state<Execution | null>(null);
@@ -250,7 +253,7 @@
     {#if selectedVerdict}
       <VerdictConfirmPanel
         verdict={selectedVerdict}
-        userId="operator"
+        userId={userId}
         onResolved={() => {
           selectedVerdict = null;
           getExecutionPendingVerdicts(executionId).then(v => { pendingVerdicts = v; }).catch(() => {});

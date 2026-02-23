@@ -373,47 +373,6 @@
     border: 1px solid #e5e7eb;
   }
 
-  /* Agent class badges */
-  .class-badge {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-  }
-
-  .class-novice {
-    color: #3b82f6;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-  }
-
-  .class-understudy {
-    color: #8b5cf6;
-    background: #f5f3ff;
-    border: 1px solid #ddd6fe;
-  }
-
-  .class-artisan {
-    color: #d97706;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
-  }
-
-  .class-retired {
-    color: #6b7280;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-  }
-
-  .class-none {
-    color: #6b7280;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
-  }
-
   /* Pioneer badge */
   .pioneer-badge {
     display: inline-flex;
