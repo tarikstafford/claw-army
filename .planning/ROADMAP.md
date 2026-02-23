@@ -151,7 +151,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 20-01-PLAN.md — Add `skipDbUpdate` option to `stopBot()` in bot-orchestrator.ts; call with `{ skipDbUpdate: true }` from spawn-timeout path (executes pre-specced 15-04 fix)
+- [x] 20-01-PLAN.md — Add `skipDbUpdate` option to `stopBot()` in bot-orchestrator.ts; call with `{ skipDbUpdate: true }` from spawn-timeout path (executes pre-specced 15-04 fix)
 
 #### Phase 21: Launch-from-Objective UI
 **Goal**: Users can launch a new execution directly from an objective page — the objectiveId is wired end-to-end so runs appear in the objective hub run history
@@ -207,6 +207,6 @@ Plans:
 | 17. Objective Hub UI | v3.0 | 3/3 | Complete | 2026-02-22 |
 | 18. Soul Inspector | v3.0 | 2/2 | Complete | 2026-02-22 |
 | 19. Run View Enhancements | v3.0 | 2/2 | Complete | 2026-02-23 |
-| 20. Spawn Timeout Error Preservation | v3.0 | 0/1 | Planned | - |
+| 20. Spawn Timeout Error Preservation | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 21. Launch-from-Objective UI | v3.0 | 0/2 | Planned | - |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 0/1 | Planned | - |
