@@ -20,13 +20,17 @@
 </svelte:head>
 
 <div class="page">
-  <h1>Objectives</h1>
+  <div class="sec-label">Objectives</div>
+  <h1>Mission library.</h1>
   <p class="subtitle">Your saved objectives and their run history.</p>
 
   {#if loading}
     <div class="loading">Loading...</div>
   {:else if error}
-    <div class="error">{error}</div>
+    <div class="error">
+      <span class="error-title">Unable to load objectives</span>
+      <span class="error-detail">{error}</span>
+    </div>
   {:else}
     {#if objectives.length === 0}
       <p class="empty">No objectives yet. Create one from the Deploy Crew page.</p>
@@ -79,20 +83,23 @@
   .page {
     max-width: 1000px;
     margin: 0 auto;
+    padding: 100px 36px 80px;
   }
 
   h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin: 0 0 0.25rem;
     font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem;
     color: var(--text);
   }
 
   .subtitle {
     color: var(--text-muted);
-    margin: 0 0 2rem;
-    font-size: 0.9rem;
+    margin: 0 0 2.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   .loading {
@@ -102,16 +109,34 @@
   }
 
   .error {
-    padding: 1rem;
+    padding: 1.25rem 1.5rem;
     background: var(--error-dim);
     border: 1px solid rgba(248,113,113,0.25);
-    border-radius: 0.5rem;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .error-title {
     color: var(--error);
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+
+  .error-detail {
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
   }
 
   .empty {
     color: var(--text-muted);
     font-style: italic;
+  }
+
+  @media (max-width: 960px) {
+    .page { padding: 100px 24px 60px; }
   }
 
   /* Objectives table */
