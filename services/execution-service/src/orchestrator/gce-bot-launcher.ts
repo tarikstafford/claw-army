@@ -99,7 +99,7 @@ echo "[startup] SOUL.md written ($(wc -c < /root/.openclaw/workspace/SOUL.md) by
 # ── 3. Install OpenClaw (idempotent) ──────────────────────────────────────────
 if ! command -v openclaw &>/dev/null; then
   echo "[startup] Installing OpenClaw..."
-  npm install -g openclaw@latest || {
+  npm install -g openclaw@2026.2.22-2 || {
     FAILURE_REASON="Failed to install openclaw npm package — npm exited with code $?"
     exit 1
   }
@@ -127,62 +127,36 @@ if [[ -z "$LLM_API_KEY" ]]; then
 fi
 
 # ── 5. Configure and start OpenClaw Gateway ───────────────────────────────────
-# Write minimal config: gateway.mode=local allows the gateway to start without
-# a paired chat channel. bind=lan makes it listen on the VPC-internal IP.
+# Write config: mode=local (no chat channel needed), bind=lan (listen on VPC IP),
+# auth.token is the pre-shared token the WebSocket client must present on connect.
+# Env-var references in the JSON heredoc are expanded by bash (no quotes on CFGEOF).
 mkdir -p /root/.openclaw/workspace
-cat > /root/.openclaw/openclaw.json << 'CFGEOF'
+cat > /root/.openclaw/openclaw.json << CFGEOF
 {
   "model": "anthropic/claude-opus-4-6",
   "gateway": {
     "mode": "local",
-    "bind": "lan"
+    "bind": "lan",
+    "auth": {
+      "token": "$GATEWAY_TOKEN"
+    }
   }
 }
 CFGEOF
-echo "[startup] OpenClaw config written"
+echo "[startup] OpenClaw config written (token injected)"
 
-# Install the gateway as a systemd service.
-# 'openclaw gateway install' may produce a --user unit at
-# ~/.config/systemd/user/; if so, promote it to a system unit so it can be
-# managed by 'systemctl' without DBUS (startup scripts run as root with no
-# user session / XDG_RUNTIME_DIR).
-openclaw gateway install --port "$GATEWAY_PORT" --token "$GATEWAY_TOKEN" --force || {
-  FAILURE_REASON="openclaw gateway install failed — exit code $?"
-  exit 1
-}
-echo "[startup] OpenClaw gateway installed"
-
-USER_SVC_FILE="/root/.config/systemd/user/openclaw-gateway.service"
-SYS_SVC_FILE="/etc/systemd/system/openclaw-gateway.service"
-
-if [[ -f "$USER_SVC_FILE" ]] && [[ ! -f "$SYS_SVC_FILE" ]]; then
-  echo "[startup] Promoting user service to system service..."
-  cp "$USER_SVC_FILE" "$SYS_SVC_FILE"
-fi
-
-if [[ ! -f "$SYS_SVC_FILE" ]]; then
-  FAILURE_REASON="openclaw gateway install produced no service file at $SYS_SVC_FILE or $USER_SVC_FILE"
-  exit 1
-fi
-
-# Inject env vars via system drop-in. All LLM traffic routes through the Tool Gateway proxy.
-mkdir -p /etc/systemd/system/openclaw-gateway.service.d
-cat > /etc/systemd/system/openclaw-gateway.service.d/env.conf << DROPIN
-[Service]
-Environment=ANTHROPIC_API_KEY=$LLM_API_KEY
-Environment=HTTP_PROXY=$TOOL_GATEWAY_URL
-Environment=HTTPS_PROXY=$TOOL_GATEWAY_URL
-Environment=NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP
-DROPIN
-echo "[startup] Env drop-in written"
-
-systemctl daemon-reload
-
-systemctl start openclaw-gateway || {
-  FAILURE_REASON="systemctl start openclaw-gateway failed — $(journalctl -u openclaw-gateway -n 10 --no-pager 2>&1 | tail -5)"
-  exit 1
-}
-echo "[startup] OpenClaw Gateway service started"
+# Run the gateway in the background. 'openclaw gateway --port PORT' is the correct
+# invocation — there are no 'run', 'install', or 'start' subcommands.
+# nohup + disown keeps it alive after this script exits.
+ANTHROPIC_API_KEY="$LLM_API_KEY" \\
+HTTP_PROXY="$TOOL_GATEWAY_URL" \\
+HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
+NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
+nohup openclaw gateway --port "$GATEWAY_PORT" \\
+  &>> /var/log/openclaw-gateway.log &
+GATEWAY_PID=$!
+disown $GATEWAY_PID
+echo "[startup] OpenClaw Gateway started in background (PID: $GATEWAY_PID)"
 
 # ── 6. Wait for OpenClaw Gateway to bind on the LAN port ──────────────────────
 # The gateway is a WebSocket server — no HTTP /health path. Use nc to check
