@@ -165,7 +165,8 @@ MAX_WAIT=120
 WAITED=0
 until nc -z "$INTERNAL_IP" "$GATEWAY_PORT" 2>/dev/null; do
   if [[ $WAITED -ge $MAX_WAIT ]]; then
-    FAILURE_REASON="OpenClaw Gateway did not bind to \${INTERNAL_IP}:\${GATEWAY_PORT} within \${MAX_WAIT}s"
+    GATEWAY_LOG=$(tail -30 /var/log/openclaw-gateway.log 2>/dev/null | tr '\\n' '|' | tr '"' "'" | cut -c1-500)
+    FAILURE_REASON="OpenClaw Gateway did not bind to \${INTERNAL_IP}:\${GATEWAY_PORT} within \${MAX_WAIT}s — gateway log: \${GATEWAY_LOG}"
     exit 1
   fi
   sleep 5
