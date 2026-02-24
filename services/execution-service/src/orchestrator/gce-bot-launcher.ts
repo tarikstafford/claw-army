@@ -113,7 +113,7 @@ if ! command -v openclaw &>/dev/null; then
   FAILURE_REASON="OpenClaw binary not found after install — command -v openclaw failed"
   exit 1
 fi
-OPENCLAW_VERSION=$(openclaw --version 2>&1) || {
+OPENCLAW_VERSION=$(openclaw --version 2>&1 | head -1 | tr -d '\\r\\n') || {
   FAILURE_REASON="OpenClaw binary exists but --version failed — binary may be corrupted"
   exit 1
 }
@@ -126,73 +126,96 @@ if [[ -z "$LLM_API_KEY" ]]; then
   exit 1
 fi
 
-# ── 5. Configure OpenClaw non-interactively ───────────────────────────────────
-# Set OPENCLAW_GATEWAY_HOST so the gateway daemon binds to the LAN interface
-# (not loopback). Without this, openclaw defaults to 127.0.0.1 and the
-# execution-service cannot reach it over the VPC network.
-export OPENCLAW_GATEWAY_HOST="$INTERNAL_IP"
-export OPENCLAW_GATEWAY_PORT="$GATEWAY_PORT"
+# ── 5. Configure and start OpenClaw Gateway ───────────────────────────────────
+# NOTE: openclaw has no 'onboard' command. The correct setup is:
+#   1. Write ~/.openclaw/openclaw.json with gateway.mode=local + bind=lan
+#   2. openclaw gateway install  → registers a systemd service
+#   3. Inject ANTHROPIC_API_KEY + HTTP_PROXY into the service drop-in file
+#   4. openclaw gateway start    → starts the service
 
-# Run onboard WITHOUT HTTP_PROXY so openclaw can reach any setup URLs it needs
-# (npm CDNs, update checks, etc.) without being blocked by the Tool Gateway allowlist.
-# The proxy is injected into the openclaw systemd service AFTER onboard completes.
-#
-# NOTE: openclaw onboard internal verification connects to ws://127.0.0.1:18789
-# (loopback) even when OPENCLAW_GATEWAY_HOST is set to the LAN IP. The verification
-# step will report a failure, but the gateway IS running on the LAN IP — the
-# health check (step 6) is the authoritative check. Do NOT exit on this false failure.
-OPENCLAW_ONBOARD_OUT=$(openclaw onboard \\
-  --non-interactive \\
-  --accept-risk \\
-  --flow quickstart \\
-  --auth-choice anthropic-api-key \\
-  --anthropic-api-key "$LLM_API_KEY" \\
-  --gateway-port "$GATEWAY_PORT" \\
-  --gateway-bind lan \\
-  --gateway-auth token \\
-  --gateway-token "$GATEWAY_TOKEN" 2>&1)
-OPENCLAW_EXIT=$?
-ONBOARD_TAIL=$(echo "$OPENCLAW_ONBOARD_OUT" | tail -10 | tr '\\n' '|')
-echo "[startup] openclaw onboard exit: $OPENCLAW_EXIT — $ONBOARD_TAIL"
+# Write minimal config: gateway.mode=local allows the gateway to start without
+# a paired chat channel. bind=lan makes it listen on the VPC-internal IP.
+mkdir -p /root/.openclaw/workspace
+cat > /root/.openclaw/openclaw.json << 'CFGEOF'
+{
+  "model": "anthropic/claude-opus-4-6",
+  "gateway": {
+    "mode": "local",
+    "bind": "lan"
+  }
+}
+CFGEOF
+echo "[startup] OpenClaw config written"
 
-# ── 5b. Inject Tool Gateway proxy + gateway host into openclaw systemd service ──
-# Find the openclaw gateway systemd service and add HTTP_PROXY so the running
-# daemon routes its LLM API calls through the Tool Gateway for metering/allowlisting.
-# Also re-inject OPENCLAW_GATEWAY_HOST so the service keeps binding to the LAN IP
-# after restart (env vars from the parent shell are not inherited by systemd units).
+# Install gateway as a systemd service.
+# --bind is read from config (bind=lan). --port and --token override config values.
+openclaw gateway install \\
+  --port "$GATEWAY_PORT" \\
+  --token "$GATEWAY_TOKEN" \\
+  --force 2>&1 || {
+  FAILURE_REASON="openclaw gateway install failed (exit $?)"
+  exit 1
+}
+echo "[startup] OpenClaw gateway service installed"
+
+# Find the installed service unit name so we can inject env vars into it.
 OPENCLAW_SERVICE=$(systemctl list-units --type=service --all --no-legend 2>/dev/null \\
   | awk '{print $1}' | grep -i openclaw | head -1 || true)
+echo "[startup] OpenClaw service unit: '\${OPENCLAW_SERVICE}'"
+
 if [[ -n "$OPENCLAW_SERVICE" ]]; then
-  echo "[startup] Injecting proxy into openclaw service: $OPENCLAW_SERVICE"
+  # Inject ANTHROPIC_API_KEY + Tool Gateway proxy into the service drop-in.
+  # Unquoted heredoc so bash expands $LLM_API_KEY etc. at write time.
   SVCDIR="/etc/systemd/system/\${OPENCLAW_SERVICE}.d"
-  mkdir -p "$SVCDIR"
-  cat > "\${SVCDIR}/proxy.conf" << 'SVCEOF'
+  mkdir -p "\$SVCDIR"
+  cat > "\${SVCDIR}/env.conf" << ENVEOF
 [Service]
-Environment="OPENCLAW_GATEWAY_HOST=INTERNAL_IP_PLACEHOLDER"
-Environment="OPENCLAW_GATEWAY_PORT=GW_PORT_PLACEHOLDER"
-Environment="HTTP_PROXY=TOOL_GATEWAY_PLACEHOLDER"
-Environment="HTTPS_PROXY=TOOL_GATEWAY_PLACEHOLDER"
-Environment="NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,INTERNAL_IP_PLACEHOLDER"
-SVCEOF
-  # Replace placeholders with actual values (heredoc can't expand vars when quoted)
-  sed -i "s|TOOL_GATEWAY_PLACEHOLDER|$TOOL_GATEWAY_URL|g" "\${SVCDIR}/proxy.conf"
-  sed -i "s|INTERNAL_IP_PLACEHOLDER|$INTERNAL_IP|g" "\${SVCDIR}/proxy.conf"
-  sed -i "s|GW_PORT_PLACEHOLDER|$GATEWAY_PORT|g" "\${SVCDIR}/proxy.conf"
+Environment="ANTHROPIC_API_KEY=$LLM_API_KEY"
+Environment="HTTP_PROXY=$TOOL_GATEWAY_URL"
+Environment="HTTPS_PROXY=$TOOL_GATEWAY_URL"
+Environment="NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP"
+ENVEOF
   systemctl daemon-reload
-  systemctl restart "$OPENCLAW_SERVICE" || true
-  echo "[startup] Proxy + gateway host injected and service restarted: $OPENCLAW_SERVICE"
+  openclaw gateway start 2>&1 || {
+    FAILURE_REASON="openclaw gateway start failed — $(journalctl -u "\$OPENCLAW_SERVICE" -n 5 --no-pager 2>/dev/null | tail -3 | tr '\\n' '|')"
+    exit 1
+  }
+  echo "[startup] OpenClaw Gateway service started: $OPENCLAW_SERVICE"
 else
-  echo "[startup] WARNING: No openclaw systemd service found — proxy not injected (LLM calls unmetered)"
+  # Fallback: systemctl list-units may not show freshly-installed units before
+  # daemon-reload. Try starting directly; openclaw gateway start finds its own unit.
+  echo "[startup] Unit not found via list-units — trying openclaw gateway start directly"
+  ANTHROPIC_API_KEY="$LLM_API_KEY" \\
+  HTTP_PROXY="$TOOL_GATEWAY_URL" \\
+  HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
+  NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
+  openclaw gateway start 2>&1 || {
+    # Final fallback: run gateway in foreground via nohup so it survives script exit.
+    echo "[startup] openclaw gateway start failed — running in background via nohup"
+    ANTHROPIC_API_KEY="$LLM_API_KEY" \\
+    HTTP_PROXY="$TOOL_GATEWAY_URL" \\
+    HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
+    NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
+    nohup openclaw gateway run \\
+      --bind lan \\
+      --port "$GATEWAY_PORT" \\
+      --auth token \\
+      --token "$GATEWAY_TOKEN" \\
+      --allow-unconfigured \\
+      &>> /var/log/openclaw-gateway.log &
+    disown
+    echo "[startup] OpenClaw Gateway running in background (nohup)"
+  }
 fi
 
-# ── 6. Wait for OpenClaw Gateway to be ready ──────────────────────────────────
-# Use --noproxy as belt-and-suspenders: even if NO_PROXY is not honoured by
-# this curl build, the request will still go direct to the local gateway.
+# ── 6. Wait for OpenClaw Gateway to bind on the LAN port ──────────────────────
+# The gateway is a WebSocket server — no HTTP /health path. Use nc to check
+# TCP port reachability instead of curl.
 MAX_WAIT=120
 WAITED=0
-until curl -sf --noproxy '*' "http://$INTERNAL_IP:$GATEWAY_PORT/health" > /dev/null 2>&1; do
+until nc -z "$INTERNAL_IP" "$GATEWAY_PORT" 2>/dev/null; do
   if [[ $WAITED -ge $MAX_WAIT ]]; then
-    FAILURE_REASON="OpenClaw Gateway did not become healthy within \${MAX_WAIT}s"
+    FAILURE_REASON="OpenClaw Gateway did not bind to \${INTERNAL_IP}:\${GATEWAY_PORT} within \${MAX_WAIT}s"
     exit 1
   fi
   sleep 5
