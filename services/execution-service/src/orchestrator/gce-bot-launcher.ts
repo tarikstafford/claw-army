@@ -127,11 +127,10 @@ if [[ -z "$LLM_API_KEY" ]]; then
 fi
 
 # ── 5. Configure and start OpenClaw Gateway ───────────────────────────────────
-# NOTE: openclaw has no 'onboard' command. The correct setup is:
-#   1. Write ~/.openclaw/openclaw.json with gateway.mode=local + bind=lan
-#   2. openclaw gateway install  → registers a systemd service
-#   3. Inject ANTHROPIC_API_KEY + HTTP_PROXY into the service drop-in file
-#   4. openclaw gateway start    → starts the service
+# The startup script runs as root on a fresh VM with no user session, so
+# 'openclaw gateway install' (which registers a systemd --user service) will
+# always fail (no DBUS/XDG_RUNTIME_DIR). Skip systemd entirely and run the
+# gateway directly with nohup so it survives the script exiting.
 
 # Write minimal config: gateway.mode=local allows the gateway to start without
 # a paired chat channel. bind=lan makes it listen on the VPC-internal IP.
@@ -147,66 +146,21 @@ cat > /root/.openclaw/openclaw.json << 'CFGEOF'
 CFGEOF
 echo "[startup] OpenClaw config written"
 
-# Install gateway as a systemd service.
-# --bind is read from config (bind=lan). --port and --token override config values.
-openclaw gateway install \\
+# Run the gateway in the background. nohup + disown keeps it alive after the
+# script exits. All LLM traffic is routed through the Tool Gateway proxy.
+ANTHROPIC_API_KEY="$LLM_API_KEY" \\
+HTTP_PROXY="$TOOL_GATEWAY_URL" \\
+HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
+NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
+nohup openclaw gateway run \\
+  --bind lan \\
   --port "$GATEWAY_PORT" \\
+  --auth token \\
   --token "$GATEWAY_TOKEN" \\
-  --force 2>&1 || {
-  FAILURE_REASON="openclaw gateway install failed (exit $?)"
-  exit 1
-}
-echo "[startup] OpenClaw gateway service installed"
-
-# Find the installed service unit name so we can inject env vars into it.
-OPENCLAW_SERVICE=$(systemctl list-units --type=service --all --no-legend 2>/dev/null \\
-  | awk '{print $1}' | grep -i openclaw | head -1 || true)
-echo "[startup] OpenClaw service unit: '\${OPENCLAW_SERVICE}'"
-
-if [[ -n "$OPENCLAW_SERVICE" ]]; then
-  # Inject ANTHROPIC_API_KEY + Tool Gateway proxy into the service drop-in.
-  # Unquoted heredoc so bash expands $LLM_API_KEY etc. at write time.
-  SVCDIR="/etc/systemd/system/\${OPENCLAW_SERVICE}.d"
-  mkdir -p "\$SVCDIR"
-  cat > "\${SVCDIR}/env.conf" << ENVEOF
-[Service]
-Environment="ANTHROPIC_API_KEY=$LLM_API_KEY"
-Environment="HTTP_PROXY=$TOOL_GATEWAY_URL"
-Environment="HTTPS_PROXY=$TOOL_GATEWAY_URL"
-Environment="NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP"
-ENVEOF
-  systemctl daemon-reload
-  openclaw gateway start 2>&1 || {
-    FAILURE_REASON="openclaw gateway start failed — $(journalctl -u "\$OPENCLAW_SERVICE" -n 5 --no-pager 2>/dev/null | tail -3 | tr '\\n' '|')"
-    exit 1
-  }
-  echo "[startup] OpenClaw Gateway service started: $OPENCLAW_SERVICE"
-else
-  # Fallback: systemctl list-units may not show freshly-installed units before
-  # daemon-reload. Try starting directly; openclaw gateway start finds its own unit.
-  echo "[startup] Unit not found via list-units — trying openclaw gateway start directly"
-  ANTHROPIC_API_KEY="$LLM_API_KEY" \\
-  HTTP_PROXY="$TOOL_GATEWAY_URL" \\
-  HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
-  NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
-  openclaw gateway start 2>&1 || {
-    # Final fallback: run gateway in foreground via nohup so it survives script exit.
-    echo "[startup] openclaw gateway start failed — running in background via nohup"
-    ANTHROPIC_API_KEY="$LLM_API_KEY" \\
-    HTTP_PROXY="$TOOL_GATEWAY_URL" \\
-    HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
-    NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
-    nohup openclaw gateway run \\
-      --bind lan \\
-      --port "$GATEWAY_PORT" \\
-      --auth token \\
-      --token "$GATEWAY_TOKEN" \\
-      --allow-unconfigured \\
-      &>> /var/log/openclaw-gateway.log &
-    disown
-    echo "[startup] OpenClaw Gateway running in background (nohup)"
-  }
-fi
+  &>> /var/log/openclaw-gateway.log &
+GATEWAY_PID=$!
+disown $GATEWAY_PID
+echo "[startup] OpenClaw Gateway started in background (PID: $GATEWAY_PID)"
 
 # ── 6. Wait for OpenClaw Gateway to bind on the LAN port ──────────────────────
 # The gateway is a WebSocket server — no HTTP /health path. Use nc to check
