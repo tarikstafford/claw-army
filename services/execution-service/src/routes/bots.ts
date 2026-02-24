@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { getBot, unregisterBot } from '../orchestrator/bot-registry';
 import { OpenClawClient } from '../orchestrator/openclaw-client';
 import { publishBotStarted } from '../events/publisher';
+import { terminateBotVM } from '../orchestrator/gce-bot-launcher';
 
 const pubsub = new PubSub({
   projectId: process.env.GCP_PROJECT_ID ?? 'claw-local',
@@ -561,6 +562,23 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           updatedAt: new Date(),
         })
         .where(eq(bots.id, botId));
+
+      // Terminate the GCE VM — startup script failures leave the VM running otherwise.
+      const entry = getBot(botId);
+      if (entry) {
+        terminateBotVM({
+          projectId: process.env.GCP_PROJECT_ID ?? 'claw-local',
+          zone: process.env.GCP_ZONE ?? 'us-central1-a',
+          instanceName: entry.instanceName,
+        }).catch((err: Error) => {
+          console.error('[bots/ready] Failed to terminate VM after startup failure (non-fatal):', {
+            botId,
+            instanceName: entry.instanceName,
+            error: err.message,
+          });
+        });
+      }
+
       // Remove from in-memory registry so spawn timeout checker doesn't
       // overwrite the actual error message with a generic "Spawn timeout" message.
       unregisterBot(botId);
