@@ -127,11 +127,6 @@ if [[ -z "$LLM_API_KEY" ]]; then
 fi
 
 # ── 5. Configure and start OpenClaw Gateway ───────────────────────────────────
-# The startup script runs as root on a fresh VM with no user session, so
-# 'openclaw gateway install' (which registers a systemd --user service) will
-# always fail (no DBUS/XDG_RUNTIME_DIR). Skip systemd entirely and run the
-# gateway directly with nohup so it survives the script exiting.
-
 # Write minimal config: gateway.mode=local allows the gateway to start without
 # a paired chat channel. bind=lan makes it listen on the VPC-internal IP.
 mkdir -p /root/.openclaw/workspace
@@ -146,21 +141,48 @@ cat > /root/.openclaw/openclaw.json << 'CFGEOF'
 CFGEOF
 echo "[startup] OpenClaw config written"
 
-# Run the gateway in the background. nohup + disown keeps it alive after the
-# script exits. All LLM traffic is routed through the Tool Gateway proxy.
-ANTHROPIC_API_KEY="$LLM_API_KEY" \\
-HTTP_PROXY="$TOOL_GATEWAY_URL" \\
-HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
-NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
-nohup openclaw gateway run \\
-  --bind lan \\
-  --port "$GATEWAY_PORT" \\
-  --auth token \\
-  --token "$GATEWAY_TOKEN" \\
-  &>> /var/log/openclaw-gateway.log &
-GATEWAY_PID=$!
-disown $GATEWAY_PID
-echo "[startup] OpenClaw Gateway started in background (PID: $GATEWAY_PID)"
+# Install the gateway as a systemd service.
+# 'openclaw gateway install' may produce a --user unit at
+# ~/.config/systemd/user/; if so, promote it to a system unit so it can be
+# managed by 'systemctl' without DBUS (startup scripts run as root with no
+# user session / XDG_RUNTIME_DIR).
+openclaw gateway install --port "$GATEWAY_PORT" --token "$GATEWAY_TOKEN" --force || {
+  FAILURE_REASON="openclaw gateway install failed — exit code $?"
+  exit 1
+}
+echo "[startup] OpenClaw gateway installed"
+
+USER_SVC_FILE="/root/.config/systemd/user/openclaw-gateway.service"
+SYS_SVC_FILE="/etc/systemd/system/openclaw-gateway.service"
+
+if [[ -f "$USER_SVC_FILE" ]] && [[ ! -f "$SYS_SVC_FILE" ]]; then
+  echo "[startup] Promoting user service to system service..."
+  cp "$USER_SVC_FILE" "$SYS_SVC_FILE"
+fi
+
+if [[ ! -f "$SYS_SVC_FILE" ]]; then
+  FAILURE_REASON="openclaw gateway install produced no service file at $SYS_SVC_FILE or $USER_SVC_FILE"
+  exit 1
+fi
+
+# Inject env vars via system drop-in. All LLM traffic routes through the Tool Gateway proxy.
+mkdir -p /etc/systemd/system/openclaw-gateway.service.d
+cat > /etc/systemd/system/openclaw-gateway.service.d/env.conf << DROPIN
+[Service]
+Environment=ANTHROPIC_API_KEY=$LLM_API_KEY
+Environment=HTTP_PROXY=$TOOL_GATEWAY_URL
+Environment=HTTPS_PROXY=$TOOL_GATEWAY_URL
+Environment=NO_PROXY=metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP
+DROPIN
+echo "[startup] Env drop-in written"
+
+systemctl daemon-reload
+
+systemctl start openclaw-gateway || {
+  FAILURE_REASON="systemctl start openclaw-gateway failed — $(journalctl -u openclaw-gateway -n 10 --no-pager 2>&1 | tail -5)"
+  exit 1
+}
+echo "[startup] OpenClaw Gateway service started"
 
 # ── 6. Wait for OpenClaw Gateway to bind on the LAN port ──────────────────────
 # The gateway is a WebSocket server — no HTTP /health path. Use nc to check
