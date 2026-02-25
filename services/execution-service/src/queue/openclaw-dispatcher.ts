@@ -1,5 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { Worker, type Job } from 'bullmq';
-import { db, bots, tasks } from '@claw/db';
+import { db, bots, tasks, toolInvocations } from '@claw/db';
 import { eq, sql } from 'drizzle-orm';
 import {
   workerConnection,
@@ -13,6 +14,7 @@ import {
 } from '../orchestrator/bot-registry';
 import { publishTaskClaimed, publishTaskCompleted } from '../events/publisher';
 import { checkExecutionCompletion } from '../orchestrator/completion-checker';
+import type { TaskResult } from '../orchestrator/openclaw-client';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -139,13 +141,27 @@ async function dispatchTaskToBot(
     console.error('[openclaw-dispatcher] Failed to publish task_claimed (non-fatal):', err.message);
   });
 
+  // Register tool invocation callback to capture tool calls into DB
+  openclawClient.onToolInvocation((event) => {
+    db.insert(toolInvocations).values({
+      executionId,
+      botId,
+      toolName: event.toolName.slice(0, 50),
+      invocationId: event.callId,
+      requestSummary: { arguments: event.arguments.slice(0, 2000) },
+      invokedAt: event.invokedAt,
+    }).catch((err: Error) => {
+      console.error('[openclaw-dispatcher] Failed to insert tool_invocation (non-fatal):', err.message);
+    });
+  });
+
   // Keep the job lock alive while waiting (renew every 20s)
   const renewInterval = setInterval(() => {
     job.extendLock(job.token!, DISPATCH_LOCK_DURATION_MS).catch(() => {});
   }, 20_000);
 
   try {
-    const result = await new Promise<string>((resolve, reject) => {
+    const result = await new Promise<TaskResult>((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error(`Task execution timed out after ${TASK_EXECUTION_TIMEOUT_MS}ms`));
       }, TASK_EXECUTION_TIMEOUT_MS);
@@ -169,7 +185,7 @@ async function dispatchTaskToBot(
     // Task succeeded — update DB
     await db
       .update(tasks)
-      .set({ status: 'completed', result, updatedAt: new Date() })
+      .set({ status: 'completed', result: result.text, updatedAt: new Date() })
       .where(eq(tasks.id, taskId));
 
     await db
@@ -193,11 +209,28 @@ async function dispatchTaskToBot(
       console.error('[openclaw-dispatcher] Failed to publish task_completed (non-fatal):', err.message);
     });
 
+    // Write summary llm_call tool_invocations row with token usage
+    await db.insert(toolInvocations).values({
+      executionId,
+      botId,
+      toolName: 'llm_call',
+      invocationId: randomUUID(),
+      durationMs: Date.now() - taskStartMs,
+      promptTokens: result.usage?.input_tokens ?? null,
+      completionTokens: result.usage?.output_tokens ?? null,
+      totalTokens: result.usage?.total_tokens ?? null,
+      responseSummary: { result: result.text.slice(0, 500) },
+      invokedAt: new Date(taskStartMs),
+    }).catch((err: Error) => {
+      console.error('[openclaw-dispatcher] Failed to insert llm_call summary (non-fatal):', err.message);
+    });
+
     console.log('[openclaw-dispatcher] Round-trip complete — task sent, completed, bot released to idle:', {
       taskId,
       botId,
       executionId,
       durationMs: Date.now() - taskStartMs,
+      usage: result.usage,
     });
 
     // Check if all tasks for this execution are now done
@@ -205,7 +238,7 @@ async function dispatchTaskToBot(
       console.error('[openclaw-dispatcher] Completion check failed (non-fatal):', err.message);
     });
 
-    return result;
+    return result.text;
   } catch (err) {
     // Task failed — update DB
     await db

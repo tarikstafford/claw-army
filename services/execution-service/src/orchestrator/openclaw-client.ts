@@ -9,6 +9,22 @@ const RECONNECT_DELAY_MS = 2_000;
 const CONNECT_TIMEOUT_MS = 15_000;
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Types
+// ──────────────────────────────────────────────────────────────────────────────
+
+export interface ToolInvocationEvent {
+  callId: string;
+  toolName: string;
+  arguments: string;
+  invokedAt: Date;
+}
+
+export interface TaskResult {
+  text: string;
+  usage?: { input_tokens: number; output_tokens: number; total_tokens: number };
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // OpenClawClient — HTTP-based client for the OpenClaw Gateway
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -28,8 +44,9 @@ const CONNECT_TIMEOUT_MS = 15_000;
  *   client.onError((e) => ...);
  */
 export class OpenClawClient {
-  private completionCallbacks: Array<(result: string) => void> = [];
+  private completionCallbacks: Array<(result: TaskResult) => void> = [];
   private failureCallbacks: Array<(error: string) => void> = [];
+  private toolInvocationCallbacks: Array<(event: ToolInvocationEvent) => void> = [];
   private _isConnected = false;
 
   constructor(
@@ -121,7 +138,7 @@ export class OpenClawClient {
     this.executeTask(taskDescription, sessionId).catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);
       console.error('[openclaw-client] Task failed:', { sessionId, error: message });
-      this.failureCallbacks.forEach((cb) => cb(message));
+      for (const cb of this.failureCallbacks) cb(message);
       this.failureCallbacks = [];
     });
 
@@ -166,20 +183,22 @@ export class OpenClawClient {
 
     console.log('[openclaw-client] Task complete:', {
       sessionId,
-      resultPreview: result.slice(0, 80),
+      resultPreview: result.text.slice(0, 80),
+      usage: result.usage,
     });
-    this.completionCallbacks.forEach((cb) => cb(result));
+    for (const cb of this.completionCallbacks) cb(result);
     this.completionCallbacks = [];
   }
 
   /**
    * Parse an SSE stream from /v1/responses.
-   * Returns the text result on `response.completed`, throws on `response.failed`.
+   * Returns the text result + usage on `response.completed`, throws on `response.failed`.
+   * Fires `toolInvocationCallbacks` for each `response.output_item.done` with type `function_call`.
    */
   private async readSSEStream(
     body: ReadableStream<Uint8Array>,
     sessionId: string,
-  ): Promise<string> {
+  ): Promise<TaskResult> {
     const reader = body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -211,7 +230,32 @@ export class OpenClawClient {
 
             if (data === '[DONE]') {
               console.log('[openclaw-client] SSE stream ended with [DONE]:', { sessionId });
-              return 'Task completed';
+              return { text: 'Task completed' };
+            }
+
+            // Capture completed function_call output items → tool invocation events
+            if (currentEventType === 'response.output_item.done') {
+              try {
+                const parsed = JSON.parse(data) as {
+                  item?: { type?: string; name?: string; call_id?: string; arguments?: string };
+                };
+                if (parsed.item?.type === 'function_call' && parsed.item.call_id) {
+                  const event: ToolInvocationEvent = {
+                    callId: parsed.item.call_id,
+                    toolName: parsed.item.name ?? 'unknown',
+                    arguments: parsed.item.arguments ?? '',
+                    invokedAt: new Date(),
+                  };
+                  console.log('[openclaw-client] Tool invocation captured:', { sessionId, toolName: event.toolName, callId: event.callId });
+                  for (const cb of this.toolInvocationCallbacks) {
+                    try { cb(event); } catch (cbErr) {
+                      console.error('[openclaw-client] Tool invocation callback error:', cbErr);
+                    }
+                  }
+                }
+              } catch {
+                // non-JSON or unexpected shape — skip
+              }
             }
 
             if (currentEventType === 'response.completed') {
@@ -219,6 +263,7 @@ export class OpenClawClient {
                 const parsed = JSON.parse(data) as {
                   response?: {
                     status?: string;
+                    usage?: { input_tokens?: number; output_tokens?: number; total_tokens?: number };
                     output?: Array<{
                       type: string;
                       content?: Array<{ type: string; text?: string }>;
@@ -241,11 +286,23 @@ export class OpenClawClient {
                 const messageItem = output.find((item) => item.type === 'message');
                 const text =
                   messageItem?.content?.find((c) => c.type === 'output_text' || c.type === 'text')?.text;
-                return text ?? JSON.stringify(parsed);
+
+                const usage = response?.usage;
+                const taskResult: TaskResult = {
+                  text: text ?? JSON.stringify(parsed),
+                  usage: usage?.input_tokens != null && usage?.output_tokens != null
+                    ? {
+                        input_tokens: usage.input_tokens,
+                        output_tokens: usage.output_tokens,
+                        total_tokens: usage.total_tokens ?? (usage.input_tokens + usage.output_tokens),
+                      }
+                    : undefined,
+                };
+                return taskResult;
               } catch (err) {
                 // Re-throw errors, stringify non-error parse failures
                 if (err instanceof Error) throw err;
-                return data;
+                return { text: data };
               }
             }
 
@@ -277,17 +334,21 @@ export class OpenClawClient {
 
     // Stream ended without explicit completion — treat as done
     console.warn('[openclaw-client] SSE stream ended without response.completed:', { sessionId, totalEvents: eventCount, totalBytes: rawBytesReceived });
-    return 'Task completed (stream ended)';
+    return { text: 'Task completed (stream ended)' };
   }
 
   // ── Callbacks ───────────────────────────────────────────────────────────────
 
-  onComplete(cb: (result: string) => void): void {
+  onComplete(cb: (result: TaskResult) => void): void {
     this.completionCallbacks.push(cb);
   }
 
   onError(cb: (error: string) => void): void {
     this.failureCallbacks.push(cb);
+  }
+
+  onToolInvocation(cb: (event: ToolInvocationEvent) => void): void {
+    this.toolInvocationCallbacks.push(cb);
   }
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
