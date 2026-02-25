@@ -604,46 +604,44 @@ export const botsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       return reply.code(409).send({ error: 'Bot already marked as ready' });
     }
 
-    // Connect to OpenClaw Gateway on the bot VM
-    const wsUrl = `ws://${internalIp}:${port}`;
-    const client = new OpenClawClient(wsUrl, gatewayToken);
+    // Connect to OpenClaw Gateway HTTP API on the bot VM
+    const httpUrl = `http://${internalIp}:${port}`;
+    const client = new OpenClawClient(httpUrl, gatewayToken);
 
     try {
       await client.connect();
     } catch (err) {
       console.error('[bots/ready] Failed to connect to OpenClaw Gateway:', {
         botId,
-        wsUrl,
+        httpUrl,
         error: (err as Error).message,
       });
       await db
         .update(bots)
         .set({
           status: 'failed',
-          errorMessage: `Failed to connect to OpenClaw Gateway at ${wsUrl}: ${(err as Error).message}`,
+          errorMessage: `Failed to connect to OpenClaw Gateway at ${httpUrl}: ${(err as Error).message}`,
           updatedAt: new Date(),
         })
         .where(eq(bots.id, botId));
       return reply.code(503).send({ error: 'Failed to connect to OpenClaw Gateway' } as never);
     }
 
-    // WebSocket liveness check — confirm the connection is still open after connect().
-    // A stale connection that opened but immediately closed (e.g. token mismatch,
-    // gateway crash) is caught here before we transition the bot to idle.
+    // Liveness check — confirm isConnected was set by connect().
     if (!client.isConnected) {
-      console.error('[bots/ready] WebSocket connected but immediately disconnected:', {
+      console.error('[bots/ready] Gateway connect() returned but isConnected is false:', {
         botId,
-        wsUrl,
+        httpUrl,
       });
       await db
         .update(bots)
         .set({
           status: 'failed',
-          errorMessage: 'WebSocket connected but immediately disconnected — gateway may have rejected the token',
+          errorMessage: 'Gateway connect() succeeded but isConnected is false — internal error',
           updatedAt: new Date(),
         })
         .where(eq(bots.id, botId));
-      return reply.code(503).send({ error: 'WebSocket not live after connect' });
+      return reply.code(503).send({ error: 'Gateway not connected after connect()' });
     }
 
     // Update registry entry with internalIp, token, and connected client

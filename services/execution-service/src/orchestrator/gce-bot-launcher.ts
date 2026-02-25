@@ -59,12 +59,9 @@ echo "[startup] Execution: $EXECUTION_ID"
 FAILURE_REASON=""
 
 post_failure() {
-  local reason
-  reason=$(echo "$FAILURE_REASON" | sed 's/"/\\\\"/g')
-  curl -X POST "$EXECUTION_SERVICE_URL/bots/$BOT_ID/ready" \\
-    -H "Content-Type: application/json" \\
-    -d "{\\"success\\": false, \\"error\\": \\"$reason\\"}" \\
-    --retry 3 --retry-delay 5 --retry-connrefused --max-time 30 || true
+  local json
+  json=$(python3 -c "import json, sys; print(json.dumps({'success': False, 'error': sys.argv[1]}))" "$FAILURE_REASON" 2>/dev/null || echo '{"success":false,"error":"post_failure: serialization failed"}')
+  curl -s -X POST "$EXECUTION_SERVICE_URL/bots/$BOT_ID/ready" -H "Content-Type: application/json" -d "$json" --retry 3 --retry-delay 5 --retry-connrefused --max-time 30 || true
 }
 
 trap 'if [[ -n "$FAILURE_REASON" ]]; then post_failure; fi' EXIT
@@ -133,25 +130,50 @@ fi
 mkdir -p /root/.openclaw/workspace
 cat > /root/.openclaw/openclaw.json << CFGEOF
 {
-  "model": "anthropic/claude-opus-4-6",
+  "models": {
+    "providers": {
+      "anthropic": {
+        "baseUrl": "https://api.anthropic.com",
+        "apiKey": "$LLM_API_KEY",
+        "models": [
+          {
+            "id": "claude-opus-4-6",
+            "name": "Claude Opus 4.6",
+            "api": "anthropic-messages",
+            "compat": {}
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-opus-4-6"
+      }
+    }
+  },
   "gateway": {
     "mode": "local",
     "bind": "lan",
     "auth": {
+      "mode": "token",
       "token": "$GATEWAY_TOKEN"
+    },
+    "http": {
+      "endpoints": {
+        "responses": { "enabled": true }
+      }
     }
   }
 }
 CFGEOF
-echo "[startup] OpenClaw config written (token injected)"
+echo "[startup] OpenClaw config written (baseUrl=https://api.anthropic.com/v1, apiKey injected, model=anthropic/claude-opus-4-6, auth.mode=token)"
 
 # Run the gateway in the background. 'openclaw gateway --port PORT' is the correct
 # invocation — there are no 'run', 'install', or 'start' subcommands.
 # nohup + disown keeps it alive after this script exits.
 ANTHROPIC_API_KEY="$LLM_API_KEY" \\
-HTTP_PROXY="$TOOL_GATEWAY_URL" \\
-HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
-NO_PROXY="metadata.google.internal,169.254.169.254,localhost,127.0.0.1,$INTERNAL_IP" \\
 nohup openclaw gateway --port "$GATEWAY_PORT" \\
   &>> /var/log/openclaw-gateway.log &
 GATEWAY_PID=$!
@@ -165,8 +187,9 @@ MAX_WAIT=120
 WAITED=0
 until nc -z "$INTERNAL_IP" "$GATEWAY_PORT" 2>/dev/null; do
   if [[ $WAITED -ge $MAX_WAIT ]]; then
-    GATEWAY_LOG=$(tail -30 /var/log/openclaw-gateway.log 2>/dev/null | tr '\\n' '|' | tr '"' "'" | cut -c1-500)
-    FAILURE_REASON="OpenClaw Gateway did not bind to \${INTERNAL_IP}:\${GATEWAY_PORT} within \${MAX_WAIT}s — gateway log: \${GATEWAY_LOG}"
+    GATEWAY_LOG=$(tail -50 /var/log/openclaw-gateway.log 2>/dev/null | tr '\\n' ' ' | cut -c1-600 || true)
+    nc -z 127.0.0.1 "$GATEWAY_PORT" 2>/dev/null && LOCALHOST_BOUND="yes" || LOCALHOST_BOUND="no"
+    FAILURE_REASON="OpenClaw Gateway did not bind to \${INTERNAL_IP}:\${GATEWAY_PORT} within \${MAX_WAIT}s (localhost_bound=\${LOCALHOST_BOUND}) — log: \${GATEWAY_LOG}"
     exit 1
   fi
   sleep 5
