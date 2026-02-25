@@ -51,6 +51,12 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     },
     preHandler: [
       async (request, reply) => {
+        // Internal API key bypass — for CLI testing without a browser session.
+        // Disabled if INTERNAL_API_KEY is not set in env.
+        const internalKey = process.env.INTERNAL_API_KEY;
+        if (internalKey && request.headers['x-internal-key'] === internalKey) {
+          return;
+        }
         const valid = await verifyAuthToken(request.headers.authorization);
         if (!valid) {
           return reply.code(401).send({ error: 'Unauthorized' });
