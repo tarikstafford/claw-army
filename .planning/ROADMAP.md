@@ -67,7 +67,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
 
 ---
 
-### 🚧 v4.0 The Ring Leader (In Progress)
+### v4.0 The Ring Leader (In Progress)
 
 **Milestone Goal:** Promote the Ring Leader from a concept to a first-class autonomous entity that owns soul selection, population assembly, agent spawning, real-time swarm coordination, and run synthesis — demoting the Orchestrator to a thin pre-flight layer.
 
@@ -81,11 +81,11 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
   2. Shared types package exports RingLeaderMissionBrief, PopulationManifest, SoulSelectionEntry, RingLeaderSynthesis, and RingLeaderFitnessScore with full TypeScript inference.
   3. Zod schemas for all Ring Leader event payloads compile without error in both execution-service and UI.
   4. Existing execution, bot, and soul records are unaffected by the migration (zero data loss).
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 24-01: DB migration — new Ring Leader columns and tables
-- [ ] 24-02: Shared types — RingLeaderMissionBrief, PopulationManifest, RingLeaderSynthesis, RingLeaderFitnessScore
+- [ ] 24-01-PLAN.md — DB migration: ring_leader_runs and ring_leader_fitness tables, ring_leader_run_id on executions
+- [ ] 24-02-PLAN.md — Shared types and Zod event schemas for Ring Leader lifecycle
 
 #### Phase 25: Orchestrator Demotion and Ring Leader Core
 
@@ -264,7 +264,7 @@ Plans:
 | 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |
-| 24. Ring Leader Schema and Shared Types | v4.0 | 0/TBD | Not started | - |
+| 24. Ring Leader Schema and Shared Types | v4.0 | 0/2 | Not started | - |
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 0/TBD | Not started | - |
 | 26. Soul Library Search and Population Assembly | v4.0 | 0/TBD | Not started | - |
 | 27. Budget Validation and Population Sizing | v4.0 | 0/TBD | Not started | - |
