@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 25 of 32 (Orchestrator Demotion and Ring Leader Core)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-03-02 — Plan 25-01 complete (task-graph-parser + planner.service update, 2 tasks, tsc clean)
+Last activity: 2026-03-02 — Plan 25-02 complete (preflight-validator.ts + tool grant + budget validation, 1 task, tsc clean)
 
 Progress: [█░░░░░░░░░] 11% v4.0
 
@@ -39,6 +39,7 @@ Progress: [█░░░░░░░░░] 11% v4.0
 | Phase 24-ring-leader-schema-and-shared-types P01 | 2 | 2 tasks | 5 files |
 | Phase 24-ring-leader-schema-and-shared-types P02 | 2 | 2 tasks | 4 files |
 | Phase 25-orchestrator-demotion-and-ring-leader-core P01 | 3 | 2 tasks | 3 files |
+| Phase 25-orchestrator-demotion-and-ring-leader-core P02 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -58,6 +59,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 25]: resolveModel extracted to lib/resolve-model.ts to avoid duplication between planner.service.ts and task-graph-parser.ts
 - [Phase 25]: planObjective (flat) kept for backward compat; planObjectiveAsTaskGraph is new structured export; route handler migration deferred to plan 25-03
 - [Phase 25]: validateTaskGraphDAG exported standalone from task-graph-parser.ts so plan 25-02 pre-flight can use it without re-importing the parser
+- [Phase 25]: All preflight validation checks run and errors accumulate (fail-all not fail-fast) so callers see full constraint picture in one response
+- [Phase 25]: budgetCapCents=0 skips budget check to preserve v1.0 no-cap behavior; ESTIMATED_AGENT_COST_CENTS defaults to 50c (placeholder until Phase 27)
 
 ### Pending Todos
 
@@ -76,5 +79,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Plan 25-01 complete — task-graph-parser.ts + validateTaskGraphDAG + planObjectiveAsTaskGraph + resolve-model.ts. Ready for plan 25-02 (pre-flight validation).
+Stopped at: Plan 25-02 complete — preflight-validator.ts + validatePreFlight + PreFlightResult + PreFlightError. Ready for plan 25-03 (mission brief construction).
 Resume file: None
