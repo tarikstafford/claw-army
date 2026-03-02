@@ -6,7 +6,7 @@
 - ✅ **v1.1 Google Auth Gate** — Phase 7 (shipped 2026-02-19)
 - ✅ **v2.0 The SOUL System** — Phases 8-14 (shipped 2026-02-22)
 - ✅ **v3.0 Bot Reliability & UX Overhaul** — Phases 15-23 (shipped 2026-02-23)
-- 🚧 **v4.0 The Ring Leader** — Phases 24-32 (in progress)
+- ✅ **v4.0 The Ring Leader** — Phases 24-32 (shipped 2026-03-02)
 
 ## Phases
 
@@ -227,10 +227,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 32-01-PLAN.md — Backend API endpoints + SSE relay for Ring Leader data
-- [ ] 32-02-PLAN.md — Pre-flight population manifest UI and live Ring Leader state panel
-- [ ] 32-03-PLAN.md — Activity feed Ring Leader coordination events formatting
-- [ ] 32-04-PLAN.md — Post-run Ring Leader synthesis and fitness score panels
+- [x] 32-01-PLAN.md — Backend API endpoints + SSE relay for Ring Leader data
+- [x] 32-02-PLAN.md — Pre-flight population manifest UI and live Ring Leader state panel
+- [x] 32-03-PLAN.md — Activity feed Ring Leader coordination events formatting
+- [x] 32-04-PLAN.md — Post-run Ring Leader synthesis and fitness score panels
 ---
 
 ## Progress
@@ -268,4 +268,4 @@ Plans:
 | 29. Real-Time Execution Coordination | v4.0 | 5/5 | Complete | 2026-03-02 |
 | 30. Run Synthesis | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 31. Ring Leader Fitness Scoring | v4.0 | 4/4 | Complete | 2026-03-02 |
-| 32. Dashboard and Reporting | v4.0 | 0/TBD | Not started | - |
+| 32. Dashboard and Reporting | v4.0 | 4/4 | Complete | 2026-03-02 |
