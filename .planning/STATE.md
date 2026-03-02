@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 ## Current Position
 
-Phase: 30 of 32 (Run Synthesis) — COMPLETE
-Plan: 3/3 complete
-Status: Phase verified and complete
-Last activity: 2026-03-02 — Phase 30 verified (5/5 must-haves passed)
+Phase: 31 of 32 (Ring Leader Fitness Scoring) — IN PROGRESS
+Plan: 1/3 complete
+Status: Plan 31-01 complete
+Last activity: 2026-03-02 — Phase 31 Plan 01 complete (coordination scorer)
 
 Progress: [███████░░░] 78% v4.0
 
@@ -57,6 +57,7 @@ Progress: [███████░░░] 78% v4.0
 | Phase 30-run-synthesis P01 | 2 | 1 tasks | 1 files |
 | Phase 30-run-synthesis P02 | 3 | 2 tasks | 5 files |
 | Phase 30-run-synthesis P03 | 1 | 1 tasks | 1 files |
+| Phase 31-ring-leader-fitness-scoring P01 | 1 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 30-02]: ringLeaderSynthesis is optional/nullable in CouncilJobData and CouncilContext for backward compat with non-Ring-Leader executions
 - [Phase 30-02]: Synthesis section prepended (not appended) to Performance Judge prompt to satisfy SYNTH-05 primary input requirement
 - [Phase 30-03]: isRuntimeLimitReached() only evaluates when isRunComplete() is false — prevents double-firing of synthesis; single synthesis invocation per run guaranteed
+- [Phase 31-01]: COORDINATION_WEIGHTS imported from @claw/shared-types (not redefined locally) — ensures coordination scoring stays consistent with domain contract
+- [Phase 31-01]: Fallback scoring uses deterministic formulas: collectiveOutcome=completed/total, driftPrevention=1-driftScore (clamped 0-1), reallocationEffectiveness=0.5 neutral, budgetManagement=variance-based ratio; never throws
 
 ### Pending Todos
 
@@ -149,5 +152,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 30-run-synthesis-03-PLAN.md
+Stopped at: Completed 31-01-PLAN.md
 Resume file: None
