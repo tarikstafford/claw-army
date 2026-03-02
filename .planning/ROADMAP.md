@@ -148,13 +148,12 @@ Plans:
   3. Task brief and any available upstream intelligence signals are injected alongside SOUL.md in each session.
   4. Tasks with no DAG dependencies spawn immediately in parallel; tasks with upstream dependencies are held until upstream outputs are available.
   5. Every spawned agent's session ID is registered in the active session registry, and the pre-flight dashboard shows the full population manifest before the first agent begins executing.
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 28-01: Session JWT generation per agent — soul_id, task_id, grants, budget, runtime encoding
-- [ ] 28-02: SOUL.md and task brief injection into OpenClaw sessions — constitution verification
-- [ ] 28-03: DAG-respecting spawn sequencing and active session registry
-- [ ] 28-04: Pre-flight dashboard data endpoint — population manifest per task
+- [ ] 28-01-PLAN.md — Session JWT generation, SOUL.md injection, task brief assembly, and constitution verification
+- [ ] 28-02-PLAN.md — DAG-respecting spawn sequencing, active session registry, and pipeline wiring
+- [ ] 28-03-PLAN.md — Pre-flight dashboard data endpoint: population manifest per task
 
 #### Phase 29: Real-Time Execution Coordination
 
@@ -265,7 +264,7 @@ Plans:
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 26. Soul Library Search and Population Assembly | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
-| 28. Ring Leader Agent Spawning | v4.0 | 0/TBD | Not started | - |
+| 28. Ring Leader Agent Spawning | v4.0 | 0/3 | Not started | - |
 | 29. Real-Time Execution Coordination | v4.0 | 0/TBD | Not started | - |
 | 30. Run Synthesis | v4.0 | 0/TBD | Not started | - |
 | 31. Ring Leader Fitness Scoring | v4.0 | 0/TBD | Not started | - |
