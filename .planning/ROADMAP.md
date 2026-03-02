@@ -81,7 +81,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
   2. Shared types package exports RingLeaderMissionBrief, PopulationManifest, SoulSelectionEntry, RingLeaderSynthesis, and RingLeaderFitnessScore with full TypeScript inference.
   3. Zod schemas for all Ring Leader event payloads compile without error in both execution-service and UI.
   4. Existing execution, bot, and soul records are unaffected by the migration (zero data loss).
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
 - [x] 24-01-PLAN.md — DB migration: ring_leader_runs and ring_leader_fitness tables, ring_leader_run_id on executions
@@ -131,7 +131,7 @@ Plans:
   2. When estimated cost exceeds the budget cap, Ring Leader applies tiered reduction in order: replace Artisans with Understudies, then reduce to minimum populations — surfacing a warning to the user at each tier.
   3. Ring Leader never reduces a task below 3 worker agents regardless of cost pressure.
   4. When the budget cannot fund minimum populations (3 agents per task), user sees a specific constraint message with the exact shortfall and options to scope down or increase budget.
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
 - [x] 27-01-PLAN.md — TDD: budget-validator module with cost estimation, tiered reduction, and minimum population guard
@@ -187,11 +187,12 @@ Plans:
   3. Synthesis includes recommended_library_writes (souls to promote/retain) and pioneer_events lists.
   4. Synthesis includes ring_leader_self_assessment of its coordination performance.
   5. Performance Judge receives the Ring Leader synthesis as its primary input before reviewing individual agent outputs.
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] 30-01-PLAN.md — Run synthesis module: LLM-driven document generation with all SYNTH-01 through SYNTH-04 fields
-- [ ] 30-02-PLAN.md — Wire synthesis into coordination loop termination and Performance Judge council handoff (SYNTH-05)
+- [x] 30-01-PLAN.md — Run synthesis module: LLM-driven document generation with all SYNTH-01 through SYNTH-04 fields
+- [x] 30-02-PLAN.md — Wire synthesis into coordination loop termination and Performance Judge council handoff (SYNTH-05)
+- [ ] 30-03-PLAN.md — Gap closure: add runtime-limit termination check to coordination loop
 
 #### Phase 31: Ring Leader Fitness Scoring
 
@@ -266,6 +267,6 @@ Plans:
 | 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 28. Ring Leader Agent Spawning | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 29. Real-Time Execution Coordination | v4.0 | 5/5 | Complete | 2026-03-02 |
-| 30. Run Synthesis | v4.0 | 0/2 | Not started | - |
+| 30. Run Synthesis | v4.0 | 2/3 | In progress | - |
 | 31. Ring Leader Fitness Scoring | v4.0 | 0/TBD | Not started | - |
 | 32. Dashboard and Reporting | v4.0 | 0/TBD | Not started | - |
