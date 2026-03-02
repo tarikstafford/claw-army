@@ -1,8 +1,8 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { browser } from '$app/environment';
-  import { getExecutionReport, getLeaderboard } from '$lib/api';
-  import type { ExecutionReport, LeaderboardEntry } from '$lib/types';
+  import { getExecutionReport, getLeaderboard, getRingLeaderSynthesis } from '$lib/api';
+  import type { ExecutionReport, LeaderboardEntry, RingLeaderSynthesisResponse } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
   import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
 
@@ -10,6 +10,7 @@
 
   let report = $state<ExecutionReport | null>(null);
   let leaderboard = $state<LeaderboardEntry[]>([]);
+  let synthesisData = $state<RingLeaderSynthesisResponse | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
   let selectedBotId = $state<string | null>(null);
@@ -25,10 +26,23 @@
     Promise.all([
       getExecutionReport(id),
       getLeaderboard(id),
+      getRingLeaderSynthesis(id).catch(() => null),
     ])
-      .then(([r, l]) => { report = r; leaderboard = l; loading = false; })
+      .then(([r, l, s]) => { report = r; leaderboard = l; synthesisData = s; loading = false; })
       .catch(err => { error = (err as Error).message; loading = false; });
   });
+
+  function scoreClass(value: number): string {
+    if (value >= 0.7) return 'score-high';
+    if (value >= 0.5) return 'score-mid';
+    return 'score-low';
+  }
+
+  function compositeScoreClass(value: number): string {
+    if (value >= 0.85) return 'composite-high';
+    if (value >= 0.68) return 'composite-mid';
+    return 'composite-low';
+  }
 </script>
 
 <svelte:head>
@@ -106,6 +120,212 @@
               <span class="tier-count tier-count-retired">{report.soulTierDistribution.retired}</span>
             </div>
           {/if}
+        </div>
+      </section>
+    {/if}
+
+    <!-- Ring Leader Synthesis (DASH-04) -->
+    {#if synthesisData?.synthesis}
+      {@const synthesis = synthesisData.synthesis}
+      <section class="section">
+        <h2>Ring Leader Synthesis</h2>
+
+        <!-- Objective Achievement -->
+        <div class="synthesis-achievement">
+          <span class="achievement-badge" class:achievement-achieved={synthesis.objectiveAchieved} class:achievement-not-achieved={!synthesis.objectiveAchieved}>
+            {synthesis.objectiveAchieved ? 'ACHIEVED' : 'NOT ACHIEVED'}
+          </span>
+          <p class="achievement-rationale">{synthesis.achievementRationale}</p>
+        </div>
+
+        <!-- Run Statistics -->
+        <div class="stats-grid synthesis-stats">
+          <div class="stat-card">
+            <span class="stat-label">Intelligence Routing Events</span>
+            <span class="stat-value">{synthesis.intelligenceRoutingEvents}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Reallocation Events</span>
+            <span class="stat-value">{synthesis.reallocationEvents}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Reanchoring Events</span>
+            <span class="stat-value">{synthesis.reanchoringEvents}</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Budget Variance</span>
+            <span class="stat-value" class:variance-under={synthesis.budgetVarianceCents < 0} class:variance-over={synthesis.budgetVarianceCents > 0}>
+              ${(synthesis.budgetVarianceCents / 100).toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        <!-- Soul Selection Retrospective -->
+        <div class="text-block">
+          <span class="text-block-label">Soul Selection Retrospective</span>
+          <p class="text-block-content">{synthesis.soulSelectionRetrospective}</p>
+        </div>
+
+        <!-- Coordination Self-Assessment -->
+        <div class="text-block">
+          <span class="text-block-label">Coordination Self-Assessment</span>
+          <p class="text-block-content">{synthesis.ringLeaderSelfAssessment}</p>
+        </div>
+
+        <!-- Recommended Library Writes -->
+        {#if synthesis.recommendedLibraryWrites.length > 0}
+          <div class="pill-group">
+            <span class="text-block-label">Recommended Library Writes</span>
+            <div class="pills">
+              {#each synthesis.recommendedLibraryWrites.slice(0, 8) as soulId}
+                <span class="pill pill-teal">{soulId.slice(0, 8)}</span>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        <!-- Pioneer Events -->
+        {#if synthesis.pioneerEvents.length > 0}
+          <div class="pill-group">
+            <span class="text-block-label">Pioneer Events</span>
+            <div class="pills">
+              {#each synthesis.pioneerEvents as taskId}
+                <span class="pill pill-amber">{taskId}</span>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </section>
+    {/if}
+
+    <!-- Ring Leader Fitness (DASH-05) -->
+    {#if synthesisData?.fitness}
+      {@const fitness = synthesisData.fitness}
+      {@const c = fitness.coordinationScore}
+      {@const s = fitness.soulSelectionScore}
+      <section class="section">
+        <h2>Ring Leader Fitness</h2>
+
+        <!-- Composite Score -->
+        <div class="composite-score-row">
+          <span class="stat-label">Composite Score</span>
+          <span class="composite-score-value {compositeScoreClass(fitness.compositeScore)}">
+            {fitness.compositeScore.toFixed(2)}
+          </span>
+        </div>
+
+        <!-- Coordination Score Breakdown (60% weight) -->
+        <div class="score-card">
+          <div class="score-card-header">
+            <span class="score-card-title">Coordination Score</span>
+            <span class="score-card-weight">60% weight</span>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Collective Outcome (40%)</span>
+              <span class="dimension-value">{c.collectiveOutcome.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(c.collectiveOutcome)}" style="width: {(c.collectiveOutcome * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Drift Prevention (25%)</span>
+              <span class="dimension-value">{c.driftPrevention.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(c.driftPrevention)}" style="width: {(c.driftPrevention * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Reallocation Effectiveness (20%)</span>
+              <span class="dimension-value">{c.reallocationEffectiveness.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(c.reallocationEffectiveness)}" style="width: {(c.reallocationEffectiveness * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Budget Management (15%)</span>
+              <span class="dimension-value">{c.budgetManagement.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(c.budgetManagement)}" style="width: {(c.budgetManagement * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="score-subtotal">
+            Weighted Subtotal: <span class="subtotal-value">{(c.collectiveOutcome * 0.40 + c.driftPrevention * 0.25 + c.reallocationEffectiveness * 0.20 + c.budgetManagement * 0.15).toFixed(2)}</span>
+          </div>
+        </div>
+
+        <!-- Soul Selection Score Breakdown (40% weight) -->
+        <div class="score-card">
+          <div class="score-card-header">
+            <span class="score-card-title">Soul Selection Score</span>
+            <span class="score-card-weight">40% weight</span>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Library Search Quality (20%)</span>
+              <span class="dimension-value">{s.librarySearchQuality.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(s.librarySearchQuality)}" style="width: {(s.librarySearchQuality * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Differentiation Effectiveness (20%)</span>
+              <span class="dimension-value">{s.differentiationEffectiveness.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(s.differentiationEffectiveness)}" style="width: {(s.differentiationEffectiveness * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Mutation Decision Quality (20%)</span>
+              <span class="dimension-value">{s.mutationDecisionQuality.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(s.mutationDecisionQuality)}" style="width: {(s.mutationDecisionQuality * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Pioneer Handling (20%)</span>
+              <span class="dimension-value">{s.pioneerHandling.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(s.pioneerHandling)}" style="width: {(s.pioneerHandling * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="dimension">
+            <div class="dimension-header">
+              <span class="dimension-label">Selection Retrospective Quality (20%)</span>
+              <span class="dimension-value">{s.selectionRetrospectiveQuality.toFixed(2)}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-bar-fill {scoreClass(s.selectionRetrospectiveQuality)}" style="width: {(s.selectionRetrospectiveQuality * 100).toFixed(1)}%"></div>
+            </div>
+          </div>
+
+          <div class="score-subtotal">
+            Weighted Subtotal: <span class="subtotal-value">{((s.librarySearchQuality + s.differentiationEffectiveness + s.mutationDecisionQuality + s.pioneerHandling + s.selectionRetrospectiveQuality) / 5).toFixed(2)}</span>
+          </div>
         </div>
       </section>
     {/if}
@@ -584,4 +804,250 @@
   .tier-count-understudy { color: var(--teal); }
   .tier-count-novice { color: var(--text-muted); }
   .tier-count-retired { color: var(--rose); }
+
+  /* Ring Leader Synthesis styles */
+
+  .synthesis-achievement {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .achievement-badge {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .achievement-achieved {
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+  }
+
+  .achievement-not-achieved {
+    color: var(--error);
+    background: var(--error-dim);
+    border: 1px solid var(--error);
+  }
+
+  .achievement-rationale {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  .synthesis-stats {
+    margin-bottom: 1.5rem;
+  }
+
+  .variance-under {
+    color: var(--teal) !important;
+  }
+
+  .variance-over {
+    color: var(--error) !important;
+  }
+
+  .text-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 1rem;
+  }
+
+  .text-block-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 0.75rem;
+  }
+
+  .text-block-content {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1.65;
+    white-space: pre-line;
+  }
+
+  .pill-group {
+    margin-bottom: 1rem;
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .pill-teal {
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+  }
+
+  .pill-amber {
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid var(--amber);
+  }
+
+  /* Ring Leader Fitness styles */
+
+  .composite-score-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .composite-score-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .composite-high {
+    color: var(--teal);
+  }
+
+  .composite-mid {
+    color: var(--amber);
+  }
+
+  .composite-low {
+    color: var(--error);
+  }
+
+  .score-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 1rem;
+  }
+
+  .score-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .score-card-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 600;
+  }
+
+  .score-card-weight {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .dimension {
+    margin-bottom: 0.875rem;
+  }
+
+  .dimension:last-of-type {
+    margin-bottom: 0.5rem;
+  }
+
+  .dimension-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .dimension-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .dimension-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .score-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin-top: 4px;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .score-bar-fill.score-high {
+    background: var(--teal);
+  }
+
+  .score-bar-fill.score-mid {
+    background: var(--amber);
+  }
+
+  .score-bar-fill.score-low {
+    background: var(--error);
+  }
+
+  .score-subtotal {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-align: right;
+  }
+
+  .subtotal-value {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+  }
 </style>
