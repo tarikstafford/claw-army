@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 26 of 32 (Soul Library Search and Population Assembly)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — Phase 25 complete (3/3 plans, verified passed 10/10 must-haves)
+Plan: 1 complete in current phase
+Status: In progress
+Last activity: 2026-03-02 — Phase 26 Plan 01 complete (searchSoulLibrary implemented, tsc passes)
 
 Progress: [██░░░░░░░░] 22% v4.0
 
@@ -41,6 +41,7 @@ Progress: [██░░░░░░░░] 22% v4.0
 | Phase 25-orchestrator-demotion-and-ring-leader-core P01 | 3 | 2 tasks | 3 files |
 | Phase 25-orchestrator-demotion-and-ring-leader-core P02 | 2 | 1 tasks | 1 files |
 | Phase 25-orchestrator-demotion-and-ring-leader-core P03 | 6 | 2 tasks | 2 files |
+| Phase 26-soul-library-search-and-population-assembly P01 | 2 | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -64,6 +65,10 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 25]: budgetCapCents=0 skips budget check to preserve v1.0 no-cap behavior; ESTIMATED_AGENT_COST_CENTS defaults to 50c (placeholder until Phase 27)
 - [Phase 25]: Mission brief runId uses DB-generated UUID: insert ring_leader_runs first with empty brief, then update with full brief including runId
 - [Phase 25]: POST /executions pre-flight validation runs synchronously before 201 response so failures return 400 with full constraint details without creating any DB rows
+- [Phase 26-01]: pgvector <=> cosine distance applied in SQL WHERE clause at threshold 0.78; DB does the heavy lifting before app-layer filters
+- [Phase 26-01]: Negative signal exclusion via LEFT JOIN + IS NULL — single SQL pass, no subquery
+- [Phase 26-01]: drizzle db.execute<T> requires T extends Record<string, unknown>; raw query result interfaces must extend this constraint
+- [Phase 26-01]: Campaign boost uses sibling-count proxy (souls with same parentSoulId) for lineage reuse detection; simpler than counting distinct executionIds
 
 ### Pending Todos
 
@@ -82,5 +87,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 25 complete — Orchestrator demoted to thin pre-flight layer. Ready to plan Phase 26.
+Stopped at: Completed 26-01-PLAN.md — Akashic Library search engine built (searchSoulLibrary). Ready for Phase 26 Plan 02 (population assembly).
 Resume file: None
