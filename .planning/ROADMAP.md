@@ -115,14 +115,12 @@ Plans:
   3. Ring Leader can apply a single targeted mutation (substitution or amplification) to a selected soul and log the operation and rationale.
   4. For a novel task with insufficient library results, Ring Leader generates 5 archetypal souls across the behavioral spread and flags the task as Pioneer.
   5. Ring Leader produces a population manifest per task with all required fields: soul_id, agent_class, source, parent_soul_id, mutation_applied, selection_rationale, differentiation_score.
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 26-01: Library search — embedding similarity, tool filter, complexity filter, campaign weighting, negative signal exclusion
-- [ ] 26-02: Population selection — class priority, differentiation enforcement, multi-soul variance assignments
-- [ ] 26-03: Pre-deployment mutation — single directive operations, rationale logging
-- [ ] 26-04: Novel task handling — archetypal generation, Pioneer flagging, population manifest assembly
-
+- [ ] 26-01-PLAN.md — Library search: embedding similarity, tool filter, complexity filter, campaign weighting, negative signal exclusion
+- [ ] 26-02-PLAN.md — Population selection: class priority, differentiation enforcement, pre-deployment mutation
+- [ ] 26-03-PLAN.md — Pioneer generation, population manifest assembly, and ring-leader-spawner integration
 #### Phase 27: Budget Validation and Population Sizing
 
 **Goal:** Ring Leader validates that the assembled population fits the budget cap before any agent spawns, applies tiered reduction when needed, and surfaces a clear constraint message to the user when the minimum viable population cannot be funded.
@@ -266,7 +264,7 @@ Plans:
 | 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |
 | 24. Ring Leader Schema and Shared Types | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
-| 26. Soul Library Search and Population Assembly | v4.0 | 0/TBD | Not started | - |
+| 26. Soul Library Search and Population Assembly | v4.0 | 0/3 | Not started | - |
 | 27. Budget Validation and Population Sizing | v4.0 | 0/TBD | Not started | - |
 | 28. Ring Leader Agent Spawning | v4.0 | 0/TBD | Not started | - |
 | 29. Real-Time Execution Coordination | v4.0 | 0/TBD | Not started | - |
