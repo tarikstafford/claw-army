@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 ## Current Position
 
-Phase: 31 of 32 (Ring Leader Fitness Scoring) — IN PROGRESS
-Plan: 3/4 complete
-Status: Plan 31-03 complete
-Last activity: 2026-03-02 — Phase 31 Plan 03 complete (composite fitness scorer + Akashic Library persistence)
+Phase: 31 of 32 (Ring Leader Fitness Scoring) — COMPLETE
+Plan: 4/4 complete
+Status: Plan 31-04 complete
+Last activity: 2026-03-02 — Phase 31 Plan 04 complete (Ring Leader class progression evaluation — FIT-05)
 
-Progress: [███████░░░] 78% v4.0
+Progress: [████████░░] 84% v4.0
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [███████░░░] 78% v4.0
 | Phase 31-ring-leader-fitness-scoring P01 | 1 | 1 tasks | 1 files |
 | Phase 31-ring-leader-fitness-scoring P02 | 2 | 1 tasks | 1 files |
 | Phase 31-ring-leader-fitness-scoring P03 | 2 | 2 tasks | 2 files |
+| Phase 31-ring-leader-fitness-scoring P04 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -141,6 +142,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 31-03]: computeAndPersistFitness wraps entire body in try/catch, returns null on failure — run completion never blocked by fitness scoring
 - [Phase 31-03]: Fitness chained after synthesis via .then() to ensure synthesis data available before scoring; handle.stop() called synchronously regardless
 - [Phase 31-03]: mutationSuccessRate returns null if no mutations; formats as '0.000'-'1.000' string for numeric(4,3) DB column
+- [Phase 31-04]: agent_classes reused for Ring Leaders (botId=soulId, taskCategory='ring_leader') — no new table or migration needed
+- [Phase 31-04]: Qualifying run count for Artisan gate uses SQL avg of 5 JSONB soul_selection_score dimensions; only executes when basic gates pass
+- [Phase 31-04]: Class progression failure is non-fatal — own try/catch separate from fitness try/catch; logs WARN, never propagates
 
 ### Pending Todos
 
@@ -159,5 +163,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 31-03-PLAN.md
+Stopped at: Completed 31-04-PLAN.md
 Resume file: None
