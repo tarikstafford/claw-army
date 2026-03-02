@@ -6,7 +6,32 @@ import { searchSoulLibrary } from './soul-library-search';
 import { selectFromPool, applyPreDeploymentMutation } from './population-assembler';
 import type { SelectedSoul } from './population-assembler';
 import { generatePioneerPopulation } from './pioneer-generator';
+import { validateBudget } from './budget-validator';
 import type { RingLeaderMissionBrief, PopulationManifest, TaskGraphNode } from '@claw/shared-types';
+
+// ─── BudgetShortfallError ────────────────────────────────────────────────────
+
+export class BudgetShortfallError extends Error {
+  readonly shortfallCents: number;
+  readonly minimumRequiredCents: number;
+  readonly budgetCapCents: number;
+
+  constructor(params: {
+    shortfallCents: number;
+    minimumRequiredCents: number;
+    budgetCapCents: number;
+  }) {
+    super(
+      `Budget cap of ${params.budgetCapCents}c cannot fund minimum populations ` +
+      `(${params.minimumRequiredCents}c needed, shortfall: ${params.shortfallCents}c). ` +
+      `Scope down tasks or increase budget.`,
+    );
+    this.name = 'BudgetShortfallError';
+    this.shortfallCents = params.shortfallCents;
+    this.minimumRequiredCents = params.minimumRequiredCents;
+    this.budgetCapCents = params.budgetCapCents;
+  }
+}
 
 // ─── Helper: Classify task category ────────────────────────────────────────────
 
@@ -198,16 +223,70 @@ export async function assemblePopulation(
     );
   }
 
-  // ── Step 7: Persist PopulationManifest[] to DB ─────────────────────────────
+  // ── Step 7: Budget validation gate (BUDG-01 through BUDG-04) ───────────────
   console.info(
-    `[assemble-population] Persisting ${manifests.length} manifests to ring_leader_runs row=${ringLeaderRunId}`,
+    `[assemble-population] Validating budget for run=${ringLeaderRunId}, ` +
+    `budgetCapCents=${missionBrief.budgetCapCents}`,
   );
+
+  const budgetResult = validateBudget(manifests, missionBrief.budgetCapCents);
+
+  if (!budgetResult.funded) {
+    const { shortfallCents, minimumRequiredCents } = budgetResult;
+    const { budgetCapCents } = missionBrief;
+
+    console.warn(
+      `[assemble-population] BUDGET SHORTFALL: estimated minimum cost ${minimumRequiredCents}c ` +
+      `exceeds budget cap ${budgetCapCents}c (shortfall: ${shortfallCents}c)`,
+    );
+
+    // Persist failure details to ring_leader_runs.runState so API/UI consumers can surface them
+    await db
+      .update(ringLeaderRuns)
+      .set({
+        status: 'failed',
+        runState: {
+          budgetShortfall: true,
+          shortfallCents,
+          minimumRequiredCents,
+          budgetCapCents,
+          warnings: budgetResult.warnings,
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(ringLeaderRuns.id, ringLeaderRunId));
+
+    throw new BudgetShortfallError({
+      shortfallCents: shortfallCents!,
+      minimumRequiredCents: minimumRequiredCents!,
+      budgetCapCents,
+    });
+  }
+
+  // Log any tiered-reduction warnings
+  for (const warning of budgetResult.warnings) {
+    console.warn(`[assemble-population] Budget warning for run=${ringLeaderRunId}: ${warning}`);
+  }
+
+  // Use the (possibly reduced) manifests from budget validation
+  const finalManifests = budgetResult.manifests;
+
+  // ── Step 8: Persist PopulationManifest[] to DB ─────────────────────────────
+  console.info(
+    `[assemble-population] Persisting ${finalManifests.length} manifests to ring_leader_runs row=${ringLeaderRunId}`,
+  );
+
+  const runStatePayload =
+    budgetResult.warnings.length > 0
+      ? { budgetWarnings: budgetResult.warnings }
+      : undefined;
 
   await db
     .update(ringLeaderRuns)
     .set({
-      populationManifest: manifests,
+      populationManifest: finalManifests,
       status: 'spawning',
+      ...(runStatePayload !== undefined ? { runState: runStatePayload } : {}),
       updatedAt: new Date(),
     })
     .where(eq(ringLeaderRuns.id, ringLeaderRunId));
@@ -217,5 +296,5 @@ export async function assemblePopulation(
     `status transitioned assembling -> spawning`,
   );
 
-  return manifests;
+  return finalManifests;
 }

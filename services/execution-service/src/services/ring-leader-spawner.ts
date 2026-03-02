@@ -1,7 +1,7 @@
 import { db, ringLeaderRuns, executions } from '@claw/db';
 import { eq } from 'drizzle-orm';
 import type { CampaignType, RingLeaderMissionBrief, TaskGraph } from '@claw/shared-types';
-import { assemblePopulation } from './assemble-population';
+import { assemblePopulation, BudgetShortfallError } from './assemble-population';
 
 export interface SpawnRingLeaderParams {
   executionId: string;
@@ -91,12 +91,20 @@ export async function spawnRingLeader(
   // This runs asynchronously after the spawn completes — status transitions
   // from 'assembling' to 'spawning' happen inside assemblePopulation.
   assemblePopulation(ringLeaderRunId, missionBrief).catch((err) => {
-    console.error('[ring-leader-spawner] Population assembly failed:', err);
-    // Update status to 'failed' on error
-    db.update(ringLeaderRuns)
-      .set({ status: 'failed', updatedAt: new Date() })
-      .where(eq(ringLeaderRuns.id, ringLeaderRunId))
-      .catch((dbErr) => console.error('[ring-leader-spawner] Failed to update status:', dbErr));
+    if (err instanceof BudgetShortfallError) {
+      // Expected constraint — assemblePopulation already persisted status='failed' + runState details.
+      // Log at warn level, not error, since this is a user-configurable constraint, not a bug.
+      console.warn(
+        `[ring-leader-spawner] Budget shortfall for run=${ringLeaderRunId}: ${err.message}`,
+      );
+    } else {
+      // Unexpected error — log at error level and set status to 'failed'.
+      console.error('[ring-leader-spawner] Population assembly failed:', err);
+      db.update(ringLeaderRuns)
+        .set({ status: 'failed', updatedAt: new Date() })
+        .where(eq(ringLeaderRuns.id, ringLeaderRunId))
+        .catch((dbErr) => console.error('[ring-leader-spawner] Failed to update status:', dbErr));
+    }
   });
 
   return { ringLeaderRunId, missionBrief };
