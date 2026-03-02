@@ -11,6 +11,7 @@ import { adminRoutes } from './routes/admin';
 import { verdictsRoutes } from './routes/verdicts';
 import { armyBuilderRoutes } from './routes/army-builder';
 import { objectivesRoutes } from './routes/objectives';
+import { ringLeaderRoutes } from './routes/ring-leader';
 
 export async function buildApp() {
   const app = Fastify({
@@ -49,6 +50,9 @@ export async function buildApp() {
 
   // Objectives CRUD (Phase 16 — OBJ-01 through OBJ-04)
   app.register(objectivesRoutes, { prefix: '/objectives' });
+
+  // Ring Leader API — pre-flight manifest and run lookup (Phase 28 — SPAWN-07)
+  app.register(ringLeaderRoutes, { prefix: '/ring-leader' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
