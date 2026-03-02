@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 30 complete, Phase 31 next
+**Current focus:** v4.0 The Ring Leader — Phase 31 complete, Phase 32 next
 
 ## Current Position
 
 Phase: 31 of 32 (Ring Leader Fitness Scoring) — COMPLETE
 Plan: 4/4 complete
-Status: Plan 31-04 complete
-Last activity: 2026-03-02 — Phase 31 Plan 04 complete (Ring Leader class progression evaluation — FIT-05)
+Status: Phase verified and complete
+Last activity: 2026-03-02 — Phase 31 verified (5/5 must-haves passed)
 
-Progress: [████████░░] 84% v4.0
+Progress: [█████████░] 89% v4.0
 
 ## Performance Metrics
 

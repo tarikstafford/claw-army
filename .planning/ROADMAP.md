@@ -208,10 +208,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 31-01-PLAN.md — Coordination quality scoring: four dimensions with LLM-based evaluation and deterministic fallback
-- [ ] 31-02-PLAN.md — Soul selection quality scoring: five dimensions with LLM-based evaluation
-- [ ] 31-03-PLAN.md — Composite fitness computation, Akashic Library persistence, and coordination loop wiring
-- [ ] 31-04-PLAN.md — Ring Leader class progression thresholds and promotion evaluation
+- [x] 31-01-PLAN.md — Coordination quality scoring: four dimensions with LLM-based evaluation and deterministic fallback
+- [x] 31-02-PLAN.md — Soul selection quality scoring: five dimensions with LLM-based evaluation
+- [x] 31-03-PLAN.md — Composite fitness computation, Akashic Library persistence, and coordination loop wiring
+- [x] 31-04-PLAN.md — Ring Leader class progression thresholds and promotion evaluation
 
 #### Phase 32: Dashboard and Reporting
 
@@ -268,5 +268,5 @@ Plans:
 | 28. Ring Leader Agent Spawning | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 29. Real-Time Execution Coordination | v4.0 | 5/5 | Complete | 2026-03-02 |
 | 30. Run Synthesis | v4.0 | 3/3 | Complete | 2026-03-02 |
-| 31. Ring Leader Fitness Scoring | v4.0 | 0/TBD | Not started | - |
+| 31. Ring Leader Fitness Scoring | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 32. Dashboard and Reporting | v4.0 | 0/TBD | Not started | - |
