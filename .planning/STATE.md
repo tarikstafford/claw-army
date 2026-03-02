@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 26 of 32 (Soul Library Search and Population Assembly)
-Plan: 1 complete in current phase
+Plan: 2 complete in current phase
 Status: In progress
-Last activity: 2026-03-02 — Phase 26 Plan 01 complete (searchSoulLibrary implemented, tsc passes)
+Last activity: 2026-03-02 — Phase 26 Plan 02 complete (population-assembler: selectFromPool + applyPreDeploymentMutation, tsc passes)
 
 Progress: [██░░░░░░░░] 22% v4.0
 
@@ -42,6 +42,7 @@ Progress: [██░░░░░░░░] 22% v4.0
 | Phase 25-orchestrator-demotion-and-ring-leader-core P02 | 2 | 1 tasks | 1 files |
 | Phase 25-orchestrator-demotion-and-ring-leader-core P03 | 6 | 2 tasks | 2 files |
 | Phase 26-soul-library-search-and-population-assembly P01 | 2 | 1 task | 1 file |
+| Phase 26-soul-library-search-and-population-assembly P02 | 2 | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 26-01]: Negative signal exclusion via LEFT JOIN + IS NULL — single SQL pass, no subquery
 - [Phase 26-01]: drizzle db.execute<T> requires T extends Record<string, unknown>; raw query result interfaces must extend this constraint
 - [Phase 26-01]: Campaign boost uses sibling-count proxy (souls with same parentSoulId) for lineage reuse detection; simpler than counting distinct executionIds
+- [Phase 26-02]: Class priority sort uses numeric map (Artisan=0, Understudy=1, Novice=2) stable-sorted with finalRank tiebreaker within tier
+- [Phase 26-02]: Pool shortfall (fewer than requiredPopulation selected) returns partial result; caller handles via pioneer path
+- [Phase 26-02]: applyPreDeploymentMutation validates operation strictly; throws on non-substitution/amplification (SOUL-05)
 
 ### Pending Todos
 
@@ -87,5 +91,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 26-01-PLAN.md — Akashic Library search engine built (searchSoulLibrary). Ready for Phase 26 Plan 02 (population assembly).
+Stopped at: Completed 26-02-PLAN.md — Population assembler built (selectFromPool + applyPreDeploymentMutation). Ready for Phase 26 Plan 03.
 Resume file: None
