@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 29 complete, Phase 30 next
+**Current focus:** v4.0 The Ring Leader — Phase 30 in progress (Plan 1/2 complete)
 
 ## Current Position
 
-Phase: 29 of 32 (Real-Time Execution Coordination) — COMPLETE
-Plan: 5/5 complete
-Status: Phase complete, verified
-Last activity: 2026-03-02 — Phase 29 complete (all COORD requirements verified — 5/5 success criteria passed)
+Phase: 30 of 32 (Run Synthesis)
+Plan: 1/2 complete
+Status: In progress
+Last activity: 2026-03-02 — Phase 30 Plan 01 complete (run synthesis module with LLM-driven document generation)
 
-Progress: [██████░░░░] 67% v4.0
+Progress: [██████░░░░] 70% v4.0
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [██████░░░░] 67% v4.0
 | Phase 29-real-time-execution-coordination P04 | 2 | 1 task | 1 file |
 | Phase 29-real-time-execution-coordination P03 | 1 | 1 task | 1 file |
 | Phase 29-real-time-execution-coordination P05 | 6 | 2 tasks | 2 files |
+| Phase 30-run-synthesis P01 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -122,6 +123,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 29-03]: processedFailures Set marks sessionId even when handler throws to prevent infinite retry loops across poll cycles
 - [Phase 29-05]: budgetCap === 0 returns early from budget degradation — no-cap runs bypass the module entirely
 - [Phase 29-05]: Hard-stop anomaly appended on every poll cycle when tier is hard_stop (not just on transition) — ensures loop termination detection across missed cycles
+- [Phase 30-run-synthesis]: Single LLM call for all four synthesis qualitative fields; fallback synthesis persists with objectiveAchieved=false on LLM failure
+- [Phase 30-run-synthesis]: Budget variance = budgetConsumedCents - budgetCapCents; recommendedLibraryWrites includes Artisan/Understudy souls on completed tasks only
 
 ### Pending Todos
 
@@ -140,5 +143,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 29 complete and verified — all 5 plans executed, 5/5 success criteria passed
+Stopped at: Completed 30-run-synthesis-01-PLAN.md
 Resume file: None
