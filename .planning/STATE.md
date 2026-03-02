@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 ## Current Position
 
-Phase: 28 of 32 (Ring Leader Agent Spawning) — COMPLETE
-Plan: 4/4 complete
-Status: Phase complete, verified
-Last activity: 2026-03-02 — Phase 28 complete (all SPAWN requirements verified)
+Phase: 29 of 32 (Real-Time Execution Coordination) — IN PROGRESS
+Plan: 1/5 complete
+Status: Plan 01 complete — coordination polling loop and run state implemented
+Last activity: 2026-03-02 — Phase 29 Plan 01 complete (COORD-01 polling loop, run state, event logger)
 
 Progress: [█████░░░░░] 56% v4.0
 
@@ -49,6 +49,7 @@ Progress: [█████░░░░░] 56% v4.0
 | Phase 28-ring-leader-agent-spawning P01 | 2 | 2 tasks | 2 files |
 | Phase 28-ring-leader-agent-spawning P02 | 2 | 2 tasks | 2 files |
 | Phase 28-ring-leader-agent-spawning P04 | 2 | 2 tasks | 4 files |
+| Phase 29-real-time-execution-coordination P01 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 28-04]: ringLeaderTaskId is varchar(255) nullable with no FK — mission brief taskIds are opaque strings not UUIDs referencing another table
 - [Phase 28-04]: collectUpstreamOutputs is non-fatal (try/catch returns []) — upstream intelligence failure never blocks agent spawning
 - [Phase 28-04]: Task row created after spawnBot succeeds with status=claimed; openclaw-dispatcher transitions to completed/failed and populates result
+- [Phase 29-01]: activeIntervals Map decoupled from CoordinationHandle — handle.stop() calls stopCoordinationLoop which looks up interval by runId; avoids exposing intervalId on public interface
+- [Phase 29-01]: objectiveDriftScore defaults to 0 and anomalies defaults to [] — Plan 29-04 computes real drift; modules append anomalies via ctx.runState.anomalies before persistence
+- [Phase 29-01]: No-op CoordinationHandle returned if session registry not found at loop start — callers never need to null-check; error is logged
 
 ### Pending Todos
 
@@ -120,5 +124,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 28 complete and verified — all 4 plans executed, 5/5 success criteria passed
+Stopped at: Completed 29-01-PLAN.md — coordination polling loop (COORD-01) with run state, event logger, and publishRingLeaderEvent
 Resume file: None
