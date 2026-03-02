@@ -5,6 +5,11 @@ import { buildAgentSessionPrompt } from './agent-session-builder';
 import { spawnBot } from '../orchestrator/bot-orchestrator';
 import { AGENT_COST_CENTS } from './budget-validator';
 import type { RingLeaderMissionBrief, PopulationManifest } from '@claw/shared-types';
+import { startCoordinationLoop } from './coordination-loop';
+import { createIntelligenceRouter } from './intelligence-router';
+import { createFailureReallocator } from './failure-reallocator';
+import { createDriftDetector } from './drift-detector';
+import { createBudgetDegradation } from './budget-degradation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -407,6 +412,23 @@ export async function spawnAgentsForRun(params: SpawnParams): Promise<SpawnResul
     `[agent-spawner] All waves complete for run=${ringLeaderRunId}: ` +
     `totalAgentsSpawned=${totalAgentsSpawned}, waves=${waves.length}, ` +
     `status=coordinating`,
+  );
+
+  // ── Step 4: Start coordination loop with all coordination modules ───────────
+  startCoordinationLoop({
+    runId: ringLeaderRunId,
+    executionId,
+    missionBrief,
+    modules: [
+      createIntelligenceRouter(),
+      createFailureReallocator(),
+      createDriftDetector(),
+      createBudgetDegradation(),
+    ],
+  });
+
+  console.info(
+    `[agent-spawner] Coordination loop started for run=${ringLeaderRunId}`,
   );
 
   return {
