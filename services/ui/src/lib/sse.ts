@@ -12,6 +12,11 @@ const EVENT_TYPES = [
   'guardrail_triggered',
   'billing_event',
   'budget_exceeded',
+  'ring_leader_status_change',
+  'intelligence_routing',
+  'reallocation',
+  'reanchoring',
+  'budget_degradation',
 ] as const;
 
 export function connectSSE(
