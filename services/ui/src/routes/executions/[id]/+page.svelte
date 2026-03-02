@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { browser } from '$app/environment';
-  import { getExecution, getExecutionMetrics, getExecutionBots, getExecutionPendingVerdicts } from '$lib/api';
+  import { getExecution, getExecutionMetrics, getExecutionBots, getExecutionPendingVerdicts, getRingLeaderManifest, getRingLeaderState } from '$lib/api';
   import { connectSSE } from '$lib/sse';
-  import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot, VerdictDetail } from '$lib/types';
+  import type { Execution, ExecutionMetrics, ActivityEvent, ExecutionBot, VerdictDetail, RingLeaderManifestResponse, RingLeaderStateResponse } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
   import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
   import VerdictConfirmPanel from '$lib/components/VerdictConfirmPanel.svelte';
@@ -22,6 +22,8 @@
   let selectedBotId = $state<string | null>(null);
   let pendingVerdicts = $state<VerdictDetail[]>([]);
   let selectedVerdict = $state<VerdictDetail | null>(null);
+  let manifest = $state<RingLeaderManifestResponse | null>(null);
+  let ringLeaderState = $state<RingLeaderStateResponse | null>(null);
 
   // Initial load
   $effect(() => {
@@ -29,6 +31,31 @@
     getExecution(executionId)
       .then(data => { execution = data; loading = false; })
       .catch(err => { error = (err as Error).message; loading = false; });
+  });
+
+  // Population manifest — fetch once on mount (silently ignore non-Ring-Leader 404s)
+  $effect(() => {
+    if (!browser) return;
+    getRingLeaderManifest(executionId).then(m => { manifest = m; }).catch(() => {});
+  });
+
+  // Ring Leader state polling — fetch immediately and every 5 seconds while non-terminal
+  $effect(() => {
+    if (!browser) return;
+    const isTerminal =
+      execution?.status === 'completed' ||
+      execution?.status === 'failed' ||
+      execution?.status === 'stopped';
+
+    getRingLeaderState(executionId).then(s => { ringLeaderState = s; }).catch(() => {});
+
+    if (isTerminal) return;
+
+    const interval = setInterval(() => {
+      getRingLeaderState(executionId).then(s => { ringLeaderState = s; }).catch(() => {});
+    }, 5000);
+
+    return () => clearInterval(interval);
   });
 
   // Metrics + bots polling — fetch immediately and then every 5 seconds
@@ -133,6 +160,32 @@
     }
   }
 
+  function formatElapsed(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}m ${s}s`;
+  }
+
+  function driftClass(score: number): string {
+    if (score > 0.35) return 'drift-error';
+    if (score >= 0.20) return 'drift-amber';
+    return 'drift-teal';
+  }
+
+  function taskStatusClass(status: string): string {
+    switch (status) {
+      case 'active':
+      case 'completing':
+      case 'complete': return 'task-status-teal';
+      case 'failed':   return 'task-status-error';
+      default:         return 'task-status-faint';
+    }
+  }
+
+  function truncate(str: string, max: number): string {
+    return str.length > max ? str.slice(0, max - 1) + '…' : str;
+  }
+
   function statusClass(status: string): string {
     switch (status) {
       case 'running': return 'status-running';
@@ -185,6 +238,108 @@
         </div>
       </div>
     </section>
+
+    <!-- Population Manifest panel (DASH-01) -->
+    <section class="manifest-section">
+      <h3>Population Manifest</h3>
+      {#if manifest && manifest.manifests.length > 0}
+        <div class="manifest-cards">
+          {#each manifest.manifests as task (task.taskId)}
+            <div class="manifest-card">
+              <div class="manifest-card-header">
+                <span class="manifest-task-desc">{task.taskDescription}</span>
+                {#if task.pioneerFlag}
+                  <span class="pioneer-badge">Pioneer</span>
+                {/if}
+              </div>
+              <div class="soul-table">
+                <div class="soul-table-head">
+                  <span>Soul ID</span>
+                  <span>Class</span>
+                  <span>Source</span>
+                  <span class="soul-col-rationale">Rationale</span>
+                  <span>Score</span>
+                </div>
+                {#each task.assignedSouls as soul (soul.soulId)}
+                  <div class="soul-row">
+                    <span class="soul-id-mono">{soul.soulId.slice(0, 8)}</span>
+                    <span><SoulTierBadge agentClass={soul.agentClass} /></span>
+                    <span class="source-pill source-{soul.source}">{soul.source}</span>
+                    <span class="soul-rationale">{truncate(soul.selectionRationale, 120)}</span>
+                    <span class="diff-score">{soul.differentiationScore.toFixed(2)}</span>
+                  </div>
+                {/each}
+              </div>
+              {#if task.varianceIntent}
+                <p class="variance-intent"><em>{task.varianceIntent}</em></p>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {:else}
+        <p class="empty-feed">No population manifest available.</p>
+      {/if}
+    </section>
+
+    <!-- Ring Leader state panel (DASH-02) -->
+    {#if ringLeaderState?.runState}
+      {@const runState = ringLeaderState.runState}
+      <section class="ring-leader-section">
+        <h3>Ring Leader</h3>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Budget Consumed</span>
+            <span class="metric-value">${(runState.budgetConsumedCents / 100).toFixed(2)}</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Drift Score</span>
+            <span class="metric-value {driftClass(runState.objectiveDriftScore)}">{runState.objectiveDriftScore.toFixed(2)}</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Elapsed</span>
+            <span class="metric-value">{formatElapsed(runState.elapsedTimeSeconds)}</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Anomalies</span>
+            <span class="metric-value {runState.anomalies.length > 0 ? 'anomaly-error' : 'anomaly-teal'}">{runState.anomalies.length}</span>
+          </div>
+        </div>
+
+        <!-- Per-task state summary -->
+        {#if Object.keys(runState.taskStates).length > 0}
+          <div class="task-states">
+            {#each Object.entries(runState.taskStates) as [taskId, state] (taskId)}
+              <div class="task-state-row">
+                <span class="task-id-mono">{taskId.slice(0, 12)}</span>
+                <span class="task-status-pill {taskStatusClass(state.status)}">{state.status}</span>
+                <span class="task-agents">
+                  <span class="ta-active">{state.activeAgents.length} active</span>
+                  <span class="ta-sep">·</span>
+                  <span class="ta-done">{state.completedAgents.length} done</span>
+                  {#if state.failedAgents.length > 0}
+                    <span class="ta-sep">·</span>
+                    <span class="ta-fail">{state.failedAgents.length} fail</span>
+                  {/if}
+                </span>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        <!-- Anomalies list (up to 5) -->
+        {#if runState.anomalies.length > 0}
+          <div class="anomalies-list">
+            <span class="anomalies-label">Anomalies</span>
+            {#each runState.anomalies.slice(0, 5) as anomaly, i (i)}
+              <div class="anomaly-item">{anomaly}</div>
+            {/each}
+            {#if runState.anomalies.length > 5}
+              <div class="anomaly-more">+{runState.anomalies.length - 5} more</div>
+            {/if}
+          </div>
+        {/if}
+      </section>
+    {/if}
 
     <!-- Link to report when completed -->
     {#if execution.status === 'completed'}
@@ -674,6 +829,300 @@
   @keyframes pulse-verdict {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.65; }
+  }
+
+  /* ── Population Manifest panel ── */
+  .manifest-section {
+    margin-bottom: 32px;
+  }
+
+  .manifest-section h3 {
+    margin: 0 0 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .manifest-section h3::after {
+    content: '';
+    display: block;
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-mid), transparent);
+  }
+
+  .manifest-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .manifest-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    background: var(--bg-card);
+  }
+
+  .manifest-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .manifest-task-desc {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .pioneer-badge {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    padding: 3px 8px;
+    border-radius: 100px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    border: 1px solid rgba(251,191,36,0.22);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .soul-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .soul-table-head {
+    display: grid;
+    grid-template-columns: 90px 90px 80px 1fr 60px;
+    gap: 12px;
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+    background: rgba(148,110,255,0.04);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .soul-row {
+    display: grid;
+    grid-template-columns: 90px 90px 80px 1fr 60px;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .soul-row:last-child {
+    border-bottom: none;
+  }
+
+  .soul-id-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .source-pill {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    padding: 3px 7px;
+    border-radius: 100px;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  .source-library  { background: var(--teal-dim);   color: var(--teal);          border: 1px solid rgba(45,212,191,0.20);  }
+  .source-generated { background: var(--violet-dim); color: var(--violet-bright); border: 1px solid rgba(124,58,237,0.20);  }
+  .source-mutated  { background: var(--amber-dim);  color: var(--amber);         border: 1px solid rgba(251,191,36,0.20);  }
+
+  .soul-rationale {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .diff-score {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .variance-intent {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-faint);
+    font-style: italic;
+  }
+
+  /* ── Ring Leader state panel ── */
+  .ring-leader-section {
+    margin-bottom: 32px;
+  }
+
+  .ring-leader-section h3 {
+    margin: 0 0 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ring-leader-section h3::after {
+    content: '';
+    display: block;
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-mid), transparent);
+  }
+
+  .drift-teal  { color: var(--teal) !important; }
+  .drift-amber { color: var(--amber) !important; }
+  .drift-error { color: var(--error) !important; }
+  .anomaly-teal  { color: var(--teal) !important; }
+  .anomaly-error { color: var(--error) !important; }
+
+  .task-states {
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .task-state-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .task-state-row:last-child {
+    border-bottom: none;
+  }
+
+  .task-id-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    min-width: 100px;
+    flex-shrink: 0;
+  }
+
+  .task-status-pill {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    padding: 3px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .task-status-teal  { background: var(--teal-dim);   color: var(--teal);       border: 1px solid rgba(45,212,191,0.22); }
+  .task-status-error { background: var(--error-dim);  color: var(--error);      border: 1px solid rgba(248,113,113,0.22); }
+  .task-status-faint { background: transparent;       color: var(--text-faint); border: 1px solid var(--border); }
+
+  .task-agents {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--text-faint);
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .ta-active { color: var(--teal); }
+  .ta-done   { color: var(--text-muted); }
+  .ta-fail   { color: var(--error); }
+  .ta-sep    { color: var(--border-mid); }
+
+  .anomalies-list {
+    margin-top: 14px;
+    border: 1px solid rgba(248,113,113,0.20);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--error-dim);
+  }
+
+  .anomalies-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--error);
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(248,113,113,0.15);
+    background: rgba(248,113,113,0.06);
+  }
+
+  .anomaly-item {
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(248,113,113,0.10);
+    line-height: 1.45;
+  }
+
+  .anomaly-item:last-child {
+    border-bottom: none;
+  }
+
+  .anomaly-more {
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 300;
+    color: var(--error);
+    letter-spacing: 0.06em;
   }
 
   /* ── Activity feed ── */
