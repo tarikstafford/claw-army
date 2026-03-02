@@ -133,23 +133,49 @@ function computeSpawnWaves(taskIds: string[], dag: Record<string, string[]>): st
 /**
  * Collect completed task outputs for a set of upstream taskIds.
  *
- * NOTE: The current tasks table does not have a `ringLeaderTaskId` column linking
- * rows back to mission brief taskIds. Until that column is added (a future schema
- * migration), upstream outputs cannot be reliably queried by taskId. This function
- * returns an empty array, which causes buildAgentSessionPrompt to omit the upstream
- * intelligence section. The DAG ordering is still respected — tasks still wait for
- * upstream waves to spawn before they themselves spawn.
+ * Queries the tasks table for rows where ring_leader_task_id matches one of the
+ * upstream mission brief taskIds and status is 'completed' with a non-null result.
+ * Returns the results as { taskId, summary } pairs for injection into downstream
+ * agent session prompts via the "## Upstream Intelligence" section.
  *
- * TODO(28-03+): Add `ring_leader_task_id` varchar column to tasks table and populate
- * it during task creation so upstream outputs can be queried here.
- *
- * @param _upstreamTaskIds - upstream taskIds from the mission brief DAG
- * @returns Empty array (no upstream outputs until schema supports it)
+ * @param upstreamTaskIds - upstream taskIds from the mission brief DAG
+ * @returns Array of { taskId, summary } for completed upstream tasks with results
  */
 async function collectUpstreamOutputs(
-  _upstreamTaskIds: string[],
+  upstreamTaskIds: string[],
 ): Promise<Array<{ taskId: string; summary: string }>> {
-  return [];
+  if (upstreamTaskIds.length === 0) {
+    return [];
+  }
+
+  try {
+    const rows = await db
+      .select({ ringLeaderTaskId: tasks.ringLeaderTaskId, result: tasks.result })
+      .from(tasks)
+      .where(
+        and(
+          inArray(tasks.ringLeaderTaskId, upstreamTaskIds),
+          eq(tasks.status, 'completed'),
+        ),
+      );
+
+    return rows
+      .filter((row): row is { ringLeaderTaskId: string; result: string } =>
+        row.ringLeaderTaskId !== null &&
+        row.result !== null &&
+        row.result.trim().length > 0,
+      )
+      .map((row) => ({
+        taskId: row.ringLeaderTaskId,
+        summary: row.result,
+      }));
+  } catch (err) {
+    console.warn(
+      '[agent-spawner] collectUpstreamOutputs failed — upstream intelligence will be omitted:',
+      (err as Error).message,
+    );
+    return [];
+  }
 }
 
 // ─── Main export: spawnAgentsForRun ──────────────────────────────────────────
@@ -299,6 +325,16 @@ export async function spawnAgentsForRun(params: SpawnParams): Promise<SpawnResul
 
           // Spawn bot VM with full assembled session prompt as soulContent (SPAWN-05, SPAWN-06)
           const { botId } = await spawnBot(executionId, soulId, sessionPrompt.fullPrompt);
+
+          // Create task row linking the mission brief taskId to this bot assignment (SPAWN-03)
+          await db.insert(tasks).values({
+            executionId,
+            description: taskNode.description,
+            status: 'claimed',
+            claimedByBotId: botId,
+            ringLeaderTaskId: taskId,
+            attemptCount: 1,
+          });
 
           // Register in active session registry
           const activeSession: ActiveSession = {
