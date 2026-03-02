@@ -227,11 +227,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 32-01: Pre-flight population manifest UI — soul assignments, classes, sources, selection rationale
-- [ ] 32-02: Live execution Ring Leader state panel — budget, task states, drift score, anomalies
-- [ ] 32-03: Activity feed Ring Leader coordination events — routing, reallocation, reanchoring, budget warnings
-- [ ] 32-04: Post-run Ring Leader synthesis and fitness score panels
-
+- [ ] 32-01-PLAN.md — Backend API endpoints + SSE relay for Ring Leader data
+- [ ] 32-02-PLAN.md — Pre-flight population manifest UI and live Ring Leader state panel
+- [ ] 32-03-PLAN.md — Activity feed Ring Leader coordination events formatting
+- [ ] 32-04-PLAN.md — Post-run Ring Leader synthesis and fitness score panels
 ---
 
 ## Progress
