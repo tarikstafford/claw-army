@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 25 of 32 (Orchestrator Demotion and Ring Leader Core)
-Plan: 2 of 3 in current phase
+Plan: 3 of 3 in current phase — PHASE COMPLETE
 Status: In progress
-Last activity: 2026-03-02 — Plan 25-02 complete (preflight-validator.ts + tool grant + budget validation, 1 task, tsc clean)
+Last activity: 2026-03-02 — Plan 25-03 complete (ring-leader-spawner.ts + refactored POST /executions, Orchestrator demoted to thin pre-flight layer, 2 tasks, tsc clean)
 
 Progress: [█░░░░░░░░░] 11% v4.0
 
@@ -40,6 +40,7 @@ Progress: [█░░░░░░░░░] 11% v4.0
 | Phase 24-ring-leader-schema-and-shared-types P02 | 2 | 2 tasks | 4 files |
 | Phase 25-orchestrator-demotion-and-ring-leader-core P01 | 3 | 2 tasks | 3 files |
 | Phase 25-orchestrator-demotion-and-ring-leader-core P02 | 2 | 1 tasks | 1 files |
+| Phase 25-orchestrator-demotion-and-ring-leader-core P03 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 25]: validateTaskGraphDAG exported standalone from task-graph-parser.ts so plan 25-02 pre-flight can use it without re-importing the parser
 - [Phase 25]: All preflight validation checks run and errors accumulate (fail-all not fail-fast) so callers see full constraint picture in one response
 - [Phase 25]: budgetCapCents=0 skips budget check to preserve v1.0 no-cap behavior; ESTIMATED_AGENT_COST_CENTS defaults to 50c (placeholder until Phase 27)
+- [Phase 25]: Mission brief runId uses DB-generated UUID: insert ring_leader_runs first with empty brief, then update with full brief including runId
+- [Phase 25]: POST /executions pre-flight validation runs synchronously before 201 response so failures return 400 with full constraint details without creating any DB rows
 
 ### Pending Todos
 
@@ -79,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Plan 25-02 complete — preflight-validator.ts + validatePreFlight + PreFlightResult + PreFlightError. Ready for plan 25-03 (mission brief construction).
+Stopped at: Plan 25-03 complete — ring-leader-spawner.ts + refactored POST /executions. Phase 25 complete. Ready for Phase 26 (Ring Leader soul selection and population assembly).
 Resume file: None
