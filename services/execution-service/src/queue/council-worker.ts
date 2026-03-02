@@ -239,6 +239,9 @@ async function councilProcessor(job: Job<CouncilJobData>): Promise<void> {
     // Step 1: Load context from DB
     const context = await loadCouncilContext(executionId, botId, soulId);
 
+    // SYNTH-05: Pass Ring Leader synthesis through to CouncilContext
+    context.ringLeaderSynthesis = job.data.ringLeaderSynthesis ?? null;
+
     // Step 2: Run all three judges in parallel (CNCL-02)
     // No judge sees another's output before aggregation.
     const [performanceOutput, soulOutput, devilOutput] = await Promise.all([

@@ -1,17 +1,20 @@
 import { Queue } from 'bullmq';
 import { queueConnection } from './task-queue';
+import type { RingLeaderSynthesis } from '@claw/shared-types';
 
 // Queue name used by both producer and council worker — must match on both sides.
 export const COUNCIL_QUEUE_NAME = 'council-queue';
 
 /**
  * Data carried by each council evaluation job.
- * Identifies the execution and bot to be evaluated, plus the optional soul ID.
+ * Identifies the execution and bot to be evaluated, plus the optional soul ID
+ * and the Ring Leader synthesis document (SYNTH-05).
  */
 export interface CouncilJobData {
   executionId: string;
   botId: string;
   soulId: string | null;
+  ringLeaderSynthesis?: RingLeaderSynthesis | null;  // SYNTH-05: synthesis as primary input
 }
 
 /**
@@ -46,6 +49,7 @@ export interface CouncilContext {
     metricName: string;
     metricValue: string;               // numeric from DB
   }>;
+  ringLeaderSynthesis?: RingLeaderSynthesis | null;  // SYNTH-05: Ring Leader synthesis as primary context
 }
 
 /**
