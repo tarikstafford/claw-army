@@ -1,4 +1,4 @@
-import { db, ringLeaderFitness } from '@claw/db';
+import { db, ringLeaderFitness, ringLeaderRuns } from '@claw/db';
 import type {
   RingLeaderMissionBrief,
   RingLeaderRunState,
@@ -7,8 +7,10 @@ import type {
   RingLeaderFitnessScore,
 } from '@claw/shared-types';
 import { FITNESS_CATEGORY_WEIGHTS } from '@claw/shared-types';
+import { eq } from 'drizzle-orm';
 import { scoreCoordinationQuality } from './coordination-scorer';
 import { scoreSoulSelectionQuality } from './soul-selection-scorer';
+import { evaluateRingLeaderPromotion } from './ring-leader-class-progression';
 import type { CoordinationLogEntry } from './coordination-events';
 
 // ─── Params Interface ──────────────────────────────────────────────────────────
@@ -21,6 +23,21 @@ export interface FitnessParams {
   missionBrief: RingLeaderMissionBrief;
   runState: RingLeaderRunState;
   coordinationLog: CoordinationLogEntry[];
+}
+
+// ─── Helper: Resolve soul ID for a ring leader run ────────────────────────────
+
+/**
+ * Fetch the soulId for a Ring Leader run.
+ * Returns null if the run has no assigned soul (early phases, test runs).
+ */
+async function getSoulIdForRun(runId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ soulId: ringLeaderRuns.soulId })
+    .from(ringLeaderRuns)
+    .where(eq(ringLeaderRuns.id, runId))
+    .limit(1);
+  return row?.soulId ?? null;
 }
 
 // ─── Library Search Query Derivation ──────────────────────────────────────────
@@ -169,7 +186,29 @@ export async function computeAndPersistFitness(
       mutationSuccessRate: mutationRate,
     });
 
-    // ── Step 5: Log success ───────────────────────────────────────────────────
+    // ── Step 5: Evaluate Ring Leader class progression (non-fatal) ───────────
+    try {
+      const soulId = await getSoulIdForRun(runId);
+      if (soulId) {
+        const promotionResult = await evaluateRingLeaderPromotion({
+          soulId,
+          ringLeaderRunId: runId,
+          compositeScore,
+        });
+        if (promotionResult.promoted) {
+          console.info(
+            `[ring-leader-fitness] Ring Leader promoted: ${promotionResult.previousClass} -> ${promotionResult.newClass} after ${promotionResult.runCount} runs`,
+          );
+        }
+      }
+    } catch (promotionErr) {
+      console.warn(
+        `[ring-leader-fitness] Class progression evaluation failed for runId=${runId} — non-fatal:`,
+        (promotionErr as Error).message,
+      );
+    }
+
+    // ── Step 6: Log success ───────────────────────────────────────────────────
     console.info(
       `[ring-leader-fitness] Persisted fitness for runId=${runId} ` +
         `composite=${compositeScore} ` +
