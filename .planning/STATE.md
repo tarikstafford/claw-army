@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 33 of 40 (Execution Data Model Fixes)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-03-02 — Completed 33-01: llmProvider and allowedDomains columns added to executions table
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-03-02 — Completed 33-02: Per-execution domain filtering wired into Tool Gateway proxy
 
-Progress: [█░░░░░░░░░] 10% (v5.0, 1/10 plans complete)
+Progress: [██░░░░░░░░] 20% (v5.0, 2/10 plans complete)
 
 ## Performance Metrics
 
@@ -27,7 +27,7 @@ Progress: [█░░░░░░░░░] 10% (v5.0, 1/10 plans complete)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 33 (Execution Data Model Fixes) | 1 | 2 min | 2 min |
+| 33 (Execution Data Model Fixes) | 2 | 4 min | 2 min |
 
 *Updated after each plan completion*
 
@@ -41,6 +41,11 @@ v5.0 decisions (33-01):
 - llmProvider validated at app level only (not DB enum) to avoid migration churn when adding providers
 - allowedDomains null=use global PROXY_DOMAIN_ALLOWLIST, []=allow all — semantically distinct
 - Migration 0013 uses ADD COLUMN IF NOT EXISTS for idempotency (consistent with 0008-0010)
+
+v5.0 decisions (33-02):
+- Duplex type used for CONNECT socket parameter — Node.js server 'connect' event emits Duplex not net.Socket
+- async proxy handlers wrapped with .catch() at call sites (server.on and setNotFoundHandler)
+- X-Execution-Id header injection into bot VM HTTP_PROXY deferred to Phase 35+
 
 v5.0 phase ordering rationale:
 - Phase 33 before 35: `llmProvider` and `allowedDomains` schema changes must exist before form fields can submit them
@@ -64,5 +69,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 33-01-PLAN.md — ready to execute 33-02
+Stopped at: Completed 33-02-PLAN.md — Phase 33 complete, ready for Phase 34
 Resume file: None
