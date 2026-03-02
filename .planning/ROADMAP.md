@@ -205,13 +205,13 @@ Plans:
   3. Composite Ring Leader fitness score weights coordination at 60% and soul selection at 40%.
   4. Ring Leader Akashic Library entry contains: soul_selection_log, library_search_queries, soul_selection_score, selection_retrospective, pioneer_tasks_handled, mutation_operations_applied, mutation_success_rate.
   5. Ring Leader class progression enforces thresholds: Novice to Understudy requires 4 runs + 0.68 confidence; Understudy to Artisan requires 9 runs + 0.85 confidence + soul selection score above 0.75 in at least 6 qualifying runs.
-**Plans:** TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 31-01: Coordination quality scoring — four dimensions, weighted aggregation
-- [ ] 31-02: Soul selection quality scoring by Soul Analyst — five dimensions
-- [ ] 31-03: Composite fitness score computation and Ring Leader Akashic Library write
-- [ ] 31-04: Ring Leader promotion threshold evaluation and class progression
+- [ ] 31-01-PLAN.md — Coordination quality scoring: four dimensions with LLM-based evaluation and deterministic fallback
+- [ ] 31-02-PLAN.md — Soul selection quality scoring: five dimensions with LLM-based evaluation
+- [ ] 31-03-PLAN.md — Composite fitness computation, Akashic Library persistence, and coordination loop wiring
+- [ ] 31-04-PLAN.md — Ring Leader class progression thresholds and promotion evaluation
 
 #### Phase 32: Dashboard and Reporting
 
@@ -224,7 +224,7 @@ Plans:
   3. Activity feed surfaces Ring Leader coordination events in real time: intelligence routing, reallocation decisions, reanchoring signals, and budget degradation warnings.
   4. Post-run report includes Ring Leader synthesis: soul selection retrospective and coordination self-assessment sections.
   5. Post-run report shows Ring Leader fitness scores with coordination and soul selection dimension breakdowns visible.
-**Plans:** TBD
+**Plans:** 4 plans
 
 Plans:
 - [ ] 32-01: Pre-flight population manifest UI — soul assignments, classes, sources, selection rationale
