@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 27: Budget Validation and Population Sizing
+**Current focus:** v4.0 The Ring Leader — Phase 28: Ring Leader Agent Spawning
 
 ## Current Position
 
-Phase: 27 of 32 (Budget Validation and Population Sizing)
-Plan: 2 of 2 in current phase (PHASE COMPLETE)
-Status: Phase 27 complete
-Last activity: 2026-03-02 — Phase 27 Plan 02 complete (budget validation wired into pipeline, BudgetShortfallError, runState JSONB persistence)
+Phase: 28 of 32 (Ring Leader Agent Spawning)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-02 — Phase 27 complete (2/2 plans, verified passed 4/4 must-haves)
 
-Progress: [███░░░░░░░] 33% v4.0
+Progress: [████░░░░░░] 44% v4.0
 
 ## Performance Metrics
 
@@ -103,5 +103,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 27-02-PLAN.md — Budget validation wired into population assembly pipeline; BudgetShortfallError propagates with runState JSONB persistence; phase 27 complete.
+Stopped at: Phase 27 complete — Budget validation and population sizing verified. Ready to plan Phase 28.
 Resume file: None

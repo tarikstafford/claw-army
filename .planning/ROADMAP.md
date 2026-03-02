@@ -134,8 +134,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 27-01-PLAN.md — TDD: budget-validator module with cost estimation, tiered reduction, and minimum population guard
-- [ ] 27-02-PLAN.md — Wire budget validation into population assembly pipeline and surface constraint failures
+- [x] 27-01-PLAN.md — TDD: budget-validator module with cost estimation, tiered reduction, and minimum population guard
+- [x] 27-02-PLAN.md — Wire budget validation into population assembly pipeline and surface constraint failures
 
 #### Phase 28: Ring Leader Agent Spawning
 
@@ -264,7 +264,7 @@ Plans:
 | 24. Ring Leader Schema and Shared Types | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 26. Soul Library Search and Population Assembly | v4.0 | 3/3 | Complete | 2026-03-02 |
-| 27. Budget Validation and Population Sizing | v4.0 | 0/TBD | Not started | - |
+| 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 28. Ring Leader Agent Spawning | v4.0 | 0/TBD | Not started | - |
 | 29. Real-Time Execution Coordination | v4.0 | 0/TBD | Not started | - |
 | 30. Run Synthesis | v4.0 | 0/TBD | Not started | - |
