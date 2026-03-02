@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 25 of 32 (Orchestrator Demotion and Ring Leader Core)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — Phase 24 complete (2/2 plans, verified passed 8/8 must-haves)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-03-02 — Plan 25-01 complete (task-graph-parser + planner.service update, 2 tasks, tsc clean)
 
 Progress: [█░░░░░░░░░] 11% v4.0
 
@@ -38,6 +38,7 @@ Progress: [█░░░░░░░░░] 11% v4.0
 *Updated after each plan completion*
 | Phase 24-ring-leader-schema-and-shared-types P01 | 2 | 2 tasks | 5 files |
 | Phase 24-ring-leader-schema-and-shared-types P02 | 2 | 2 tasks | 4 files |
+| Phase 25-orchestrator-demotion-and-ring-leader-core P01 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -54,6 +55,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 24-01]: JSONB used for all Ring Leader domain documents (missionBrief, populationManifest, runState, synthesis, scoring breakdowns) to avoid schema churn as types evolve
 - [Phase 24-02]: Used `import type` for UUID/Cents in ring-leader.ts (zero runtime overhead); all numerical constants exported to prevent magic numbers in downstream phases
 - [Phase 24-02]: Zod event schemas follow same discriminated union pattern as soul-lifecycle-events.ts for consistency
+- [Phase 25]: resolveModel extracted to lib/resolve-model.ts to avoid duplication between planner.service.ts and task-graph-parser.ts
+- [Phase 25]: planObjective (flat) kept for backward compat; planObjectiveAsTaskGraph is new structured export; route handler migration deferred to plan 25-03
+- [Phase 25]: validateTaskGraphDAG exported standalone from task-graph-parser.ts so plan 25-02 pre-flight can use it without re-importing the parser
 
 ### Pending Todos
 
@@ -72,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 24 complete — DB schema + shared types + event schemas verified. Ready to plan Phase 25.
+Stopped at: Plan 25-01 complete — task-graph-parser.ts + validateTaskGraphDAG + planObjectiveAsTaskGraph + resolve-model.ts. Ready for plan 25-02 (pre-flight validation).
 Resume file: None
