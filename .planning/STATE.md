@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 32 of 32 (Dashboard and Reporting) — IN PROGRESS
-Plan: 1/4 complete
-Status: Plan 32-01 complete — Ring Leader data layer (endpoints + SSE + UI types)
-Last activity: 2026-03-02 — Phase 32 Plan 01 complete (2/2 tasks, 5 files)
+Plan: 2/4 complete
+Status: Plan 32-02 complete — Population manifest panel (DASH-01) and Ring Leader state panel (DASH-02) added to execution detail page
+Last activity: 2026-03-02 — Phase 32 Plan 02 complete (1/1 tasks, 1 file)
 
 Progress: [█████████░] 89% v4.0
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 89% v4.0
 | Phase 31-ring-leader-fitness-scoring P03 | 2 | 2 tasks | 2 files |
 | Phase 31-ring-leader-fitness-scoring P04 | 2 | 2 tasks | 2 files |
 | Phase 32-dashboard-and-reporting P01 | 3 | 2 tasks | 5 files |
+| Phase 32-dashboard-and-reporting P02 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -149,6 +150,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 32-01]: runState returns null (not 404) when ring_leader_run exists but coordination not started — UI can distinguish phases without error handling
 - [Phase 32-01]: Ring Leader SSE events forwarded via existing per-connection subscription fan-out — RING_LEADER_EVENTS_TOPIC added to topicNames array in sse.ts
 - [Phase 32-01]: fitness.compositeScore cast via Number() because Drizzle returns numeric column as string from ring_leader_fitness table
+- [Phase 32-02]: Population manifest panel always renders (shows empty-state message) to preserve visual space for non-Ring-Leader executions
+- [Phase 32-02]: Ring Leader state panel hidden entirely when runState is null — prevents empty skeleton for pre-coordination or non-Ring-Leader executions
+- [Phase 32-02]: Drift color thresholds match DRIFT_REANCHORING_THRESHOLD: teal <0.20, amber 0.20-0.35, error >0.35
 
 ### Pending Todos
 
@@ -167,5 +171,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 32-01-PLAN.md
+Stopped at: Completed 32-02-PLAN.md
 Resume file: None
