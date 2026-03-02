@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 28 of 32 (Ring Leader Agent Spawning)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — Phase 27 complete (2/2 plans, verified passed 4/4 must-haves)
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-03-02 — Phase 28 Plan 01 complete (session JWT + agent session prompt builder)
 
 Progress: [████░░░░░░] 44% v4.0
 
@@ -46,6 +46,7 @@ Progress: [████░░░░░░] 44% v4.0
 | Phase 26-soul-library-search-and-population-assembly P03 | 3 | 2 tasks | 3 files |
 | Phase 27-budget-validation-and-population-sizing P01 | 2 | 2 tasks | 2 files |
 | Phase 27-budget-validation-and-population-sizing P02 | 2 | 1 task | 2 files |
+| Phase 28-ring-leader-agent-spawning P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 27-01]: BudgetValidationResult.manifests always populated even when funded=false so callers can inspect maximally-reduced state
 - [Phase 27]: BudgetShortfallError defined in assemble-population.ts (not budget-validator.ts) — pipeline error, not validation concern
 - [Phase 27]: Budget shortfall DB write in assemblePopulation (not spawner) — assemblePopulation has all details at throw site
+- [Phase 28]: null populationManifest returns empty manifests array (not 404) so assembling runs are still accessible with current status
+- [Phase 28]: ManifestResponseSchema shared between both ring-leader endpoints for consistent response shape
 
 ### Pending Todos
 
