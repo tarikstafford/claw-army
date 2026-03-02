@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 30 complete (Plan 2/2 complete)
+**Current focus:** v4.0 The Ring Leader — Phase 30 complete (Plan 3/3 complete, gap closure)
 
 ## Current Position
 
 Phase: 30 of 32 (Run Synthesis)
-Plan: 2/2 complete
+Plan: 3/3 complete
 Status: Phase complete
-Last activity: 2026-03-02 — Phase 30 Plan 02 complete (synthesis wired into coordination loop and council pipeline)
+Last activity: 2026-03-02 — Phase 30 Plan 03 complete (runtime-limit termination added to coordination loop tick())
 
 Progress: [██████░░░░] 70% v4.0
 
@@ -56,6 +56,7 @@ Progress: [██████░░░░] 70% v4.0
 | Phase 29-real-time-execution-coordination P05 | 6 | 2 tasks | 2 files |
 | Phase 30-run-synthesis P01 | 2 | 1 tasks | 1 files |
 | Phase 30-run-synthesis P02 | 3 | 2 tasks | 5 files |
+| Phase 30-run-synthesis P03 | 1 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,7 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 30-02]: Synthesis is fire-and-forget from coordination loop; generateRunSynthesis handles its own DB persistence and status transition to completed
 - [Phase 30-02]: ringLeaderSynthesis is optional/nullable in CouncilJobData and CouncilContext for backward compat with non-Ring-Leader executions
 - [Phase 30-02]: Synthesis section prepended (not appended) to Performance Judge prompt to satisfy SYNTH-05 primary input requirement
+- [Phase 30-03]: isRuntimeLimitReached() only evaluates when isRunComplete() is false — prevents double-firing of synthesis; single synthesis invocation per run guaranteed
 
 ### Pending Todos
 
@@ -147,5 +149,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 30-run-synthesis-02-PLAN.md
+Stopped at: Completed 30-run-synthesis-03-PLAN.md
 Resume file: None
