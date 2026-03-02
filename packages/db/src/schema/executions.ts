@@ -18,6 +18,8 @@ export const executions = pgTable('executions', {
   budgetCapCents: integer('budget_cap_cents').notNull(),
   runtimeLimitSeconds: integer('runtime_limit_seconds').notNull(),
   allowedTools: text('allowed_tools').array().notNull(),
+  llmProvider: varchar('llm_provider', { length: 50 }),
+  allowedDomains: text('allowed_domains').array(),
   taskCategory: varchar('task_category', { length: 255 }), // nullable; derived from objective for soul seeding (Phase 9)
   objectiveId: uuid('objective_id').references(() => objectives.id, { onDelete: 'set null' }),
   ringLeaderRunId: uuid('ring_leader_run_id'), // nullable; logical FK to ring_leader_runs.id — no explicit ref to avoid circular
