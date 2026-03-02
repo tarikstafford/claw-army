@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 31 of 32 (Ring Leader Fitness Scoring) — IN PROGRESS
-Plan: 2/4 complete
-Status: Plan 31-02 complete
-Last activity: 2026-03-02 — Phase 31 Plan 02 complete (soul selection scorer)
+Plan: 3/4 complete
+Status: Plan 31-03 complete
+Last activity: 2026-03-02 — Phase 31 Plan 03 complete (composite fitness scorer + Akashic Library persistence)
 
 Progress: [███████░░░] 78% v4.0
 
@@ -59,6 +59,7 @@ Progress: [███████░░░] 78% v4.0
 | Phase 30-run-synthesis P03 | 1 | 1 tasks | 1 files |
 | Phase 31-ring-leader-fitness-scoring P01 | 1 | 1 tasks | 1 files |
 | Phase 31-ring-leader-fitness-scoring P02 | 2 | 1 tasks | 1 files |
+| Phase 31-ring-leader-fitness-scoring P03 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,10 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 31-01]: COORDINATION_WEIGHTS imported from @claw/shared-types (not redefined locally) — ensures coordination scoring stays consistent with domain contract
 - [Phase 31-01]: Fallback scoring uses deterministic formulas: collectiveOutcome=completed/total, driftPrevention=1-driftScore (clamped 0-1), reallocationEffectiveness=0.5 neutral, budgetManagement=variance-based ratio; never throws
 - [Phase 31-02]: SOUL_SELECTION_SCORER_MODEL env var with claude-sonnet-4-6 default; librarySearchQuality fallback = library ratio; qualitative dimensions default 0.5 neutral
+- [Phase 31-03]: Promise.all for parallel scorer invocation — both scorers are independent, no reason to sequence them
+- [Phase 31-03]: computeAndPersistFitness wraps entire body in try/catch, returns null on failure — run completion never blocked by fitness scoring
+- [Phase 31-03]: Fitness chained after synthesis via .then() to ensure synthesis data available before scoring; handle.stop() called synchronously regardless
+- [Phase 31-03]: mutationSuccessRate returns null if no mutations; formats as '0.000'-'1.000' string for numeric(4,3) DB column
 
 ### Pending Todos
 
@@ -154,5 +159,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 31-02-PLAN.md
+Stopped at: Completed 31-03-PLAN.md
 Resume file: None
