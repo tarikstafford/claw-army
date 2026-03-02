@@ -21,8 +21,10 @@
 
 import net from 'node:net';
 import http from 'node:http';
+import type { Duplex } from 'node:stream';
 import type { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
+import { getExecutionAllowedDomains } from '../services/domain-allowlist';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Domain allowlist
@@ -37,9 +39,10 @@ import { randomUUID } from 'node:crypto';
 const PROXY_DOMAIN_ALLOWLIST: string[] =
   (process.env.PROXY_DOMAIN_ALLOWLIST ?? '').split(',').map((d) => d.trim()).filter(Boolean);
 
-function isDomainAllowed(hostname: string): boolean {
-  if (PROXY_DOMAIN_ALLOWLIST.length === 0) return true; // allow all if unconfigured
-  return PROXY_DOMAIN_ALLOWLIST.some(
+function isDomainAllowed(hostname: string, perExecutionDomains?: string[] | null): boolean {
+  const allowlist = perExecutionDomains ?? PROXY_DOMAIN_ALLOWLIST;
+  if (allowlist.length === 0) return true; // allow all if unconfigured
+  return allowlist.some(
     (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`),
   );
 }
@@ -48,11 +51,11 @@ function isDomainAllowed(hostname: string): boolean {
 // CONNECT handler (HTTPS tunneling)
 // ──────────────────────────────────────────────────────────────────────────────
 
-function handleConnect(
+async function handleConnect(
   req: http.IncomingMessage,
-  socket: net.Socket,
+  socket: Duplex,
   head: Buffer,
-): void {
+): Promise<void> {
   const requestId = randomUUID().slice(0, 8);
   const target = req.url ?? '';
   const [hostname, portStr] = target.split(':');
@@ -66,14 +69,24 @@ function handleConnect(
     return;
   }
 
-  if (!isDomainAllowed(hostname)) {
+  const executionId = req.headers['x-execution-id'] as string | undefined;
+  let perExecutionDomains: string[] | null = null;
+  if (executionId) {
+    try {
+      perExecutionDomains = await getExecutionAllowedDomains(executionId);
+    } catch (err) {
+      console.error(`[proxy/connect] ${requestId} Failed to fetch execution domains (using global):`, err);
+    }
+  }
+
+  if (!isDomainAllowed(hostname, perExecutionDomains)) {
     console.warn(`[proxy/connect] ${requestId} BLOCKED ${hostname}:${port} from ${srcIp}`);
     socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
     socket.destroy();
     return;
   }
 
-  console.log(`[proxy/connect] ${requestId} CONNECT ${hostname}:${port} from ${srcIp}`);
+  console.log(`[proxy/connect] ${requestId} CONNECT ${hostname}:${port} from ${srcIp} (${perExecutionDomains ? 'per-execution' : 'global'})`);
 
   const targetSocket = net.connect(port, hostname, () => {
     socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
@@ -102,10 +115,10 @@ function handleConnect(
 // HTTP forward proxy handler (plain HTTP requests)
 // ──────────────────────────────────────────────────────────────────────────────
 
-function handleHttpForwardProxy(
+async function handleHttpForwardProxy(
   req: http.IncomingMessage,
   res: http.ServerResponse,
-): void {
+): Promise<void> {
   const requestId = randomUUID().slice(0, 8);
   const rawUrl = req.url ?? '';
   const srcIp = req.socket.remoteAddress ?? 'unknown';
@@ -123,14 +136,24 @@ function handleHttpForwardProxy(
   const hostname = targetUrl.hostname;
   const port = parseInt(targetUrl.port || '80', 10);
 
-  if (!isDomainAllowed(hostname)) {
+  const executionId = req.headers['x-execution-id'] as string | undefined;
+  let perExecutionDomains: string[] | null = null;
+  if (executionId) {
+    try {
+      perExecutionDomains = await getExecutionAllowedDomains(executionId);
+    } catch (err) {
+      console.error(`[proxy/http] ${requestId} Failed to fetch execution domains (using global):`, err);
+    }
+  }
+
+  if (!isDomainAllowed(hostname, perExecutionDomains)) {
     console.warn(`[proxy/http] ${requestId} BLOCKED ${hostname} from ${srcIp}`);
     res.writeHead(403);
     res.end('Forbidden');
     return;
   }
 
-  console.log(`[proxy/http] ${requestId} ${req.method} ${targetUrl.hostname}${targetUrl.pathname} from ${srcIp}`);
+  console.log(`[proxy/http] ${requestId} ${req.method} ${targetUrl.hostname}${targetUrl.pathname} from ${srcIp} (${perExecutionDomains ? 'per-execution' : 'global'})`);
 
   // Forward the request to the target
   const proxyReq = http.request(
@@ -177,7 +200,14 @@ function handleHttpForwardProxy(
  */
 export function attachProxyHandlers(fastify: FastifyInstance): void {
   // 1. CONNECT handler for HTTPS tunneling — must be at raw server level
-  fastify.server.on('connect', handleConnect);
+  //    Wrapped with .catch() because server.on('connect') does NOT await promises;
+  //    without the wrapper, async errors are silently swallowed.
+  fastify.server.on('connect', (req, socket, head) => {
+    handleConnect(req, socket, head).catch((err) => {
+      console.error('[proxy/connect] Unhandled error:', err);
+      socket.destroy();
+    });
+  });
 
   // 2. HTTP forward proxy — intercepted via not-found handler
   //    Fastify receives absolute-URL GET/POST requests (e.g. GET http://example.com/ HTTP/1.1)
@@ -185,7 +215,13 @@ export function attachProxyHandlers(fastify: FastifyInstance): void {
   fastify.setNotFoundHandler((request, reply) => {
     const rawUrl = request.raw.url ?? '';
     if (rawUrl.startsWith('http://')) {
-      handleHttpForwardProxy(request.raw, reply.raw);
+      handleHttpForwardProxy(request.raw, reply.raw).catch((err) => {
+        console.error('[proxy/http] Unhandled error:', err);
+        if (!reply.raw.headersSent) {
+          reply.raw.writeHead(502);
+        }
+        reply.raw.end('Bad Gateway');
+      });
       return reply;
     }
     // Standard 404 for unmatched non-proxy requests
