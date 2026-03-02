@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 28 complete, Phase 29 next
+**Current focus:** v4.0 The Ring Leader — Phase 29 complete, Phase 30 next
 
 ## Current Position
 
-Phase: 29 of 32 (Real-Time Execution Coordination) — IN PROGRESS
-Plan: 4/5 complete
-Status: Plan 04 complete — objective drift detection module (COORD-06, COORD-07) implemented
-Last activity: 2026-03-02 — Phase 29 Plan 04 complete (drift-detector.ts: cosine similarity drift scoring, reanchoring signal broadcast)
+Phase: 29 of 32 (Real-Time Execution Coordination) — COMPLETE
+Plan: 5/5 complete
+Status: Plan 05 complete — budget degradation module (COORD-08) + full coordination loop wiring with all four modules
+Last activity: 2026-03-02 — Phase 29 Plan 05 complete (budget-degradation.ts: burn rate projection, tiered thresholds 55/70/85/95%, agent-spawner wired with all four coordination modules)
 
 Progress: [█████░░░░░] 56% v4.0
 
@@ -53,6 +53,7 @@ Progress: [█████░░░░░] 56% v4.0
 | Phase 29-real-time-execution-coordination P02 | 1 | 1 task | 1 file |
 | Phase 29-real-time-execution-coordination P04 | 2 | 1 task | 1 file |
 | Phase 29-real-time-execution-coordination P03 | 1 | 1 task | 1 file |
+| Phase 29-real-time-execution-coordination P05 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 29-03]: Guardrail detection queries bots.errorMessage for keyword list; soul-driven (INVIOLABLE/constitution) triggers paused_for_review; context-driven triggers redistributed
 - [Phase 29-03]: COORD-04 capacity redirection is advisory v1 — logs capacity_redirected event with recommendation but does not auto-spawn; future phase required for full automation
 - [Phase 29-03]: processedFailures Set marks sessionId even when handler throws to prevent infinite retry loops across poll cycles
+- [Phase 29-05]: budgetCap === 0 returns early from budget degradation — no-cap runs bypass the module entirely
+- [Phase 29-05]: Hard-stop anomaly appended on every poll cycle when tier is hard_stop (not just on transition) — ensures loop termination detection across missed cycles
 
 ### Pending Todos
 
@@ -137,5 +140,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 29-03-PLAN.md — failure reallocation module (COORD-03/04/05) with redistribution, replacement spawn, early-completion eval, and guardrail classification
+Stopped at: Completed 29-05-PLAN.md — budget degradation module (COORD-08) and full coordination loop wiring with all four modules
 Resume file: None
