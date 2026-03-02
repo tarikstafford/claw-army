@@ -167,14 +167,14 @@ Plans:
   3. When an agent fails, Ring Leader redistributes its tasks to surviving agents or spawns a replacement from the selection pool if budget allows; when an agent finishes early, Ring Leader evaluates whether the freed capacity benefits active tasks.
   4. Ring Leader maintains a live similarity score between collective outputs and the original objective embedding and broadcasts a reanchoring signal (objective restatement, drift summary, reorientation directive) when drift exceeds 0.35.
   5. Ring Leader projects budget consumption to run end at every polling interval and applies tiered degradation: deprioritize, consolidate, wrap up, hard stop at 95% cap.
-**Plans:** TBD
+**Plans:** 5 plans
 
 Plans:
-- [ ] 29-01: Session polling and live run state object (elapsed, budget, task states, drift, anomalies)
-- [ ] 29-02: Intelligence routing between agents — inter-session communication and rationale logging
-- [ ] 29-03: Failure reallocation and early-completion capacity evaluation
-- [ ] 29-04: Objective drift detection — output embedding vs objective embedding, reanchoring signal broadcast
-- [ ] 29-05: Budget projection and tiered degradation (deprioritize → consolidate → wrap up → hard stop)
+- [ ] 29-01-PLAN.md — Coordination polling loop, live run state object, and coordination event logging infrastructure
+- [ ] 29-02-PLAN.md — Intelligence routing between agents with relevance detection and rationale logging
+- [ ] 29-03-PLAN.md — Failure reallocation, early-completion capacity evaluation, and guardrail classification
+- [ ] 29-04-PLAN.md — Objective drift detection via embedding similarity and reanchoring signal broadcast
+- [ ] 29-05-PLAN.md — Budget projection, tiered degradation, and full coordination loop wiring into spawner pipeline
 
 #### Phase 30: Run Synthesis
 
@@ -266,7 +266,7 @@ Plans:
 | 26. Soul Library Search and Population Assembly | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 28. Ring Leader Agent Spawning | v4.0 | 4/4 | Complete | 2026-03-02 |
-| 29. Real-Time Execution Coordination | v4.0 | 0/TBD | Not started | - |
+| 29. Real-Time Execution Coordination | v4.0 | 0/5 | Not started | - |
 | 30. Run Synthesis | v4.0 | 0/TBD | Not started | - |
 | 31. Ring Leader Fitness Scoring | v4.0 | 0/TBD | Not started | - |
 | 32. Dashboard and Reporting | v4.0 | 0/TBD | Not started | - |
