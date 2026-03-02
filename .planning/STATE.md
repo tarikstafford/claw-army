@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Planning next milestone
+**Current focus:** v5.0 Full Spectrum — closing PRD/backend/UI gaps
 
 ## Current Position
 
-Milestone: v4.0 The Ring Leader — SHIPPED 2026-03-02
-Status: Milestone archived. No active milestone.
-Last activity: 2026-03-02 — v4.0 milestone completed and archived
-
-Progress: [██████████] 100% (all milestones through v4.0 shipped)
+Milestone: v5.0 Full Spectrum
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-02 — Milestone v5.0 started
 
 ## Accumulated Context
 
@@ -36,5 +36,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: v4.0 milestone archived
+Stopped at: Defining v5.0 requirements
 Resume file: None
