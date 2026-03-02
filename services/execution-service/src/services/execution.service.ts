@@ -17,6 +17,8 @@ export interface CreateExecutionInput {
   budgetCapCents: number;
   runtimeLimitSeconds: number;
   allowedTools: string[];
+  llmProvider?: string;
+  allowedDomains?: string[];
   objectiveId?: string;
 }
 
@@ -46,6 +48,8 @@ export async function createExecution(
       budgetCapCents: input.budgetCapCents,
       runtimeLimitSeconds: input.runtimeLimitSeconds,
       allowedTools: input.allowedTools,
+      llmProvider: input.llmProvider ?? null,
+      allowedDomains: input.allowedDomains ?? null,
       objectiveId: input.objectiveId ?? null,
       status: 'queued',
     })

@@ -71,6 +71,8 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       budgetCapCents,
       runtimeLimitSeconds,
       allowedTools = [],
+      llmProvider,
+      allowedDomains,
       objectiveId,
     } = request.body;
 
@@ -115,6 +117,8 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         budgetCapCents: budgetCapCents ?? 0,
         runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
         allowedTools,
+        llmProvider,
+        allowedDomains,
         objectiveId,
       });
     } catch (err: unknown) {
@@ -203,6 +207,8 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           budgetCapCents: Type.Integer(),
           runtimeLimitSeconds: Type.Integer(),
           allowedTools: Type.Array(Type.String()),
+          llmProvider: Type.Union([Type.String(), Type.Null()]),
+          allowedDomains: Type.Union([Type.Array(Type.String()), Type.Null()]),
           createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
           updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
         }),
