@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 29 of 32 (Real-Time Execution Coordination) — IN PROGRESS
-Plan: 1/5 complete
-Status: Plan 01 complete — coordination polling loop and run state implemented
-Last activity: 2026-03-02 — Phase 29 Plan 01 complete (COORD-01 polling loop, run state, event logger)
+Plan: 3/5 complete
+Status: Plan 03 complete — failure reallocation module (COORD-03, COORD-04, COORD-05) implemented
+Last activity: 2026-03-02 — Phase 29 Plan 03 complete (failure-reallocator.ts: redistribution, replacement spawn, early-completion eval, guardrail classification)
 
 Progress: [█████░░░░░] 56% v4.0
 
@@ -50,6 +50,8 @@ Progress: [█████░░░░░] 56% v4.0
 | Phase 28-ring-leader-agent-spawning P02 | 2 | 2 tasks | 2 files |
 | Phase 28-ring-leader-agent-spawning P04 | 2 | 2 tasks | 4 files |
 | Phase 29-real-time-execution-coordination P01 | 2 | 2 tasks | 3 files |
+| Phase 29-real-time-execution-coordination P02 | 1 | 1 task | 1 file |
+| Phase 29-real-time-execution-coordination P03 | 1 | 1 task | 1 file |
 
 ## Accumulated Context
 
@@ -106,6 +108,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 29-01]: activeIntervals Map decoupled from CoordinationHandle — handle.stop() calls stopCoordinationLoop which looks up interval by runId; avoids exposing intervalId on public interface
 - [Phase 29-01]: objectiveDriftScore defaults to 0 and anomalies defaults to [] — Plan 29-04 computes real drift; modules append anomalies via ctx.runState.anomalies before persistence
 - [Phase 29-01]: No-op CoordinationHandle returned if session registry not found at loop start — callers never need to null-check; error is logged
+- [Phase 29-03]: Guardrail detection queries bots.errorMessage for keyword list; soul-driven (INVIOLABLE/constitution) triggers paused_for_review; context-driven triggers redistributed
+- [Phase 29-03]: COORD-04 capacity redirection is advisory v1 — logs capacity_redirected event with recommendation but does not auto-spawn; future phase required for full automation
+- [Phase 29-03]: processedFailures Set marks sessionId even when handler throws to prevent infinite retry loops across poll cycles
 
 ### Pending Todos
 
@@ -124,5 +129,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 29-01-PLAN.md — coordination polling loop (COORD-01) with run state, event logger, and publishRingLeaderEvent
+Stopped at: Completed 29-03-PLAN.md — failure reallocation module (COORD-03/04/05) with redistribution, replacement spawn, early-completion eval, and guardrail classification
 Resume file: None
