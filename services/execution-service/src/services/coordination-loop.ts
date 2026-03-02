@@ -173,7 +173,7 @@ async function buildRunState(ctx: Omit<CoordinationContext, 'runState'>): Promis
   };
 }
 
-// ─── Termination check ─────────────────────────────────────────────────────────
+// ─── Termination checks ────────────────────────────────────────────────────────
 
 /**
  * Returns true if all tasks in the mission brief have reached a terminal state
@@ -188,6 +188,13 @@ function isRunComplete(runState: RingLeaderRunState, missionBrief: RingLeaderMis
     if (!state) return false;
     return state.status === 'complete' || state.status === 'failed';
   });
+}
+
+/**
+ * Returns true if the run has exceeded its configured runtime limit.
+ */
+function isRuntimeLimitReached(runState: RingLeaderRunState, missionBrief: RingLeaderMissionBrief): boolean {
+  return runState.elapsedTimeSeconds >= missionBrief.runtimeLimitSeconds;
 }
 
 // ─── Main exports ──────────────────────────────────────────────────────────────
@@ -302,10 +309,14 @@ export function startCoordinationLoop(params: StartCoordinationLoopParams): Coor
         .set({ runState, updatedAt: new Date() })
         .where(eq(ringLeaderRuns.id, runId));
 
-      // Check termination condition
-      if (isRunComplete(runState, missionBrief)) {
+      // Check termination conditions
+      const runComplete = isRunComplete(runState, missionBrief);
+      const runtimeLimitReached = !runComplete && isRuntimeLimitReached(runState, missionBrief);
+
+      if (runComplete || runtimeLimitReached) {
+        const reason = runComplete ? 'All tasks terminal' : 'Runtime limit reached';
         console.info(
-          `[coordination-loop] All tasks terminal for runId=${runId} — transitioning to synthesizing`,
+          `[coordination-loop] ${reason} for runId=${runId} — transitioning to synthesizing`,
         );
 
         // Update run status to synthesizing
