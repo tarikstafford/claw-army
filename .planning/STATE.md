@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 27 of 32 (Budget Validation and Population Sizing)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — Phase 26 complete (3/3 plans, verified passed 5/5 must-haves)
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-03-02 — Phase 27 Plan 01 complete (budget-validator.ts with tiered reduction, 17 tests passing)
 
 Progress: [███░░░░░░░] 33% v4.0
 
@@ -44,6 +44,7 @@ Progress: [███░░░░░░░] 33% v4.0
 | Phase 26-soul-library-search-and-population-assembly P01 | 2 | 1 task | 1 file |
 | Phase 26-soul-library-search-and-population-assembly P02 | 2 | 1 task | 1 file |
 | Phase 26-soul-library-search-and-population-assembly P03 | 3 | 2 tasks | 3 files |
+| Phase 27-budget-validation-and-population-sizing P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 26-03]: Pool shortfall after selectFromPool triggers supplemental pioneer generation (not failure) — library path preferred but shortfalls handled gracefully
 - [Phase 26-03]: Status assembling->spawning transitions inside assemblePopulation; spawner fires-and-forgets so spawnRingLeader returns immediately
 - [Phase 26-03]: Mutation errors in high-complexity path are non-fatal; assembly continues with unmutated soul
+- [Phase 27-01]: AGENT_COST_CENTS constants (Artisan=100c, Understudy=50c, Novice=30c) defined in budget-validator.ts (not shared-types) — implementation detail, not domain contract
+- [Phase 27-01]: applyTieredReduction exported separately for standalone use; Tier 2 preserves first 3 souls (selection quality ordering already established by population-assembler)
+- [Phase 27-01]: BudgetValidationResult.manifests always populated even when funded=false so callers can inspect maximally-reduced state
 
 ### Pending Todos
 
@@ -96,5 +100,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 26 complete — Soul library search, population assembly, pioneer generation, and spawner integration all wired. Ready to plan Phase 27.
+Stopped at: Completed 27-01-PLAN.md — Budget validator implemented with tiered reduction (Artisan->Understudy, population trim to 3), 17 tests passing, tsc clean.
 Resume file: None
