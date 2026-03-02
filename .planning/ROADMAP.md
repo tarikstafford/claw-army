@@ -118,9 +118,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 26-01-PLAN.md — Library search: embedding similarity, tool filter, complexity filter, campaign weighting, negative signal exclusion
-- [ ] 26-02-PLAN.md — Population selection: class priority, differentiation enforcement, pre-deployment mutation
-- [ ] 26-03-PLAN.md — Pioneer generation, population manifest assembly, and ring-leader-spawner integration
+- [x] 26-01-PLAN.md — Library search: embedding similarity, tool filter, complexity filter, campaign weighting, negative signal exclusion
+- [x] 26-02-PLAN.md — Population selection: class priority, differentiation enforcement, pre-deployment mutation
+- [x] 26-03-PLAN.md — Pioneer generation, population manifest assembly, and ring-leader-spawner integration
 #### Phase 27: Budget Validation and Population Sizing
 
 **Goal:** Ring Leader validates that the assembled population fits the budget cap before any agent spawns, applies tiered reduction when needed, and surfaces a clear constraint message to the user when the minimum viable population cannot be funded.
@@ -264,7 +264,7 @@ Plans:
 | 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |
 | 24. Ring Leader Schema and Shared Types | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
-| 26. Soul Library Search and Population Assembly | v4.0 | 0/3 | Not started | - |
+| 26. Soul Library Search and Population Assembly | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 27. Budget Validation and Population Sizing | v4.0 | 0/TBD | Not started | - |
 | 28. Ring Leader Agent Spawning | v4.0 | 0/TBD | Not started | - |
 | 29. Real-Time Execution Coordination | v4.0 | 0/TBD | Not started | - |

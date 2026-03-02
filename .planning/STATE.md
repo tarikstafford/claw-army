@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 26: Soul Library Search and Population Assembly
+**Current focus:** v4.0 The Ring Leader — Phase 27: Budget Validation and Population Sizing
 
 ## Current Position
 
-Phase: 26 of 32 (Soul Library Search and Population Assembly)
-Plan: 3 complete in current phase
-Status: In progress
-Last activity: 2026-03-02 — Phase 26 Plan 03 complete (pioneer-generator + assemble-population orchestrator + ring-leader-spawner wired; all SOUL-01 through SOUL-08 implemented)
+Phase: 27 of 32 (Budget Validation and Population Sizing)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-02 — Phase 26 complete (3/3 plans, verified passed 5/5 must-haves)
 
-Progress: [██░░░░░░░░] 22% v4.0
+Progress: [███░░░░░░░] 33% v4.0
 
 ## Performance Metrics
 
@@ -96,5 +96,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 26-03-PLAN.md — Pioneer generator + population assembly orchestrator + ring-leader-spawner wired. All SOUL-01 through SOUL-08 implemented. Phase 26 complete.
+Stopped at: Phase 26 complete — Soul library search, population assembly, pioneer generation, and spawner integration all wired. Ready to plan Phase 27.
 Resume file: None
