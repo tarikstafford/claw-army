@@ -97,12 +97,12 @@ Plans:
   2. Orchestrator rejects a submission whose tool grants or budget cap cannot satisfy the task graph requirements, surfacing a specific constraint message.
   3. Orchestrator emits a single structured mission brief (objective, task_graph, tool_grants, budget_cap, runtime_limit, campaign_type, run_id) and transfers control to the Ring Leader.
   4. After Ring Leader spawn, the Orchestrator takes no further action — all soul selection, spawning, and execution decisions originate from the Ring Leader.
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 25-01: Task graph parser — DAG, complexity labels, tool requirements, min/recommended populations
-- [ ] 25-02: Pre-flight validation — tool grants and budget check against task graph
-- [ ] 25-03: Ring Leader spawn — mission brief construction and Orchestrator handoff
+- [ ] 25-01-PLAN.md — Task graph parser: LLM-based DAG decomposition with complexity, tools, populations
+- [ ] 25-02-PLAN.md — Pre-flight validation: tool grants and budget check against task graph
+- [ ] 25-03-PLAN.md — Ring Leader spawn: mission brief construction and Orchestrator handoff
 
 #### Phase 26: Soul Library Search and Population Assembly
 
