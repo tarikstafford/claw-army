@@ -187,12 +187,11 @@ Plans:
   3. Synthesis includes recommended_library_writes (souls to promote/retain) and pioneer_events lists.
   4. Synthesis includes ring_leader_self_assessment of its coordination performance.
   5. Performance Judge receives the Ring Leader synthesis as its primary input before reviewing individual agent outputs.
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 30-01: Synthesis document assembly — objective achievement, per-task summaries, event counts, budget variance
-- [ ] 30-02: Soul selection retrospective and recommended library writes
-- [ ] 30-03: Ring Leader self-assessment and Performance Judge synthesis handoff
+- [ ] 30-01-PLAN.md — Run synthesis module: LLM-driven document generation with all SYNTH-01 through SYNTH-04 fields
+- [ ] 30-02-PLAN.md — Wire synthesis into coordination loop termination and Performance Judge council handoff (SYNTH-05)
 
 #### Phase 31: Ring Leader Fitness Scoring
 
@@ -267,6 +266,6 @@ Plans:
 | 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 28. Ring Leader Agent Spawning | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 29. Real-Time Execution Coordination | v4.0 | 5/5 | Complete | 2026-03-02 |
-| 30. Run Synthesis | v4.0 | 0/TBD | Not started | - |
+| 30. Run Synthesis | v4.0 | 0/2 | Not started | - |
 | 31. Ring Leader Fitness Scoring | v4.0 | 0/TBD | Not started | - |
 | 32. Dashboard and Reporting | v4.0 | 0/TBD | Not started | - |
