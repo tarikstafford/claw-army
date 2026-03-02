@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 33 of 40 (Execution Data Model Fixes)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — Roadmap created for v5.0 (9 phases, 33-41, 22 requirements mapped)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-02 — Completed 33-01: llmProvider and allowedDomains columns added to executions table
 
-Progress: [░░░░░░░░░░] 0% (v5.0)
+Progress: [█░░░░░░░░░] 10% (v5.0, 1/10 plans complete)
 
 ## Performance Metrics
 
@@ -23,11 +23,11 @@ Progress: [░░░░░░░░░░] 0% (v5.0)
 - Total plans completed (v5.0): 0
 - Prior milestones: ~103 plans across 32 phases
 
-**By Phase:** (v5.0 — pending)
+**By Phase:** (v5.0)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 33 (Execution Data Model Fixes) | 1 | 2 min | 2 min |
 
 *Updated after each plan completion*
 
@@ -36,6 +36,11 @@ Progress: [░░░░░░░░░░] 0% (v5.0)
 ### Decisions
 
 All v1.0–v4.0 architectural decisions archived in PROJECT.md Key Decisions table.
+
+v5.0 decisions (33-01):
+- llmProvider validated at app level only (not DB enum) to avoid migration churn when adding providers
+- allowedDomains null=use global PROXY_DOMAIN_ALLOWLIST, []=allow all — semantically distinct
+- Migration 0013 uses ADD COLUMN IF NOT EXISTS for idempotency (consistent with 0008-0010)
 
 v5.0 phase ordering rationale:
 - Phase 33 before 35: `llmProvider` and `allowedDomains` schema changes must exist before form fields can submit them
@@ -59,5 +64,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: v5.0 roadmap created — ready to plan Phase 33
+Stopped at: Completed 33-01-PLAN.md — ready to execute 33-02
 Resume file: None
