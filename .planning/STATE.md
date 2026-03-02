@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 30 complete (Plan 3/3 complete, gap closure)
+**Current focus:** v4.0 The Ring Leader — Phase 30 complete, Phase 31 next
 
 ## Current Position
 
-Phase: 30 of 32 (Run Synthesis)
+Phase: 30 of 32 (Run Synthesis) — COMPLETE
 Plan: 3/3 complete
-Status: Phase complete
-Last activity: 2026-03-02 — Phase 30 Plan 03 complete (runtime-limit termination added to coordination loop tick())
+Status: Phase verified and complete
+Last activity: 2026-03-02 — Phase 30 verified (5/5 must-haves passed)
 
-Progress: [██████░░░░] 70% v4.0
+Progress: [███████░░░] 78% v4.0
 
 ## Performance Metrics
 
