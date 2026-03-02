@@ -88,6 +88,11 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 27]: Budget shortfall DB write in assemblePopulation (not spawner) — assemblePopulation has all details at throw site
 - [Phase 28]: null populationManifest returns empty manifests array (not 404) so assembling runs are still accessible with current status
 - [Phase 28]: ManifestResponseSchema shared between both ring-leader endpoints for consistent response shape
+- [Phase 28-01]: Session JWT module independent from orchestrator/jwt.ts — different concern (per-agent grants vs bot identity), separate evolution paths
+- [Phase 28-01]: Constitution verification non-fatal: log WARN on missing INVIOLABLE directives, return constitutionVerified=false flag, spawner decides abort vs proceed
+- [Phase 28-01]: Empty constitutionDirectives passes verification (pioneer souls may have no constitution yet)
+- [Phase 28-01]: JWT subject format session:{soulId}:{taskId} unique and traceable per agent assignment
+- [Phase 28-01]: JWT expiry = runtimeLimitSeconds + 300s buffer so JWT stays valid during post-agent cleanup/callbacks
 
 ### Pending Todos
 
@@ -106,5 +111,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 27 complete — Budget validation and population sizing verified. Ready to plan Phase 28.
+Stopped at: Completed 28-01-PLAN.md — session JWT + agent session prompt builder with constitution verification
 Resume file: None
