@@ -1,35 +1,29 @@
 import { generateText } from 'ai';
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { google } from '@ai-sdk/google';
+import { type TaskGraph } from '@claw/shared-types';
+import { resolveModel } from '../lib/resolve-model.js';
+import { parseObjectiveToTaskGraph } from './task-graph-parser.js';
 
 export interface PlannedTask {
   description: string;
 }
 
 /**
- * Resolve the AI SDK model instance from a model string.
- * - gpt-*, o1*, o3* -> openai provider
- * - claude-* -> anthropic provider
- * - gemini-* -> google provider
- * - default: openai (will fail at API level if model is unrecognized)
+ * Decompose a high-level objective into a structured TaskGraph DAG.
+ *
+ * Delegates to parseObjectiveToTaskGraph which handles LLM communication,
+ * DAG validation, cycle detection, and fallback graph construction.
+ *
+ * @param objective - High-level objective to decompose
+ * @param allowedTools - Tools available to agents for this execution
+ * @param maxTasks - Maximum number of tasks to produce (default: 5)
+ * @returns A validated TaskGraph
  */
-function resolveModel(modelId: string) {
-  if (
-    modelId.startsWith('gpt-') ||
-    modelId.startsWith('o1') ||
-    modelId.startsWith('o3')
-  ) {
-    return openai(modelId);
-  }
-  if (modelId.startsWith('claude-')) {
-    return anthropic(modelId);
-  }
-  if (modelId.startsWith('gemini-')) {
-    return google(modelId);
-  }
-  // Default to OpenAI — will fail at API level if model is unrecognized
-  return openai(modelId);
+export async function planObjectiveAsTaskGraph(
+  objective: string,
+  allowedTools: string[],
+  maxTasks = 5,
+): Promise<TaskGraph> {
+  return parseObjectiveToTaskGraph(objective, allowedTools, maxTasks);
 }
 
 /**

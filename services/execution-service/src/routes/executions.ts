@@ -6,21 +6,18 @@ import {
   getExecution,
   transitionExecution,
 } from '../services/execution.service';
-import { planObjective } from '../services/planner.service';
-import { generateSoulPopulation } from '../services/soul-generator';
-import { addTaskToQueue } from '../queue/task-queue';
+import { planObjectiveAsTaskGraph } from '../services/planner.service';
+import { validatePreFlight } from '../services/preflight-validator';
+import { spawnRingLeader } from '../services/ring-leader-spawner';
 import { db, executions, tasks, bots, telemetry, agentClasses, councilVerdicts } from '@claw/db';
 import { eq, and, sql, desc, inArray } from 'drizzle-orm';
 import {
-  spawnBotsForExecution,
-  startIdleChecker,
-  startQueueEventListener,
   stopBot,
 } from '../orchestrator/bot-orchestrator';
 import { publishExecutionStatusChanged } from '../events/publisher';
 import { getBotsForExecution } from '../orchestrator/bot-registry';
-import { startCompletionPoller } from '../orchestrator/completion-checker';
 import { buildExecutionReport } from '../performance/report-builder';
+import type { TaskGraph } from '@claw/shared-types';
 
 export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // POST /executions — create a new execution
@@ -43,8 +40,12 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         }),
         400: Type.Object({
           error: Type.String(),
+          details: Type.Optional(Type.Array(Type.Unknown())),
         }),
         401: Type.Object({
+          error: Type.String(),
+        }),
+        500: Type.Object({
           error: Type.String(),
         }),
       },
@@ -84,6 +85,28 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       });
     }
 
+    // --- Synchronous pre-flight (runs before 201 response) ---
+
+    // 1. Parse objective into task graph (ORCH-01)
+    let taskGraph: TaskGraph;
+    try {
+      taskGraph = await planObjectiveAsTaskGraph(objective, allowedTools, maxBots);
+    } catch (err) {
+      fastify.log.error({ err }, 'Failed to parse objective into task graph');
+      return reply.status(500).send({ error: 'Failed to parse objective' });
+    }
+
+    // 2. Pre-flight validation (ORCH-02)
+    const preflight = validatePreFlight(taskGraph, allowedTools, budgetCapCents ?? 0);
+    if (!preflight.valid) {
+      fastify.log.warn({ errors: preflight.errors }, 'Pre-flight validation failed');
+      return reply.status(400).send({
+        error: 'Pre-flight validation failed',
+        details: preflight.errors,
+      });
+    }
+
+    // 3. Insert execution row (only reached after validation passes)
     let result: { executionId: string; status: 'queued' };
     try {
       result = await createExecution({
@@ -104,46 +127,27 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
     const { executionId } = result;
 
-    // Trigger async planning after returning 201 (non-blocking).
-    // setImmediate ensures the reply is sent before planning begins,
-    // guaranteeing the POST response is well within the 1-second SLA.
+    // 4. Return 201 with execution ID
+    reply.status(201).send(result);
+
+    // --- Async handoff (runs after 201 response) ---
     setImmediate(async () => {
       try {
-        // 1. Plan tasks (LLM decomposition)
-        const plannedTasks = await planObjective(objective, maxBots);
+        // 5. Determine campaign type
+        const campaignType = objectiveId ? 'campaign' : 'ad_hoc';
 
-        // 1b. Generate differentiated soul population for this execution
-        const souls = await generateSoulPopulation(executionId, objective, maxBots);
-        fastify.log.info(
-          { executionId, soulCount: souls.length },
-          'Soul population generated',
-        );
+        // 6. Spawn Ring Leader — creates ring_leader_runs row with mission brief (ORCH-03)
+        const { ringLeaderRunId } = await spawnRingLeader({
+          executionId,
+          objective,
+          taskGraph,
+          toolGrants: allowedTools,
+          budgetCapCents: budgetCapCents ?? 0,
+          runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
+          campaignType,
+        });
 
-        // 2. Dual-write: Postgres first, then BullMQ
-        // Per RESEARCH.md: write to DB first so task rows always exist.
-        // If BullMQ add fails, the task stays 'pending' — a reconciler can re-enqueue.
-        // This prevents orphan queue jobs with no corresponding DB record.
-        for (const planned of plannedTasks) {
-          const taskResult = await db
-            .insert(tasks)
-            .values({
-              executionId,
-              description: planned.description,
-              status: 'pending',
-            })
-            .returning({ id: tasks.id });
-
-          if (taskResult.length > 0) {
-            const taskRow = taskResult[0]!;
-            await addTaskToQueue({
-              taskId: taskRow.id,
-              executionId,
-              description: planned.description,
-            });
-          }
-        }
-
-        // 3. Transition execution from 'queued' to 'running'
+        // 7. Transition execution to running
         const transitioned = await transitionExecution(executionId, 'queued', 'running');
         if (!transitioned) {
           fastify.log.error({ executionId }, 'Failed to transition to running');
@@ -160,29 +164,21 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           fastify.log.error({ err, executionId }, 'Failed to publish execution_status_changed (non-fatal)');
         });
 
-        // 4. Spawn bots for this execution (each bot receives its assigned soul)
-        await spawnBotsForExecution(executionId, souls);
         fastify.log.info(
-          { executionId, botCount: souls.length, taskCount: plannedTasks.length },
-          'Bots spawned, execution running',
+          { executionId, ringLeaderRunId, taskCount: taskGraph.tasks.length },
+          'Ring Leader spawned — Orchestrator handoff complete (ORCH-04)',
         );
 
-        // 5. Start QueueEvents listener to keep lastTaskClaimedAt fresh
-        // This prevents the idle checker from killing bots that are actively processing tasks.
-        startQueueEventListener();
+        // ORCH-04: Orchestrator steps back here.
+        // Soul selection, agent spawning, coordination, and synthesis
+        // will be driven by the Ring Leader in Phases 26-29.
 
-        // 6. Start idle checker and completion polling
-        startIdleChecker();
-        startCompletionPoller(executionId);
       } catch (err) {
-        fastify.log.error({ err, executionId }, 'Failed during execution pipeline');
-        // Attempt to transition to failed so the execution doesn't stay stuck
+        fastify.log.error({ err, executionId }, 'Failed during Ring Leader spawn');
         await transitionExecution(executionId, 'queued', 'failed').catch(() => {});
         await transitionExecution(executionId, 'running', 'failed').catch(() => {});
       }
     });
-
-    return reply.code(201).send(result);
   });
 
   // GET /executions/:id — get a single execution by ID

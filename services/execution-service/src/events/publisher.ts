@@ -9,6 +9,7 @@ import {
   budgetExceededEventSchema,
   guardrailTriggeredEventSchema,
   soulLifecycleEventSchema,
+  ringLeaderEventSchema,
   type BotStartedEvent,
   type BotStoppedEvent,
   type TaskClaimedEvent,
@@ -18,6 +19,7 @@ import {
   type BudgetExceededEvent,
   type GuardrailTriggeredEvent,
   type SoulLifecycleEvent,
+  type RingLeaderEvent,
 } from '@claw/event-schemas';
 
 /**
@@ -33,6 +35,7 @@ const pubsub = new PubSub({
 // The env suffix (-{env}) is not included here; Terraform appends it for GCP topics.
 // The Pub/Sub emulator auto-creates topics on first publish, so local dev works without the suffix.
 const BOT_LIFECYCLE_TOPIC = process.env.BOT_LIFECYCLE_TOPIC ?? 'bot-lifecycle';
+const RING_LEADER_EVENTS_TOPIC = process.env.RING_LEADER_EVENTS_TOPIC ?? 'ring-leader-events';
 const EXECUTION_LIFECYCLE_TOPIC = process.env.EXECUTION_LIFECYCLE_TOPIC ?? 'execution-lifecycle';
 const TASK_LIFECYCLE_TOPIC = process.env.TASK_LIFECYCLE_TOPIC ?? 'task-lifecycle';
 const GUARDRAIL_EVENTS_TOPIC = process.env.GUARDRAIL_EVENTS_TOPIC ?? 'guardrail-events';
@@ -133,4 +136,13 @@ export async function publishGuardrailTriggered(event: GuardrailTriggeredEvent):
  */
 export async function publishSoulLifecycleEvent(event: SoulLifecycleEvent): Promise<void> {
   await publish(SOUL_LIFECYCLE_TOPIC, soulLifecycleEventSchema, event);
+}
+
+/**
+ * Publish a Ring Leader coordination event (status change, intelligence routing,
+ * reallocation, reanchoring, or budget degradation).
+ * Emitted by the coordination loop during the 'coordinating' phase (Phase 29+).
+ */
+export async function publishRingLeaderEvent(event: RingLeaderEvent): Promise<void> {
+  await publish(RING_LEADER_EVENTS_TOPIC, ringLeaderEventSchema, event);
 }

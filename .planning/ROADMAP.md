@@ -6,6 +6,9 @@
 - ✅ **v1.1 Google Auth Gate** — Phase 7 (shipped 2026-02-19)
 - ✅ **v2.0 The SOUL System** — Phases 8-14 (shipped 2026-02-22)
 - ✅ **v3.0 Bot Reliability & UX Overhaul** — Phases 15-23 (shipped 2026-02-23)
+- ✅ **v4.0 The Ring Leader** — Phases 24-32 (shipped 2026-03-02)
+
+---
 
 ## Phases
 
@@ -64,7 +67,22 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
 
 </details>
 
----
+<details>
+<summary>✅ v4.0 The Ring Leader (Phases 24-32) — SHIPPED 2026-03-02</summary>
+
+- [x] Phase 24: Ring Leader Schema and Shared Types (2/2 plans) — completed 2026-03-02
+- [x] Phase 25: Orchestrator Demotion and Ring Leader Core (3/3 plans) — completed 2026-03-02
+- [x] Phase 26: Soul Library Search and Population Assembly (3/3 plans) — completed 2026-03-02
+- [x] Phase 27: Budget Validation and Population Sizing (2/2 plans) — completed 2026-03-02
+- [x] Phase 28: Ring Leader Agent Spawning (4/4 plans) — completed 2026-03-02
+- [x] Phase 29: Real-Time Execution Coordination (5/5 plans) — completed 2026-03-02
+- [x] Phase 30: Run Synthesis (3/3 plans) — completed 2026-03-02
+- [x] Phase 31: Ring Leader Fitness Scoring (4/4 plans) — completed 2026-03-02
+- [x] Phase 32: Dashboard and Reporting (4/4 plans) — completed 2026-03-02
+
+See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
+
+</details>
 
 ## Progress
 
@@ -93,3 +111,12 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
 | 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |
+| 24. Ring Leader Schema and Shared Types | v4.0 | 2/2 | Complete | 2026-03-02 |
+| 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
+| 26. Soul Library Search and Population Assembly | v4.0 | 3/3 | Complete | 2026-03-02 |
+| 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
+| 28. Ring Leader Agent Spawning | v4.0 | 4/4 | Complete | 2026-03-02 |
+| 29. Real-Time Execution Coordination | v4.0 | 5/5 | Complete | 2026-03-02 |
+| 30. Run Synthesis | v4.0 | 3/3 | Complete | 2026-03-02 |
+| 31. Ring Leader Fitness Scoring | v4.0 | 4/4 | Complete | 2026-03-02 |
+| 32. Dashboard and Reporting | v4.0 | 4/4 | Complete | 2026-03-02 |

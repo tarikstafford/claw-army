@@ -6,14 +6,13 @@
 - ✅ v1.1 Google Auth Gate — shipped 2026-02-19
 - ✅ v2.0 The SOUL System — shipped 2026-02-22
 - ✅ v3.0 Bot Reliability & UX Overhaul — shipped 2026-02-23
-
-**Next:** Start v4.0 with `/gsd:new-milestone`
+- ✅ v4.0 The Ring Leader — shipped 2026-03-02
 
 ---
 
 ## What This Is
 
-Akasa is a platform that lets SMEs and individuals deploy fleets of AI bot workers against a named objective. Users create persistent objectives, set a bot count and budget cap, and the system spawns isolated GCE VMs running OpenClaw that claim and execute tasks in parallel — with real-time monitoring, atomic budget enforcement, per-bot billing metering, and an evolutionary learning engine that compounds agent intelligence over time through behavioral constitutions (SOUL.md), council evaluation, and a versioned DNA library. The Objective Hub gives users a single page per objective showing all runs, aggregate stats, live status, and the bot class progression arc from Novice to Artisan.
+Akasa is a platform that lets SMEs and individuals deploy fleets of AI bot workers against a named objective. Users create persistent objectives, set a budget cap, and the system's Ring Leader — an autonomous orchestration entity — decomposes the objective into a DAG of tasks, searches the Akashic Library to assemble differentiated soul populations per task, validates budget constraints, spawns agents with session JWTs and full SOUL.md constitutions into isolated GCE VMs, and coordinates them in real time with intelligence routing, failure reallocation, objective drift detection, and tiered budget degradation. Post-run, the Ring Leader produces a synthesis document covering soul selection retrospective and coordination self-assessment, which feeds into a three-judge Council evaluation. The evolutionary learning engine compounds agent intelligence through council-evaluated mutation and a versioned DNA library, with both worker agents and Ring Leaders progressing through Novice to Artisan class tiers.
 
 ## Core Value
 
@@ -99,21 +98,43 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 - ✓ Akasa dark violet design system: 28 CSS tokens, Clash Display/Inter/JetBrains Mono, 13 routes — v3.0
 - ✓ Platform brand: "Claw Army" → "Akasa" across all UI surfaces — v3.0
 
+- ✓ Orchestrator parses objective into validated task graph DAG with complexity, tools, dependencies, and population sizes — v4.0
+- ✓ Orchestrator validates tool grants and budget cap against task graph before spawning Ring Leader — v4.0
+- ✓ Orchestrator spawns Ring Leader with structured mission brief and steps back from execution — v4.0
+- ✓ Ring Leader searches Akashic Library per task using embedding similarity, tool/complexity filters, campaign weighting, and negative signal exclusion — v4.0
+- ✓ Ring Leader selects from pool with class priority and cosine similarity < 0.85 differentiation enforcement — v4.0
+- ✓ Ring Leader applies targeted pre-deployment mutations with logged rationale — v4.0
+- ✓ Ring Leader generates 5 archetypal pioneer souls for novel task categories — v4.0
+- ✓ Ring Leader produces structured population manifest per task with all required fields — v4.0
+- ✓ Budget validation with tiered reduction (Artisan→Understudy→minimum) and minimum 3-agent guard — v4.0
+- ✓ Session JWT per agent with soul_id, task_id, tool_allowlist, budget_allocation, runtime_limit — v4.0
+- ✓ SOUL.md injection with constitution verification before execution — v4.0
+- ✓ Task brief and upstream intelligence signals injected per agent session — v4.0
+- ✓ DAG-respecting spawn sequencing with active session registry — v4.0
+- ✓ Pre-flight dashboard shows full population manifest before execution begins — v4.0
+- ✓ Real-time coordination loop: polling, live run state, intelligence routing, failure reallocation, drift detection, budget degradation — v4.0
+- ✓ Reanchoring signal broadcast when objective drift exceeds 0.35 — v4.0
+- ✓ Run synthesis with soul selection retrospective, coordination self-assessment, and recommended library writes — v4.0
+- ✓ Performance Judge receives Ring Leader synthesis as primary input — v4.0
+- ✓ Ring Leader fitness scoring: coordination quality (60%) + soul selection quality (40%) — v4.0
+- ✓ Ring Leader class progression: Novice→Understudy (4 runs, 0.68), Understudy→Artisan (9 runs, 0.85, soul selection 0.75 in 6+) — v4.0
+- ✓ Dashboard: pre-flight manifest, live state panel, coordination events in activity feed, post-run synthesis and fitness panels — v4.0
+
 ### Active
 
-<!-- No active requirements — planning v4.0 -->
+(No active requirements — next milestone not yet defined)
 
 ### Out of Scope
 
 - Real payment processing (Stripe) — metering/display only for MVP; add post-validation
 - Multi-tenant isolation — single-tenant MVP; add post-validation
-- DAG planner or recursive replanning — simple parallel task split only
+- DAG replanning — Ring Leader decomposes into DAG but does not replan mid-run
 - Arbitrary shell execution in bots — Tool Gateway enforced, non-negotiable
 - Mobile app — web-first
 - Firecracker/Kata microVM isolation — Docker/GCE sufficient; upgrade path exists
 - User-editable raw soul text — corrupts evolutionary lineage attribution
 - Fine-tuning model weights from soul data — requires RLHF infrastructure
-- Real-time Council evaluation during execution — requires complete decision trace
+- Real-time Council evaluation during execution — council runs post-synthesis per design
 - 5+ agent class tiers — 3 tiers is the RPG engagement optimum
 - Continuous automated promotion without human gate — human confirmation is the ground truth circuit breaker
 - All Council members from same model family — self-enhancement bias
@@ -129,7 +150,7 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ## Context
 
-**Shipped v3.0 with ~13,800 LOC** (9 phases, 25 plans, 2 days, 104 files changed).
+**Shipped v4.0 with ~30,600 LOC** (32 phases across 4 milestones, 103 plans total, 15 days, 114 files changed in v4.0 alone).
 
 **Tech stack:**
 - Backend: Node.js TypeScript (Fastify), pnpm monorepo
@@ -162,7 +183,7 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 - **Isolation**: Each bot is ephemeral, stateless, no credentials, no persistent filesystem
 - **Scope**: Single-tenant — Google Auth gates access but no multi-org data isolation yet
 - **Budget**: No real Stripe integration — billing is metering + display only
-- **Planner**: Simple parallel split only — no DAG, no recursive planning, no user-facing visual builder
+- **Planner**: Ring Leader decomposes into DAG — no recursive replanning or user-facing visual builder
 - **Council integrity**: Devil's Advocate must always use a different LLM provider family than Performance Judge
 
 ## Key Decisions
@@ -204,6 +225,17 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 | objectiveId conditional spread in createExecution() | TypeBox Optional(Type.String({format:'uuid'})) rejects null; omit field when absent | ✓ Good — TypeBox compliant without nullable workarounds |
 | Hidden input pattern for objectiveId in form | URL search params NOT included in formData on POST; hidden input is reliable | ✓ Good — standard SvelteKit form pattern |
 | Akasa CSS tokens: 28 custom properties in app.css | Zero hardcoded hex across 13 routes (acceptable exceptions: SVG fills, #fff on violet, Google brand) | ✓ Good — audit confirms zero old tokens remaining |
+| Orchestrator demoted to pre-flight only | Ring Leader needs full lifecycle ownership for autonomous coordination | ✓ Good — clean separation: Orchestrator validates, Ring Leader executes |
+| JSONB for all Ring Leader domain documents | Schema flexibility as Ring Leader types evolve; avoids migration churn | ✓ Good — missionBrief, manifest, runState, synthesis all stored as typed JSONB |
+| Logical FK pattern for ring_leader_run_id | Avoids circular reference between executions and ring_leader_runs | ✓ Good — matches existing bots.soulId and executions.taskCategory patterns |
+| pgvector cosine distance in SQL WHERE clause | DB-level filtering at 0.78 threshold before app-layer processing | ✓ Good — eliminates N+1 embedding comparisons |
+| Jaccard keyword-overlap for intelligence routing | Avoids embedding API calls on every 30s poll cycle | ✓ Good — lightweight heuristic sufficient for v1 relevance detection |
+| Tiered budget degradation (4 levels) | Graceful degradation preserves partial results under cost pressure | ✓ Good — deprioritize→consolidate→wrap up→hard stop at 95% cap |
+| Reanchoring debounce 2min | Prevents signal flooding when drift stays elevated across consecutive polls | ✓ Good — drift detection + reanchoring signal tested end-to-end |
+| Session JWT per agent (separate from bot JWT) | Different concern: per-agent grants vs bot identity; separate evolution paths | ✓ Good — clean security boundary per agent session |
+| Fire-and-forget synthesis from coordination loop | Synthesis handles its own persistence; coordination loop can stop cleanly | ✓ Good — fitness scoring chained after synthesis via .then() |
+| agent_classes reused for Ring Leaders (taskCategory='ring_leader') | No new table or migration needed for Ring Leader class progression | ✓ Good — natural extension of existing class system |
+| Ring Leader SSE via existing subscription fan-out | RING_LEADER_EVENTS_TOPIC added to topicNames array | ✓ Good — zero new SSE infrastructure needed |
 
 ---
-*Last updated: 2026-02-23 after v3.0 milestone*
+*Last updated: 2026-03-02 after v4.0 milestone*

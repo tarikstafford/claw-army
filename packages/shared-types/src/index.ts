@@ -5,3 +5,4 @@ export * from './bot';
 export * from './billing';
 export * from './soul';
 export * from './objective';
+export * from './ring-leader';

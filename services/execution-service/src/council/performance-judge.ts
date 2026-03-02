@@ -25,6 +25,30 @@ const PERFORMANCE_JUDGE_SYSTEM = `You are the Performance Judge on a council eva
 
 // ─── Prompt Builder ─────────────────────────────────────────────────────────────
 
+function buildRingLeaderSynthesisSection(ctx: CouncilContext): string {
+  const synthesis = ctx.ringLeaderSynthesis;
+  if (!synthesis) return '';
+
+  return `## Ring Leader Run Synthesis (Primary Context)
+
+The Ring Leader has produced the following synthesis of this run. Use this as your primary context for evaluating this agent's contribution to the collective outcome.
+
+**Objective:** ${synthesis.objective}
+**Objective Achieved:** ${synthesis.objectiveAchieved ? 'Yes' : 'No'}
+**Achievement Rationale:** ${synthesis.achievementRationale}
+
+**Soul Selection Retrospective:**
+${synthesis.soulSelectionRetrospective}
+
+**Ring Leader Self-Assessment:**
+${synthesis.ringLeaderSelfAssessment}
+
+**Run Stats:** ${synthesis.intelligenceRoutingEvents} intelligence routes, ${synthesis.reallocationEvents} reallocations, ${synthesis.reanchoringEvents} reanchorings, budget variance: ${synthesis.budgetVarianceCents} cents
+
+---
+`;
+}
+
 function buildPerformancePrompt(ctx: CouncilContext): string {
   const { botMetrics, telemetryMetrics, decisionTraces, soulContent, taskCategory } = ctx;
 
@@ -60,7 +84,10 @@ function buildPerformancePrompt(ctx: CouncilContext): string {
     ? soulContent.slice(0, 500) + (soulContent.length > 500 ? '...' : '')
     : 'No soul content available.';
 
-  return `## Bot Performance Evaluation
+  // SYNTH-05: Include Ring Leader synthesis as primary context section (if present)
+  const synthesisSection = buildRingLeaderSynthesisSection(ctx);
+
+  return `${synthesisSection}## Bot Performance Evaluation
 
 **Task Category:** ${taskCategory ?? 'Unknown'}
 

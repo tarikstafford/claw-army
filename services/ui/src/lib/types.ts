@@ -296,3 +296,109 @@ export interface ObjectiveStats {
   };
   classTrendSummary: string;
 }
+
+// Phase 32 — Ring Leader Dashboard types
+
+export interface RingLeaderRunState {
+  runId: string;
+  elapsedTimeSeconds: number;
+  budgetConsumedCents: number;
+  taskStates: Record<string, TaskState>;
+  objectiveDriftScore: number;
+  anomalies: string[];
+}
+
+export interface TaskState {
+  status: 'queued' | 'active' | 'completing' | 'complete' | 'failed';
+  activeAgents: string[];
+  completedAgents: string[];
+  failedAgents: string[];
+  outputQualitySignal: number | null;
+}
+
+export interface RingLeaderStateResponse {
+  runId: string;
+  executionId: string;
+  status: string;
+  runState: RingLeaderRunState | null;
+}
+
+export interface CoordinationEvent {
+  type: string;
+  timestamp: string;
+  payload: Record<string, unknown>;
+}
+
+export interface RingLeaderEventsResponse {
+  runId: string;
+  events: CoordinationEvent[];
+}
+
+export interface RingLeaderManifestResponse {
+  runId: string;
+  executionId: string;
+  status: string;
+  manifests: PopulationManifest[];
+  missionBrief: unknown;
+}
+
+export interface PopulationManifest {
+  taskId: string;
+  taskDescription: string;
+  assignedSouls: SoulSelectionEntry[];
+  pioneerFlag: boolean;
+  varianceIntent: string | null;
+}
+
+export interface SoulSelectionEntry {
+  soulId: string;
+  agentClass: 'Artisan' | 'Understudy' | 'Novice';
+  source: 'library' | 'generated' | 'mutated';
+  parentSoulId: string | null;
+  mutationApplied: string | null;
+  selectionRationale: string;
+  differentiationScore: number;
+}
+
+export interface CoordinationScore {
+  collectiveOutcome: number;
+  driftPrevention: number;
+  reallocationEffectiveness: number;
+  budgetManagement: number;
+}
+
+export interface SoulSelectionScore {
+  librarySearchQuality: number;
+  differentiationEffectiveness: number;
+  mutationDecisionQuality: number;
+  pioneerHandling: number;
+  selectionRetrospectiveQuality: number;
+}
+
+export interface RingLeaderSynthesis {
+  runId: string;
+  objective: string;
+  objectiveAchieved: boolean;
+  achievementRationale: string;
+  taskSummary: Array<{ taskId: string; completed: boolean; topPerformingSoulId: string | null; outputQualitySignal: number | null; anomalies: string[] }>;
+  intelligenceRoutingEvents: number;
+  reallocationEvents: number;
+  reanchoringEvents: number;
+  soulSelectionRetrospective: string;
+  budgetVarianceCents: number;
+  recommendedLibraryWrites: string[];
+  pioneerEvents: string[];
+  ringLeaderSelfAssessment: string;
+}
+
+export interface RingLeaderSynthesisResponse {
+  runId: string;
+  executionId: string;
+  status: string;
+  synthesis: RingLeaderSynthesis | null;
+  fitness: {
+    coordinationScore: CoordinationScore;
+    soulSelectionScore: SoulSelectionScore;
+    compositeScore: number;
+  } | null;
+}

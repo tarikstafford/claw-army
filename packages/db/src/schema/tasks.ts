@@ -2,6 +2,7 @@ import {
   pgTable,
   uuid,
   text,
+  varchar,
   integer,
   timestamp,
   pgEnum,
@@ -27,6 +28,7 @@ export const tasks = pgTable(
     description: text('description').notNull(),
     result: text('result'),
     claimedByBotId: uuid('claimed_by_bot_id'),
+    ringLeaderTaskId: varchar('ring_leader_task_id', { length: 255 }),
     leaseExpiresAt: timestamp('lease_expires_at', { withTimezone: true, precision: 3 }),
     attemptCount: integer('attempt_count').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
@@ -36,6 +38,7 @@ export const tasks = pgTable(
     index('tasks_execution_id_idx').on(t.executionId),
     index('tasks_status_idx').on(t.status),
     index('tasks_execution_id_status_idx').on(t.executionId, t.status),
+    index('tasks_ring_leader_task_id_idx').on(t.ringLeaderTaskId),
   ],
 );
 

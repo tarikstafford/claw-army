@@ -17,6 +17,10 @@ import type {
   ObjectiveRun,
   ObjectiveStats,
   BotSoul,
+  RingLeaderManifestResponse,
+  RingLeaderStateResponse,
+  RingLeaderEventsResponse,
+  RingLeaderSynthesisResponse,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -174,4 +178,22 @@ export async function getBotSoul(botId: string): Promise<BotSoul> {
 
 export async function getExecutionPendingVerdicts(executionId: string): Promise<ExecutionPendingVerdict[]> {
   return apiFetch(`${BASE}/executions/${executionId}/pending-verdicts`);
+}
+
+// Phase 32 — Ring Leader Dashboard API
+
+export async function getRingLeaderManifest(executionId: string): Promise<RingLeaderManifestResponse> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}`);
+}
+
+export async function getRingLeaderState(executionId: string): Promise<RingLeaderStateResponse> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/state`);
+}
+
+export async function getRingLeaderEvents(executionId: string): Promise<RingLeaderEventsResponse> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/events`);
+}
+
+export async function getRingLeaderSynthesis(executionId: string): Promise<RingLeaderSynthesisResponse> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/synthesis`);
 }

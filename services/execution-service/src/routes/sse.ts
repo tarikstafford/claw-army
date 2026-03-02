@@ -13,6 +13,7 @@ const TASK_LIFECYCLE_TOPIC = process.env.TASK_LIFECYCLE_TOPIC ?? 'task-lifecycle
 const BOT_LIFECYCLE_TOPIC = process.env.BOT_LIFECYCLE_TOPIC ?? 'bot-lifecycle';
 const GUARDRAIL_EVENTS_TOPIC = process.env.GUARDRAIL_EVENTS_TOPIC ?? 'guardrail-events';
 const SOUL_LIFECYCLE_TOPIC = process.env.SOUL_LIFECYCLE_TOPIC ?? 'soul-lifecycle';
+const RING_LEADER_EVENTS_TOPIC = process.env.RING_LEADER_EVENTS_TOPIC ?? 'ring-leader-events';
 
 export const sseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // GET /:id/events — SSE bridge: Pub/Sub subscription per connection, event forwarding, cleanup on disconnect
@@ -32,6 +33,7 @@ export const sseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       TASK_LIFECYCLE_TOPIC,
       BOT_LIFECYCLE_TOPIC,
       GUARDRAIL_EVENTS_TOPIC,
+      RING_LEADER_EVENTS_TOPIC,
     ];
 
     // Create a per-connection subscription on each topic
