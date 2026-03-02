@@ -108,13 +108,60 @@ Requirements for The Ring Leader milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated during roadmap creation) | | |
+| ORCH-01 | Phase 25 | Pending |
+| ORCH-02 | Phase 25 | Pending |
+| ORCH-03 | Phase 25 | Pending |
+| ORCH-04 | Phase 25 | Pending |
+| SOUL-01 | Phase 26 | Pending |
+| SOUL-02 | Phase 26 | Pending |
+| SOUL-03 | Phase 26 | Pending |
+| SOUL-04 | Phase 26 | Pending |
+| SOUL-05 | Phase 26 | Pending |
+| SOUL-06 | Phase 26 | Pending |
+| SOUL-07 | Phase 26 | Pending |
+| SOUL-08 | Phase 26 | Pending |
+| BUDG-01 | Phase 27 | Pending |
+| BUDG-02 | Phase 27 | Pending |
+| BUDG-03 | Phase 27 | Pending |
+| BUDG-04 | Phase 27 | Pending |
+| SPAWN-01 | Phase 28 | Pending |
+| SPAWN-02 | Phase 28 | Pending |
+| SPAWN-03 | Phase 28 | Pending |
+| SPAWN-04 | Phase 28 | Pending |
+| SPAWN-05 | Phase 28 | Pending |
+| SPAWN-06 | Phase 28 | Pending |
+| SPAWN-07 | Phase 28 | Pending |
+| COORD-01 | Phase 29 | Pending |
+| COORD-02 | Phase 29 | Pending |
+| COORD-03 | Phase 29 | Pending |
+| COORD-04 | Phase 29 | Pending |
+| COORD-05 | Phase 29 | Pending |
+| COORD-06 | Phase 29 | Pending |
+| COORD-07 | Phase 29 | Pending |
+| COORD-08 | Phase 29 | Pending |
+| SYNTH-01 | Phase 30 | Pending |
+| SYNTH-02 | Phase 30 | Pending |
+| SYNTH-03 | Phase 30 | Pending |
+| SYNTH-04 | Phase 30 | Pending |
+| SYNTH-05 | Phase 30 | Pending |
+| FIT-01 | Phase 31 | Pending |
+| FIT-02 | Phase 31 | Pending |
+| FIT-03 | Phase 31 | Pending |
+| FIT-04 | Phase 31 | Pending |
+| FIT-05 | Phase 31 | Pending |
+| DASH-01 | Phase 32 | Pending |
+| DASH-02 | Phase 32 | Pending |
+| DASH-03 | Phase 32 | Pending |
+| DASH-04 | Phase 32 | Pending |
+| DASH-05 | Phase 32 | Pending |
 
 **Coverage:**
-- v4.0 requirements: 38 total
-- Mapped to phases: 0
-- Unmapped: 38 ⚠️
+- v4.0 requirements: 38 total (ORCH: 4, SOUL: 8, BUDG: 4, SPAWN: 7, COORD: 8, SYNTH: 5, FIT: 5, DASH: 5)
+- Mapped to phases: 38
+- Unmapped: 0
+
+**Phase 24 note:** No direct requirement IDs — it is a pure enabler phase that creates the schema and types infrastructure required by all 38 v4.0 requirements.
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 after initial definition*
+*Last updated: 2026-03-02 — traceability populated after roadmap creation*
