@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 24: Ring Leader Schema and Shared Types
+**Current focus:** v4.0 The Ring Leader — Phase 25: Orchestrator Demotion and Ring Leader Core
 
 ## Current Position
 
-Phase: 24 of 32 (Ring Leader Schema and Shared Types)
-Plan: 2 of TBD in current phase
-Status: In progress
-Last activity: 2026-03-02 — 24-02 complete: Ring Leader shared types (@claw/shared-types ring-leader.ts) and Zod event schemas (@claw/event-schemas ring-leader-events.ts)
+Phase: 25 of 32 (Orchestrator Demotion and Ring Leader Core)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-02 — Phase 24 complete (2/2 plans, verified passed 8/8 must-haves)
 
-Progress: [█░░░░░░░░░] ~3% v4.0
+Progress: [█░░░░░░░░░] 11% v4.0
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 51 (v1.0 + v1.1 + v2.0 + v3.0)
+- Total plans completed: 53 (v1.0 + v1.1 + v2.0 + v3.0 + v4.0 Phase 24)
 - Average duration: 4.7 min
 - Total execution time: 247 min
 
@@ -72,5 +72,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 24-02-PLAN.md — Ring Leader shared types and event schemas
+Stopped at: Phase 24 complete — DB schema + shared types + event schemas verified. Ready to plan Phase 25.
 Resume file: None

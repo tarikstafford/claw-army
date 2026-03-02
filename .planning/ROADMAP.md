@@ -84,8 +84,8 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full phase details.
 **Plans:** 2 plans
 
 Plans:
-- [ ] 24-01-PLAN.md — DB migration: ring_leader_runs and ring_leader_fitness tables, ring_leader_run_id on executions
-- [ ] 24-02-PLAN.md — Shared types and Zod event schemas for Ring Leader lifecycle
+- [x] 24-01-PLAN.md — DB migration: ring_leader_runs and ring_leader_fitness tables, ring_leader_run_id on executions
+- [x] 24-02-PLAN.md — Shared types and Zod event schemas for Ring Leader lifecycle
 
 #### Phase 25: Orchestrator Demotion and Ring Leader Core
 
@@ -264,7 +264,7 @@ Plans:
 | 21. Launch-from-Objective UI | v3.0 | 2/2 | Complete | 2026-02-23 |
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |
-| 24. Ring Leader Schema and Shared Types | v4.0 | 0/2 | Not started | - |
+| 24. Ring Leader Schema and Shared Types | v4.0 | 2/2 | Complete | 2026-03-02 |
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 0/TBD | Not started | - |
 | 26. Soul Library Search and Population Assembly | v4.0 | 0/TBD | Not started | - |
 | 27. Budget Validation and Population Sizing | v4.0 | 0/TBD | Not started | - |
