@@ -77,3 +77,35 @@
 
 ---
 
+
+## v4.0 The Ring Leader (Shipped: 2026-03-02)
+
+**Phases completed:** 9 phases (24–32), 30 plans
+**Timeline:** 1 day (2026-03-02)
+**Code shipped:** ~16,834 insertions across 114 files
+**Git range:** feat(24-01) → feat(32-03) (91 commits)
+
+**Delivered:** The Ring Leader — a first-class autonomous entity that owns the full execution lifecycle from soul selection through run synthesis, demoting the Orchestrator to a thin pre-flight layer. All 38 v4.0 requirements satisfied across 9 phases.
+
+**Key accomplishments:**
+- Orchestrator demoted to thin pre-flight layer (task graph parsing + budget validation) — Ring Leader owns soul selection, population assembly, agent spawning, real-time coordination, and run synthesis end-to-end
+- Soul library search engine with pgvector embedding similarity, class-priority selection, differentiation enforcement (cosine < 0.85), pre-deployment mutation, and pioneer generation for novel task categories
+- Budget validation with tiered reduction (Artisan→Understudy→minimum populations) and clear constraint messaging when minimum viable population cannot be funded
+- DAG-respecting agent spawning with per-agent session JWTs, SOUL.md injection, constitution verification, upstream intelligence routing, and active session registry
+- Real-time coordination loop: intelligence routing between agents, failure reallocation, objective drift detection (embedding similarity + reanchoring signals), and tiered budget degradation (deprioritize → consolidate → wrap up → hard stop)
+- Run synthesis (LLM-driven) with soul selection retrospective, coordination self-assessment, and recommended library writes — delivered to Performance Judge as primary council input
+- Ring Leader fitness scoring: coordination quality (4 dimensions, 60% weight) + soul selection quality (5 dimensions, 40% weight) with class progression (Novice → Understudy → Artisan) and Akashic Library persistence
+- Dashboard surfaces: pre-flight population manifest, live Ring Leader state panel with drift indicator, activity feed with coordination event formatting, post-run synthesis and fitness score panels
+
+**Tech debt accepted (9 items, 0 critical):**
+- Council synthesis race condition (degraded, not blocking)
+- Phase 25 missing VERIFICATION.md (complete but not formally verified)
+- thirdPartyGrants placeholder, cost estimate placeholder, cosmetic comment, orphaned API function, unauthenticated Ring Leader GET routes, 4 human verification items pending live execution
+
+**Archive:**
+- `.planning/milestones/v4.0-ROADMAP.md` — full phase details
+- `.planning/milestones/v4.0-REQUIREMENTS.md` — all 38 requirements with outcomes
+- `.planning/milestones/v4.0-MILESTONE-AUDIT.md` — pre-completion audit
+
+---
+
