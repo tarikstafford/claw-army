@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 25: Orchestrator Demotion and Ring Leader Core
+**Current focus:** v4.0 The Ring Leader — Phase 26: Soul Library Search and Population Assembly
 
 ## Current Position
 
-Phase: 25 of 32 (Orchestrator Demotion and Ring Leader Core)
-Plan: 3 of 3 in current phase — PHASE COMPLETE
-Status: In progress
-Last activity: 2026-03-02 — Plan 25-03 complete (ring-leader-spawner.ts + refactored POST /executions, Orchestrator demoted to thin pre-flight layer, 2 tasks, tsc clean)
+Phase: 26 of 32 (Soul Library Search and Population Assembly)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-03-02 — Phase 25 complete (3/3 plans, verified passed 10/10 must-haves)
 
-Progress: [█░░░░░░░░░] 11% v4.0
+Progress: [██░░░░░░░░] 22% v4.0
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 53 (v1.0 + v1.1 + v2.0 + v3.0 + v4.0 Phase 24)
-- Average duration: 4.7 min
-- Total execution time: 247 min
+- Total plans completed: 56 (v1.0 + v1.1 + v2.0 + v3.0 + v4.0 Phases 24-25)
+- Average duration: 4.6 min
+- Total execution time: 258 min
 
 **By Phase:**
 
@@ -82,5 +82,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Plan 25-03 complete — ring-leader-spawner.ts + refactored POST /executions. Phase 25 complete. Ready for Phase 26 (Ring Leader soul selection and population assembly).
+Stopped at: Phase 25 complete — Orchestrator demoted to thin pre-flight layer. Ready to plan Phase 26.
 Resume file: None

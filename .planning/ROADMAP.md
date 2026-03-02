@@ -100,9 +100,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 25-01-PLAN.md — Task graph parser: LLM-based DAG decomposition with complexity, tools, populations
-- [ ] 25-02-PLAN.md — Pre-flight validation: tool grants and budget check against task graph
-- [ ] 25-03-PLAN.md — Ring Leader spawn: mission brief construction and Orchestrator handoff
+- [x] 25-01-PLAN.md — Task graph parser: LLM-based DAG decomposition with complexity, tools, populations
+- [x] 25-02-PLAN.md — Pre-flight validation: tool grants and budget check against task graph
+- [x] 25-03-PLAN.md — Ring Leader spawn: mission brief construction and Orchestrator handoff
 
 #### Phase 26: Soul Library Search and Population Assembly
 
@@ -265,7 +265,7 @@ Plans:
 | 22. v3.0 Tech Debt Cleanup | v3.0 | 1/1 | Complete | 2026-02-23 |
 | 23. Akasa UI Rebrand — Design System Rollout | v3.0 | 7/7 | Complete | 2026-02-23 |
 | 24. Ring Leader Schema and Shared Types | v4.0 | 2/2 | Complete | 2026-03-02 |
-| 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 0/TBD | Not started | - |
+| 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 26. Soul Library Search and Population Assembly | v4.0 | 0/TBD | Not started | - |
 | 27. Budget Validation and Population Sizing | v4.0 | 0/TBD | Not started | - |
 | 28. Ring Leader Agent Spawning | v4.0 | 0/TBD | Not started | - |
