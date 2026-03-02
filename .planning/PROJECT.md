@@ -6,8 +6,22 @@
 - ✅ v1.1 Google Auth Gate — shipped 2026-02-19
 - ✅ v2.0 The SOUL System — shipped 2026-02-22
 - ✅ v3.0 Bot Reliability & UX Overhaul — shipped 2026-02-23
+- 🔄 v4.0 The Ring Leader — in progress
 
-**Next:** Start v4.0 with `/gsd:new-milestone`
+## Current Milestone: v4.0 The Ring Leader
+
+**Goal:** Promote the Ring Leader from a concept to a first-class autonomous entity that owns soul selection, population assembly, agent spawning, real-time swarm coordination, and run synthesis — demoting the Orchestrator to a thin pre-flight layer.
+
+**Target features:**
+- Orchestrator demotion to pre-flight only (task graph + budget envelope)
+- Ring Leader soul library search and population assembly
+- Ring Leader agent spawning with JWT/SOUL.md/task brief injection
+- Real-time execution coordination (intelligence routing, dynamic reallocation, objective reanchoring)
+- Budget and runtime watchdog with tiered degradation
+- Run synthesis for council evaluation
+- Ring Leader fitness scoring (coordination 60% + soul selection quality 40%)
+- Ring Leader evolution through Akashic Library (promotion thresholds, mutation competency tracking)
+- Pre-flight and post-run dashboard surfaces for Ring Leader decisions and retrospectives
 
 ---
 
@@ -101,7 +115,7 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ### Active
 
-<!-- No active requirements — planning v4.0 -->
+<!-- v4.0 Ring Leader — requirements defined in REQUIREMENTS.md -->
 
 ### Out of Scope
 
@@ -206,4 +220,4 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 | Akasa CSS tokens: 28 custom properties in app.css | Zero hardcoded hex across 13 routes (acceptable exceptions: SVG fills, #fff on violet, Google brand) | ✓ Good — audit confirms zero old tokens remaining |
 
 ---
-*Last updated: 2026-02-23 after v3.0 milestone*
+*Last updated: 2026-03-02 after v4.0 milestone start*

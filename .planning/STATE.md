@@ -5,15 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v3.0 archived — planning v4.0
+**Current focus:** v4.0 The Ring Leader
 
 ## Current Position
 
-Milestone: v3.0 archived 2026-02-23
-Status: All phases complete (23 phases, 73 plans across v1.0–v3.0). Milestone archived to .planning/milestones/v3.0-ROADMAP.md. Git tagged v3.0.
-Last activity: 2026-02-23 — v3.0 milestone completion: Akasa UI rebrand shipped, milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-02 — Milestone v4.0 started
 
-Progress: [██████████] 100% v3.0 archived — ready for v4.0
+Progress: [░░░░░░░░░░] 0% v4.0 — defining requirements
 
 ## Performance Metrics
 
@@ -180,6 +181,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-23
-Stopped at: v3.0 milestone archived — ROADMAP collapsed, REQUIREMENTS.md deleted, PROJECT.md evolved, git tagged v3.0. Ready for /gsd:new-milestone v4.0.
+Last session: 2026-03-02
+Stopped at: v4.0 milestone started — defining requirements
 Resume file: None
