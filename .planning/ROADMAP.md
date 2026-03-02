@@ -154,7 +154,7 @@ Plans:
 - [x] 28-01-PLAN.md — Session JWT generation, SOUL.md injection, task brief assembly, and constitution verification
 - [x] 28-02-PLAN.md — DAG-respecting spawn sequencing, active session registry, and pipeline wiring
 - [x] 28-03-PLAN.md — Pre-flight dashboard data endpoint: population manifest per task
-- [ ] 28-04-PLAN.md — Gap closure: upstream intelligence pipeline (ring_leader_task_id column + collectUpstreamOutputs)
+- [x] 28-04-PLAN.md — Gap closure: upstream intelligence pipeline (ring_leader_task_id column + collectUpstreamOutputs)
 
 #### Phase 29: Real-Time Execution Coordination
 
@@ -265,7 +265,7 @@ Plans:
 | 25. Orchestrator Demotion and Ring Leader Core | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 26. Soul Library Search and Population Assembly | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 27. Budget Validation and Population Sizing | v4.0 | 2/2 | Complete | 2026-03-02 |
-| 28. Ring Leader Agent Spawning | v4.0 | 0/3 | Not started | - |
+| 28. Ring Leader Agent Spawning | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 29. Real-Time Execution Coordination | v4.0 | 0/TBD | Not started | - |
 | 30. Run Synthesis | v4.0 | 0/TBD | Not started | - |
 | 31. Ring Leader Fitness Scoring | v4.0 | 0/TBD | Not started | - |

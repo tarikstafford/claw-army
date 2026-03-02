@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 28: Ring Leader Agent Spawning
+**Current focus:** v4.0 The Ring Leader — Phase 28 complete, Phase 29 next
 
 ## Current Position
 
-Phase: 28 of 32 (Ring Leader Agent Spawning)
-Plan: 4 of TBD in current phase
-Status: In progress
-Last activity: 2026-03-02 — Phase 28 Plan 04 complete (upstream intelligence pipeline gap closure)
+Phase: 28 of 32 (Ring Leader Agent Spawning) — COMPLETE
+Plan: 4/4 complete
+Status: Phase complete, verified
+Last activity: 2026-03-02 — Phase 28 complete (all SPAWN requirements verified)
 
-Progress: [████░░░░░░] 44% v4.0
+Progress: [█████░░░░░] 56% v4.0
 
 ## Performance Metrics
 
@@ -96,7 +96,7 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 28-01]: JWT subject format session:{soulId}:{taskId} unique and traceable per agent assignment
 - [Phase 28-01]: JWT expiry = runtimeLimitSeconds + 300s buffer so JWT stays valid during post-agent cleanup/callbacks
 - [Phase 28-02]: sessionId in ActiveSession uses botId from spawnBot — OpenClaw sessions protocol unverified, botId is reliable identifier until sessions_list confirmed
-- [Phase 28-02]: Upstream output injection returns empty array — tasks table lacks ring_leader_task_id column; DAG ordering respected but intelligence injection deferred to future schema migration
+- [Phase 28-02]: Upstream output injection originally returned empty array — resolved in 28-04 with ring_leader_task_id column and real collectUpstreamOutputs implementation
 - [Phase 28-02]: executionId sourced from ring_leader_runs DB row (Option A) — preserves 2-arg assemblePopulation public interface unchanged
 - [Phase 28-02]: Cycle detection in computeSpawnWaves dumps remaining tasks to single wave with WARN on malformed DAGs
 - [Phase 28-04]: ringLeaderTaskId is varchar(255) nullable with no FK — mission brief taskIds are opaque strings not UUIDs referencing another table
@@ -120,5 +120,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 28-04-PLAN.md — upstream intelligence pipeline gap closure (ring_leader_task_id column + collectUpstreamOutputs + task row creation)
+Stopped at: Phase 28 complete and verified — all 4 plans executed, 5/5 success criteria passed
 Resume file: None
