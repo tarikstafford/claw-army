@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 30 in progress (Plan 1/2 complete)
+**Current focus:** v4.0 The Ring Leader — Phase 30 complete (Plan 2/2 complete)
 
 ## Current Position
 
 Phase: 30 of 32 (Run Synthesis)
-Plan: 1/2 complete
-Status: In progress
-Last activity: 2026-03-02 — Phase 30 Plan 01 complete (run synthesis module with LLM-driven document generation)
+Plan: 2/2 complete
+Status: Phase complete
+Last activity: 2026-03-02 — Phase 30 Plan 02 complete (synthesis wired into coordination loop and council pipeline)
 
 Progress: [██████░░░░] 70% v4.0
 
@@ -55,6 +55,7 @@ Progress: [██████░░░░] 70% v4.0
 | Phase 29-real-time-execution-coordination P03 | 1 | 1 task | 1 file |
 | Phase 29-real-time-execution-coordination P05 | 6 | 2 tasks | 2 files |
 | Phase 30-run-synthesis P01 | 2 | 1 tasks | 1 files |
+| Phase 30-run-synthesis P02 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 29-05]: Hard-stop anomaly appended on every poll cycle when tier is hard_stop (not just on transition) — ensures loop termination detection across missed cycles
 - [Phase 30-run-synthesis]: Single LLM call for all four synthesis qualitative fields; fallback synthesis persists with objectiveAchieved=false on LLM failure
 - [Phase 30-run-synthesis]: Budget variance = budgetConsumedCents - budgetCapCents; recommendedLibraryWrites includes Artisan/Understudy souls on completed tasks only
+- [Phase 30-02]: Synthesis is fire-and-forget from coordination loop; generateRunSynthesis handles its own DB persistence and status transition to completed
+- [Phase 30-02]: ringLeaderSynthesis is optional/nullable in CouncilJobData and CouncilContext for backward compat with non-Ring-Leader executions
+- [Phase 30-02]: Synthesis section prepended (not appended) to Performance Judge prompt to satisfy SYNTH-05 primary input requirement
 
 ### Pending Todos
 
@@ -143,5 +147,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 30-run-synthesis-01-PLAN.md
+Stopped at: Completed 30-run-synthesis-02-PLAN.md
 Resume file: None
