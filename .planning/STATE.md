@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v4.0 The Ring Leader — Phase 31 complete, Phase 32 next
+**Current focus:** v4.0 The Ring Leader — Phase 32 in progress
 
 ## Current Position
 
-Phase: 31 of 32 (Ring Leader Fitness Scoring) — COMPLETE
-Plan: 4/4 complete
-Status: Phase verified and complete
-Last activity: 2026-03-02 — Phase 31 verified (5/5 must-haves passed)
+Phase: 32 of 32 (Dashboard and Reporting) — IN PROGRESS
+Plan: 1/4 complete
+Status: Plan 32-01 complete — Ring Leader data layer (endpoints + SSE + UI types)
+Last activity: 2026-03-02 — Phase 32 Plan 01 complete (2/2 tasks, 5 files)
 
 Progress: [█████████░] 89% v4.0
 
@@ -61,6 +61,7 @@ Progress: [█████████░] 89% v4.0
 | Phase 31-ring-leader-fitness-scoring P02 | 2 | 1 tasks | 1 files |
 | Phase 31-ring-leader-fitness-scoring P03 | 2 | 2 tasks | 2 files |
 | Phase 31-ring-leader-fitness-scoring P04 | 2 | 2 tasks | 2 files |
+| Phase 32-dashboard-and-reporting P01 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -145,6 +146,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 31-04]: agent_classes reused for Ring Leaders (botId=soulId, taskCategory='ring_leader') — no new table or migration needed
 - [Phase 31-04]: Qualifying run count for Artisan gate uses SQL avg of 5 JSONB soul_selection_score dimensions; only executes when basic gates pass
 - [Phase 31-04]: Class progression failure is non-fatal — own try/catch separate from fitness try/catch; logs WARN, never propagates
+- [Phase 32-01]: runState returns null (not 404) when ring_leader_run exists but coordination not started — UI can distinguish phases without error handling
+- [Phase 32-01]: Ring Leader SSE events forwarded via existing per-connection subscription fan-out — RING_LEADER_EVENTS_TOPIC added to topicNames array in sse.ts
+- [Phase 32-01]: fitness.compositeScore cast via Number() because Drizzle returns numeric column as string from ring_leader_fitness table
 
 ### Pending Todos
 
@@ -163,5 +167,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 31-04-PLAN.md
+Stopped at: Completed 32-01-PLAN.md
 Resume file: None
