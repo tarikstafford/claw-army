@@ -91,7 +91,7 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 
 **Milestone Goal:** Close all gaps between PRDs, backend logic, and UI — fix API path mismatches, add missing schema columns, expose existing backend data in the UI, implement PRD-promised features not yet built, and replace UI stubs with functional implementations.
 
-- [ ] **Phase 33: Execution Data Model Fixes** — Add `llmProvider` and `allowedDomains` columns to executions table; wire Tool Gateway to per-execution domain filtering
+- [x] **Phase 33: Execution Data Model Fixes** — Add `llmProvider` and `allowedDomains` columns to executions table; wire Tool Gateway to per-execution domain filtering
 - [ ] **Phase 34: API Alignment and SSE Verification** — Fix Ring Leader route paths, verify SSE endpoints, add calibration endpoint
 - [ ] **Phase 35: Execution Form Enhancements** — Add campaign type, tool allowlist, and runtime limit fields to execution creation form
 - [ ] **Phase 36: Pre-Flight Manifest Review** — Gate execution launch behind manifest review step so user confirms soul assignments before bots spawn
@@ -118,8 +118,8 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 33-01-PLAN.md — Add llmProvider and allowedDomains columns to Drizzle schema, create migration, wire through POST /executions handler
-- [ ] 33-02-PLAN.md — Wire Tool Gateway proxy to per-execution allowedDomains with TTL cache and X-Execution-Id header
+- [x] 33-01-PLAN.md — Add llmProvider and allowedDomains columns to Drizzle schema, create migration, wire through POST /executions handler
+- [x] 33-02-PLAN.md — Wire Tool Gateway proxy to per-execution allowedDomains with TTL cache and X-Execution-Id header
 
 ---
 
@@ -290,7 +290,7 @@ Plans:
 | 30. Run Synthesis | v4.0 | 3/3 | Complete | 2026-03-02 |
 | 31. Ring Leader Fitness Scoring | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 32. Dashboard and Reporting | v4.0 | 4/4 | Complete | 2026-03-02 |
-| 33. Execution Data Model Fixes | v5.0 | 0/2 | Not started | - |
+| 33. Execution Data Model Fixes | v5.0 | 2/2 | Complete | 2026-03-02 |
 | 34. API Alignment and SSE Verification | v5.0 | 0/3 | Not started | - |
 | 35. Execution Form Enhancements | v5.0 | 0/2 | Not started | - |
 | 36. Pre-Flight Manifest Review | v5.0 | 0/2 | Not started | - |
