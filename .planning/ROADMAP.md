@@ -115,11 +115,11 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
   2. POST /executions accepts `allowedDomains` (string array) and stores it on the executions row
   3. Tool Gateway reads `allowedDomains` from the execution record and applies per-execution domain filtering (not only the global env var)
   4. Existing executions without these fields are unaffected (nullable columns, backward compatible)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 33-01: Add `llmProvider` and `allowedDomains` columns — Drizzle migration, schema types, POST /executions validation
-- [ ] 33-02: Wire Tool Gateway to per-execution `allowedDomains` — fetch from DB on request, apply allowlist
+- [ ] 33-01-PLAN.md — Add llmProvider and allowedDomains columns to Drizzle schema, create migration, wire through POST /executions handler
+- [ ] 33-02-PLAN.md — Wire Tool Gateway proxy to per-execution allowedDomains with TTL cache and X-Execution-Id header
 
 ---
 
