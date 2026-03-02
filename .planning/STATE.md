@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 28 of 32 (Ring Leader Agent Spawning)
-Plan: 2 of TBD in current phase
+Plan: 4 of TBD in current phase
 Status: In progress
-Last activity: 2026-03-02 — Phase 28 Plan 02 complete (DAG agent spawner + population assembly wiring)
+Last activity: 2026-03-02 — Phase 28 Plan 04 complete (upstream intelligence pipeline gap closure)
 
 Progress: [████░░░░░░] 44% v4.0
 
@@ -48,6 +48,7 @@ Progress: [████░░░░░░] 44% v4.0
 | Phase 27-budget-validation-and-population-sizing P02 | 2 | 1 task | 2 files |
 | Phase 28-ring-leader-agent-spawning P01 | 2 | 2 tasks | 2 files |
 | Phase 28-ring-leader-agent-spawning P02 | 2 | 2 tasks | 2 files |
+| Phase 28-ring-leader-agent-spawning P04 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 28-02]: Upstream output injection returns empty array — tasks table lacks ring_leader_task_id column; DAG ordering respected but intelligence injection deferred to future schema migration
 - [Phase 28-02]: executionId sourced from ring_leader_runs DB row (Option A) — preserves 2-arg assemblePopulation public interface unchanged
 - [Phase 28-02]: Cycle detection in computeSpawnWaves dumps remaining tasks to single wave with WARN on malformed DAGs
+- [Phase 28-04]: ringLeaderTaskId is varchar(255) nullable with no FK — mission brief taskIds are opaque strings not UUIDs referencing another table
+- [Phase 28-04]: collectUpstreamOutputs is non-fatal (try/catch returns []) — upstream intelligence failure never blocks agent spawning
+- [Phase 28-04]: Task row created after spawnBot succeeds with status=claimed; openclaw-dispatcher transitions to completed/failed and populates result
 
 ### Pending Todos
 
@@ -116,5 +120,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 28-02-PLAN.md — DAG-respecting agent spawner with active session registry and population assembly wiring
+Stopped at: Completed 28-04-PLAN.md — upstream intelligence pipeline gap closure (ring_leader_task_id column + collectUpstreamOutputs + task row creation)
 Resume file: None
