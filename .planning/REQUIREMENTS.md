@@ -77,34 +77,34 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | — | Pending |
-| API-02 | — | Pending |
-| API-03 | — | Pending |
-| API-04 | — | Pending |
-| API-05 | — | Pending |
-| API-06 | — | Pending |
-| FORM-01 | — | Pending |
-| FORM-02 | — | Pending |
-| FORM-03 | — | Pending |
-| FORM-04 | — | Pending |
-| OBJ-01 | — | Pending |
-| OBJ-02 | — | Pending |
-| OBJ-03 | — | Pending |
-| OBJ-04 | — | Pending |
-| SOUL-01 | — | Pending |
-| SOUL-02 | — | Pending |
-| SOUL-03 | — | Pending |
-| SOUL-04 | — | Pending |
-| SOUL-05 | — | Pending |
-| POLISH-01 | — | Pending |
-| POLISH-02 | — | Pending |
-| POLISH-03 | — | Pending |
+| API-01 | Phase 34 | Pending |
+| API-02 | Phase 33 | Pending |
+| API-03 | Phase 33 | Pending |
+| API-04 | Phase 34 | Pending |
+| API-05 | Phase 34 | Pending |
+| API-06 | Phase 34 | Pending |
+| FORM-01 | Phase 35 | Pending |
+| FORM-02 | Phase 35 | Pending |
+| FORM-03 | Phase 35 | Pending |
+| FORM-04 | Phase 36 | Pending |
+| OBJ-01 | Phase 37 | Pending |
+| OBJ-02 | Phase 37 | Pending |
+| OBJ-03 | Phase 37 | Pending |
+| OBJ-04 | Phase 38 | Pending |
+| SOUL-01 | Phase 39 | Pending |
+| SOUL-02 | Phase 39 | Pending |
+| SOUL-03 | Phase 39 | Pending |
+| SOUL-04 | Phase 39 | Pending |
+| SOUL-05 | Phase 39 | Pending |
+| POLISH-01 | Phase 40 | Pending |
+| POLISH-02 | Phase 40 | Pending |
+| POLISH-03 | Phase 40 | Pending |
 
 **Coverage:**
 - v5.0 requirements: 22 total
-- Mapped to phases: 0
-- Unmapped: 22 (pending roadmap creation)
+- Mapped to phases: 22
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 after initial definition*
+*Last updated: 2026-03-02 after roadmap creation*
