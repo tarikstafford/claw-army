@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 24 of 32 (Ring Leader Schema and Shared Types)
-Plan: 1 of TBD in current phase
+Plan: 2 of TBD in current phase
 Status: In progress
-Last activity: 2026-03-02 — 24-01 complete: Ring Leader schema (ring_leader_runs, ring_leader_fitness, migration 0011)
+Last activity: 2026-03-02 — 24-02 complete: Ring Leader shared types (@claw/shared-types ring-leader.ts) and Zod event schemas (@claw/event-schemas ring-leader-events.ts)
 
 Progress: [█░░░░░░░░░] ~3% v4.0
 
@@ -37,6 +37,7 @@ Progress: [█░░░░░░░░░] ~3% v4.0
 
 *Updated after each plan completion*
 | Phase 24-ring-leader-schema-and-shared-types P01 | 2 | 2 tasks | 5 files |
+| Phase 24-ring-leader-schema-and-shared-types P02 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -51,6 +52,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - Phase 24 must add Ring Leader-specific columns without touching existing evolution tables
 - [Phase 24-01]: No circular FK from executions.ring_leader_run_id back to ring_leader_runs; logical reference pattern used instead
 - [Phase 24-01]: JSONB used for all Ring Leader domain documents (missionBrief, populationManifest, runState, synthesis, scoring breakdowns) to avoid schema churn as types evolve
+- [Phase 24-02]: Used `import type` for UUID/Cents in ring-leader.ts (zero runtime overhead); all numerical constants exported to prevent magic numbers in downstream phases
+- [Phase 24-02]: Zod event schemas follow same discriminated union pattern as soul-lifecycle-events.ts for consistency
 
 ### Pending Todos
 
@@ -69,5 +72,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 24-01-PLAN.md — Ring Leader schema and SQL migration 0011
+Stopped at: Completed 24-02-PLAN.md — Ring Leader shared types and event schemas
 Resume file: None
