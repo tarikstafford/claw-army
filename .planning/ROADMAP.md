@@ -131,12 +131,11 @@ Plans:
   2. When estimated cost exceeds the budget cap, Ring Leader applies tiered reduction in order: replace Artisans with Understudies, then reduce to minimum populations — surfacing a warning to the user at each tier.
   3. Ring Leader never reduces a task below 3 worker agents regardless of cost pressure.
   4. When the budget cannot fund minimum populations (3 agents per task), user sees a specific constraint message with the exact shortfall and options to scope down or increase budget.
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 27-01: Cost estimation from population manifest and budget cap comparison
-- [ ] 27-02: Tiered reduction logic and minimum population guard
-- [ ] 27-03: User-facing budget constraint surface (API + UI message)
+- [ ] 27-01-PLAN.md — TDD: budget-validator module with cost estimation, tiered reduction, and minimum population guard
+- [ ] 27-02-PLAN.md — Wire budget validation into population assembly pipeline and surface constraint failures
 
 #### Phase 28: Ring Leader Agent Spawning
 
