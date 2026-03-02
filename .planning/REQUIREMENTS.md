@@ -1,0 +1,110 @@
+# Requirements: Claw Bot Army (Akasa)
+
+**Defined:** 2026-03-02
+**Core Value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
+
+## v5.0 Requirements
+
+Requirements for v5.0 Full Spectrum — closing all gaps between PRDs, backend logic, and UI.
+
+### API & Data Integrity
+
+- [ ] **API-01**: Ring Leader UI routes use execution-scoped paths (`/ring-leader/runs/by-execution/:executionId/*`) that match backend route registration
+- [ ] **API-02**: `llmProvider` field is stored on executions table, accepted by POST /executions, and sent from the UI form
+- [ ] **API-03**: `allowedDomains` field is stored on executions table and forwarded to Tool Gateway for per-execution domain filtering
+- [ ] **API-04**: SSE endpoint `GET /executions/:id/events` streams activity feed events to the UI in real time
+- [ ] **API-05**: SSE endpoint `GET /events/lifecycle` streams soul lifecycle notifications (promotion, demotion, retirement, pioneer) globally
+- [ ] **API-06**: `GET /verdicts/calibration?userId=` endpoint returns confirmation rate and warning flag for anti-rubber-stamp mechanics
+
+### Execution Form
+
+- [ ] **FORM-01**: User can select campaign type (ad hoc or campaign) when creating an execution
+- [ ] **FORM-02**: User can configure tool allowlist (multi-select of available tools) when creating an execution
+- [ ] **FORM-03**: User can set runtime limit (minutes) when creating an execution
+- [ ] **FORM-04**: User can review the full population manifest (souls assigned per task, source, rationale) before confirming execution launch
+
+### Objective Management
+
+- [ ] **OBJ-01**: User can create a new named objective with default configuration (max bots, budget, tools, runtime)
+- [ ] **OBJ-02**: User can edit an existing objective's name, description, and default configuration
+- [ ] **OBJ-03**: User can archive an objective (soft delete) from the objectives list
+- [ ] **OBJ-04**: Objective detail page shows DNA evolution timeline — which souls promoted/retired across runs
+
+### Soul & DNA Visibility
+
+- [ ] **SOUL-01**: User can browse the soul library — view all souls by task category with agent class, generation, fitness score
+- [ ] **SOUL-02**: User can view decision traces for a specific bot — directive references, attribution confidence, outcomes
+- [ ] **SOUL-03**: User can view the negative signal register — failed/retired souls with failure type and directive failure summary
+- [ ] **SOUL-04**: User can view category benchmarks — pioneer progress, baseline scores, benchmark maturity, thin data flags
+- [ ] **SOUL-05**: Execution report shows Ring Leader fitness detail breakdown — coordination quality (4 dimensions) and soul selection quality (5 dimensions) individually scored
+
+### Landing Page & Polish
+
+- [ ] **POLISH-01**: "Request access" form on landing page captures email and stores it (or sends to a collection endpoint)
+- [ ] **POLISH-02**: Footer links on landing page either point to real targets or are removed
+- [ ] **POLISH-03**: `GET /admin/health` endpoint returns system health status (GCE, Cloud SQL, Redis, BullMQ)
+
+## v6.0+ Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Advanced Soul Operations
+
+- **ADV-01**: Mutation lineage visualization (depth-3 graphical view)
+- **ADV-02**: Soul weight sliders (user-configurable fitness dimension weights)
+- **ADV-03**: Army composition history (named armies with track record)
+- **ADV-04**: Army Composition Recommendation algorithm
+- **ADV-05**: Category weight auto-calibration after 10 confirmed runs
+
+### Platform Scale
+
+- **SCALE-01**: Multi-tenant isolation with per-org data boundaries
+- **SCALE-02**: Real payment processing (Stripe integration)
+- **SCALE-03**: Agent marketplace / soul trading
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| User-editable raw soul text | Corrupts evolutionary lineage attribution |
+| Fine-tuning model weights from soul data | Requires RLHF infrastructure |
+| Real-time Council during execution | Council runs post-synthesis per design |
+| DAG replanning mid-run | Ring Leader decomposes once, no recursive planning |
+| Mobile app | Web-first |
+| Per-run soul mutation | Insufficient run count produces noisy signal |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| API-01 | — | Pending |
+| API-02 | — | Pending |
+| API-03 | — | Pending |
+| API-04 | — | Pending |
+| API-05 | — | Pending |
+| API-06 | — | Pending |
+| FORM-01 | — | Pending |
+| FORM-02 | — | Pending |
+| FORM-03 | — | Pending |
+| FORM-04 | — | Pending |
+| OBJ-01 | — | Pending |
+| OBJ-02 | — | Pending |
+| OBJ-03 | — | Pending |
+| OBJ-04 | — | Pending |
+| SOUL-01 | — | Pending |
+| SOUL-02 | — | Pending |
+| SOUL-03 | — | Pending |
+| SOUL-04 | — | Pending |
+| SOUL-05 | — | Pending |
+| POLISH-01 | — | Pending |
+| POLISH-02 | — | Pending |
+| POLISH-03 | — | Pending |
+
+**Coverage:**
+- v5.0 requirements: 22 total
+- Mapped to phases: 0
+- Unmapped: 22 (pending roadmap creation)
+
+---
+*Requirements defined: 2026-03-02*
+*Last updated: 2026-03-02 after initial definition*
