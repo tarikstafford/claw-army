@@ -7,6 +7,7 @@ import {
 } from './agent-spawner';
 import { clearCoordinationLog, getCoordinationLog } from './coordination-events';
 import { generateRunSynthesis } from './run-synthesis';
+import { computeAndPersistFitness } from './ring-leader-fitness';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -342,9 +343,25 @@ export function startCoordinationLoop(params: StartCoordinationLoopParams): Coor
           runState,
           manifests,
           coordinationLog,
+        }).then((synthesis) => {
+          // Fire-and-forget fitness scoring after synthesis completes
+          computeAndPersistFitness({
+            runId,
+            executionId,
+            synthesis,
+            manifests,
+            missionBrief,
+            runState,
+            coordinationLog,
+          }).catch((err) => {
+            console.warn(
+              `[coordination-loop] Fitness scoring failed for runId=${runId}:`,
+              (err as Error).message,
+            );
+          });
         }).catch((err) => {
-          console.error(
-            `[coordination-loop] Synthesis generation failed for runId=${runId}:`,
+          console.warn(
+            `[coordination-loop] Synthesis failed for runId=${runId}:`,
             (err as Error).message,
           );
         });
