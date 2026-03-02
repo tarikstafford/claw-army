@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 26 of 32 (Soul Library Search and Population Assembly)
-Plan: 2 complete in current phase
+Plan: 3 complete in current phase
 Status: In progress
-Last activity: 2026-03-02 — Phase 26 Plan 02 complete (population-assembler: selectFromPool + applyPreDeploymentMutation, tsc passes)
+Last activity: 2026-03-02 — Phase 26 Plan 03 complete (pioneer-generator + assemble-population orchestrator + ring-leader-spawner wired; all SOUL-01 through SOUL-08 implemented)
 
 Progress: [██░░░░░░░░] 22% v4.0
 
@@ -43,6 +43,7 @@ Progress: [██░░░░░░░░] 22% v4.0
 | Phase 25-orchestrator-demotion-and-ring-leader-core P03 | 6 | 2 tasks | 2 files |
 | Phase 26-soul-library-search-and-population-assembly P01 | 2 | 1 task | 1 file |
 | Phase 26-soul-library-search-and-population-assembly P02 | 2 | 1 task | 1 file |
+| Phase 26-soul-library-search-and-population-assembly P03 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,10 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - [Phase 26-02]: Class priority sort uses numeric map (Artisan=0, Understudy=1, Novice=2) stable-sorted with finalRank tiebreaker within tier
 - [Phase 26-02]: Pool shortfall (fewer than requiredPopulation selected) returns partial result; caller handles via pioneer path
 - [Phase 26-02]: applyPreDeploymentMutation validates operation strictly; throws on non-substitution/amplification (SOUL-05)
+- [Phase 26-03]: Pioneer population always 5 souls; archetype-derived when archetypes exist, scratch with 5 behavioral profiles otherwise
+- [Phase 26-03]: Pool shortfall after selectFromPool triggers supplemental pioneer generation (not failure) — library path preferred but shortfalls handled gracefully
+- [Phase 26-03]: Status assembling->spawning transitions inside assemblePopulation; spawner fires-and-forgets so spawnRingLeader returns immediately
+- [Phase 26-03]: Mutation errors in high-complexity path are non-fatal; assembly continues with unmutated soul
 
 ### Pending Todos
 
@@ -91,5 +96,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Completed 26-02-PLAN.md — Population assembler built (selectFromPool + applyPreDeploymentMutation). Ready for Phase 26 Plan 03.
+Stopped at: Completed 26-03-PLAN.md — Pioneer generator + population assembly orchestrator + ring-leader-spawner wired. All SOUL-01 through SOUL-08 implemented. Phase 26 complete.
 Resume file: None
