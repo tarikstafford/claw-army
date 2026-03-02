@@ -1,11 +1,12 @@
 import { db, ringLeaderRuns, toolInvocations } from '@claw/db';
 import { eq, and, sum } from 'drizzle-orm';
-import type { RingLeaderMissionBrief, RingLeaderRunState, TaskState, TaskRunStatus } from '@claw/shared-types';
+import type { RingLeaderMissionBrief, RingLeaderRunState, TaskState, TaskRunStatus, PopulationManifest } from '@claw/shared-types';
 import {
   getActiveSessionRegistry,
   type ActiveSessionRegistry,
 } from './agent-spawner';
-import { clearCoordinationLog } from './coordination-events';
+import { clearCoordinationLog, getCoordinationLog } from './coordination-events';
+import { generateRunSynthesis } from './run-synthesis';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -312,6 +313,30 @@ export function startCoordinationLoop(params: StartCoordinationLoopParams): Coor
           .update(ringLeaderRuns)
           .set({ status: 'synthesizing', updatedAt: new Date() })
           .where(eq(ringLeaderRuns.id, runId));
+
+        // SYNTH-01: Fire-and-forget synthesis generation.
+        // Read populationManifest from DB row, get coordination log, then generate synthesis.
+        // generateRunSynthesis persists the document and transitions run to 'completed'.
+        const [runRow] = await db
+          .select({ populationManifest: ringLeaderRuns.populationManifest })
+          .from(ringLeaderRuns)
+          .where(eq(ringLeaderRuns.id, runId));
+        const manifests = (runRow?.populationManifest as PopulationManifest[] | null) ?? [];
+        const coordinationLog = getCoordinationLog(runId);
+
+        generateRunSynthesis({
+          runId,
+          executionId,
+          missionBrief,
+          runState,
+          manifests,
+          coordinationLog,
+        }).catch((err) => {
+          console.error(
+            `[coordination-loop] Synthesis generation failed for runId=${runId}:`,
+            (err as Error).message,
+          );
+        });
 
         handle.stop();
       }
