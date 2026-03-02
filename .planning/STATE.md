@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Phase: 24 of 32 (Ring Leader Schema and Shared Types)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — v4.0 roadmap created (9 phases, 38 requirements mapped)
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-03-02 — 24-01 complete: Ring Leader schema (ring_leader_runs, ring_leader_fitness, migration 0011)
 
-Progress: [░░░░░░░░░░] 0% v4.0
+Progress: [█░░░░░░░░░] ~3% v4.0
 
 ## Performance Metrics
 
@@ -36,6 +36,7 @@ Progress: [░░░░░░░░░░] 0% v4.0
 - Trend: Stable
 
 *Updated after each plan completion*
+| Phase 24-ring-leader-schema-and-shared-types P01 | 2 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -48,6 +49,8 @@ All v1.0–v3.0 architectural decisions archived in PROJECT.md Key Decisions tab
 - OpenClaw communication: currently sendTask + event callbacks only — sessions_send/sessions_list need to be built or worked around for real-time coordination
 - Existing tables in place: bot_souls, council_verdicts, dna_store, negative_signal_register, decision_traces, agent_classes, category_benchmarks
 - Phase 24 must add Ring Leader-specific columns without touching existing evolution tables
+- [Phase 24-01]: No circular FK from executions.ring_leader_run_id back to ring_leader_runs; logical reference pattern used instead
+- [Phase 24-01]: JSONB used for all Ring Leader domain documents (missionBrief, populationManifest, runState, synthesis, scoring breakdowns) to avoid schema churn as types evolve
 
 ### Pending Todos
 
@@ -66,5 +69,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Roadmap created for v4.0 — 9 phases (24-32), 38 requirements mapped, ready to plan Phase 24
+Stopped at: Completed 24-01-PLAN.md — Ring Leader schema and SQL migration 0011
 Resume file: None
