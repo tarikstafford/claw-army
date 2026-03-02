@@ -148,12 +148,13 @@ Plans:
   3. Task brief and any available upstream intelligence signals are injected alongside SOUL.md in each session.
   4. Tasks with no DAG dependencies spawn immediately in parallel; tasks with upstream dependencies are held until upstream outputs are available.
   5. Every spawned agent's session ID is registered in the active session registry, and the pre-flight dashboard shows the full population manifest before the first agent begins executing.
-**Plans:** 3 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] 28-01-PLAN.md — Session JWT generation, SOUL.md injection, task brief assembly, and constitution verification
-- [ ] 28-02-PLAN.md — DAG-respecting spawn sequencing, active session registry, and pipeline wiring
-- [ ] 28-03-PLAN.md — Pre-flight dashboard data endpoint: population manifest per task
+- [x] 28-01-PLAN.md — Session JWT generation, SOUL.md injection, task brief assembly, and constitution verification
+- [x] 28-02-PLAN.md — DAG-respecting spawn sequencing, active session registry, and pipeline wiring
+- [x] 28-03-PLAN.md — Pre-flight dashboard data endpoint: population manifest per task
+- [ ] 28-04-PLAN.md — Gap closure: upstream intelligence pipeline (ring_leader_task_id column + collectUpstreamOutputs)
 
 #### Phase 29: Real-Time Execution Coordination
 
