@@ -90,6 +90,12 @@
     if (isTerminal) return;
 
     const cleanup = connectSSE(executionId, (event) => {
+      // Mark critical Ring Leader events as alerts
+      const isRLAlert = event.type === 'reanchoring' ||
+        (event.type === 'budget_degradation' && ['wrap_up', 'hard_stop'].includes(event['newTier'] as string)) ||
+        (event.type === 'reallocation' && ['agent_failure', 'guardrail_trigger'].includes(event['trigger'] as string));
+      if (isRLAlert) (event as Record<string, unknown>)['isAlert'] = true;
+
       // Keep last 100 events, newest first
       activityFeed = [event, ...activityFeed].slice(0, 100);
 
@@ -152,6 +158,33 @@
         return `Bot ${short}: ${reason ?? 'guardrail triggered'}`;
       case 'budget_exceeded':
         return 'Budget exceeded for execution';
+      case 'ring_leader_status_change': {
+        const from = event['fromStatus'] as string;
+        const to = event['toStatus'] as string;
+        return `Ring Leader: ${from} -> ${to}`;
+      }
+      case 'intelligence_routing': {
+        const fromTask = event['fromTaskId'] as string;
+        const toTask = event['toTaskId'] as string;
+        const signal = event['signalSummary'] as string | undefined;
+        return `Intel routed: ${fromTask} -> ${toTask}${signal ? ` (${signal.length > 80 ? signal.slice(0, 77) + '...' : signal})` : ''}`;
+      }
+      case 'reallocation': {
+        const trigger = event['trigger'] as string;
+        const action = event['action'] as string;
+        const taskId = event['affectedTaskId'] as string;
+        return `Reallocation [${trigger}]: ${action} on task ${taskId}`;
+      }
+      case 'reanchoring': {
+        const drift = event['driftScore'] as number;
+        return `Reanchoring signal (drift: ${drift.toFixed(2)}) — objective restated`;
+      }
+      case 'budget_degradation': {
+        const prev = event['previousTier'] as string;
+        const next = event['newTier'] as string;
+        const pct = event['budgetConsumedPercent'] as number;
+        return `Budget tier: ${prev} -> ${next} (${(pct * 100).toFixed(0)}% consumed)`;
+      }
       default: {
         const { type: _type, executionId: _eid, timestamp: _ts, isAlert: _ia, ...rest } = event;
         const detail = JSON.stringify(rest);
@@ -426,7 +459,7 @@
       {:else}
         <div class="activity-feed">
           {#each activityFeed as event (event.timestamp + event.type + (event['botId'] ?? ''))}
-            <div class="event" class:alert={event.isAlert}>
+            <div class="event" class:alert={event.isAlert} class:ring-leader={['ring_leader_status_change', 'intelligence_routing', 'reallocation', 'reanchoring', 'budget_degradation'].includes(event.type)}>
               <span class="event-type">{formatEventType(event.type)}</span>
               <span class="event-detail">{formatEventDetail(event)}</span>
               <span class="event-time">{new Date(event.timestamp).toLocaleTimeString()}</span>
@@ -1185,6 +1218,15 @@
     border-left: 2px solid var(--error);
     background: var(--error-dim);
     padding-left: calc(16px - 2px);
+  }
+
+  .event.ring-leader:not(.alert) {
+    border-left: 2px solid var(--violet);
+    padding-left: calc(16px - 2px);
+  }
+
+  .event.ring-leader:not(.alert) .event-type {
+    color: var(--violet-bright);
   }
 
   .event-type {
