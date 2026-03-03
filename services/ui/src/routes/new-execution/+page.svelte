@@ -11,17 +11,33 @@
     { id: 'openai',    label: 'OpenAI',    description: 'GPT models via OpenAI API' },
   ];
 
+  const CAMPAIGN_TYPES: { id: string; label: string; description: string }[] = [
+    { id: 'ad_hoc',   label: 'Ad Hoc',   description: 'One-off execution without a named objective' },
+    { id: 'campaign', label: 'Campaign', description: 'Part of an ongoing objective with iterating DNA' },
+  ];
+
+  const AVAILABLE_TOOLS: { id: string; label: string; description: string }[] = [
+    { id: 'bash',       label: 'Bash',       description: 'Execute shell commands' },
+    { id: 'file_read',  label: 'File Read',  description: 'Read files from the filesystem' },
+    { id: 'file_write', label: 'File Write', description: 'Write files to the filesystem' },
+    { id: 'web_search', label: 'Web Search', description: 'Search the web' },
+    { id: 'web_fetch',  label: 'Web Fetch',  description: 'Fetch content from URLs' },
+  ];
+
   const DEFAULT_DOMAINS = 'api.anthropic.com, api.openai.com, github.com, objects.githubusercontent.com, registry.npmjs.org';
 
   let { form } = $props<{ form: ActionData }>();
 
-  let objective        = $state('');
-  let maxBots          = $state(3);
-  let budgetCapDollars = $state(10);
-  let llmProvider      = $state('anthropic');
-  let allowedDomains   = $state(DEFAULT_DOMAINS);
-  let submitting       = $state(false);
-  let objectiveId      = $state('');
+  let objective           = $state('');
+  let maxBots             = $state(3);
+  let budgetCapDollars    = $state(10);
+  let llmProvider         = $state('anthropic');
+  let allowedDomains      = $state(DEFAULT_DOMAINS);
+  let campaignType        = $state<'ad_hoc' | 'campaign'>('ad_hoc');
+  let selectedTools       = $state<Set<string>>(new Set());
+  let runtimeLimitMinutes = $state(60);
+  let submitting          = $state(false);
+  let objectiveId         = $state('');
 
   const urlObjectiveId = $derived(page.url.searchParams.get('objectiveId') ?? '');
   const urlMaxBots = $derived(Number(page.url.searchParams.get('maxBots') ?? '0'));
@@ -223,10 +239,128 @@
 
     </div>
 
+    <!-- Campaign Type + Tool Allowlist -->
+    <div class="row-panels">
+
+      <!-- Campaign Type Selector (panel 06) -->
+      <div class="panel">
+        <div class="panel-label">
+          <span class="panel-tag">06</span>
+          Campaign Type
+        </div>
+        <p class="panel-hint">How this execution fits into the broader mission.</p>
+        <div class="tools-grid">
+          {#each CAMPAIGN_TYPES as ct}
+            <button
+              type="button"
+              class="tool-toggle"
+              class:active={campaignType === ct.id}
+              onclick={() => campaignType = ct.id as 'ad_hoc' | 'campaign'}
+            >
+              <div class="tool-indicator">
+                {#if campaignType === ct.id}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {:else}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                {/if}
+              </div>
+              <div class="tool-info">
+                <span class="tool-label">{ct.label}</span>
+                <span class="tool-desc">{ct.description}</span>
+              </div>
+              {#if campaignType === ct.id}
+                <span class="tool-status">SELECTED</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+        <input type="hidden" name="campaignType" value={campaignType} />
+      </div>
+
+      <!-- Tool Allowlist Multi-Select (panel 07) -->
+      <div class="panel">
+        <div class="panel-label">
+          <span class="panel-tag">07</span>
+          Tool Allowlist
+        </div>
+        <p class="panel-hint">Select which tools bots can use. Leave all unselected to allow all tools.</p>
+        <div class="tools-grid">
+          {#each AVAILABLE_TOOLS as tool}
+            <button
+              type="button"
+              class="tool-toggle"
+              class:active={selectedTools.has(tool.id)}
+              onclick={() => {
+                if (selectedTools.has(tool.id)) {
+                  selectedTools.delete(tool.id);
+                  selectedTools = new Set(selectedTools);
+                } else {
+                  selectedTools = new Set([...selectedTools, tool.id]);
+                }
+              }}
+            >
+              <div class="tool-indicator">
+                {#if selectedTools.has(tool.id)}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {:else}
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <circle cx="5" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                {/if}
+              </div>
+              <div class="tool-info">
+                <span class="tool-label">{tool.label}</span>
+                <span class="tool-desc">{tool.description}</span>
+              </div>
+              {#if selectedTools.has(tool.id)}
+                <span class="tool-status">ENABLED</span>
+              {/if}
+            </button>
+          {/each}
+        </div>
+        {#each [...selectedTools] as tool}
+          <input type="hidden" name="allowedTools" value={tool} />
+        {/each}
+      </div>
+
+    </div>
+
+    <!-- Runtime Limit (panel 08) -->
+    <div class="panel">
+      <div class="panel-label">
+        <span class="panel-tag">08</span>
+        Runtime Limit
+      </div>
+      <div class="budget-control">
+        <div class="budget-input-wrap">
+          <input
+            id="runtimeLimitMinutes"
+            name="runtimeLimitMinutes"
+            type="number"
+            bind:value={runtimeLimitMinutes}
+            min="1"
+            step="1"
+          />
+          <span class="currency">min</span>
+        </div>
+        <p class="budget-hint">Maximum time before execution is automatically stopped.</p>
+        <div class="range-labels">
+          <span>1 min minimum</span>
+          <span>no upper limit</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Army Builder Analysis (UIEX-04) -->
     <div class="panel" id="army-analysis">
       <div class="panel-label">
-        <span class="panel-tag">06</span>
+        <span class="panel-tag">09</span>
         Army Composition Analysis
       </div>
       <p class="panel-hint">Analyze your objective to see the available agent pool and composition tiers.</p>
