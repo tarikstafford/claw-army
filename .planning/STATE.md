@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Full Spectrum
 status: unknown
-last_updated: "2026-03-03T05:27:01.450Z"
+last_updated: "2026-03-03T09:23:35.344Z"
 progress:
-  total_phases: 37
+  total_phases: 38
   completed_phases: 35
-  total_plans: 113
-  completed_plans: 111
+  total_plans: 115
+  completed_plans: 112
 ---
 
 # Project State
@@ -23,12 +23,12 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 37 of 40 (Objective CRUD UI) — COMPLETE
-Plan: 2 of 2 in current phase (phase complete)
+Phase: 38 of 40 (DNA Evolution Timeline) — In Progress
+Plan: 1 of 2 complete
 Status: In progress
-Last activity: 2026-03-03 — Phase 37 Plan 02 complete (inline edit mode, archive/unarchive, kebab menu — full Objective CRUD UI)
+Last activity: 2026-03-03 — Phase 38 Plan 01 complete (GET /objectives/:id/timeline endpoint, ObjectiveTimelineEvent types, getObjectiveTimeline API client)
 
-Progress: [█████░░░░░] 67% (v5.0, 10/12 plans complete)
+Progress: [█████░░░░░] 69% (v5.0, 11/16 plans complete)
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [█████░░░░░] 67% (v5.0, 10/12 plans complete)
 
 *Updated after each plan completion*
 | Phase 37-objective-crud-ui P02 | 45 | 3 tasks | 5 files |
+| Phase 38-objective-dna-evolution-timeline P01 | 15 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ v5.0 decisions (36-01):
 - [Phase 36-02]: page.server.ts uses explicit App.Locals type annotation instead of importing from .types (avoids SvelteKit type generation dependency for new routes)
 - [Phase 37-02]: Cross-route form action POST: list page POSTs to /objectives/:id?/archive using browser session cookie — no separate list page server.ts needed
 - [Phase 37-02]: Lazy-load archived objectives on first Show Archived toggle — avoids extra network request on initial list page load, results cached in component state
+- [Phase 38-01]: Pioneer events sourced from category_benchmarks JOIN executions — no council_verdicts row exists for pioneer events
+- [Phase 38-01]: fromClass derived in-app by reversing toClass through Novice/Understudy/Artisan progression chain — avoids schema changes
+- [Phase 38-01]: In-memory sort + slice for timeline pagination — bounded event counts per objective acceptable for v1
 
 ### Pending Todos
 
