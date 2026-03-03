@@ -99,6 +99,13 @@
       "when": 1772800000000,
       "tag": "0013_add_llm_provider_allowed_domains",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1772900000000,
+      "tag": "0014_add_campaign_type",
+      "breakpoints": true
     }
   ]
 }

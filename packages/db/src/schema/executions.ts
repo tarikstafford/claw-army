@@ -21,6 +21,7 @@ export const executions = pgTable('executions', {
   llmProvider: varchar('llm_provider', { length: 50 }),
   allowedDomains: text('allowed_domains').array(),
   taskCategory: varchar('task_category', { length: 255 }), // nullable; derived from objective for soul seeding (Phase 9)
+  campaignType: varchar('campaign_type', { length: 20 }), // nullable; 'ad_hoc' | 'campaign'
   objectiveId: uuid('objective_id').references(() => objectives.id, { onDelete: 'set null' }),
   ringLeaderRunId: uuid('ring_leader_run_id'), // nullable; logical FK to ring_leader_runs.id — no explicit ref to avoid circular
   createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
