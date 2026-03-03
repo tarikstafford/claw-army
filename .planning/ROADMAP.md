@@ -243,12 +243,11 @@ Plans:
   1. User can submit their email via the "Request access" form on the landing page and the submission is stored or forwarded (no silent failure, visible confirmation)
   2. All footer links on the landing page either navigate to real targets or are absent — no dead links remain
   3. `GET /admin/health` returns a JSON response with status for GCE, Cloud SQL, Redis, and BullMQ — returns 200 when healthy, 503 when degraded
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 40-01: Request access endpoint (POST /waitlist or equivalent) and landing page form wiring
-- [ ] 40-02: Audit and fix footer links
-- [ ] 40-03: Implement GET /admin/health with subsystem checks
+- [ ] 40-01-PLAN.md — Request access form wiring (backend POST /waitlist + SvelteKit action + form UI) and footer dead link removal
+- [ ] 40-02-PLAN.md — GET /admin/health endpoint with GCE, Cloud SQL, Redis, and BullMQ subsystem probes
 
 ---
 
