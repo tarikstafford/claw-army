@@ -25,7 +25,7 @@ export interface CreateExecutionInput {
 
 export async function createExecution(
   input: CreateExecutionInput,
-): Promise<{ executionId: string; status: 'queued' }> {
+): Promise<{ executionId: string; status: 'pre_flight' }> {
   if (input.objectiveId) {
     const [objective] = await db
       .select({ id: objectives.id })
@@ -53,7 +53,7 @@ export async function createExecution(
       allowedDomains: input.allowedDomains ?? null,
       objectiveId: input.objectiveId ?? null,
       campaignType: input.campaignType ?? null,
-      status: 'queued',
+      status: 'pre_flight',
     })
     .returning({ id: executions.id });
 
@@ -89,7 +89,7 @@ export async function createExecution(
     console.error('[execution.service] Failed to initialize budget cap in Redis (non-fatal):', err);
   }
 
-  return { executionId, status: 'queued' };
+  return { executionId, status: 'pre_flight' };
 }
 
 export async function getExecution(id: string) {

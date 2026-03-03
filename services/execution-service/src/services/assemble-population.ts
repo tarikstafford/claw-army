@@ -7,7 +7,6 @@ import { selectFromPool, applyPreDeploymentMutation } from './population-assembl
 import type { SelectedSoul } from './population-assembler';
 import { generatePioneerPopulation } from './pioneer-generator';
 import { validateBudget } from './budget-validator';
-import { spawnAgentsForRun } from './agent-spawner';
 import type { RingLeaderMissionBrief, PopulationManifest, TaskGraphNode } from '@claw/shared-types';
 
 // ─── BudgetShortfallError ────────────────────────────────────────────────────
@@ -76,19 +75,6 @@ export async function assemblePopulation(
     `[assemble-population] Starting population assembly for run=${ringLeaderRunId}, ` +
     `tasks=${taskGraph.tasks.length}`,
   );
-
-  // ── Resolve executionId from ring_leader_runs row ─────────────────────────
-  // Needed to pass to spawnAgentsForRun (bot VM spawn requires executionId).
-  // Using Option A (query DB) to avoid changing the public interface.
-  const [runRow] = await db
-    .select({ executionId: ringLeaderRuns.executionId })
-    .from(ringLeaderRuns)
-    .where(eq(ringLeaderRuns.id, ringLeaderRunId));
-
-  if (!runRow) {
-    throw new Error(`[assemble-population] ring_leader_runs row not found: ${ringLeaderRunId}`);
-  }
-  const executionId = runRow.executionId;
 
   const manifests: PopulationManifest[] = [];
 
@@ -309,27 +295,6 @@ export async function assemblePopulation(
     `[assemble-population] Population assembly complete for run=${ringLeaderRunId}: ` +
     `status transitioned assembling -> spawning`,
   );
-
-  // ── Step 9: Spawn agents using DAG-respecting spawner (SPAWN-01 through SPAWN-06)
-  console.info(
-    `[assemble-population] Triggering agent spawning for run=${ringLeaderRunId}, ` +
-    `manifests=${finalManifests.length}`,
-  );
-
-  // Fire-and-forget — spawnAgentsForRun handles its own status transitions
-  // (spawning -> coordinating) and error logging.
-  spawnAgentsForRun({
-    ringLeaderRunId,
-    executionId,
-    missionBrief,
-    manifests: finalManifests,
-  }).catch((err) => {
-    console.error('[assemble-population] Agent spawning failed:', err);
-    db.update(ringLeaderRuns)
-      .set({ status: 'failed', updatedAt: new Date() })
-      .where(eq(ringLeaderRuns.id, ringLeaderRunId))
-      .catch((dbErr) => console.error('[assemble-population] Failed to update status to failed:', dbErr));
-  });
 
   return finalManifests;
 }

@@ -9,7 +9,8 @@ import {
 import { planObjectiveAsTaskGraph } from '../services/planner.service';
 import { validatePreFlight } from '../services/preflight-validator';
 import { spawnRingLeader } from '../services/ring-leader-spawner';
-import { db, executions, tasks, bots, telemetry, agentClasses, councilVerdicts } from '@claw/db';
+import { spawnAgentsForRun } from '../services/agent-spawner';
+import { db, executions, tasks, bots, telemetry, agentClasses, councilVerdicts, ringLeaderRuns } from '@claw/db';
 import { eq, and, sql, desc, inArray } from 'drizzle-orm';
 import {
   stopBot,
@@ -39,7 +40,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       response: {
         201: Type.Object({
           executionId: Type.String({ format: 'uuid' }),
-          status: Type.Literal('queued'),
+          status: Type.Literal('pre_flight'),
         }),
         400: Type.Object({
           error: Type.String(),
@@ -113,7 +114,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     }
 
     // 3. Insert execution row (only reached after validation passes)
-    let result: { executionId: string; status: 'queued' };
+    let result: { executionId: string; status: 'pre_flight' };
     try {
       result = await createExecution({
         objective,
@@ -145,7 +146,8 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         // 5. Determine campaign type — use form-supplied value, fallback to objectiveId derivation
         const resolvedCampaignType = campaignType ?? (objectiveId ? 'campaign' : 'ad_hoc');
 
-        // 6. Spawn Ring Leader — creates ring_leader_runs row with mission brief (ORCH-03)
+        // 6. Spawn Ring Leader — creates ring_leader_runs row with mission brief and assembles population manifest (ORCH-03)
+        // Execution stays in 'pre_flight' until the user confirms via POST /:id/confirm
         const { ringLeaderRunId } = await spawnRingLeader({
           executionId,
           objective,
@@ -156,36 +158,17 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           campaignType: resolvedCampaignType,
         });
 
-        // 7. Transition execution to running
-        const transitioned = await transitionExecution(executionId, 'queued', 'running');
-        if (!transitioned) {
-          fastify.log.error({ executionId }, 'Failed to transition to running');
-          return;
-        }
-
-        await publishExecutionStatusChanged({
-          type: 'execution_status_changed',
-          executionId,
-          fromStatus: 'queued',
-          toStatus: 'running',
-          timestamp: new Date().toISOString(),
-        }).catch((err: Error) => {
-          fastify.log.error({ err, executionId }, 'Failed to publish execution_status_changed (non-fatal)');
-        });
-
         fastify.log.info(
           { executionId, ringLeaderRunId, taskCount: taskGraph.tasks.length },
-          'Ring Leader spawned — Orchestrator handoff complete (ORCH-04)',
+          'Ring Leader spawned — population manifest assembly in progress (ORCH-04)',
         );
 
-        // ORCH-04: Orchestrator steps back here.
-        // Soul selection, agent spawning, coordination, and synthesis
-        // will be driven by the Ring Leader in Phases 26-29.
+        // ORCH-04: Orchestrator steps back here. Bot spawning is deferred until user
+        // confirms the population manifest via POST /:id/confirm.
 
       } catch (err) {
         fastify.log.error({ err, executionId }, 'Failed during Ring Leader spawn');
-        await transitionExecution(executionId, 'queued', 'failed').catch(() => {});
-        await transitionExecution(executionId, 'running', 'failed').catch(() => {});
+        await transitionExecution(executionId, 'pre_flight', 'failed').catch(() => {});
       }
     });
   });
@@ -200,6 +183,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         200: Type.Object({
           id: Type.String({ format: 'uuid' }),
           status: Type.Union([
+            Type.Literal('pre_flight'),
             Type.Literal('queued'),
             Type.Literal('running'),
             Type.Literal('paused'),
@@ -604,6 +588,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           Type.Object({
             id: Type.String({ format: 'uuid' }),
             status: Type.Union([
+              Type.Literal('pre_flight'),
               Type.Literal('queued'),
               Type.Literal('running'),
               Type.Literal('paused'),
@@ -681,6 +666,89 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           sql`${bots.status} NOT IN ('stopped', 'failed')`,
         ),
       );
+
+    return reply.code(200).send({ success: true });
+  });
+
+  // POST /:id/confirm — confirm pre_flight execution, transition to queued→running and spawn agents
+  fastify.post('/:id/confirm', {
+    schema: {
+      params: Type.Object({ id: Type.String({ format: 'uuid' }) }),
+      response: {
+        200: Type.Object({ success: Type.Boolean() }),
+        401: Type.Object({ error: Type.String() }),
+        404: Type.Object({ error: Type.String() }),
+        409: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+    const valid = await verifyAuthToken(request.headers.authorization);
+    if (!valid) return reply.code(401).send({ error: 'Unauthorized' });
+
+    const execution = await getExecution(id);
+    if (!execution) return reply.code(404).send({ error: 'Execution not found' });
+    if (execution.status !== 'pre_flight') {
+      return reply.code(409).send({ error: 'Execution is not awaiting pre-flight confirmation' });
+    }
+
+    // Verify manifest is assembled — check ring_leader_runs for this execution
+    const [runRow] = await db.select().from(ringLeaderRuns)
+      .where(eq(ringLeaderRuns.executionId, id));
+    if (!runRow?.populationManifest || !Array.isArray(runRow.populationManifest) || runRow.populationManifest.length === 0) {
+      return reply.code(409).send({ error: 'Population manifest not yet assembled' });
+    }
+
+    const transitioned = await transitionExecution(id, 'pre_flight', 'queued');
+    if (!transitioned) return reply.code(409).send({ error: 'Status transition conflict' });
+
+    reply.code(200).send({ success: true });
+
+    // Fire bot spawning after response
+    setImmediate(async () => {
+      try {
+        await transitionExecution(id, 'queued', 'running');
+        await spawnAgentsForRun({
+          ringLeaderRunId: runRow.id,
+          executionId: id,
+          missionBrief: runRow.missionBrief as any,
+          manifests: runRow.populationManifest as any,
+        });
+      } catch (err) {
+        fastify.log.error({ err, executionId: id }, 'Agent spawn failed after confirm');
+      }
+    });
+  });
+
+  // POST /:id/cancel — cancel pre_flight execution, transition to stopped
+  fastify.post('/:id/cancel', {
+    schema: {
+      params: Type.Object({ id: Type.String({ format: 'uuid' }) }),
+      response: {
+        200: Type.Object({ success: Type.Boolean() }),
+        401: Type.Object({ error: Type.String() }),
+        404: Type.Object({ error: Type.String() }),
+        409: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+    const valid = await verifyAuthToken(request.headers.authorization);
+    if (!valid) return reply.code(401).send({ error: 'Unauthorized' });
+
+    const execution = await getExecution(id);
+    if (!execution) return reply.code(404).send({ error: 'Execution not found' });
+    if (execution.status !== 'pre_flight') {
+      return reply.code(409).send({ error: 'Execution is not in pre_flight status' });
+    }
+
+    const transitioned = await transitionExecution(id, 'pre_flight', 'stopped');
+    if (!transitioned) return reply.code(409).send({ error: 'Status transition conflict' });
+
+    // Also mark the ring_leader_runs row as failed to avoid orphaned rows
+    await db.update(ringLeaderRuns)
+      .set({ status: 'failed' })
+      .where(eq(ringLeaderRuns.executionId, id));
 
     return reply.code(200).send({ success: true });
   });
