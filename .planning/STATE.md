@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Full Spectrum
 status: unknown
-last_updated: "2026-03-03T10:59:27.033Z"
+last_updated: "2026-03-03T16:43:00.562Z"
 progress:
-  total_phases: 39
-  completed_phases: 37
-  total_plans: 118
-  completed_plans: 116
+  total_phases: 40
+  completed_phases: 38
+  total_plans: 120
+  completed_plans: 118
 ---
 
 # Project State
@@ -54,6 +54,8 @@ Progress: [██████████] 100% (v5.0, 16/16 plans complete)
 | Phase 39-soul-and-dna-visibility P02 | 4 | 2 tasks | 8 files |
 | Phase 39-soul-and-dna-visibility P03 | 2 | 1 tasks | 0 files |
 | Phase 39-soul-and-dna-visibility P03 | 3 | 2 tasks | 0 files |
+| Phase 40 P01 | 2 | 2 tasks | 3 files |
+| Phase 40-landing-page-and-platform-polish P02 | 8 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -133,6 +135,10 @@ v5.0 decisions (39-01):
 - [Phase 39-soul-and-dna-visibility]: tracesLoaded flag prevents re-fetch on hide/show toggle; attributionConfidence returned as Drizzle numeric string and converted to % via parseFloat() in frontend
 - [Phase 39-soul-and-dna-visibility]: SOUL-05 confirmed already implemented — Ring Leader Fitness panel has all 9 dimensions; no code changes required
 - [Phase 39-soul-and-dna-visibility]: Phase 39 all 5 SOUL requirements human-verified and complete — v5.0 Full Spectrum milestone finished
+- [Phase 40]: POST /admin/waitlist logs email via Cloud Logging — no DB write (POLISH-01 satisfied with zero schema churn)
+- [Phase 40]: Resources and Company footer groups removed — Platform group with valid anchor links retained
+- [Phase 40-02]: Used gceClient.listAsync() not list() — list() returns Promise not AsyncIterable; listAsync() is the correct GCP compute pagination API
+- [Phase 40-02]: Redis health check uses fresh IORedis per-request with lazyConnect — tests actual connectivity; module-level connection would mask Redis failures
 
 ### Pending Todos
 
@@ -149,5 +155,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 39 Plan 03 — all SOUL requirements verified, human checkpoint approved, Phase 39 and v5.0 Full Spectrum complete
+Stopped at: Completed Phase 40 Plan 01 — landing page request access form wired to /admin/waitlist, dead footer links removed
 Resume file: None

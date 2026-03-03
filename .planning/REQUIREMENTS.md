@@ -40,9 +40,9 @@ Requirements for v5.0 Full Spectrum — closing all gaps between PRDs, backend l
 
 ### Landing Page & Polish
 
-- [ ] **POLISH-01**: "Request access" form on landing page captures email and stores it (or sends to a collection endpoint)
-- [ ] **POLISH-02**: Footer links on landing page either point to real targets or are removed
-- [ ] **POLISH-03**: `GET /admin/health` endpoint returns system health status (GCE, Cloud SQL, Redis, BullMQ)
+- [x] **POLISH-01**: "Request access" form on landing page captures email and stores it (or sends to a collection endpoint)
+- [x] **POLISH-02**: Footer links on landing page either point to real targets or are removed
+- [x] **POLISH-03**: `GET /admin/health` endpoint returns system health status (GCE, Cloud SQL, Redis, BullMQ)
 
 ## v6.0+ Requirements
 
@@ -96,9 +96,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | SOUL-03 | Phase 39 | Complete |
 | SOUL-04 | Phase 39 | Complete |
 | SOUL-05 | Phase 39 | Complete |
-| POLISH-01 | Phase 40 | Pending |
-| POLISH-02 | Phase 40 | Pending |
-| POLISH-03 | Phase 40 | Pending |
+| POLISH-01 | Phase 40 | Complete |
+| POLISH-02 | Phase 40 | Complete |
+| POLISH-03 | Phase 40 | Complete |
 
 **Coverage:**
 - v5.0 requirements: 22 total

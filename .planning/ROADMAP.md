@@ -98,7 +98,7 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 - [x] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists) (completed 2026-03-03)
 - [x] **Phase 38: Objective DNA Evolution Timeline** — Show which souls promoted/retired across runs on objective detail page (completed 2026-03-03)
 - [x] **Phase 39: Soul and DNA Visibility** — Soul library browser, decision trace viewer, negative signal register, category benchmarks (completed 2026-03-03)
-- [ ] **Phase 40: Ring Leader Fitness Breakdown** — Expose coordination quality and soul selection quality dimensions in execution reports
+- [x] **Phase 40: Ring Leader Fitness Breakdown** — Expose coordination quality and soul selection quality dimensions in execution reports (completed 2026-03-03)
 - [ ] **Phase 41: Landing Page and Platform Polish** — Request access form, footer links, health endpoint
 
 ---
@@ -294,4 +294,4 @@ Plans:
 | 37. Objective CRUD UI | 2/2 | Complete    | 2026-03-03 | - |
 | 38. Objective DNA Evolution Timeline | 2/2 | Complete    | 2026-03-03 | - |
 | 39. Soul and DNA Visibility | 3/3 | Complete    | 2026-03-03 | - |
-| 40. Landing Page and Platform Polish | v5.0 | 0/3 | Not started | - |
+| 40. Landing Page and Platform Polish | 2/2 | Complete   | 2026-03-03 | - |
