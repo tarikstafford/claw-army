@@ -2,6 +2,7 @@ import { pgTable, uuid, text, varchar, integer, timestamp, pgEnum } from 'drizzl
 import { objectives } from './objectives';
 
 export const executionStatusEnum = pgEnum('execution_status', [
+  'pre_flight',
   'queued',
   'running',
   'paused',
@@ -12,7 +13,7 @@ export const executionStatusEnum = pgEnum('execution_status', [
 
 export const executions = pgTable('executions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  status: executionStatusEnum('status').notNull().default('queued'),
+  status: executionStatusEnum('status').notNull().default('pre_flight'),
   objective: text('objective').notNull(),
   maxBots: integer('max_bots').notNull(),
   budgetCapCents: integer('budget_cap_cents').notNull(),

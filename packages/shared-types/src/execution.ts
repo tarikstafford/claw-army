@@ -2,6 +2,7 @@ import type { UUID, Cents, ISOTimestamp } from './common';
 
 /** Mirrors the execution_status pgEnum in packages/db/src/schema/executions.ts */
 export type ExecutionStatus =
+  | 'pre_flight'
   | 'queued'
   | 'running'
   | 'paused'
@@ -11,6 +12,7 @@ export type ExecutionStatus =
 
 /** Runtime-iterable array of all execution status values */
 export const EXECUTION_STATUSES: readonly ExecutionStatus[] = [
+  'pre_flight',
   'queued',
   'running',
   'paused',
