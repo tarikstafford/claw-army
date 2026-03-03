@@ -36,7 +36,7 @@ Requirements for v5.0 Full Spectrum — closing all gaps between PRDs, backend l
 - [x] **SOUL-02**: User can view decision traces for a specific bot — directive references, attribution confidence, outcomes
 - [x] **SOUL-03**: User can view the negative signal register — failed/retired souls with failure type and directive failure summary
 - [x] **SOUL-04**: User can view category benchmarks — pioneer progress, baseline scores, benchmark maturity, thin data flags
-- [ ] **SOUL-05**: Execution report shows Ring Leader fitness detail breakdown — coordination quality (4 dimensions) and soul selection quality (5 dimensions) individually scored
+- [x] **SOUL-05**: Execution report shows Ring Leader fitness detail breakdown — coordination quality (4 dimensions) and soul selection quality (5 dimensions) individually scored
 
 ### Landing Page & Polish
 
@@ -95,7 +95,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | SOUL-02 | Phase 39 | Complete |
 | SOUL-03 | Phase 39 | Complete |
 | SOUL-04 | Phase 39 | Complete |
-| SOUL-05 | Phase 39 | Pending |
+| SOUL-05 | Phase 39 | Complete |
 | POLISH-01 | Phase 40 | Pending |
 | POLISH-02 | Phase 40 | Pending |
 | POLISH-03 | Phase 40 | Pending |
