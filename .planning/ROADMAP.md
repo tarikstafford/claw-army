@@ -187,12 +187,11 @@ Plans:
   2. User can open an edit form for an existing objective, change name/description/configuration, and see the changes reflected immediately
   3. User can archive an objective from the objectives list and it disappears from the active list (soft delete)
   4. All forms follow Akasa design system conventions and surface validation errors inline
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 37-01: Create objective form — modal or page, POST to /objectives, updates list
-- [ ] 37-02: Edit objective form — pre-populated PATCH form
-- [ ] 37-03: Archive action — confirmation dialog, DELETE/PATCH /objectives/:id, removes from list
+- [ ] 37-01-PLAN.md — Create objective form at /objectives/new with server action + api.ts mutation helpers
+- [ ] 37-02-PLAN.md — Inline edit on detail page, archive/unarchive with dialogs, list page kebab menu and archived toggle
 
 ---
 
@@ -293,7 +292,7 @@ Plans:
 | 34. API Alignment and SSE Verification | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 35. Execution Form Enhancements | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 36. Pre-Flight Manifest Review | 2/2 | Complete    | 2026-03-03 | - |
-| 37. Objective CRUD UI | v5.0 | 0/3 | Not started | - |
+| 37. Objective CRUD UI | v5.0 | 0/2 | Not started | - |
 | 38. Objective DNA Evolution Timeline | v5.0 | 0/2 | Not started | - |
 | 39. Soul and DNA Visibility | v5.0 | 0/5 | Not started | - |
 | 40. Landing Page and Platform Polish | v5.0 | 0/3 | Not started | - |
