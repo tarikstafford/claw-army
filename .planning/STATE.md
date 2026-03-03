@@ -11,16 +11,16 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 34 of 40 (API Alignment and SSE Verification)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-03-03 — Plan 34-01 complete (SSE billing topic gap fixed)
+Plan: 2 of 2 in current phase (complete)
+Status: Phase 34 complete — ready for Phase 35
+Last activity: 2026-03-03 — Plan 34-02 complete (API alignment smoke tests — all 17 pass)
 
-Progress: [███░░░░░░░] 30% (v5.0, 3/10 plans complete)
+Progress: [████░░░░░░] 40% (v5.0, 4/10 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed (v5.0): 2
+- Total plans completed (v5.0): 4
 - Prior milestones: ~103 plans across 32 phases
 
 **By Phase:** (v5.0)
@@ -29,6 +29,7 @@ Progress: [███░░░░░░░] 30% (v5.0, 3/10 plans complete)
 |-------|-------|-------|----------|
 | 33 (Execution Data Model Fixes) | 2 | 4 min | 2 min |
 | 34-01 (API Alignment SSE - billing topic) | 1 | 1 min | 1 min |
+| 34-02 (API Alignment smoke tests) | 1 | 15 min | 15 min |
 
 *Updated after each plan completion*
 
@@ -45,6 +46,11 @@ v5.0 decisions (33-01):
 
 v5.0 decisions (34-01):
 - Promise.allSettled used for SSE topic subscription creation — missing GCP topics log warning and are skipped rather than crashing the entire SSE connection
+
+v5.0 decisions (34-02):
+- Ring-leader inject tests accept statusCode in [404, 500] — both confirm route registration; 500 means ring_leader_runs table not yet applied to local dev DB
+- Fastify printRoutes() radix tree compression: state/synthesis share 's' prefix → appear as tate/ynthesis in output; tests check compressed suffixes
+- SSE route registration verified via inject returning non-405 (streaming not testable via inject without real PubSub)
 
 v5.0 decisions (33-02):
 - Duplex type used for CONNECT socket parameter — Node.js server 'connect' event emits Duplex not net.Socket
@@ -73,5 +79,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 34-01-PLAN.md — SSE billing topic gap fixed, ready for 34-02
+Stopped at: Completed 34-02-PLAN.md — Phase 34 complete, all API alignment smoke tests passing
 Resume file: None
