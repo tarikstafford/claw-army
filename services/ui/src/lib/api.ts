@@ -22,6 +22,9 @@ import type {
   RingLeaderStateResponse,
   RingLeaderEventsResponse,
   RingLeaderSynthesisResponse,
+  SoulLibraryResponse,
+  SoulCategoriesResponse,
+  CategoryBenchmarksResponse,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -267,4 +270,28 @@ export async function getRingLeaderEvents(executionId: string): Promise<RingLead
 
 export async function getRingLeaderSynthesis(executionId: string): Promise<RingLeaderSynthesisResponse> {
   return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/synthesis`);
+}
+
+// Phase 39 — Soul Library (SOUL-01)
+
+export async function getSoulLibrary(
+  params: { category?: string; agentClass?: string; limit?: number; offset?: number } = {},
+): Promise<SoulLibraryResponse> {
+  const query = new URLSearchParams();
+  if (params.category) query.set('category', params.category);
+  if (params.agentClass) query.set('agentClass', params.agentClass);
+  if (params.limit != null) query.set('limit', String(params.limit));
+  if (params.offset != null) query.set('offset', String(params.offset));
+  const qs = query.toString();
+  return apiFetch(`${BASE}/souls${qs ? `?${qs}` : ''}`);
+}
+
+export async function getSoulCategories(): Promise<SoulCategoriesResponse> {
+  return apiFetch(`${BASE}/souls/categories`);
+}
+
+// Phase 39 — Category Benchmarks (SOUL-04)
+
+export async function getCategoryBenchmarks(): Promise<CategoryBenchmarksResponse> {
+  return apiFetch(`${BASE}/category-benchmarks`);
 }

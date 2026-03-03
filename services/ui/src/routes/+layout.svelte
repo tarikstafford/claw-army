@@ -178,6 +178,8 @@
         <li><a href="/guide">Guide</a></li>
         <li><a href="/verdicts">Verdicts</a></li>
         <li><a href="/billing">Billing</a></li>
+        <li><a href="/souls">Souls</a></li>
+        <li><a href="/category-benchmarks">Benchmarks</a></li>
       </ul>
 
       <div class="nav-right">

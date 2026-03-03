@@ -430,3 +430,47 @@ export interface RingLeaderSynthesisResponse {
     compositeScore: number;
   } | null;
 }
+
+// Phase 39 — Soul Library types (SOUL-01)
+
+export interface SoulLibraryEntry {
+  id: string;
+  taskCategory: string | null;
+  generation: number;
+  isArchetype: boolean;
+  archetypeName: string | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  compositeScore: number | null;
+  createdAt: string;
+}
+
+export interface SoulLibraryResponse {
+  souls: SoulLibraryEntry[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface SoulCategoriesResponse {
+  categories: string[];
+}
+
+// Phase 39 — Category Benchmarks types (SOUL-04)
+
+export interface CategoryBenchmarkEntry {
+  id: string;
+  taskCategory: string;
+  pioneerBotId: string;
+  pioneerSoulId: string | null;
+  pioneerExecutionId: string;
+  baselineCompositeScore: string;
+  confirmedRunCount: number;
+  thinDataFlag: boolean;
+  benchmarkMature: boolean;
+  standardPromotion: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryBenchmarksResponse {
+  benchmarks: CategoryBenchmarkEntry[];
+}
