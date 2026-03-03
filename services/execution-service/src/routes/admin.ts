@@ -17,9 +17,9 @@ const gceClient = new InstancesClient();
 async function checkGCE(): Promise<{ ok: true; instanceCount: number } | { ok: false; error: string }> {
   try {
     let instanceCount = 0;
-    for await (const _instance of gceClient.list({ project: GCP_PROJECT_ID, zone: GCP_ZONE, maxResults: 1 })) {
+    for await (const _instance of gceClient.listAsync({ project: GCP_PROJECT_ID, zone: GCP_ZONE, maxResults: 1 })) {
       instanceCount++;
-      break; // only need the first page
+      break; // only need the first result — we just want to confirm API connectivity
     }
     return { ok: true, instanceCount };
   } catch (err) {
