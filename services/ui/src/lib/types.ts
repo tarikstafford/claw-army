@@ -297,6 +297,34 @@ export interface ObjectiveStats {
   classTrendSummary: string;
 }
 
+// Phase 38 — DNA Evolution Timeline types
+
+export interface ObjectiveTimelineEvent {
+  id: string;
+  eventType: 'Promote' | 'Demote' | 'Retire' | 'Monitor' | 'Maintain' | 'Pioneer';
+  botId: string;
+  executionId: string;
+  runNumber: number;
+  taskCategory: string | null;
+  fromClass: string | null;
+  toClass: string | null;
+  weightedConfidenceScore: number | null;
+  compositeScore: number | null;
+  verdictSummary: string | null;
+  performanceJudgeOutput: unknown;
+  soulAnalystOutput: unknown;
+  devilsAdvocateOutput: unknown;
+  hasMutationLineage: boolean;
+  isPioneer: boolean;
+  occurredAt: string;
+}
+
+export interface ObjectiveTimeline {
+  events: ObjectiveTimelineEvent[];
+  total: number;
+  hasMore: boolean;
+}
+
 // Phase 32 — Ring Leader Dashboard types
 
 export interface RingLeaderRunState {
