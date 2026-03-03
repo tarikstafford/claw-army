@@ -169,11 +169,11 @@ Plans:
   2. The user can confirm to proceed or cancel to return to the form
   3. Bots do not spawn until the user confirms — the execution status remains in a pre-flight state until confirmation
   4. The review screen is consistent with the Akasa design system and loads without errors
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 36-01: Add pre-flight execution status state and confirmation endpoint to backend
-- [ ] 36-02: Build pre-flight review UI route and wire confirm/cancel actions
+- [ ] 36-01-PLAN.md — Add pre_flight status to DB enum, decouple assemblePopulation from spawnAgentsForRun, add confirm/cancel endpoints
+- [ ] 36-02-PLAN.md — Build pre-flight review UI route with manifest polling, confirm/cancel actions, and form redirect
 
 ---
 
