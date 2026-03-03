@@ -176,6 +176,50 @@ export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
   return apiFetch(`${BASE}/objectives/${id}/stats`);
 }
 
+// Phase 37 — Objective Mutations (used by server actions and client-side code)
+
+export async function updateObjective(
+  id: string,
+  body: Partial<{
+    name: string;
+    description: string;
+    defaultMaxBots: number;
+    defaultBudgetCapCents: number;
+    defaultRuntimeLimitSeconds: number;
+    defaultAllowedTools: string[];
+    isArchived: boolean;
+  }>,
+): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function archiveObjective(id: string): Promise<Objective> {
+  return updateObjective(id, { isArchived: true });
+}
+
+export async function unarchiveObjective(id: string): Promise<Objective> {
+  return updateObjective(id, { isArchived: false });
+}
+
+export async function createObjective(body: {
+  name: string;
+  description?: string;
+  defaultMaxBots: number;
+  defaultBudgetCapCents?: number;
+  defaultRuntimeLimitSeconds?: number;
+  defaultAllowedTools?: string[];
+}): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
 // Phase 18 — Soul Inspector
 
 export async function getBotSoul(botId: string): Promise<BotSoul> {
