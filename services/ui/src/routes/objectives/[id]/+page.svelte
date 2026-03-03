@@ -3,9 +3,9 @@
   import { browser } from '$app/environment';
   import { enhance } from '$app/forms';
   import { goto } from '$app/navigation';
-  import { getObjective, getObjectiveExecutions, getObjectiveStats, getExecutionMetrics } from '$lib/api';
+  import { getObjective, getObjectiveExecutions, getObjectiveStats, getExecutionMetrics, getObjectiveTimeline } from '$lib/api';
   import { connectSSE } from '$lib/sse';
-  import type { Objective, ObjectiveRun, ObjectiveStats, ExecutionMetrics, ActivityEvent } from '$lib/types';
+  import type { Objective, ObjectiveRun, ObjectiveStats, ExecutionMetrics, ActivityEvent, ObjectiveTimelineEvent } from '$lib/types';
 
   const objectiveId = $derived(page.params.id ?? '');
 
@@ -37,6 +37,25 @@
   let showArchiveDialog = $state(false);
   let archiving = $state(false);
 
+  // Timeline state (OBJ-04)
+  let timeline = $state<ObjectiveTimelineEvent[]>([]);
+  let timelineTotal = $state(0);
+  let timelineHasMore = $state(false);
+  let timelineLoading = $state(false);
+  let activeFilter = $state('all');
+  let expandedIds = $state<Set<string>>(new Set());
+
+  const FILTER_OPTIONS = [
+    { value: 'all', label: 'All' },
+    { value: 'promote', label: 'Promotions' },
+    { value: 'demote', label: 'Demotions' },
+    { value: 'retire', label: 'Retirements' },
+    { value: 'pioneer', label: 'Pioneers' },
+    { value: 'monitor_maintain', label: 'Monitor/Maintain' },
+  ];
+
+  const TIMELINE_PAGE_SIZE = 20;
+
   const AVAILABLE_TOOLS = [
     { id: 'bash', label: 'Bash', description: 'Execute shell commands' },
     { id: 'file_read', label: 'File Read', description: 'Read files from the filesystem' },
@@ -44,6 +63,64 @@
     { id: 'web_search', label: 'Web Search', description: 'Search the web' },
     { id: 'web_fetch', label: 'Web Fetch', description: 'Fetch content from URLs' },
   ];
+
+  // Timeline helpers
+  function nodeColor(eventType: string): string {
+    switch (eventType) {
+      case 'Promote':  return 'green';
+      case 'Retire':   return 'red';
+      case 'Demote':   return 'amber';
+      case 'Pioneer':  return 'violet';
+      default:         return 'neutral';
+    }
+  }
+
+  function toggleExpanded(id: string) {
+    const next = new Set(expandedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    expandedIds = next;
+  }
+
+  async function loadTimeline(reset = false) {
+    if (!objectiveId) return;
+    timelineLoading = true;
+    const offset = reset ? 0 : timeline.length;
+    try {
+      const data = await getObjectiveTimeline(objectiveId, {
+        limit: TIMELINE_PAGE_SIZE,
+        offset,
+        filter: activeFilter,
+      });
+      if (reset) {
+        timeline = data.events;
+      } else {
+        timeline = [...timeline, ...data.events];
+      }
+      timelineTotal = data.total;
+      timelineHasMore = data.hasMore;
+    } catch {
+      // silently fail — timeline is non-critical
+    } finally {
+      timelineLoading = false;
+    }
+  }
+
+  function formatTimelineDate(iso: string): string {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function classBadgeClass(cls: string | null): string {
+    if (!cls) return '';
+    switch (cls) {
+      case 'Novice': return 'class-novice';
+      case 'Understudy': return 'class-understudy';
+      case 'Artisan': return 'class-artisan';
+      case 'Retired': return 'class-retired';
+      default: return '';
+    }
+  }
 
   // Effect 1 — Load all data on mount
   $effect(() => {
@@ -62,6 +139,8 @@
         const running = r.find(run => run.status === 'running');
         activeRunId = running?.id ?? null;
         loading = false;
+        // Load timeline after main data
+        loadTimeline(true);
       })
       .catch(err => { error = (err as Error).message; loading = false; });
   });
