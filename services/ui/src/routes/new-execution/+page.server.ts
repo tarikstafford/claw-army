@@ -77,6 +77,6 @@ export const actions: Actions = {
     }
 
     const { executionId } = await res.json() as { executionId: string };
-    redirect(303, `/executions/${executionId}`);
+    redirect(303, `/executions/${executionId}/pre-flight`);
   },
 };

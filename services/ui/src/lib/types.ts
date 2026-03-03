@@ -1,6 +1,6 @@
 export interface Execution {
   id: string;
-  status: 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  status: 'pre_flight' | 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
   objective: string;
   maxBots: number;
   budgetCapCents: number;
@@ -275,7 +275,7 @@ export interface ObjectiveListItem extends Objective {
 
 export interface ObjectiveRun {
   id: string;
-  status: 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  status: 'pre_flight' | 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
   objective: string;
   createdAt: string;
   totalCostCents: number;

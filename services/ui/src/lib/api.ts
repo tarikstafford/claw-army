@@ -101,6 +101,14 @@ export async function stopExecution(id: string): Promise<{ success: boolean }> {
   return apiFetch(`${BASE}/executions/${id}/stop`, { method: 'POST' });
 }
 
+export async function confirmExecution(id: string): Promise<{ success: boolean }> {
+  return apiFetch(`${BASE}/executions/${id}/confirm`, { method: 'POST' });
+}
+
+export async function cancelExecution(id: string): Promise<{ success: boolean }> {
+  return apiFetch(`${BASE}/executions/${id}/cancel`, { method: 'POST' });
+}
+
 // Verdicts (Phase 12 — confirmation gate)
 
 export async function getPendingVerdicts(): Promise<PendingVerdict[]> {
