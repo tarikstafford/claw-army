@@ -30,7 +30,7 @@ Progress: [████░░░░░░] 50% (v5.0, 6/12 plans complete)
 | 33 (Execution Data Model Fixes) | 2 | 4 min | 2 min |
 | 34-01 (API Alignment SSE - billing topic) | 1 | 1 min | 1 min |
 | 34-02 (API Alignment smoke tests) | 1 | 15 min | 15 min |
-| 35-01 (Execution Form UI) | 1 | — | — |
+| 35-01 (Execution Form UI) | 1 | 1 min | 1 min |
 | 35-02 (campaignType API contract) | 1 | 2 min | 2 min |
 
 *Updated after each plan completion*
