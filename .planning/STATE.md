@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Full Spectrum
 status: unknown
-last_updated: "2026-03-03T09:23:35.344Z"
+last_updated: "2026-03-03T09:27:08Z"
 progress:
   total_phases: 38
   completed_phases: 35
   total_plans: 115
-  completed_plans: 112
+  completed_plans: 113
 ---
 
 # Project State
@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v5.0 Full Spectrum — Phase 37: Objective CRUD UI
+**Current focus:** v5.0 Full Spectrum — Phase 38: DNA Evolution Timeline (awaiting human-verify checkpoint)
 
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 38 of 40 (DNA Evolution Timeline) — In Progress
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-03-03 — Phase 38 Plan 01 complete (GET /objectives/:id/timeline endpoint, ObjectiveTimelineEvent types, getObjectiveTimeline API client)
+Phase: 38 of 40 (DNA Evolution Timeline) — Checkpoint (human-verify)
+Plan: 2 of 2 complete (pending human visual verification of Task 3)
+Status: Awaiting checkpoint approval
+Last activity: 2026-03-03 — Phase 38 Plan 02 code complete (Evolution Timeline UI — Section 6 with filter chips, expandable entries, load-more, empty state, 270-line CSS suite)
 
-Progress: [█████░░░░░] 69% (v5.0, 11/16 plans complete)
+Progress: [█████░░░░░] 70% (v5.0, 12/16 plans complete)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [█████░░░░░] 69% (v5.0, 11/16 plans complete)
 *Updated after each plan completion*
 | Phase 37-objective-crud-ui P02 | 45 | 3 tasks | 5 files |
 | Phase 38-objective-dna-evolution-timeline P01 | 15 | 3 tasks | 3 files |
+| Phase 38-objective-dna-evolution-timeline P02 | 5 | 2 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -111,6 +112,12 @@ v5.0 decisions (36-01):
 - [Phase 38-01]: fromClass derived in-app by reversing toClass through Novice/Understudy/Artisan progression chain — avoids schema changes
 - [Phase 38-01]: In-memory sort + slice for timeline pagination — bounded event counts per objective acceptable for v1
 
+v5.0 decisions (38-02):
+- Timeline loads inside Effect 1 .then() after main page data — avoids a separate $effect, timeline is non-critical and silently fails on error
+- expandedIds uses new Set() copy on toggle — required for Svelte 5 reactivity (mutation-in-place does not trigger update)
+- Filter chips trigger backend reload (loadTimeline(true)) not client-side filter — ensures correct pagination with server-applied filter
+- tl- CSS prefix for all new classes — avoids collision with existing 1090-line stylesheet in same single-file component
+
 ### Pending Todos
 
 None.
@@ -126,5 +133,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 37 Plan 02 complete — inline edit mode, archive/unarchive, kebab menu, and archived toggle for full Objective CRUD UI
+Stopped at: Phase 38 Plan 02 — awaiting human-verify checkpoint (Task 3: visual verification of DNA Evolution Timeline on objective detail page)
 Resume file: None
