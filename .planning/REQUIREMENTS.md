@@ -25,7 +25,7 @@ Requirements for v5.0 Full Spectrum — closing all gaps between PRDs, backend l
 
 ### Objective Management
 
-- [ ] **OBJ-01**: User can create a new named objective with default configuration (max bots, budget, tools, runtime)
+- [x] **OBJ-01**: User can create a new named objective with default configuration (max bots, budget, tools, runtime)
 - [ ] **OBJ-02**: User can edit an existing objective's name, description, and default configuration
 - [ ] **OBJ-03**: User can archive an objective (soft delete) from the objectives list
 - [ ] **OBJ-04**: Objective detail page shows DNA evolution timeline — which souls promoted/retired across runs
@@ -87,7 +87,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FORM-02 | Phase 35 | Pending |
 | FORM-03 | Phase 35 | Pending |
 | FORM-04 | Phase 36 | Complete |
-| OBJ-01 | Phase 37 | Pending |
+| OBJ-01 | Phase 37 | Complete |
 | OBJ-02 | Phase 37 | Pending |
 | OBJ-03 | Phase 37 | Pending |
 | OBJ-04 | Phase 38 | Pending |

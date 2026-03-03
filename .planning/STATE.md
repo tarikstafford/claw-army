@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v5.0 Full Spectrum — Phase 36: Pre-Flight Manifest Review
+**Current focus:** v5.0 Full Spectrum — Phase 37: Objective CRUD UI
 
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 36 of 40 (Pre-Flight Manifest Review)
-Plan: 2 of 2 in current phase (phase complete)
+Phase: 37 of 40 (Objective CRUD UI)
+Plan: 1 of 2 in current phase
 Status: In progress
-Last activity: 2026-03-03 — Phase 36 Plan 02 complete (pre-flight manifest review UI)
+Last activity: 2026-03-03 — Phase 37 Plan 01 complete (create objective form + api.ts mutation helpers)
 
-Progress: [█████░░░░░] 58% (v5.0, 7/12 plans complete)
+Progress: [█████░░░░░] 62% (v5.0, 8/12 plans complete)
 
 ## Performance Metrics
 
@@ -91,6 +91,11 @@ v5.0 decisions (36-02):
 - source badge covers 'library' | 'generated' | 'mutated' (actual enum) vs plan's 'library' | 'pioneer'
 - App.Locals explicit type annotation in page.server.ts (no $types import) — avoids SvelteKit type generation dependency for new routes
 
+v5.0 decisions (37-01):
+- server action uses explicit App.Locals type annotation (no $types import) — consistent with pre-flight pattern from Phase 36-02
+- budget/runtime optional fields: empty string check before conversion, undefined omitted from JSON body — avoids sending 0 to backend
+- createObjective added to api.ts as client-side export for completeness even though server action handles creation
+
 v5.0 decisions (36-01):
 - pre_flight status added before 'queued' in enum — preserves existing status ordering for all terminal states
 - assemblePopulation now stops at manifest persistence (status: assembling->spawning) without calling spawnAgentsForRun — cleaner separation of concerns
@@ -114,5 +119,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 36 Plan 02 complete — Phase 36 (Pre-Flight Manifest Review) fully complete
+Stopped at: Phase 37 Plan 01 complete — create objective form + mutation API helpers
 Resume file: None
