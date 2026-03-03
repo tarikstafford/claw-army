@@ -12,6 +12,8 @@ import { verdictsRoutes } from './routes/verdicts';
 import { armyBuilderRoutes } from './routes/army-builder';
 import { objectivesRoutes } from './routes/objectives';
 import { ringLeaderRoutes } from './routes/ring-leader';
+import { soulsRoutes } from './routes/souls';
+import { categoryBenchmarksRoutes } from './routes/category-benchmarks';
 
 export async function buildApp() {
   const app = Fastify({
@@ -53,6 +55,12 @@ export async function buildApp() {
 
   // Ring Leader API — pre-flight manifest and run lookup (Phase 28 — SPAWN-07)
   app.register(ringLeaderRoutes, { prefix: '/ring-leader' });
+
+  // Soul Library browser (Phase 39 — SOUL-01)
+  app.register(soulsRoutes, { prefix: '/souls' });
+
+  // Category Benchmarks page (Phase 39 — SOUL-04)
+  app.register(categoryBenchmarksRoutes, { prefix: '/category-benchmarks' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
