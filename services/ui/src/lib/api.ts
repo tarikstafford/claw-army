@@ -16,6 +16,7 @@ import type {
   ObjectiveListItem,
   ObjectiveRun,
   ObjectiveStats,
+  ObjectiveTimeline,
   BotSoul,
   RingLeaderManifestResponse,
   RingLeaderStateResponse,
@@ -178,6 +179,20 @@ export async function getObjectiveExecutions(id: string): Promise<ObjectiveRun[]
 
 export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
   return apiFetch(`${BASE}/objectives/${id}/stats`);
+}
+
+// Phase 38 — DNA Evolution Timeline
+
+export async function getObjectiveTimeline(
+  id: string,
+  params: { limit?: number; offset?: number; filter?: string } = {},
+): Promise<ObjectiveTimeline> {
+  const query = new URLSearchParams();
+  if (params.limit != null) query.set('limit', String(params.limit));
+  if (params.offset != null) query.set('offset', String(params.offset));
+  if (params.filter && params.filter !== 'all') query.set('filter', params.filter);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/objectives/${id}/timeline${qs ? `?${qs}` : ''}`);
 }
 
 // Phase 37 — Objective Mutations (used by server actions and client-side code)
