@@ -133,12 +133,11 @@ Plans:
   2. `GET /executions/:id/events` SSE stream delivers activity feed events in real time to the browser
   3. `GET /events/lifecycle` SSE stream delivers soul lifecycle notifications (promotion, demotion, pioneer) to the browser
   4. `GET /verdicts/calibration?userId=` returns a JSON body with confirmation rate and a boolean warning flag
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 34-01: Fix Ring Leader route registration to expose execution-scoped paths (API-01)
-- [ ] 34-02: Verify and fix execution-scoped SSE endpoint (API-04) and lifecycle SSE endpoint (API-05)
-- [ ] 34-03: Implement `GET /verdicts/calibration` endpoint (API-06)
+- [ ] 34-01-PLAN.md — Add missing BILLING_EVENTS_TOPIC to SSE subscription with per-topic error resilience
+- [ ] 34-02-PLAN.md — API alignment smoke tests verifying all 4 requirements via Fastify inject
 
 ---
 
@@ -291,7 +290,7 @@ Plans:
 | 31. Ring Leader Fitness Scoring | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 32. Dashboard and Reporting | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 33. Execution Data Model Fixes | v5.0 | 2/2 | Complete | 2026-03-02 |
-| 34. API Alignment and SSE Verification | v5.0 | 0/3 | Not started | - |
+| 34. API Alignment and SSE Verification | v5.0 | 0/2 | Not started | - |
 | 35. Execution Form Enhancements | v5.0 | 0/2 | Not started | - |
 | 36. Pre-Flight Manifest Review | v5.0 | 0/2 | Not started | - |
 | 37. Objective CRUD UI | v5.0 | 0/3 | Not started | - |
