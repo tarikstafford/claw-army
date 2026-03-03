@@ -14,6 +14,8 @@ import { objectivesRoutes } from './routes/objectives';
 import { ringLeaderRoutes } from './routes/ring-leader';
 import { soulsRoutes } from './routes/souls';
 import { categoryBenchmarksRoutes } from './routes/category-benchmarks';
+import { decisionTracesRoutes } from './routes/decision-traces';
+import { negativeSignalsRoutes } from './routes/negative-signals';
 
 export async function buildApp() {
   const app = Fastify({
@@ -61,6 +63,12 @@ export async function buildApp() {
 
   // Category Benchmarks page (Phase 39 — SOUL-04)
   app.register(categoryBenchmarksRoutes, { prefix: '/category-benchmarks' });
+
+  // Decision Trace Viewer (Phase 39 — SOUL-02)
+  app.register(decisionTracesRoutes, { prefix: '/decision-traces' });
+
+  // Negative Signal Register (Phase 39 — SOUL-03)
+  app.register(negativeSignalsRoutes, { prefix: '/negative-signals' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
