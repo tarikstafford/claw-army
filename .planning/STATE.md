@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 34 of 40 (API Alignment and SSE Verification)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-03-02 — Phase 33 verified and complete (4/4 must-haves passed)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-03 — Plan 34-01 complete (SSE billing topic gap fixed)
 
-Progress: [██░░░░░░░░] 20% (v5.0, 2/10 plans complete)
+Progress: [███░░░░░░░] 30% (v5.0, 3/10 plans complete)
 
 ## Performance Metrics
 
@@ -28,6 +28,7 @@ Progress: [██░░░░░░░░] 20% (v5.0, 2/10 plans complete)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 33 (Execution Data Model Fixes) | 2 | 4 min | 2 min |
+| 34-01 (API Alignment SSE - billing topic) | 1 | 1 min | 1 min |
 
 *Updated after each plan completion*
 
@@ -41,6 +42,9 @@ v5.0 decisions (33-01):
 - llmProvider validated at app level only (not DB enum) to avoid migration churn when adding providers
 - allowedDomains null=use global PROXY_DOMAIN_ALLOWLIST, []=allow all — semantically distinct
 - Migration 0013 uses ADD COLUMN IF NOT EXISTS for idempotency (consistent with 0008-0010)
+
+v5.0 decisions (34-01):
+- Promise.allSettled used for SSE topic subscription creation — missing GCP topics log warning and are skipped rather than crashing the entire SSE connection
 
 v5.0 decisions (33-02):
 - Duplex type used for CONNECT socket parameter — Node.js server 'connect' event emits Duplex not net.Socket
@@ -68,6 +72,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Phase 33 verified complete — ready to plan Phase 34
+Last session: 2026-03-03
+Stopped at: Completed 34-01-PLAN.md — SSE billing topic gap fixed, ready for 34-02
 Resume file: None
