@@ -21,7 +21,7 @@ Requirements for v5.0 Full Spectrum — closing all gaps between PRDs, backend l
 - [ ] **FORM-01**: User can select campaign type (ad hoc or campaign) when creating an execution
 - [ ] **FORM-02**: User can configure tool allowlist (multi-select of available tools) when creating an execution
 - [ ] **FORM-03**: User can set runtime limit (minutes) when creating an execution
-- [ ] **FORM-04**: User can review the full population manifest (souls assigned per task, source, rationale) before confirming execution launch
+- [x] **FORM-04**: User can review the full population manifest (souls assigned per task, source, rationale) before confirming execution launch
 
 ### Objective Management
 
@@ -86,7 +86,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | FORM-01 | Phase 35 | Pending |
 | FORM-02 | Phase 35 | Pending |
 | FORM-03 | Phase 35 | Pending |
-| FORM-04 | Phase 36 | Pending |
+| FORM-04 | Phase 36 | Complete |
 | OBJ-01 | Phase 37 | Pending |
 | OBJ-02 | Phase 37 | Pending |
 | OBJ-03 | Phase 37 | Pending |

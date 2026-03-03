@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 36 of 40 (Pre-Flight Manifest Review)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-03-03 — Phase 35 verified and complete (10/10 must-haves passed)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-03 — Phase 36 Plan 01 complete (pre_flight status + confirm/cancel endpoints)
 
 Progress: [█████░░░░░] 50% (v5.0, 6/12 plans complete)
 
@@ -73,6 +73,12 @@ v5.0 phase ordering rationale:
 - [Phase 35-02]: campaignType stored as nullable varchar(20) with app-level validation only — consistent with llmProvider approach, avoids migration churn when enum values change
 - [Phase 35-02]: resolvedCampaignType fallback preserves objectiveId-based derivation for spawnRingLeader when form field is omitted
 
+v5.0 decisions (36-01):
+- pre_flight status added before 'queued' in enum — preserves existing status ordering for all terminal states
+- assemblePopulation now stops at manifest persistence (status: assembling->spawning) without calling spawnAgentsForRun — cleaner separation of concerns
+- confirm endpoint uses setImmediate for bot spawning — consistent with existing async handoff pattern in POST /
+- ringLeaderRuns row marked failed on cancel — prevents orphaned ring_leader_runs rows for cancelled executions
+
 ### Pending Todos
 
 None.
@@ -88,5 +94,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 35 verified complete — ready to plan Phase 36
+Stopped at: Phase 36 Plan 01 complete — ready to execute Phase 36 Plan 02
 Resume file: None
