@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v5.0
+milestone_name: Full Spectrum
+status: unknown
+last_updated: "2026-03-03T03:52:24.518Z"
+progress:
+  total_phases: 36
+  completed_phases: 34
+  total_plans: 111
+  completed_plans: 109
+---
+
 # Project State
 
 ## Project Reference
@@ -78,6 +91,8 @@ v5.0 decisions (36-01):
 - assemblePopulation now stops at manifest persistence (status: assembling->spawning) without calling spawnAgentsForRun — cleaner separation of concerns
 - confirm endpoint uses setImmediate for bot spawning — consistent with existing async handoff pattern in POST /
 - ringLeaderRuns row marked failed on cancel — prevents orphaned ring_leader_runs rows for cancelled executions
+- [Phase 36-02]: Used actual PopulationManifest/SoulSelectionEntry field names from types.ts (assignedSouls, selectionRationale, differentiationScore) — plan's interface block was illustrative
+- [Phase 36-02]: page.server.ts uses explicit App.Locals type annotation instead of importing from .types (avoids SvelteKit type generation dependency for new routes)
 
 ### Pending Todos
 

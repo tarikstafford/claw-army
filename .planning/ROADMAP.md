@@ -94,7 +94,7 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 - [x] **Phase 33: Execution Data Model Fixes** — Add `llmProvider` and `allowedDomains` columns to executions table; wire Tool Gateway to per-execution domain filtering
 - [x] **Phase 34: API Alignment and SSE Verification** — Fix Ring Leader route paths, verify SSE endpoints, add calibration endpoint
 - [x] **Phase 35: Execution Form Enhancements** — Add campaign type, tool allowlist, and runtime limit fields to execution creation form
-- [ ] **Phase 36: Pre-Flight Manifest Review** — Gate execution launch behind manifest review step so user confirms soul assignments before bots spawn
+- [x] **Phase 36: Pre-Flight Manifest Review** — Gate execution launch behind manifest review step so user confirms soul assignments before bots spawn (completed 2026-03-03)
 - [ ] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists)
 - [ ] **Phase 38: Objective DNA Evolution Timeline** — Show which souls promoted/retired across runs on objective detail page
 - [ ] **Phase 39: Soul and DNA Visibility** — Soul library browser, decision trace viewer, negative signal register, category benchmarks
@@ -292,7 +292,7 @@ Plans:
 | 33. Execution Data Model Fixes | v5.0 | 2/2 | Complete | 2026-03-02 |
 | 34. API Alignment and SSE Verification | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 35. Execution Form Enhancements | v5.0 | 2/2 | Complete | 2026-03-03 |
-| 36. Pre-Flight Manifest Review | 1/2 | In Progress|  | - |
+| 36. Pre-Flight Manifest Review | 2/2 | Complete   | 2026-03-03 | - |
 | 37. Objective CRUD UI | v5.0 | 0/3 | Not started | - |
 | 38. Objective DNA Evolution Timeline | v5.0 | 0/2 | Not started | - |
 | 39. Soul and DNA Visibility | v5.0 | 0/5 | Not started | - |
