@@ -4,6 +4,9 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { enhance } from '$app/forms';
+
+  let { form } = $props();
 
   onMount(() => {
     const obs = new IntersectionObserver(
@@ -280,11 +283,17 @@
         <h2 class="access-h2">Your workforce<br><em>is standing by.</em></h2>
         <p class="access-sub">A small number of teams are running Akasa now. If you run high-volume knowledge work, there is a place in the queue.</p>
       </div>
-      <div class="access-form r d1">
-        <input type="email" class="access-input" placeholder="your@email.com" />
-        <a href="#access" class="btn-primary">Request access</a>
-      </div>
-      <p class="access-note r d2">No commitment. We will reach out when your place is ready.</p>
+      <form method="POST" action="?/requestAccess" use:enhance class="access-form r d1">
+        <input type="email" name="email" class="access-input" placeholder="your@email.com" required />
+        <button type="submit" class="btn-primary">Request access</button>
+      </form>
+      {#if form?.success}
+        <p class="access-note r d2" style="color: var(--teal);">You're on the list. We'll reach out when your place is ready.</p>
+      {:else if form?.error}
+        <p class="access-note r d2" style="color: var(--rose);">{form.error}</p>
+      {:else}
+        <p class="access-note r d2">No commitment. We will reach out when your place is ready.</p>
+      {/if}
     </div>
   </div>
 </section>
