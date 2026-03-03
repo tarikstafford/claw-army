@@ -20,6 +20,7 @@ export interface CreateExecutionInput {
   llmProvider?: string;
   allowedDomains?: string[];
   objectiveId?: string;
+  campaignType?: string;
 }
 
 export async function createExecution(
@@ -51,6 +52,7 @@ export async function createExecution(
       llmProvider: input.llmProvider ?? null,
       allowedDomains: input.allowedDomains ?? null,
       objectiveId: input.objectiveId ?? null,
+      campaignType: input.campaignType ?? null,
       status: 'queued',
     })
     .returning({ id: executions.id });

@@ -32,6 +32,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         llmProvider: Type.Optional(Type.String()),
         allowedDomains: Type.Optional(Type.Array(Type.String())),
         objectiveId: Type.Optional(Type.String({ format: 'uuid' })),
+        campaignType: Type.Optional(
+          Type.Union([Type.Literal('ad_hoc'), Type.Literal('campaign')])
+        ),
       }),
       response: {
         201: Type.Object({
@@ -74,6 +77,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       llmProvider,
       allowedDomains,
       objectiveId,
+      campaignType,
     } = request.body;
 
     const MIN_POPULATION = 3;
@@ -120,6 +124,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         llmProvider,
         allowedDomains,
         objectiveId,
+        campaignType,
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -137,8 +142,8 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     // --- Async handoff (runs after 201 response) ---
     setImmediate(async () => {
       try {
-        // 5. Determine campaign type
-        const campaignType = objectiveId ? 'campaign' : 'ad_hoc';
+        // 5. Determine campaign type — use form-supplied value, fallback to objectiveId derivation
+        const resolvedCampaignType = campaignType ?? (objectiveId ? 'campaign' : 'ad_hoc');
 
         // 6. Spawn Ring Leader — creates ring_leader_runs row with mission brief (ORCH-03)
         const { ringLeaderRunId } = await spawnRingLeader({
@@ -148,7 +153,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           toolGrants: allowedTools,
           budgetCapCents: budgetCapCents ?? 0,
           runtimeLimitSeconds: runtimeLimitSeconds ?? 3600,
-          campaignType,
+          campaignType: resolvedCampaignType,
         });
 
         // 7. Transition execution to running
@@ -209,6 +214,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           allowedTools: Type.Array(Type.String()),
           llmProvider: Type.Union([Type.String(), Type.Null()]),
           allowedDomains: Type.Union([Type.Array(Type.String()), Type.Null()]),
+          campaignType: Type.Union([Type.String(), Type.Null()]),
           createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
           updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
         }),
