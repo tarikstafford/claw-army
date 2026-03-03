@@ -335,22 +335,6 @@
             <li><a href="#agents">For Agents</a></li>
           </ul>
         </div>
-        <div class="footer-nav-group">
-          <div class="footer-nav-label">Resources</div>
-          <ul class="footer-nav-links">
-            <li><a href="#access">Documentation</a></li>
-            <li><a href="#access">Status</a></li>
-            <li><a href="#access">Changelog</a></li>
-          </ul>
-        </div>
-        <div class="footer-nav-group">
-          <div class="footer-nav-label">Company</div>
-          <ul class="footer-nav-links">
-            <li><a href="#access">About</a></li>
-            <li><a href="#access">Contact</a></li>
-            <li><a href="#access">Privacy</a></li>
-          </ul>
-        </div>
       </div>
     </div>
     <div class="footer-bottom">
