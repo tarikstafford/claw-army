@@ -98,8 +98,8 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 - [x] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists) (completed 2026-03-03)
 - [x] **Phase 38: Objective DNA Evolution Timeline** — Show which souls promoted/retired across runs on objective detail page (completed 2026-03-03)
 - [x] **Phase 39: Soul and DNA Visibility** — Soul library browser, decision trace viewer, negative signal register, category benchmarks (completed 2026-03-03)
-- [x] **Phase 40: Ring Leader Fitness Breakdown** — Expose coordination quality and soul selection quality dimensions in execution reports (completed 2026-03-03)
-- [ ] **Phase 41: Landing Page and Platform Polish** — Request access form, footer links, health endpoint
+- [x] **Phase 40: Landing Page and Platform Polish** — Request access form, footer links, health endpoint (completed 2026-03-03)
+- [x] **Phase 41: Ring Leader Fitness Breakdown** — Expose coordination quality and soul selection quality dimensions in execution reports (completed 2026-03-03, confirmed already implemented in Phase 39)
 
 ---
 
@@ -246,8 +246,19 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 40-01-PLAN.md — Request access form wiring (backend POST /waitlist + SvelteKit action + form UI) and footer dead link removal
-- [ ] 40-02-PLAN.md — GET /admin/health endpoint with GCE, Cloud SQL, Redis, and BullMQ subsystem probes
+- [x] 40-01-PLAN.md — Request access form wiring (backend POST /waitlist + SvelteKit action + form UI) and footer dead link removal
+- [x] 40-02-PLAN.md — GET /admin/health endpoint with GCE, Cloud SQL, Redis, and BullMQ subsystem probes
+
+---
+
+### Phase 41: Ring Leader Fitness Breakdown
+
+**Goal**: Execution reports show the Ring Leader fitness detail breakdown — coordination quality (4 dimensions) and soul selection quality (5 dimensions) each with individual scores.
+**Depends on**: Phase 39 (soul and DNA visibility)
+**Requirements**: SOUL-05
+**Success Criteria** (what must be TRUE):
+  1. Execution post-run report shows the Ring Leader fitness detail panel — coordination quality (4 dimensions) and soul selection quality (5 dimensions) each with individual scores
+**Plans**: 0 plans (confirmed already implemented in Phase 39 — no additional work required)
 
 ---
 
@@ -295,3 +306,4 @@ Plans:
 | 38. Objective DNA Evolution Timeline | 2/2 | Complete    | 2026-03-03 | - |
 | 39. Soul and DNA Visibility | 3/3 | Complete    | 2026-03-03 | - |
 | 40. Landing Page and Platform Polish | 2/2 | Complete    | 2026-03-03 | - |
+| 41. Ring Leader Fitness Breakdown | 0/0 | Complete    | 2026-03-03 | Already implemented in Phase 39 |
