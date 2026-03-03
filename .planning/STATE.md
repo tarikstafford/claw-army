@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v5.0 Full Spectrum — Phase 35: Execution Form Enhancements
+**Current focus:** v5.0 Full Spectrum — Phase 36: Pre-Flight Manifest Review
 
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 35 of 40 (Execution Form Enhancements)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-03-03 — 35-02 complete: campaignType column added to DB, wired through POST/GET API contract
+Phase: 36 of 40 (Pre-Flight Manifest Review)
+Plan: 0 of 2 in current phase
+Status: Ready to plan
+Last activity: 2026-03-03 — Phase 35 verified and complete (10/10 must-haves passed)
 
-Progress: [████░░░░░░] 50% (v5.0, 6/12 plans complete)
+Progress: [█████░░░░░] 50% (v5.0, 6/12 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed (v5.0): 4
+- Total plans completed (v5.0): 6
 - Prior milestones: ~103 plans across 32 phases
 
 **By Phase:** (v5.0)
@@ -88,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 35-02-PLAN.md — campaignType column + migration + API contract complete; Phase 35 done
+Stopped at: Phase 35 verified complete — ready to plan Phase 36
 Resume file: None

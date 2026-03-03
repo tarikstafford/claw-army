@@ -93,7 +93,7 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 
 - [x] **Phase 33: Execution Data Model Fixes** — Add `llmProvider` and `allowedDomains` columns to executions table; wire Tool Gateway to per-execution domain filtering
 - [x] **Phase 34: API Alignment and SSE Verification** — Fix Ring Leader route paths, verify SSE endpoints, add calibration endpoint
-- [ ] **Phase 35: Execution Form Enhancements** — Add campaign type, tool allowlist, and runtime limit fields to execution creation form
+- [x] **Phase 35: Execution Form Enhancements** — Add campaign type, tool allowlist, and runtime limit fields to execution creation form
 - [ ] **Phase 36: Pre-Flight Manifest Review** — Gate execution launch behind manifest review step so user confirms soul assignments before bots spawn
 - [ ] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists)
 - [ ] **Phase 38: Objective DNA Evolution Timeline** — Show which souls promoted/retired across runs on objective detail page
@@ -154,8 +154,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 35-01-PLAN.md — Add campaign type, tool allowlist, and runtime limit to form and server action
-- [ ] 35-02-PLAN.md — Accept and store campaignType in POST handler, DB migration, and GET response
+- [x] 35-01-PLAN.md — Add campaign type, tool allowlist, and runtime limit to form and server action
+- [x] 35-02-PLAN.md — Accept and store campaignType in POST handler, DB migration, and GET response
 
 ---
 
@@ -291,7 +291,7 @@ Plans:
 | 32. Dashboard and Reporting | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 33. Execution Data Model Fixes | v5.0 | 2/2 | Complete | 2026-03-02 |
 | 34. API Alignment and SSE Verification | v5.0 | 2/2 | Complete | 2026-03-03 |
-| 35. Execution Form Enhancements | v5.0 | 0/2 | Not started | - |
+| 35. Execution Form Enhancements | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 36. Pre-Flight Manifest Review | v5.0 | 0/2 | Not started | - |
 | 37. Objective CRUD UI | v5.0 | 0/3 | Not started | - |
 | 38. Objective DNA Evolution Timeline | v5.0 | 0/2 | Not started | - |
