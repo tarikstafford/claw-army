@@ -503,6 +503,174 @@
       {/if}
     </section>
 
+    <!-- Section 6: Evolution Timeline (OBJ-04) -->
+    <section class="section">
+      <h2>Evolution Timeline</h2>
+
+      <!-- Filter chips -->
+      <div class="tl-filters">
+        {#each FILTER_OPTIONS as opt}
+          <button
+            class="tl-chip"
+            class:tl-chip-active={activeFilter === opt.value}
+            onclick={() => { activeFilter = opt.value; loadTimeline(true); }}
+          >{opt.label}</button>
+        {/each}
+      </div>
+
+      {#if timelineLoading && timeline.length === 0}
+        <!-- Loading skeleton -->
+        <div class="tl-skeleton">
+          {#each [1, 2, 3] as _}
+            <div class="tl-skeleton-row">
+              <div class="tl-skeleton-node"></div>
+              <div class="tl-skeleton-content">
+                <div class="tl-skeleton-line tl-skeleton-short"></div>
+                <div class="tl-skeleton-line tl-skeleton-long"></div>
+              </div>
+            </div>
+          {/each}
+        </div>
+      {:else if timeline.length === 0 && !timelineLoading}
+        <!-- Empty state -->
+        <div class="tl-empty">
+          {#if stats && stats.runCount === 0}
+            <p>No evolution history yet. Launch your first run to start building soul intelligence.</p>
+            <a href="/new-execution?objectiveId={objectiveId}" class="tl-launch-link">Launch a run</a>
+          {:else}
+            <p>No events match the current filter.</p>
+          {/if}
+        </div>
+      {:else}
+        <!-- Timeline -->
+        <div class="tl-timeline">
+          {#each timeline as event (event.id)}
+            <div class="tl-item">
+              <div class="tl-node tl-node-{nodeColor(event.eventType)}" role="presentation"></div>
+              <div class="tl-content">
+                <!-- Collapsed header (always visible) -->
+                <button class="tl-header" onclick={() => toggleExpanded(event.id)}>
+                  <div class="tl-header-top">
+                    <span class="tl-event-type tl-type-{nodeColor(event.eventType)}">{event.eventType}</span>
+                    {#if event.isPioneer && event.eventType === 'Pioneer'}
+                      <span class="tl-pioneer-badge">PIONEER</span>
+                    {/if}
+                    {#if event.taskCategory}
+                      <span class="tl-category">{event.taskCategory}</span>
+                    {/if}
+                    <span class="tl-date">{formatTimelineDate(event.occurredAt)}</span>
+                  </div>
+                  <div class="tl-header-mid">
+                    {#if event.fromClass || event.toClass}
+                      <span class="tl-transition">
+                        {#if event.fromClass}
+                          <span class="class-badge {classBadgeClass(event.fromClass)}">{event.fromClass}</span>
+                        {/if}
+                        {#if event.fromClass && event.toClass}
+                          <span class="tl-arrow">&rarr;</span>
+                        {/if}
+                        {#if event.toClass}
+                          <span class="class-badge {classBadgeClass(event.toClass)}">{event.toClass}</span>
+                        {/if}
+                      </span>
+                    {/if}
+                    <a href="/executions/{event.executionId}" class="tl-run-link" onclick={(e) => e.stopPropagation()}>
+                      Run #{event.runNumber}
+                    </a>
+                  </div>
+                  <div class="tl-header-bottom">
+                    <div class="tl-scores">
+                      {#if event.weightedConfidenceScore != null}
+                        <span class="tl-score" title="Weighted confidence">
+                          <span class="tl-score-label">Conf</span>
+                          <span class="tl-score-value">{(event.weightedConfidenceScore * 100).toFixed(0)}%</span>
+                        </span>
+                      {/if}
+                      {#if event.compositeScore != null}
+                        <span class="tl-score" title="Composite fitness">
+                          <span class="tl-score-label">Fitness</span>
+                          <span class="tl-score-value">{Number(event.compositeScore).toFixed(1)}</span>
+                        </span>
+                      {/if}
+                    </div>
+                    {#if event.verdictSummary}
+                      <p class="tl-summary">{event.verdictSummary.length > 120 ? event.verdictSummary.slice(0, 120) + '...' : event.verdictSummary}</p>
+                    {/if}
+                  </div>
+                </button>
+
+                <!-- Expanded view -->
+                {#if expandedIds.has(event.id)}
+                  <div class="tl-expanded">
+                    {#if event.verdictSummary}
+                      <div class="tl-exp-section">
+                        <h4 class="tl-exp-label">Full Verdict Summary</h4>
+                        <p class="tl-exp-text">{event.verdictSummary}</p>
+                      </div>
+                    {/if}
+
+                    {#if event.performanceJudgeOutput || event.soulAnalystOutput || event.devilsAdvocateOutput}
+                      <div class="tl-exp-section">
+                        <h4 class="tl-exp-label">Council Judges</h4>
+                        <div class="tl-judges">
+                          {#if event.performanceJudgeOutput}
+                            <div class="tl-judge">
+                              <span class="tl-judge-name">Performance Judge <span class="tl-judge-weight">50%</span></span>
+                              <p class="tl-judge-text">
+                                {typeof event.performanceJudgeOutput === 'object' && event.performanceJudgeOutput !== null && 'summary' in (event.performanceJudgeOutput as Record<string, unknown>)
+                                  ? String((event.performanceJudgeOutput as Record<string, unknown>).summary)
+                                  : typeof event.performanceJudgeOutput === 'object' && event.performanceJudgeOutput !== null && 'verdict' in (event.performanceJudgeOutput as Record<string, unknown>)
+                                    ? String((event.performanceJudgeOutput as Record<string, unknown>).verdict)
+                                    : JSON.stringify(event.performanceJudgeOutput).slice(0, 200)}
+                              </p>
+                            </div>
+                          {/if}
+                          {#if event.soulAnalystOutput}
+                            <div class="tl-judge">
+                              <span class="tl-judge-name">Soul Analyst <span class="tl-judge-weight">35%</span></span>
+                              <p class="tl-judge-text">
+                                {typeof event.soulAnalystOutput === 'object' && event.soulAnalystOutput !== null && 'summary' in (event.soulAnalystOutput as Record<string, unknown>)
+                                  ? String((event.soulAnalystOutput as Record<string, unknown>).summary)
+                                  : typeof event.soulAnalystOutput === 'object' && event.soulAnalystOutput !== null && 'verdict' in (event.soulAnalystOutput as Record<string, unknown>)
+                                    ? String((event.soulAnalystOutput as Record<string, unknown>).verdict)
+                                    : JSON.stringify(event.soulAnalystOutput).slice(0, 200)}
+                              </p>
+                            </div>
+                          {/if}
+                          {#if event.devilsAdvocateOutput}
+                            <div class="tl-judge">
+                              <span class="tl-judge-name">Devil's Advocate <span class="tl-judge-weight">15%</span></span>
+                              <p class="tl-judge-text">
+                                {typeof event.devilsAdvocateOutput === 'object' && event.devilsAdvocateOutput !== null && 'verdict' in (event.devilsAdvocateOutput as Record<string, unknown>)
+                                  ? String((event.devilsAdvocateOutput as Record<string, unknown>).verdict)
+                                  : JSON.stringify(event.devilsAdvocateOutput).slice(0, 200)}
+                              </p>
+                            </div>
+                          {/if}
+                        </div>
+                      </div>
+                    {/if}
+
+                    {#if event.hasMutationLineage}
+                      <div class="tl-exp-section">
+                        <span class="tl-mutation-badge">Mutation lineage detected</span>
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+
+        {#if timelineHasMore}
+          <button class="tl-load-more" onclick={() => loadTimeline(false)} disabled={timelineLoading}>
+            {timelineLoading ? 'Loading...' : 'Load more'}
+          </button>
+        {/if}
+      {/if}
+    </section>
+
   {/if}
 </div>
 
@@ -1166,4 +1334,372 @@
     font-weight: 500;
   }
   .view-link:hover { text-decoration: underline; }
+
+  /* Evolution Timeline (OBJ-04) */
+  .tl-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .tl-chip {
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tl-chip:hover {
+    border-color: var(--border-mid);
+    color: var(--text);
+  }
+  .tl-chip-active {
+    background: var(--violet-dim);
+    border-color: var(--violet);
+    color: var(--violet-bright);
+  }
+
+  /* Timeline structure */
+  .tl-timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+  .tl-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .tl-node {
+    position: absolute;
+    left: -1.75rem;
+    top: 0.75rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    z-index: 1;
+  }
+  .tl-node-green {
+    border-color: var(--teal);
+    background: var(--teal-dim);
+  }
+  .tl-node-red {
+    border-color: var(--rose);
+    background: var(--rose-dim);
+  }
+  .tl-node-amber {
+    border-color: var(--amber);
+    background: var(--amber-dim);
+  }
+  .tl-node-violet {
+    border-color: var(--violet-bright);
+    background: var(--violet-dim);
+  }
+  .tl-node-neutral {
+    border-color: var(--border-mid);
+    background: var(--bg-3);
+  }
+
+  .tl-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .tl-header {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+  }
+  .tl-header:hover {
+    background: rgba(139, 92, 246, 0.03);
+  }
+
+  .tl-header-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+  }
+
+  .tl-event-type {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .tl-type-green { color: var(--teal); }
+  .tl-type-red { color: var(--rose); }
+  .tl-type-amber { color: var(--amber); }
+  .tl-type-violet { color: var(--violet-bright); }
+  .tl-type-neutral { color: var(--text-muted); }
+
+  .tl-pioneer-badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+  }
+
+  .tl-category {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .tl-date {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+  }
+
+  .tl-header-mid {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .tl-transition {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .tl-arrow {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .tl-run-link {
+    font-size: 0.8rem;
+    color: var(--violet-bright);
+    text-decoration: none;
+    font-weight: 500;
+    font-family: var(--font-mono);
+  }
+  .tl-run-link:hover { text-decoration: underline; }
+
+  .tl-header-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .tl-scores {
+    display: flex;
+    gap: 1rem;
+  }
+  .tl-score {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .tl-score-label {
+    font-size: 0.65rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+  }
+  .tl-score-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    font-family: var(--font-mono);
+  }
+
+  .tl-summary {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Expanded view */
+  .tl-expanded {
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    background: var(--bg-3);
+  }
+
+  .tl-exp-section {
+    margin-bottom: 0.75rem;
+  }
+  .tl-exp-section:last-child {
+    margin-bottom: 0;
+  }
+  .tl-exp-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    margin: 0 0 0.35rem;
+  }
+  .tl-exp-text {
+    font-size: 0.85rem;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .tl-judges {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .tl-judge {
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.35rem;
+  }
+  .tl-judge-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    font-family: var(--font-mono);
+  }
+  .tl-judge-weight {
+    color: var(--text-faint);
+    font-weight: 400;
+  }
+  .tl-judge-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0.25rem 0 0;
+    line-height: 1.4;
+  }
+
+  .tl-mutation-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--violet-bright);
+    background: var(--violet-dim);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+
+  /* Load more */
+  .tl-load-more {
+    display: block;
+    margin: 1rem auto 0;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-mid);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: all 0.15s ease;
+  }
+  .tl-load-more:hover:not(:disabled) {
+    border-color: var(--violet);
+    color: var(--violet-bright);
+  }
+  .tl-load-more:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Empty state */
+  .tl-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  .tl-empty p {
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0 0 0.75rem;
+  }
+  .tl-launch-link {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--violet);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .tl-launch-link:hover {
+    background: var(--violet-bright);
+  }
+
+  /* Skeleton */
+  .tl-skeleton {
+    padding-left: 2rem;
+  }
+  .tl-skeleton-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .tl-skeleton-node {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+  .tl-skeleton-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .tl-skeleton-line {
+    height: 0.75rem;
+    border-radius: 0.25rem;
+    background: var(--border);
+    animation: tl-pulse 1.5s ease-in-out infinite;
+  }
+  .tl-skeleton-short { width: 40%; }
+  .tl-skeleton-long { width: 80%; }
+
+  @keyframes tl-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+  }
 </style>
