@@ -95,7 +95,7 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 - [x] **Phase 34: API Alignment and SSE Verification** — Fix Ring Leader route paths, verify SSE endpoints, add calibration endpoint
 - [x] **Phase 35: Execution Form Enhancements** — Add campaign type, tool allowlist, and runtime limit fields to execution creation form
 - [x] **Phase 36: Pre-Flight Manifest Review** — Gate execution launch behind manifest review step so user confirms soul assignments before bots spawn (completed 2026-03-03)
-- [ ] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists)
+- [x] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists) (completed 2026-03-03)
 - [ ] **Phase 38: Objective DNA Evolution Timeline** — Show which souls promoted/retired across runs on objective detail page
 - [ ] **Phase 39: Soul and DNA Visibility** — Soul library browser, decision trace viewer, negative signal register, category benchmarks
 - [ ] **Phase 40: Ring Leader Fitness Breakdown** — Expose coordination quality and soul selection quality dimensions in execution reports
@@ -292,7 +292,7 @@ Plans:
 | 34. API Alignment and SSE Verification | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 35. Execution Form Enhancements | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 36. Pre-Flight Manifest Review | 2/2 | Complete    | 2026-03-03 | - |
-| 37. Objective CRUD UI | 1/2 | In Progress|  | - |
+| 37. Objective CRUD UI | 2/2 | Complete   | 2026-03-03 | - |
 | 38. Objective DNA Evolution Timeline | v5.0 | 0/2 | Not started | - |
 | 39. Soul and DNA Visibility | v5.0 | 0/5 | Not started | - |
 | 40. Landing Page and Platform Polish | v5.0 | 0/3 | Not started | - |

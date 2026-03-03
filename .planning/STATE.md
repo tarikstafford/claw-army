@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Full Spectrum
 status: unknown
-last_updated: "2026-03-03T04:03:35.378Z"
+last_updated: "2026-03-03T05:21:25.435Z"
 progress:
-  total_phases: 36
-  completed_phases: 34
-  total_plans: 111
-  completed_plans: 109
+  total_phases: 37
+  completed_phases: 35
+  total_plans: 113
+  completed_plans: 111
 ---
 
 # Project State
@@ -23,12 +23,12 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 37 of 40 (Objective CRUD UI)
-Plan: 1 of 2 in current phase
+Phase: 37 of 40 (Objective CRUD UI) — COMPLETE
+Plan: 2 of 2 in current phase (phase complete)
 Status: In progress
-Last activity: 2026-03-03 — Phase 37 Plan 01 complete (create objective form + api.ts mutation helpers)
+Last activity: 2026-03-03 — Phase 37 Plan 02 complete (inline edit mode, archive/unarchive, kebab menu — full Objective CRUD UI)
 
-Progress: [█████░░░░░] 62% (v5.0, 8/12 plans complete)
+Progress: [█████░░░░░] 67% (v5.0, 10/12 plans complete)
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Progress: [█████░░░░░] 62% (v5.0, 8/12 plans complete)
 | 35-02 (campaignType API contract) | 1 | 2 min | 2 min |
 
 *Updated after each plan completion*
+| Phase 37-objective-crud-ui P02 | 45 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ v5.0 decisions (36-01):
 - ringLeaderRuns row marked failed on cancel — prevents orphaned ring_leader_runs rows for cancelled executions
 - [Phase 36-02]: Used actual PopulationManifest/SoulSelectionEntry field names from types.ts (assignedSouls, selectionRationale, differentiationScore) — plan's interface block was illustrative
 - [Phase 36-02]: page.server.ts uses explicit App.Locals type annotation instead of importing from .types (avoids SvelteKit type generation dependency for new routes)
+- [Phase 37-02]: Cross-route form action POST: list page POSTs to /objectives/:id?/archive using browser session cookie — no separate list page server.ts needed
+- [Phase 37-02]: Lazy-load archived objectives on first Show Archived toggle — avoids extra network request on initial list page load, results cached in component state
 
 ### Pending Todos
 
@@ -119,5 +122,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 37 Plan 01 complete — create objective form + mutation API helpers
+Stopped at: Phase 37 Plan 02 complete — inline edit mode, archive/unarchive, kebab menu, and archived toggle for full Objective CRUD UI
 Resume file: None
