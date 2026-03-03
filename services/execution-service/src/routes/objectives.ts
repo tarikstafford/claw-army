@@ -91,14 +91,18 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     return reply.code(201).send(created);
   });
 
-  // GET / — list non-archived objectives with aggregation (OBJ-03)
+  // GET / — list objectives with aggregation, supports ?archived=true (OBJ-03)
   fastify.get('/', {
     schema: {
+      querystring: Type.Object({
+        archived: Type.Optional(Type.String()),
+      }),
       response: {
         200: Type.Array(ObjectiveWithAggregationSchema),
       },
     },
   }, async (_request, reply) => {
+    const showArchived = _request.query?.archived === 'true';
     const rows = await db
       .select({
         id: objectives.id,
@@ -147,7 +151,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         )`,
       })
       .from(objectives)
-      .where(eq(objectives.isArchived, false))
+      .where(eq(objectives.isArchived, showArchived))
       .orderBy(sql`${objectives.createdAt} DESC`);
 
     return reply.code(200).send(rows);
@@ -163,6 +167,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         200: Type.Array(Type.Object({
           id: Type.String({ format: 'uuid' }),
           status: Type.Union([
+            Type.Literal('pre_flight'),
             Type.Literal('queued'),
             Type.Literal('running'),
             Type.Literal('paused'),

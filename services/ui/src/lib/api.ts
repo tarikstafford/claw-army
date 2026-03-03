@@ -164,6 +164,10 @@ export async function getObjectives(): Promise<ObjectiveListItem[]> {
   return apiFetch(`${BASE}/objectives`);
 }
 
+export async function getArchivedObjectives(): Promise<ObjectiveListItem[]> {
+  return apiFetch(`${BASE}/objectives?archived=true`);
+}
+
 export async function getObjective(id: string): Promise<Objective> {
   return apiFetch(`${BASE}/objectives/${id}`);
 }
