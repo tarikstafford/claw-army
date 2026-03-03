@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Full Spectrum
-status: unknown
-last_updated: "2026-03-03T09:38:57.526Z"
+status: in_progress
+last_updated: "2026-03-03T10:20:46Z"
 progress:
-  total_phases: 38
-  completed_phases: 36
-  total_plans: 115
-  completed_plans: 113
+  total_phases: 40
+  completed_phases: 38
+  total_plans: 116
+  completed_plans: 114
 ---
 
 # Project State
@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v5.0 Full Spectrum — Phase 39: Soul and DNA Visibility (next)
+**Current focus:** v5.0 Full Spectrum — Phase 39: Soul and DNA Visibility (in progress)
 
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 38 of 40 (DNA Evolution Timeline) — COMPLETE
-Plan: 2 of 2 complete (human visual verification approved by user)
-Status: Phase 38 complete — Phase 39 (Soul and DNA Visibility) next
-Last activity: 2026-03-03 — Phase 38 Plan 02 complete (Evolution Timeline UI — human-verify checkpoint approved)
+Phase: 39 of 40 (Soul and DNA Visibility) — IN PROGRESS
+Plan: 1 of 3 complete
+Status: Phase 39 Plan 01 complete — Soul Library and Category Benchmarks endpoints and UI pages built
+Last activity: 2026-03-03 — Phase 39 Plan 01 complete (Soul Library browser + Category Benchmarks page)
 
-Progress: [█████░░░░░] 70% (v5.0, 12/16 plans complete)
+Progress: [█████░░░░░] 71% (v5.0, 13/16 plans complete)
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Progress: [█████░░░░░] 70% (v5.0, 12/16 plans complete)
 | Phase 37-objective-crud-ui P02 | 45 | 3 tasks | 5 files |
 | Phase 38-objective-dna-evolution-timeline P01 | 15 | 3 tasks | 3 files |
 | Phase 38-objective-dna-evolution-timeline P02 | 5 | 2 tasks | 1 file |
+| Phase 39-soul-and-dna-visibility P01 | 3 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,14 @@ v5.0 decisions (38-02):
 - Filter chips trigger backend reload (loadTimeline(true)) not client-side filter — ensures correct pagination with server-applied filter
 - tl- CSS prefix for all new classes — avoids collision with existing 1090-line stylesheet in same single-file component
 
+v5.0 decisions (39-01):
+- soulsRoutes registers GET /categories before GET / to avoid Fastify route conflict (static segment before dynamic)
+- agentClass join uses raw SQL LEFT JOIN with compound condition (botId + taskCategory) — same pattern as objectives.ts
+- compositeScore sourced from bots.compositeScore via botId LEFT JOIN — null for archetypes (no botId)
+- Filter chips call loadSouls(reset: true) directly — no reactive effects to avoid infinite loop (consistent with Phase 38 filter chip decision)
+- Load More appends to existing souls array with currentOffset tracking — avoids full re-fetch
+- Category Benchmarks page uses table layout — more appropriate than cards for structured multi-column data
+
 ### Pending Todos
 
 None.
@@ -133,5 +142,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 38 Plan 02 — awaiting human-verify checkpoint (Task 3: visual verification of DNA Evolution Timeline on objective detail page)
+Stopped at: Completed Phase 39 Plan 01 — Soul Library and Category Benchmarks
 Resume file: None
