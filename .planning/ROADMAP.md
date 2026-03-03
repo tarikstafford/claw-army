@@ -151,11 +151,11 @@ Plans:
   2. New execution form shows a multi-select tool allowlist and the chosen tools are stored on the execution
   3. New execution form shows a runtime limit input (minutes) and the value is stored on the execution
   4. All three fields are optional with sensible defaults so existing form behavior is not broken
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 35-01: Add campaign type, tool allowlist, and runtime limit to the execution creation form and server action
-- [ ] 35-02: Accept and store the three new fields in POST /executions handler
+- [ ] 35-01-PLAN.md — Add campaign type, tool allowlist, and runtime limit to form and server action
+- [ ] 35-02-PLAN.md — Accept and store campaignType in POST handler, DB migration, and GET response
 
 ---
 
