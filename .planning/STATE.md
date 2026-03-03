@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Full Spectrum
-status: in_progress
-last_updated: "2026-03-03T10:20:46Z"
+status: unknown
+last_updated: "2026-03-03T10:27:48.395Z"
 progress:
-  total_phases: 40
-  completed_phases: 38
-  total_plans: 116
-  completed_plans: 114
+  total_phases: 39
+  completed_phases: 36
+  total_plans: 118
+  completed_plans: 115
 ---
 
 # Project State
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 39 of 40 (Soul and DNA Visibility) — IN PROGRESS
-Plan: 1 of 3 complete
-Status: Phase 39 Plan 01 complete — Soul Library and Category Benchmarks endpoints and UI pages built
-Last activity: 2026-03-03 — Phase 39 Plan 01 complete (Soul Library browser + Category Benchmarks page)
+Plan: 2 of 3 complete
+Status: Phase 39 Plan 02 complete — Decision Trace Viewer and Negative Signal Register built
+Last activity: 2026-03-03 — Phase 39 Plan 02 complete (Decision traces on bot detail + /negative-signals page)
 
 Progress: [█████░░░░░] 71% (v5.0, 13/16 plans complete)
 
@@ -51,6 +51,7 @@ Progress: [█████░░░░░] 71% (v5.0, 13/16 plans complete)
 | Phase 38-objective-dna-evolution-timeline P01 | 15 | 3 tasks | 3 files |
 | Phase 38-objective-dna-evolution-timeline P02 | 5 | 2 tasks | 1 file |
 | Phase 39-soul-and-dna-visibility P01 | 3 | 2 tasks | 8 files |
+| Phase 39-soul-and-dna-visibility P02 | 4 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,8 @@ v5.0 decisions (39-01):
 - Filter chips call loadSouls(reset: true) directly — no reactive effects to avoid infinite loop (consistent with Phase 38 filter chip decision)
 - Load More appends to existing souls array with currentOffset tracking — avoids full re-fetch
 - Category Benchmarks page uses table layout — more appropriate than cards for structured multi-column data
+- [Phase 39-soul-and-dna-visibility]: Decision traces route uses parallel Promise.all for data+count queries; negative signals LEFT JOIN uses raw SQL alias for bot_souls taskCategory/generation (consistent with souls.ts pattern)
+- [Phase 39-soul-and-dna-visibility]: tracesLoaded flag prevents re-fetch on hide/show toggle; attributionConfidence returned as Drizzle numeric string and converted to % via parseFloat() in frontend
 
 ### Pending Todos
 
@@ -142,5 +145,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 39 Plan 01 — Soul Library and Category Benchmarks
+Stopped at: Completed Phase 39 Plan 02 — Decision Trace Viewer and Negative Signal Register
 Resume file: None

@@ -33,8 +33,8 @@ Requirements for v5.0 Full Spectrum — closing all gaps between PRDs, backend l
 ### Soul & DNA Visibility
 
 - [x] **SOUL-01**: User can browse the soul library — view all souls by task category with agent class, generation, fitness score
-- [ ] **SOUL-02**: User can view decision traces for a specific bot — directive references, attribution confidence, outcomes
-- [ ] **SOUL-03**: User can view the negative signal register — failed/retired souls with failure type and directive failure summary
+- [x] **SOUL-02**: User can view decision traces for a specific bot — directive references, attribution confidence, outcomes
+- [x] **SOUL-03**: User can view the negative signal register — failed/retired souls with failure type and directive failure summary
 - [x] **SOUL-04**: User can view category benchmarks — pioneer progress, baseline scores, benchmark maturity, thin data flags
 - [ ] **SOUL-05**: Execution report shows Ring Leader fitness detail breakdown — coordination quality (4 dimensions) and soul selection quality (5 dimensions) individually scored
 
@@ -92,8 +92,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | OBJ-03 | Phase 37 | Complete |
 | OBJ-04 | Phase 38 | Complete |
 | SOUL-01 | Phase 39 | Complete |
-| SOUL-02 | Phase 39 | Pending |
-| SOUL-03 | Phase 39 | Pending |
+| SOUL-02 | Phase 39 | Complete |
+| SOUL-03 | Phase 39 | Complete |
 | SOUL-04 | Phase 39 | Complete |
 | SOUL-05 | Phase 39 | Pending |
 | POLISH-01 | Phase 40 | Pending |
