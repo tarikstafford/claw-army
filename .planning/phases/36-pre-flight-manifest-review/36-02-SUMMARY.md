@@ -29,7 +29,7 @@ decisions:
 metrics:
   duration: "~15 min"
   completed: "2026-03-03"
-  tasks_completed: 2
+  tasks_completed: 3
   tasks_total: 3
   files_created: 2
   files_modified: 3
@@ -83,7 +83,7 @@ Pre-flight SvelteKit route with polling manifest display, confirm/cancel actions
 
 ## Status
 
-Tasks 1 and 2 are complete and committed. Task 3 (checkpoint:human-verify) is pending user verification of the end-to-end pre-flight flow in a running dev environment.
+All 3 tasks complete. Tasks 1 and 2 committed individually. Task 3 (checkpoint:human-verify) approved by user — pre-flight flow verified end-to-end in dev environment.
 
 ## Self-Check: PASSED
 

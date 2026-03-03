@@ -8,7 +8,7 @@ progress:
   total_phases: 36
   completed_phases: 34
   total_plans: 111
-  completed_plans: 109
+  completed_plans: 110
 ---
 
 # Project State
@@ -24,11 +24,11 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 36 of 40 (Pre-Flight Manifest Review)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase (phase complete)
 Status: In progress
-Last activity: 2026-03-03 — Phase 36 Plan 01 complete (pre_flight status + confirm/cancel endpoints)
+Last activity: 2026-03-03 — Phase 36 Plan 02 complete (pre-flight manifest review UI)
 
-Progress: [█████░░░░░] 50% (v5.0, 6/12 plans complete)
+Progress: [█████░░░░░] 58% (v5.0, 7/12 plans complete)
 
 ## Performance Metrics
 
@@ -86,6 +86,11 @@ v5.0 phase ordering rationale:
 - [Phase 35-02]: campaignType stored as nullable varchar(20) with app-level validation only — consistent with llmProvider approach, avoids migration churn when enum values change
 - [Phase 35-02]: resolvedCampaignType fallback preserves objectiveId-based derivation for spawnRingLeader when form field is omitted
 
+v5.0 decisions (36-02):
+- Used assignedSouls/SoulSelectionEntry field names from actual types.ts (not plan's illustrative interface with selectedSouls/soulName/generation) — source of truth is the code
+- source badge covers 'library' | 'generated' | 'mutated' (actual enum) vs plan's 'library' | 'pioneer'
+- App.Locals explicit type annotation in page.server.ts (no $types import) — avoids SvelteKit type generation dependency for new routes
+
 v5.0 decisions (36-01):
 - pre_flight status added before 'queued' in enum — preserves existing status ordering for all terminal states
 - assemblePopulation now stops at manifest persistence (status: assembling->spawning) without calling spawnAgentsForRun — cleaner separation of concerns
@@ -109,5 +114,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 36 Plan 01 complete — ready to execute Phase 36 Plan 02
+Stopped at: Phase 36 Plan 02 complete — Phase 36 (Pre-Flight Manifest Review) fully complete
 Resume file: None
