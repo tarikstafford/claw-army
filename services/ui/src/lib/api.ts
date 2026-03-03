@@ -25,6 +25,8 @@ import type {
   SoulLibraryResponse,
   SoulCategoriesResponse,
   CategoryBenchmarksResponse,
+  DecisionTracesResponse,
+  NegativeSignalsResponse,
 } from './types';
 
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
@@ -294,4 +296,30 @@ export async function getSoulCategories(): Promise<SoulCategoriesResponse> {
 
 export async function getCategoryBenchmarks(): Promise<CategoryBenchmarksResponse> {
   return apiFetch(`${BASE}/category-benchmarks`);
+}
+
+// Phase 39 — Decision Traces (SOUL-02)
+
+export async function getBotDecisionTraces(
+  botId: string,
+  params: { limit?: number; offset?: number } = {},
+): Promise<DecisionTracesResponse> {
+  const query = new URLSearchParams();
+  if (params.limit != null) query.set('limit', String(params.limit));
+  if (params.offset != null) query.set('offset', String(params.offset));
+  const qs = query.toString();
+  return apiFetch(`${BASE}/decision-traces/${botId}${qs ? `?${qs}` : ''}`);
+}
+
+// Phase 39 — Negative Signals (SOUL-03)
+
+export async function getNegativeSignals(
+  params: { failureType?: string; limit?: number; offset?: number } = {},
+): Promise<NegativeSignalsResponse> {
+  const query = new URLSearchParams();
+  if (params.failureType) query.set('failureType', params.failureType);
+  if (params.limit != null) query.set('limit', String(params.limit));
+  if (params.offset != null) query.set('offset', String(params.offset));
+  const qs = query.toString();
+  return apiFetch(`${BASE}/negative-signals${qs ? `?${qs}` : ''}`);
 }

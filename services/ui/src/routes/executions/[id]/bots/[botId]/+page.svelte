@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { browser } from '$app/environment';
-  import { getBotDetail, getBotSoul } from '$lib/api';
+  import { getBotDetail, getBotSoul, getBotDecisionTraces } from '$lib/api';
   import { connectBotLogs } from '$lib/sse';
-  import type { BotDetail, BotLogEntry, StepTrace } from '$lib/types';
+  import type { BotDetail, BotLogEntry, StepTrace, DecisionTraceEntry } from '$lib/types';
   import SoulInspectorPanel from '$lib/components/SoulInspectorPanel.svelte';
   import SoulTierBadge from '$lib/components/SoulTierBadge.svelte';
 
@@ -18,6 +18,16 @@
   let liveConnected = $state(false);
   let showInspector = $state(false);
   let botAgentClass = $state<'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null>(null);
+
+  // Decision traces state
+  let decisionTraces = $state<DecisionTraceEntry[]>([]);
+  let tracesLoading = $state(false);
+  let tracesError = $state<string | null>(null);
+  let tracesTotal = $state(0);
+  let tracesHasMore = $state(false);
+  let tracesOffset = $state(0);
+  let showTraces = $state(false);
+  let tracesLoaded = $state(false);
 
   const ACTIVE_STATUSES = new Set(['spawning', 'idle', 'working', 'stopping']);
 
@@ -128,6 +138,53 @@
     return 'log-default';
   }
 
+  function loadTraces(reset = false) {
+    if (reset) { tracesOffset = 0; decisionTraces = []; }
+    tracesLoading = true;
+    tracesError = null;
+    getBotDecisionTraces(botId, { limit: 30, offset: tracesOffset })
+      .then(res => {
+        decisionTraces = reset ? res.traces : [...decisionTraces, ...res.traces];
+        tracesTotal = res.total;
+        tracesHasMore = res.hasMore;
+        tracesOffset = (reset ? 0 : tracesOffset) + res.traces.length;
+        tracesLoading = false;
+        tracesLoaded = true;
+      })
+      .catch(err => { tracesError = (err as Error).message; tracesLoading = false; });
+  }
+
+  function toggleTraces() {
+    showTraces = !showTraces;
+    if (showTraces && !tracesLoaded) {
+      loadTraces(true);
+    }
+  }
+
+  function dtTypeBadgeClass(decisionType: string): string {
+    if (decisionType === 'tool_call') return 'dt-badge-violet';
+    if (decisionType === 'reasoning_branch') return 'dt-badge-teal';
+    if (decisionType === 'output_step') return 'dt-badge-amber';
+    return 'dt-badge-default';
+  }
+
+  function dtOutcomeBadgeClass(outcome: string | null): string {
+    if (outcome === 'success') return 'dt-outcome-success';
+    if (outcome === 'failure') return 'dt-outcome-failure';
+    if (outcome === 'partial') return 'dt-outcome-partial';
+    return 'dt-outcome-unknown';
+  }
+
+  function dtFormatConfidence(conf: string | null): string {
+    if (conf == null) return '—';
+    const pct = parseFloat(conf) * 100;
+    return isNaN(pct) ? '—' : `${pct.toFixed(1)}%`;
+  }
+
+  function dtFormatTime(ts: string): string {
+    return new Date(ts).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'medium' });
+  }
+
   function formatLogLine(entry: BotLogEntry): string {
     switch (entry.type) {
       case 'bot_started':
@@ -185,6 +242,9 @@
       {/if}
       <button class="inspect-soul-btn" onclick={() => showInspector = true}>
         Inspect Soul
+      </button>
+      <button class="dt-toggle-btn" onclick={toggleTraces}>
+        {showTraces ? 'Hide Traces' : 'Decision Traces'}
       </button>
     </div>
 
@@ -336,6 +396,47 @@
         </div>
       </details>
     </section>
+    <!-- Decision Traces section (Phase 39 — SOUL-02) -->
+    {#if showTraces}
+      <section class="section dt-section">
+        <div class="dt-header">
+          <h2>Decision Traces</h2>
+          {#if !tracesLoading}
+            <span class="dt-count">{tracesTotal} total</span>
+          {/if}
+        </div>
+
+        {#if tracesLoading && decisionTraces.length === 0}
+          <div class="dt-loading">Loading decision traces...</div>
+        {:else if tracesError}
+          <div class="dt-error">{tracesError}</div>
+        {:else if decisionTraces.length === 0}
+          <div class="dt-empty">No decision traces recorded for this bot.</div>
+        {:else}
+          <div class="dt-list">
+            {#each decisionTraces as trace (trace.id)}
+              <div class="dt-row">
+                <span class="dt-badge {dtTypeBadgeClass(trace.decisionType)}">{trace.decisionType}</span>
+                <span class="dt-directive" title={trace.directiveReferenced ?? ''}>{trace.directiveReferenced ?? '—'}</span>
+                <span class="dt-confidence">{dtFormatConfidence(trace.attributionConfidence)}</span>
+                <span class="dt-outcome {dtOutcomeBadgeClass(trace.outcome)}">{trace.outcome ?? 'unknown'}</span>
+                <span class="dt-time">{dtFormatTime(trace.decidedAt)}</span>
+              </div>
+            {/each}
+          </div>
+
+          {#if tracesHasMore}
+            <button
+              class="dt-load-more"
+              onclick={() => loadTraces(false)}
+              disabled={tracesLoading}
+            >
+              {tracesLoading ? 'Loading...' : 'Load More'}
+            </button>
+          {/if}
+        {/if}
+      </section>
+    {/if}
   {/if}
 </div>
 
@@ -787,5 +888,167 @@
   .token-detail {
     color: var(--text-muted);
     font-size: 0.8rem;
+  }
+
+  /* Decision Traces section */
+  .dt-section {
+    margin-top: 2rem;
+  }
+
+  .dt-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dt-header h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 10px;
+  }
+
+  .dt-count {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+
+  .dt-loading {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 1rem 0;
+  }
+
+  .dt-error {
+    padding: 0.75rem 1rem;
+    background: var(--error-dim);
+    border: 1px solid var(--error);
+    border-radius: 0.5rem;
+    color: var(--error);
+    font-size: 0.85rem;
+  }
+
+  .dt-empty {
+    color: var(--text-faint);
+    font-style: italic;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .dt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dt-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.625rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .dt-badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .dt-badge-violet { background: rgba(124,58,237,0.18); color: var(--violet-bright); }
+  .dt-badge-teal   { background: rgba(45,212,191,0.14); color: var(--teal); }
+  .dt-badge-amber  { background: rgba(251,191,36,0.14); color: var(--amber); }
+  .dt-badge-default { background: var(--bg-3); color: var(--text-muted); }
+
+  .dt-directive {
+    color: var(--text-muted);
+    font-size: 0.83rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dt-confidence {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--violet-bright);
+    white-space: nowrap;
+  }
+
+  .dt-outcome {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .dt-outcome-success { background: rgba(45,212,191,0.14); color: var(--teal); }
+  .dt-outcome-failure { background: rgba(248,113,113,0.14); color: var(--error); }
+  .dt-outcome-partial { background: rgba(251,191,36,0.14); color: var(--amber); }
+  .dt-outcome-unknown { background: var(--bg-3); color: var(--text-faint); }
+
+  .dt-time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  .dt-toggle-btn {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--teal);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.1s, border-color 0.1s;
+  }
+
+  .dt-toggle-btn:hover {
+    background: var(--bg-3);
+    border-color: var(--border-mid);
+    opacity: 0.85;
+  }
+
+  .dt-load-more {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .dt-load-more:hover:not(:disabled) {
+    background: var(--bg-3);
+  }
+
+  .dt-load-more:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>

@@ -474,3 +474,41 @@ export interface CategoryBenchmarkEntry {
 export interface CategoryBenchmarksResponse {
   benchmarks: CategoryBenchmarkEntry[];
 }
+
+// Phase 39 — Decision Trace types (SOUL-02)
+
+export interface DecisionTraceEntry {
+  id: string;
+  decisionType: string;
+  directiveReferenced: string | null;
+  attributionConfidence: string | null;
+  outcome: string | null;
+  decidedAt: string;
+  executionId: string;
+}
+
+export interface DecisionTracesResponse {
+  traces: DecisionTraceEntry[];
+  total: number;
+  hasMore: boolean;
+}
+
+// Phase 39 — Negative Signal types (SOUL-03)
+
+export interface NegativeSignalEntry {
+  id: string;
+  soulId: string;
+  botId: string;
+  executionId: string | null;
+  failureType: string;
+  directiveFailureSummary: string | null;
+  registeredAt: string;
+  taskCategory: string | null;
+  generation: number | null;
+}
+
+export interface NegativeSignalsResponse {
+  signals: NegativeSignalEntry[];
+  total: number;
+  hasMore: boolean;
+}
