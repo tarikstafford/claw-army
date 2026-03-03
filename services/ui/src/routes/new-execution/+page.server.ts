@@ -31,6 +31,10 @@ export const actions: Actions = {
     const allowedDomainsRaw = (formData.get('allowedDomains') as string | null) ?? '';
     const allowedDomains = allowedDomainsRaw.split(',').map(d => d.trim()).filter(Boolean);
     const objectiveId = (formData.get('objectiveId') as string | null)?.trim() || null;
+    const allowedTools = formData.getAll('allowedTools') as string[];
+    const runtimeLimitMinutes = Number(formData.get('runtimeLimitMinutes') ?? 60);
+    const runtimeLimitSeconds = runtimeLimitMinutes * 60;
+    const campaignType = (formData.get('campaignType') as string | null) ?? 'ad_hoc';
 
     // Extract Auth.js session token from cookies
     // Auth.js uses 'authjs.session-token' on HTTP (dev) and '__Secure-authjs.session-token' on HTTPS (prod)
@@ -57,6 +61,9 @@ export const actions: Actions = {
           budgetCapCents,
           llmProvider,
           allowedDomains,
+          allowedTools,
+          runtimeLimitSeconds,
+          campaignType,
           ...(objectiveId ? { objectiveId } : {}),
         }),
       });
