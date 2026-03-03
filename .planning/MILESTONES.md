@@ -1,5 +1,39 @@
 # Milestones
 
+## v5.0 Full Spectrum (Shipped: 2026-03-03)
+
+**Phases completed:** 8 phases (33-40), 17 plans, 29 feat commits
+**Timeline:** 2 days (2026-03-02 → 2026-03-03)
+**Code shipped:** ~16,646 insertions across 88 files
+**Git range:** feat(33-01) → feat(40-02)
+
+**Delivered:** Full spectrum gap closure — every PRD-promised feature now has a functional UI, all API paths align, the execution form exposes campaign type/tool allowlist/runtime limit, a pre-flight manifest review gate ensures users confirm soul assignments before bots spawn, objectives support full CRUD with DNA evolution timelines, soul library/decision traces/negative signals/category benchmarks are browsable, and the landing page captures waitlist emails with a health endpoint for operators.
+
+**Key accomplishments:**
+- Execution data model extended with llmProvider and allowedDomains columns; Tool Gateway wired for per-execution domain filtering with 60s TTL cache
+- API alignment: Ring Leader routes, SSE streams (including billing events with per-topic error resilience), and calibration endpoint all verified with 297-line Fastify inject test suite
+- Execution form enhanced with campaign type selector, tool allowlist multi-select, and runtime limit input — all three fields stored end-to-end
+- Pre-flight manifest review gate: new `pre_flight` execution status, decoupled population assembly from bot spawning, confirm/cancel endpoints, and a 657-line SvelteKit review page with manifest polling
+- Objective CRUD UI: create form (6 panels), inline edit on detail page, archive/unarchive with confirmation dialogs, list page kebab menus, and archived toggle with lazy-load
+- DNA evolution timeline on objective detail page: paginated backend endpoint with filter support, expandable entries with council judge details, color-coded event nodes
+- Soul and DNA visibility: 4 new backend endpoints + 3 new UI pages (soul library, category benchmarks, negative signals) + decision traces section on bot detail + Ring Leader fitness breakdown panel with all 9 dimensions
+- Landing page polish: request access form wired to /admin/waitlist, dead footer links removed, GET /admin/health with GCE/Cloud SQL/Redis/BullMQ subsystem probes
+
+**Tech debt accepted (9 items, 0 critical):**
+- API-03 partial: X-Execution-Id header never injected into GCE bot VM startup script (per-execution domain filtering inactive)
+- billing.ts TypeBox schema missing pre_flight status (TS2345 compile error)
+- AdminExecution interface and createExecution return type missing pre_flight
+- as any cast in timeline endpoint (Drizzle type workaround)
+- 9 REQUIREMENTS.md checkboxes stale, 13 SUMMARY frontmatter gaps
+
+**Archive:**
+- `.planning/milestones/v5.0-ROADMAP.md` — full phase details
+- `.planning/milestones/v5.0-REQUIREMENTS.md` — all 22 requirements with outcomes
+- `.planning/milestones/v5.0-MILESTONE-AUDIT.md` — pre-completion audit
+- `.planning/TECH-DEBT.md` — prioritized backlog (7 items across 3 priority levels)
+
+---
+
 ## v1.0 MVP (Shipped: 2026-02-19)
 
 **Phases completed:** 6 phases, 23 plans

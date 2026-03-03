@@ -7,6 +7,7 @@
 - ✅ v2.0 The SOUL System — shipped 2026-02-22
 - ✅ v3.0 Bot Reliability & UX Overhaul — shipped 2026-02-23
 - ✅ v4.0 The Ring Leader — shipped 2026-03-02
+- ✅ v5.0 Full Spectrum — shipped 2026-03-03
 
 ---
 
@@ -120,25 +121,19 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 - ✓ Ring Leader class progression: Novice→Understudy (4 runs, 0.68), Understudy→Artisan (9 runs, 0.85, soul selection 0.75 in 6+) — v4.0
 - ✓ Dashboard: pre-flight manifest, live state panel, coordination events in activity feed, post-run synthesis and fitness panels — v4.0
 
+- ✓ Execution data model extended with llmProvider and allowedDomains; Tool Gateway wired for per-execution domain filtering — v5.0
+- ✓ API alignment verified: Ring Leader routes, SSE streams (billing events + per-topic resilience), calibration endpoint — v5.0
+- ✓ Execution form enhanced with campaign type, tool allowlist, runtime limit — all stored end-to-end — v5.0
+- ✓ Pre-flight manifest review gate: pre_flight status, confirm/cancel endpoints, manifest polling UI — v5.0
+- ✓ Objective CRUD UI: create form, inline edit, archive/unarchive, kebab menus, archived toggle — v5.0
+- ✓ DNA evolution timeline on objective detail: paginated, filterable, expandable with judge details — v5.0
+- ✓ Soul library browser, decision trace viewer, negative signal register, category benchmarks — all browsable — v5.0
+- ✓ Ring Leader fitness breakdown: all 9 dimensions (4 coordination + 5 soul selection) in execution reports — v5.0
+- ✓ Landing page: request access form captures email, dead footer links removed, GET /admin/health endpoint — v5.0
+
 ### Active
 
-## Current Milestone: v5.0 Full Spectrum
-
-**Goal:** Close all gaps between PRDs, backend logic, and UI — fix API path mismatches, expose missing backend capabilities in the UI, implement PRD-promised features not yet built, resolve data model disconnects, and replace UI stubs with functional implementations.
-
-**Target features:**
-- Fix Ring Leader API path mismatches (UI calling wrong routes)
-- Objective CRUD UI (create, edit, delete/archive)
-- Expose campaign type, tool allowlist, and runtime limit in execution form
-- Pre-flight population manifest review step before execution launch
-- Soul library browser and DNA evolution timeline on objective detail
-- Decision trace viewer and negative signal register visibility
-- Category benchmark visibility (pioneer progress, maturity)
-- Ring Leader fitness detail breakdown in reports
-- LLM provider field wired end-to-end (form → schema → backend)
-- SSE endpoint verification and lifecycle toast backend
-- Landing page functional elements (request access, footer links)
-- Calibration endpoint verification
+(No active milestone — use `/gsd:new-milestone` to start next)
 
 ### Out of Scope
 
@@ -166,7 +161,7 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ## Context
 
-**Shipped v4.0 with ~30,600 LOC** (32 phases across 4 milestones, 103 plans total, 15 days, 114 files changed in v4.0 alone).
+**Shipped v5.0 with ~47,200 LOC** (41 phases across 6 milestones, 120 plans total, 16 days, 88 files changed in v5.0 alone).
 
 **Tech stack:**
 - Backend: Node.js TypeScript (Fastify), pnpm monorepo
@@ -254,4 +249,4 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 | Ring Leader SSE via existing subscription fan-out | RING_LEADER_EVENTS_TOPIC added to topicNames array | ✓ Good — zero new SSE infrastructure needed |
 
 ---
-*Last updated: 2026-03-02 after v5.0 milestone started*
+*Last updated: 2026-03-03 after v5.0 milestone completed*
