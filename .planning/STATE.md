@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-03-02)
 
 Milestone: v5.0 Full Spectrum
 Phase: 35 of 40 (Execution Form Enhancements)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-03-03 — Phase 34 verified and complete (6/6 must-haves passed)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-03-03 — 35-02 complete: campaignType column added to DB, wired through POST/GET API contract
 
-Progress: [████░░░░░░] 40% (v5.0, 4/10 plans complete)
+Progress: [████░░░░░░] 50% (v5.0, 6/12 plans complete)
 
 ## Performance Metrics
 
@@ -30,6 +30,8 @@ Progress: [████░░░░░░] 40% (v5.0, 4/10 plans complete)
 | 33 (Execution Data Model Fixes) | 2 | 4 min | 2 min |
 | 34-01 (API Alignment SSE - billing topic) | 1 | 1 min | 1 min |
 | 34-02 (API Alignment smoke tests) | 1 | 15 min | 15 min |
+| 35-01 (Execution Form UI) | 1 | — | — |
+| 35-02 (campaignType API contract) | 1 | 2 min | 2 min |
 
 *Updated after each plan completion*
 
@@ -52,6 +54,11 @@ v5.0 decisions (34-02):
 - Fastify printRoutes() radix tree compression: state/synthesis share 's' prefix → appear as tate/ynthesis in output; tests check compressed suffixes
 - SSE route registration verified via inject returning non-405 (streaming not testable via inject without real PubSub)
 
+v5.0 decisions (35-01):
+- runtimeLimitMinutes converted to runtimeLimitSeconds in server action — backend expects seconds (default 60 min = 3600 sec)
+- formData.getAll() used for allowedTools (multi-value hidden inputs)
+- Tool allowlist multi-select uses ENABLED badge; campaign type single-select uses SELECTED — differentiates interaction patterns
+
 v5.0 decisions (33-02):
 - Duplex type used for CONNECT socket parameter — Node.js server 'connect' event emits Duplex not net.Socket
 - async proxy handlers wrapped with .catch() at call sites (server.on and setNotFoundHandler)
@@ -63,6 +70,8 @@ v5.0 phase ordering rationale:
 - Phase 36 isolated: Pre-flight manifest review is a distinct UX gate complex enough for its own phase
 - Phase 38 after 37: DNA timeline is an enhancement to objective detail — needs the page functional first
 - Phase 39 groups all read-only soul visibility features — no schema changes, all data already in DB
+- [Phase 35-02]: campaignType stored as nullable varchar(20) with app-level validation only — consistent with llmProvider approach, avoids migration churn when enum values change
+- [Phase 35-02]: resolvedCampaignType fallback preserves objectiveId-based derivation for spawnRingLeader when form field is omitted
 
 ### Pending Todos
 
@@ -79,5 +88,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 34 verified complete — ready to plan Phase 35
+Stopped at: Completed 35-02-PLAN.md — campaignType column + migration + API contract complete; Phase 35 done
 Resume file: None
