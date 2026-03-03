@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v5.0 Full Spectrum — Phase 34: API Alignment and SSE Verification
+**Current focus:** v5.0 Full Spectrum — Phase 35: Execution Form Enhancements
 
 ## Current Position
 
 Milestone: v5.0 Full Spectrum
-Phase: 34 of 40 (API Alignment and SSE Verification)
-Plan: 2 of 2 in current phase (complete)
-Status: Phase 34 complete — ready for Phase 35
-Last activity: 2026-03-03 — Plan 34-02 complete (API alignment smoke tests — all 17 pass)
+Phase: 35 of 40 (Execution Form Enhancements)
+Plan: 0 of 2 in current phase
+Status: Ready to plan
+Last activity: 2026-03-03 — Phase 34 verified and complete (6/6 must-haves passed)
 
 Progress: [████░░░░░░] 40% (v5.0, 4/10 plans complete)
 
@@ -79,5 +79,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 34-02-PLAN.md — Phase 34 complete, all API alignment smoke tests passing
+Stopped at: Phase 34 verified complete — ready to plan Phase 35
 Resume file: None

@@ -92,7 +92,7 @@ See `.planning/milestones/v4.0-ROADMAP.md` for full phase details.
 **Milestone Goal:** Close all gaps between PRDs, backend logic, and UI — fix API path mismatches, add missing schema columns, expose existing backend data in the UI, implement PRD-promised features not yet built, and replace UI stubs with functional implementations.
 
 - [x] **Phase 33: Execution Data Model Fixes** — Add `llmProvider` and `allowedDomains` columns to executions table; wire Tool Gateway to per-execution domain filtering
-- [ ] **Phase 34: API Alignment and SSE Verification** — Fix Ring Leader route paths, verify SSE endpoints, add calibration endpoint
+- [x] **Phase 34: API Alignment and SSE Verification** — Fix Ring Leader route paths, verify SSE endpoints, add calibration endpoint
 - [ ] **Phase 35: Execution Form Enhancements** — Add campaign type, tool allowlist, and runtime limit fields to execution creation form
 - [ ] **Phase 36: Pre-Flight Manifest Review** — Gate execution launch behind manifest review step so user confirms soul assignments before bots spawn
 - [ ] **Phase 37: Objective CRUD UI** — Create, edit, and archive objectives from the UI (backend already exists)
@@ -136,8 +136,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 34-01-PLAN.md — Add missing BILLING_EVENTS_TOPIC to SSE subscription with per-topic error resilience
-- [ ] 34-02-PLAN.md — API alignment smoke tests verifying all 4 requirements via Fastify inject
+- [x] 34-01-PLAN.md — Add missing BILLING_EVENTS_TOPIC to SSE subscription with per-topic error resilience
+- [x] 34-02-PLAN.md — API alignment smoke tests verifying all 4 requirements via Fastify inject
 
 ---
 
@@ -290,7 +290,7 @@ Plans:
 | 31. Ring Leader Fitness Scoring | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 32. Dashboard and Reporting | v4.0 | 4/4 | Complete | 2026-03-02 |
 | 33. Execution Data Model Fixes | v5.0 | 2/2 | Complete | 2026-03-02 |
-| 34. API Alignment and SSE Verification | v5.0 | 0/2 | Not started | - |
+| 34. API Alignment and SSE Verification | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 35. Execution Form Enhancements | v5.0 | 0/2 | Not started | - |
 | 36. Pre-Flight Manifest Review | v5.0 | 0/2 | Not started | - |
 | 37. Objective CRUD UI | v5.0 | 0/3 | Not started | - |
