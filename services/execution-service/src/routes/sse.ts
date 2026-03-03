@@ -14,6 +14,7 @@ const BOT_LIFECYCLE_TOPIC = process.env.BOT_LIFECYCLE_TOPIC ?? 'bot-lifecycle';
 const GUARDRAIL_EVENTS_TOPIC = process.env.GUARDRAIL_EVENTS_TOPIC ?? 'guardrail-events';
 const SOUL_LIFECYCLE_TOPIC = process.env.SOUL_LIFECYCLE_TOPIC ?? 'soul-lifecycle';
 const RING_LEADER_EVENTS_TOPIC = process.env.RING_LEADER_EVENTS_TOPIC ?? 'ring-leader-events';
+const BILLING_EVENTS_TOPIC = process.env.BILLING_EVENTS_TOPIC ?? 'billing-events';
 
 export const sseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // GET /:id/events — SSE bridge: Pub/Sub subscription per connection, event forwarding, cleanup on disconnect
@@ -34,16 +35,29 @@ export const sseRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       BOT_LIFECYCLE_TOPIC,
       GUARDRAIL_EVENTS_TOPIC,
       RING_LEADER_EVENTS_TOPIC,
+      BILLING_EVENTS_TOPIC,
     ];
 
-    // Create a per-connection subscription on each topic
-    const subs = await Promise.all(
+    // Create a per-connection subscription on each topic — use allSettled so a missing topic
+    // (e.g. billing-events not yet created in GCP) logs a warning but does not kill the connection
+    const results = await Promise.allSettled(
       topicNames.map(async (topicName) => {
         const subName = `sse-${executionId.slice(0, 8)}-${connId}-${topicName}`;
         await pubsub.topic(topicName).createSubscription(subName);
         return pubsub.subscription(subName);
       }),
     );
+
+    const subs = results
+      .filter((r): r is PromiseFulfilledResult<ReturnType<typeof pubsub.subscription>> => r.status === 'fulfilled')
+      .map((r) => r.value);
+
+    // Log any failed topic subscriptions so operators can investigate
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') {
+        fastify.log.warn({ topic: topicNames[i], error: (r.reason as Error).message }, 'SSE: failed to subscribe to topic, skipping');
+      }
+    });
 
     // Message handler: filter by executionId, forward matching events to SSE stream
     const handler = async (message: { data: Buffer; ack: () => void; nack: () => void }) => {
