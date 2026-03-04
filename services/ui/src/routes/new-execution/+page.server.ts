@@ -26,6 +26,9 @@ export const actions: Actions = {
 
     const maxBots = Number(formData.get('maxBots') ?? 3);
     const budgetCapDollars = Number(formData.get('budgetCapDollars') ?? 10);
+    if (budgetCapDollars < 1 || budgetCapDollars > 10000) {
+      return fail(400, { error: 'Budget must be between $1 and $10,000.' });
+    }
     const budgetCapCents = Math.round(budgetCapDollars * 100);
     const llmProvider = (formData.get('llmProvider') as string | null) ?? 'anthropic';
     const allowedDomainsRaw = (formData.get('allowedDomains') as string | null) ?? '';
@@ -33,6 +36,9 @@ export const actions: Actions = {
     const objectiveId = (formData.get('objectiveId') as string | null)?.trim() || null;
     const allowedTools = formData.getAll('allowedTools') as string[];
     const runtimeLimitMinutes = Number(formData.get('runtimeLimitMinutes') ?? 60);
+    if (runtimeLimitMinutes < 1 || runtimeLimitMinutes > 1440) {
+      return fail(400, { error: 'Runtime limit must be between 1 and 1440 minutes (24 hours).' });
+    }
     const runtimeLimitSeconds = runtimeLimitMinutes * 60;
     const campaignType = (formData.get('campaignType') as string | null) ?? 'ad_hoc';
 

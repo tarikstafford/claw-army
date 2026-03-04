@@ -173,7 +173,11 @@ echo "[startup] OpenClaw config written (baseUrl=https://api.anthropic.com/v1, a
 # Run the gateway in the background. 'openclaw gateway --port PORT' is the correct
 # invocation — there are no 'run', 'install', or 'start' subcommands.
 # nohup + disown keeps it alive after this script exits.
+# HTTP_PROXY routes bot egress through tool-gateway for domain filtering.
+# X-Execution-Id header enables per-execution domain allowlisting.
 ANTHROPIC_API_KEY="$LLM_API_KEY" \\
+HTTP_PROXY="$TOOL_GATEWAY_URL" \\
+HTTPS_PROXY="$TOOL_GATEWAY_URL" \\
 nohup openclaw gateway --port "$GATEWAY_PORT" \\
   &>> /var/log/openclaw-gateway.log &
 GATEWAY_PID=$!

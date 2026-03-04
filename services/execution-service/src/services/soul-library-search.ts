@@ -109,7 +109,7 @@ export async function searchSoulLibrary(params: SoulSearchParams): Promise<SoulS
       bs.task_category,
       bs.dimensions,
       ac.current_class,
-      (1 - (bs.embedding <=> ${sql.raw(`'${embeddingVector}'::vector`)})) AS similarity_score
+      (1 - (bs.embedding <=> ${embeddingVector}::vector)) AS similarity_score
     FROM ${botSouls} bs
     LEFT JOIN ${negativeSignalRegister} nsr
       ON nsr.soul_id = bs.id
@@ -120,7 +120,7 @@ export async function searchSoulLibrary(params: SoulSearchParams): Promise<SoulS
       bs.embedding IS NOT NULL
       AND bs.is_archetype = FALSE
       AND bs.task_category = ${taskCategory}
-      AND (1 - (bs.embedding <=> ${sql.raw(`'${embeddingVector}'::vector`)})) >= ${SOUL_SEARCH_SIMILARITY_THRESHOLD}
+      AND (1 - (bs.embedding <=> ${embeddingVector}::vector)) >= ${SOUL_SEARCH_SIMILARITY_THRESHOLD}
       AND nsr.id IS NULL
     ORDER BY similarity_score DESC
   `);
@@ -208,7 +208,7 @@ export async function searchSoulLibrary(params: SoulSearchParams): Promise<SoulS
       const lineageResult = await db.execute<LineageRow>(sql`
         SELECT parent_soul_id, COUNT(*)::int AS sibling_count
         FROM ${botSouls}
-        WHERE parent_soul_id = ANY(${sql.raw(`ARRAY[${uniqueParentIds.map((id) => `'${id}'`).join(',')}]::uuid[]`)})
+        WHERE parent_soul_id = ANY(${uniqueParentIds}::uuid[])
           AND is_archetype = FALSE
         GROUP BY parent_soul_id
       `);

@@ -143,21 +143,29 @@ async function dispatchTaskToBot(
 
   // Register tool invocation callback to capture tool calls into DB
   openclawClient.onToolInvocation((event) => {
-    db.insert(toolInvocations).values({
-      executionId,
-      botId,
-      toolName: event.toolName.slice(0, 50),
-      invocationId: event.callId,
-      requestSummary: { arguments: event.arguments.slice(0, 2000) },
-      invokedAt: event.invokedAt,
-    }).catch((err: Error) => {
-      console.error('[openclaw-dispatcher] Failed to insert tool_invocation (non-fatal):', err.message);
-    });
+    const insertToolInvocation = () =>
+      db.insert(toolInvocations).values({
+        executionId,
+        botId,
+        toolName: event.toolName.slice(0, 50),
+        invocationId: event.callId,
+        requestSummary: { arguments: event.arguments.slice(0, 2000) },
+        invokedAt: event.invokedAt,
+      });
+
+    insertToolInvocation()
+      .catch(() => setTimeout(() => {
+        insertToolInvocation().catch((err: Error) => {
+          console.error('[openclaw-dispatcher] Failed to insert tool_invocation after retry:', err.message);
+        });
+      }, 1000));
   });
 
   // Keep the job lock alive while waiting (renew every 20s)
   const renewInterval = setInterval(() => {
-    job.extendLock(job.token!, DISPATCH_LOCK_DURATION_MS).catch(() => {});
+    job.extendLock(job.token!, DISPATCH_LOCK_DURATION_MS).catch((err: Error) => {
+      console.warn('[openclaw-dispatcher] Lock renewal failed:', { jobId: job.id, error: err.message });
+    });
   }, 20_000);
 
   try {
@@ -210,20 +218,26 @@ async function dispatchTaskToBot(
     });
 
     // Write summary llm_call tool_invocations row with token usage
-    await db.insert(toolInvocations).values({
-      executionId,
-      botId,
-      toolName: 'llm_call',
-      invocationId: randomUUID(),
-      durationMs: Date.now() - taskStartMs,
-      promptTokens: result.usage?.input_tokens ?? null,
-      completionTokens: result.usage?.output_tokens ?? null,
-      totalTokens: result.usage?.total_tokens ?? null,
-      responseSummary: { result: result.text.slice(0, 500) },
-      invokedAt: new Date(taskStartMs),
-    }).catch((err: Error) => {
-      console.error('[openclaw-dispatcher] Failed to insert llm_call summary (non-fatal):', err.message);
-    });
+    const insertLlmSummary = () =>
+      db.insert(toolInvocations).values({
+        executionId,
+        botId,
+        toolName: 'llm_call',
+        invocationId: randomUUID(),
+        durationMs: Date.now() - taskStartMs,
+        promptTokens: result.usage?.input_tokens ?? null,
+        completionTokens: result.usage?.output_tokens ?? null,
+        totalTokens: result.usage?.total_tokens ?? null,
+        responseSummary: { result: result.text.slice(0, 500) },
+        invokedAt: new Date(taskStartMs),
+      });
+
+    insertLlmSummary()
+      .catch(() => setTimeout(() => {
+        insertLlmSummary().catch((err: Error) => {
+          console.error('[openclaw-dispatcher] Failed to insert llm_call summary after retry:', err.message);
+        });
+      }, 1000));
 
     console.log('[openclaw-dispatcher] Round-trip complete — task sent, completed, bot released to idle:', {
       taskId,

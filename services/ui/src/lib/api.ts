@@ -34,7 +34,8 @@ const BASE = import.meta.env.VITE_API_URL ?? '/api';
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options);
   if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${res.statusText} — ${url}`);
+    const body = await res.text().catch(() => '');
+    throw new Error(`API error ${res.status}: ${body || res.statusText} — ${url}`);
   }
   return res.json() as Promise<T>;
 }
@@ -45,7 +46,7 @@ export async function createExecution(body: {
   budgetCapCents: number;
   allowedTools: string[];
   objectiveId?: string;
-}): Promise<{ executionId: string; status: 'queued' }> {
+}): Promise<{ executionId: string; status: 'queued' | 'pre_flight' }> {
   return apiFetch(`${BASE}/executions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -89,7 +90,7 @@ export async function getBillingSummary(): Promise<BillingSummary> {
 
 export interface AdminExecution {
   id: string;
-  status: 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  status: 'queued' | 'pre_flight' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
   objective: string;
   maxBots: number;
   budgetCapCents: number;

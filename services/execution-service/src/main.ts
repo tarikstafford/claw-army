@@ -1,4 +1,37 @@
 import 'dotenv/config';
+
+// ── Startup env var validation ───────────────────────────────────────────────
+const REQUIRED_ENV = [
+  'DATABASE_URL',
+  'REDIS_URL',
+  'AUTH_SECRET',
+] as const;
+
+const REQUIRED_PRODUCTION_ENV = [
+  'GCP_PROJECT_ID',
+  'GCP_ZONE',
+  'GCP_NETWORK',
+  'GCP_SUBNET',
+  'BOT_JWT_SECRET',
+  'LLM_API_KEY_SECRET_NAME',
+  'GCP_BOT_SERVICE_ACCOUNT',
+] as const;
+
+const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`[main] Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
+if (process.env.NODE_ENV === 'production') {
+  const missingProd = REQUIRED_PRODUCTION_ENV.filter((key) => !process.env[key]);
+  if (missingProd.length > 0) {
+    console.error(`[main] Missing required production environment variables: ${missingProd.join(', ')}`);
+    process.exit(1);
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { buildApp } from './app';
 import { startGuardrailWatchdog, stopGuardrailWatchdog } from './events/guardrail-watchdog';
 import { startBillingEngine } from './events/billing-engine';
