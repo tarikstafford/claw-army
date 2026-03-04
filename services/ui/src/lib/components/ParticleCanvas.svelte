@@ -59,7 +59,10 @@
     const canvas = document.getElementById('particles') as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
-    let W = 0, H = 0;
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 130 }, (_, i) => new Particle(W, H, ctx, i < 80));
 
     const onResize = () => {
       W = canvas.width = window.innerWidth;
@@ -67,9 +70,6 @@
       particles.forEach(p => p.update(W, H));
     };
     window.addEventListener('resize', onResize, { passive: true });
-    onResize();
-
-    const particles = Array.from({ length: 130 }, (_, i) => new Particle(W, H, ctx, i < 80));
     let raf: number;
 
     const loop = () => {
