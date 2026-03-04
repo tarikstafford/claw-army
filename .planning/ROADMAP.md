@@ -102,6 +102,16 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 
 </details>
 
+### Phase 42: Landing Page / Portal Separation
+
+**Goal:** Separate the public landing page from the authenticated crew portal using SvelteKit route groups — landing page gets minimal nav (logo + Login/Signup), portal gets the full nav bar with all management links.
+**Requirements**: Clean visual separation between marketing site and app portal
+**Depends on:** Phase 40
+**Plans:** 1/1 plans complete
+
+Plans:
+- [ ] 42-01-PLAN.md — Route group separation with marketing/app layouts
+
 ---
 
 ## Progress
@@ -149,3 +159,4 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 | 39. Soul and DNA Visibility | v5.0 | 3/3 | Complete | 2026-03-03 |
 | 40. Landing Page and Platform Polish | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 41. Ring Leader Fitness Breakdown | v5.0 | 0/0 | Complete | 2026-03-03 |
+| 42. Landing Page / Portal Separation | 1/1 | Complete    | 2026-03-04 | — |

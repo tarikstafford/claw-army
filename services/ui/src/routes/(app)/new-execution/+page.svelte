@@ -101,12 +101,12 @@
     use:enhance={() => {
       submitting = true;
       return async ({ result, update }) => {
-        submitting = false;
         if (result.type === 'redirect') {
           await goto(result.location);
-        } else {
-          await update({ reset: false });
+          return;
         }
+        submitting = false;
+        await update({ reset: false });
       };
     }}
   >

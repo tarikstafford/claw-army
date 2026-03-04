@@ -1,14 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v5.0
-milestone_name: Full Spectrum
-status: completed
-last_updated: "2026-03-03T17:12:02.312Z"
+milestone: v1.0
+milestone_name: milestone
+status: unknown
+stopped_at: Completed Phase 42 Plan 01 — landing/portal separation via SvelteKit route groups
+last_updated: "2026-03-04T08:04:38.005Z"
+last_activity: 2026-03-03 — Milestone archived
 progress:
-  total_phases: 40
-  completed_phases: 38
-  total_plans: 120
-  completed_plans: 118
+  total_phases: 1
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 100
 ---
 
 # Project State
@@ -54,6 +57,7 @@ Progress: [██████████] 100% — SHIPPED
 | Phase 39-soul-and-dna-visibility P03 | 3 | 2 tasks | 0 files |
 | Phase 40 P01 | 2 | 2 tasks | 3 files |
 | Phase 40-landing-page-and-platform-polish P02 | 8 | 1 tasks | 1 files |
+| Phase 42-landing-portal-separation P01 | 45 | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -137,6 +141,12 @@ v5.0 decisions (39-01):
 - [Phase 40]: Resources and Company footer groups removed — Platform group with valid anchor links retained
 - [Phase 40-02]: Used gceClient.listAsync() not list() — list() returns Promise not AsyncIterable; listAsync() is the correct GCP compute pagination API
 - [Phase 40-02]: Redis health check uses fresh IORedis per-request with lazyConnect — tests actual connectivity; module-level connection would mask Redis failures
+- [Phase 42-landing-portal-separation]: Route groups (marketing)/ and (app)/ used for SvelteKit layout isolation without affecting URL structure — all existing URLs preserved
+- [Phase 42-landing-portal-separation]: Session load scoped to (app)/+layout.server.ts — landing page has no auth overhead; SSE toasts exclusive to portal group
+
+### Roadmap Evolution
+
+- Phase 42 added: Landing Page / Portal Separation — separate public landing page from authenticated crew portal using SvelteKit route groups
 
 ### Pending Todos
 
@@ -152,6 +162,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: Completed Phase 40 Plan 01 — landing page request access form wired to /admin/waitlist, dead footer links removed
+Last session: 2026-03-04T07:59:50.561Z
+Stopped at: Completed Phase 42 Plan 01 — landing/portal separation via SvelteKit route groups
 Resume file: None
