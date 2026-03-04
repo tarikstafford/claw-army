@@ -14,6 +14,7 @@ export const billingRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
             executionId: Type.String({ format: 'uuid' }),
             objective: Type.String(),
             status: Type.Union([
+              Type.Literal('pre_flight'),
               Type.Literal('queued'),
               Type.Literal('running'),
               Type.Literal('paused'),

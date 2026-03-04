@@ -39,7 +39,10 @@ import { getExecutionAllowedDomains } from '../services/domain-allowlist';
 const PROXY_DOMAIN_ALLOWLIST: string[] =
   (process.env.PROXY_DOMAIN_ALLOWLIST ?? '').split(',').map((d) => d.trim()).filter(Boolean);
 
+const VALID_HOSTNAME_RE = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
+
 function isDomainAllowed(hostname: string, perExecutionDomains?: string[] | null): boolean {
+  if (!hostname || !VALID_HOSTNAME_RE.test(hostname)) return false;
   const allowlist = perExecutionDomains ?? PROXY_DOMAIN_ALLOWLIST;
   if (allowlist.length === 0) return true; // allow all if unconfigured
   return allowlist.some(
@@ -69,7 +72,14 @@ async function handleConnect(
     return;
   }
 
-  const executionId = req.headers['x-execution-id'] as string | undefined;
+  // Check for execution ID in header or Proxy-Authorization (encoded as "exec:<id>")
+  let executionId = req.headers['x-execution-id'] as string | undefined;
+  if (!executionId) {
+    const proxyAuth = req.headers['proxy-authorization'] as string | undefined;
+    if (proxyAuth?.startsWith('exec:')) {
+      executionId = proxyAuth.slice(5);
+    }
+  }
   let perExecutionDomains: string[] | null = null;
   if (executionId) {
     try {
@@ -136,7 +146,14 @@ async function handleHttpForwardProxy(
   const hostname = targetUrl.hostname;
   const port = parseInt(targetUrl.port || '80', 10);
 
-  const executionId = req.headers['x-execution-id'] as string | undefined;
+  // Check for execution ID in header or Proxy-Authorization (encoded as "exec:<id>")
+  let executionId = req.headers['x-execution-id'] as string | undefined;
+  if (!executionId) {
+    const proxyAuth = req.headers['proxy-authorization'] as string | undefined;
+    if (proxyAuth?.startsWith('exec:')) {
+      executionId = proxyAuth.slice(5);
+    }
+  }
   let perExecutionDomains: string[] | null = null;
   if (executionId) {
     try {

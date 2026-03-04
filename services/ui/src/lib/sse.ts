@@ -34,8 +34,8 @@ export function connectSSE(
         const payload = JSON.parse(e.data) as Record<string, unknown>;
         const isAlert = type === 'guardrail_triggered' || type === 'budget_exceeded';
         onEvent({ ...payload, type, isAlert } as ActivityEvent);
-      } catch {
-        // ignore malformed events
+      } catch (e) {
+        console.warn('[sse] Failed to parse event:', type, e);
       }
     });
   }
@@ -68,8 +68,8 @@ export function connectBotLogs(
       try {
         const payload = JSON.parse(e.data) as Record<string, unknown>;
         onEvent({ ...payload, type } as BotLogEntry);
-      } catch {
-        // ignore malformed events
+      } catch (e) {
+        console.warn('[sse] Failed to parse event:', type, e);
       }
     });
   }
@@ -99,8 +99,8 @@ export function connectLifecycleSSE(
       try {
         const payload = JSON.parse(e.data) as Record<string, unknown>;
         onEvent({ ...payload, type } as LifecycleNotification);
-      } catch {
-        // ignore malformed events
+      } catch (e) {
+        console.warn('[sse] Failed to parse event:', type, e);
       }
     });
   }

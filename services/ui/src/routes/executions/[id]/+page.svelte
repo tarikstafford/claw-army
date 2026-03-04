@@ -226,6 +226,7 @@
       case 'failed': return 'status-failed';
       case 'paused':
       case 'stopped': return 'status-paused';
+      case 'pre_flight': return 'status-pre_flight';
       default: return 'status-queued';
     }
   }
@@ -240,7 +241,14 @@
     <p class="loading">Loading execution...</p>
   {:else if error}
     <div class="error-banner">
-      <strong>Error:</strong> {error}
+      <strong>Error:</strong>
+      {#if error.includes('404')}
+        Execution not found.
+      {:else if error.includes('403')}
+        You don't have access to this execution.
+      {:else}
+        {error}
+      {/if}
     </div>
   {:else if execution}
     <!-- Status banner (UI-03) -->
@@ -382,9 +390,9 @@
     {/if}
 
     <!-- Running bots list with links to process logs -->
-    {#if bots.length > 0}
-      <section class="bots-section">
-        <h3>Bots <span class="bots-count">({bots.length})</span></h3>
+    <section class="bots-section">
+      <h3>Bots <span class="bots-count">({bots.length})</span></h3>
+      {#if bots.length > 0}
         <div class="bots-list">
           {#each bots as bot (bot.id)}
             <a
@@ -433,8 +441,10 @@
             </a>
           {/each}
         </div>
-      </section>
-    {/if}
+      {:else}
+        <p class="empty-feed">No bots spawned yet.</p>
+      {/if}
+    </section>
 
     <SoulInspectorPanel botId={selectedBotId} onClose={() => selectedBotId = null} />
 
@@ -545,6 +555,9 @@
 
   .status-queued { border-left: 3px solid var(--text-faint); }
   .status-queued h2 { color: var(--text-muted); }
+
+  .status-pre_flight { border-left: 3px solid var(--text-faint); }
+  .status-pre_flight h2 { color: var(--text-muted); }
 
   /* ── Metrics panel ── */
   .metrics-panel {

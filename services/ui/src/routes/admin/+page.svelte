@@ -2,11 +2,12 @@
   import { browser } from '$app/environment';
   import { listAllExecutions, stopExecution, type AdminExecution } from '$lib/api';
 
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? 'admin';
+  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD;
 
   let authenticated = $state(false);
   let passwordInput = $state('');
   let authError = $state(false);
+  let authConfigError = $state(!ADMIN_PASSWORD);
 
   let executions = $state<AdminExecution[]>([]);
   let loading = $state(true);
@@ -20,6 +21,10 @@
   });
 
   function login() {
+    if (!ADMIN_PASSWORD) {
+      authConfigError = true;
+      return;
+    }
     if (passwordInput === ADMIN_PASSWORD) {
       sessionStorage.setItem('admin_auth', 'true');
       authenticated = true;
@@ -106,7 +111,9 @@
           class:input-error={authError}
           autocomplete="current-password"
         />
-        {#if authError}
+        {#if authConfigError}
+          <p class="error-msg">Admin password not configured. Set VITE_ADMIN_PASSWORD environment variable.</p>
+        {:else if authError}
           <p class="error-msg">Incorrect password.</p>
         {/if}
         <button type="submit">Sign In</button>
@@ -180,7 +187,7 @@
                 </td>
                 <td class="col-date">{formatDate(exec.createdAt)}</td>
                 <td class="col-action">
-                  {#if exec.status === 'running' || exec.status === 'queued'}
+                  {#if exec.status === 'running' || exec.status === 'queued' || exec.status === 'pre_flight'}
                     <button
                       class="stop-btn"
                       disabled={stoppingId === exec.id}
@@ -515,6 +522,7 @@
   .status-failed    { color: var(--error);         background: var(--error-dim);  border: 1px solid var(--error); }
   .status-stopped   { color: var(--amber);         background: var(--amber-dim);  border: 1px solid var(--amber); }
   .status-paused    { color: var(--amber);         background: var(--amber-dim);  border: 1px solid var(--amber); }
+  .status-pre_flight { color: var(--text-faint);    background: var(--bg-3);       border: 1px solid var(--border); }
 
   /* Stop button — danger state uses --error */
   .stop-btn {
