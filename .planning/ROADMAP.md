@@ -159,4 +159,4 @@ Plans:
 | 39. Soul and DNA Visibility | v5.0 | 3/3 | Complete | 2026-03-03 |
 | 40. Landing Page and Platform Polish | v5.0 | 2/2 | Complete | 2026-03-03 |
 | 41. Ring Leader Fitness Breakdown | v5.0 | 0/0 | Complete | 2026-03-03 |
-| 42. Landing Page / Portal Separation | 1/1 | Complete   | 2026-03-04 | — |
+| 42. Landing Page / Portal Separation | 1/1 | Complete    | 2026-03-04 | — |
