@@ -166,14 +166,14 @@
   .ns-page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 96px 36px 80px;
+    padding: 40px 36px 80px;
     background: var(--bg);
     min-height: 100vh;
   }
 
   @media (max-width: 600px) {
     .ns-page {
-      padding: 88px 20px 60px;
+      padding: 32px 20px 60px;
     }
   }
 

@@ -216,7 +216,7 @@
   .page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 96px var(--s-9) 160px;
+    padding: 40px var(--s-9) 160px;
   }
 
   /* ── Header ────────────────────────────────────────── */
@@ -635,7 +635,7 @@
   /* ── Responsive ─────────────────────────────────────── */
   @media (max-width: 600px) {
     .page {
-      padding: 80px 20px 160px;
+      padding: 32px 20px 160px;
     }
 
     .action-bar {

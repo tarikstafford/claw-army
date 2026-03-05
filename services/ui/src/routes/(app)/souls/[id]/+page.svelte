@@ -180,12 +180,12 @@
   .page {
     max-width: 900px;
     margin: 0 auto;
-    padding: 96px var(--s-9) 80px;
+    padding: 40px var(--s-9) 80px;
     min-height: 100vh;
   }
 
   @media (max-width: 600px) {
-    .page { padding: 88px var(--s-5) 60px; }
+    .page { padding: 32px var(--s-5) 60px; }
   }
 
   /* ── Page header ──────────────────────────────── */

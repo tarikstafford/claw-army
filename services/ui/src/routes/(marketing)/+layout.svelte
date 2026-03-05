@@ -51,7 +51,7 @@
 
       <div class="nav-right">
         {#if session?.user}
-          <a href="/objectives" class="btn-nav btn-primary">Dashboard</a>
+          <a href="/dashboard" class="btn-nav btn-primary">Dashboard</a>
         {:else}
           <a href="/login" class="btn-nav">Login</a>
           <a href="#access" class="btn-nav btn-primary">Sign up</a>

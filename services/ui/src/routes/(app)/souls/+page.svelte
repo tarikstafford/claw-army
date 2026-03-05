@@ -220,7 +220,7 @@
   .sl-page {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 100px 24px 60px;
+    padding: 40px 24px 60px;
   }
 
   .sl-header {

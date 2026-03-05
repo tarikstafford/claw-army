@@ -488,7 +488,7 @@
   .page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 96px 36px 80px;
+    padding: 40px 36px 80px;
   }
 
   /* ── Loading ── */
@@ -1279,7 +1279,7 @@
   /* ── Responsive ── */
   @media (max-width: 600px) {
     .page {
-      padding: 88px 20px 60px;
+      padding: 32px 20px 60px;
     }
     .event {
       flex-wrap: wrap;

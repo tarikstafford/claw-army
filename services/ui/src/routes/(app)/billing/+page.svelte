@@ -106,11 +106,11 @@
   .page {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 100px var(--s-9) 80px;
+    padding: 40px var(--s-9) 80px;
   }
 
   @media (max-width: 960px) {
-    .page { padding: 100px var(--s-6) 60px; }
+    .page { padding: 32px var(--s-6) 60px; }
   }
 
   /* ── Page header ──────────────────────────────── */

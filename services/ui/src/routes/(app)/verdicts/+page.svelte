@@ -116,7 +116,7 @@
   .page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 100px 36px 80px;
+    padding: 40px 36px 80px;
   }
 
   .page-header {
@@ -181,7 +181,7 @@
   }
 
   @media (max-width: 960px) {
-    .page { padding: 100px 24px 60px; }
+    .page { padding: 32px 20px 60px; }
   }
 
   @media (min-width: 768px) {
