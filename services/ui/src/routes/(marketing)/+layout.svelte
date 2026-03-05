@@ -2,7 +2,8 @@
   import '../../app.css';
   import ParticleCanvas from '$lib/components/ParticleCanvas.svelte';
 
-  let { children } = $props();
+  let { children, data } = $props();
+  let session = $derived(data.session);
   let navEl: HTMLElement | null = null;
 
   import { onMount } from 'svelte';
@@ -49,8 +50,12 @@
       </a>
 
       <div class="nav-right">
-        <a href="/login" class="btn-nav">Login</a>
-        <a href="#access" class="btn-nav btn-primary">Sign up</a>
+        {#if session?.user}
+          <a href="/executions" class="btn-nav btn-primary">Dashboard</a>
+        {:else}
+          <a href="/login" class="btn-nav">Login</a>
+          <a href="#access" class="btn-nav btn-primary">Sign up</a>
+        {/if}
       </div>
 
     </div>
