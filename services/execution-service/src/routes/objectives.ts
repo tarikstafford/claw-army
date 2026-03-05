@@ -297,27 +297,27 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         runCount: sql<number>`(
           SELECT CAST(COUNT(*) AS int)
           FROM executions e
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
         )`,
         totalSpendCents: sql<number>`(
           SELECT CAST(COALESCE(SUM(be.amount_cents), 0) AS int)
           FROM billing_events be
           JOIN executions e ON e.id = be.execution_id
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
             AND be.event_type = 'tool_invoked'
         )`,
         totalTasksCompleted: sql<number>`(
           SELECT CAST(COALESCE(COUNT(*), 0) AS int)
           FROM tasks t
           JOIN executions e ON e.id = t.execution_id
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
             AND t.status = 'completed'
         )`,
         totalBotHours: sql<number>`(
           SELECT CAST(COALESCE(SUM(tel.metric_value), 0) AS float)
           FROM telemetry tel
           JOIN executions e ON e.id = tel.execution_id
-          WHERE e.objective_id = ${objectives.id}
+          WHERE e.objective_id = "objectives"."id"
             AND tel.metric_name = 'bot_hours'
         )`,
       })
