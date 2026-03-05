@@ -50,129 +50,136 @@
 </svelte:head>
 
 <div class="page">
-  <nav class="breadcrumb">
-    <a href="/executions/{executionId}">Back to Execution</a>
-  </nav>
-
-  <h1>Execution Report</h1>
-  <p class="subtitle">Execution <code>{executionId.slice(0, 8)}</code></p>
+  <!-- Header -->
+  <div class="page-header">
+    <a href="/executions/{executionId}" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Execution
+    </a>
+    <div class="sec-label">Mission Report</div>
+    <h1>Execution <code class="exec-id">{executionId.slice(0, 8)}</code></h1>
+  </div>
 
   {#if loading}
     <div class="loading">Loading report...</div>
   {:else if error}
-    <div class="error">{error}</div>
+    <div class="error-card">{error}</div>
   {:else if report}
-    <!-- Execution Summary Panel (UI-06) -->
+    <!-- Execution Summary -->
     <section class="section">
       <h2>Execution Summary</h2>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-label">Total Cost</span>
-          <span class="stat-value">${(report.totalCostCents / 100).toFixed(2)}</span>
+      <div class="hero-row">
+        <div class="hero-metric hero-primary">
+          <span class="hero-value">${(report.totalCostCents / 100).toFixed(2)}</span>
+          <span class="hero-label">Total Cost</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Total Bot-Hours</span>
-          <span class="stat-value">{report.totalBotHours.toFixed(2)}</span>
+        <div class="hero-metric">
+          <span class="hero-value">{report.totalBotHours.toFixed(2)}</span>
+          <span class="hero-label">Bot-Hours</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Tasks Completed</span>
-          <span class="stat-value">{report.completedTasks} / {report.totalTasks}</span>
+        <div class="hero-metric">
+          <span class="hero-value">{report.completedTasks} / {report.totalTasks}</span>
+          <span class="hero-label">Tasks Completed</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Average Bot Score</span>
-          <span class="stat-value">{report.averageBotScore.toFixed(1)}</span>
+        <div class="hero-metric">
+          <span class="hero-value">{report.averageBotScore.toFixed(1)}</span>
+          <span class="hero-label">Avg Bot Score</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Top Bot</span>
-          <span class="stat-value">{report.topPerformingBotId?.slice(0, 8) ?? 'N/A'}</span>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-cell">
+          <span class="detail-value">{report.topPerformingBotId?.slice(0, 8) ?? 'N/A'}</span>
+          <span class="detail-label">Top Bot</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Failed Tasks</span>
-          <span class="stat-value">{report.failedTasks}</span>
+        <div class="detail-cell">
+          <span class="detail-value">{report.failedTasks}</span>
+          <span class="detail-label">Failed Tasks</span>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Cost Per Task</span>
-          <span class="stat-value">${(report.costPerTaskCents / 100).toFixed(2)}</span>
+        <div class="detail-cell">
+          <span class="detail-value">${(report.costPerTaskCents / 100).toFixed(2)}</span>
+          <span class="detail-label">Cost Per Task</span>
         </div>
       </div>
     </section>
 
-    <!-- Soul Tier Distribution (RUN-03) -->
+    <!-- Soul Tier Distribution -->
     {#if report.soulTierDistribution}
       <section class="section">
         <h2>Soul Tier Distribution</h2>
         <div class="tier-distribution">
           <div class="tier-item">
             <SoulTierBadge agentClass="Artisan" />
-            <span class="tier-count tier-count-artisan">{report.soulTierDistribution.artisan}</span>
+            <span class="tier-count" style="color: var(--amber)">{report.soulTierDistribution.artisan}</span>
           </div>
           <div class="tier-item">
             <SoulTierBadge agentClass="Understudy" />
-            <span class="tier-count tier-count-understudy">{report.soulTierDistribution.understudy}</span>
+            <span class="tier-count" style="color: var(--teal)">{report.soulTierDistribution.understudy}</span>
           </div>
           <div class="tier-item">
             <SoulTierBadge agentClass="Novice" />
-            <span class="tier-count tier-count-novice">{report.soulTierDistribution.novice}</span>
+            <span class="tier-count" style="color: var(--text-muted)">{report.soulTierDistribution.novice}</span>
           </div>
           {#if report.soulTierDistribution.retired > 0}
             <div class="tier-item">
               <SoulTierBadge agentClass="Retired" />
-              <span class="tier-count tier-count-retired">{report.soulTierDistribution.retired}</span>
+              <span class="tier-count" style="color: var(--rose)">{report.soulTierDistribution.retired}</span>
             </div>
           {/if}
         </div>
       </section>
     {/if}
 
-    <!-- Ring Leader Synthesis (DASH-04) -->
+    <!-- Ring Leader Synthesis -->
     {#if synthesisData?.synthesis}
       {@const synthesis = synthesisData.synthesis}
       <section class="section">
         <h2>Ring Leader Synthesis</h2>
 
         <!-- Objective Achievement -->
-        <div class="synthesis-achievement">
-          <span class="achievement-badge" class:achievement-achieved={synthesis.objectiveAchieved} class:achievement-not-achieved={!synthesis.objectiveAchieved}>
+        <div class="achievement-row">
+          <span class="achievement-badge" class:achieved={synthesis.objectiveAchieved} class:not-achieved={!synthesis.objectiveAchieved}>
             {synthesis.objectiveAchieved ? 'ACHIEVED' : 'NOT ACHIEVED'}
           </span>
-          <p class="achievement-rationale">{synthesis.achievementRationale}</p>
+          <p class="achievement-text">{synthesis.achievementRationale}</p>
         </div>
 
         <!-- Run Statistics -->
-        <div class="stats-grid synthesis-stats">
-          <div class="stat-card">
-            <span class="stat-label">Intelligence Routing Events</span>
-            <span class="stat-value">{synthesis.intelligenceRoutingEvents}</span>
+        <div class="detail-grid detail-grid-4">
+          <div class="detail-cell">
+            <span class="detail-value">{synthesis.intelligenceRoutingEvents}</span>
+            <span class="detail-label">Intelligence Routing</span>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Reallocation Events</span>
-            <span class="stat-value">{synthesis.reallocationEvents}</span>
+          <div class="detail-cell">
+            <span class="detail-value">{synthesis.reallocationEvents}</span>
+            <span class="detail-label">Reallocations</span>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Reanchoring Events</span>
-            <span class="stat-value">{synthesis.reanchoringEvents}</span>
+          <div class="detail-cell">
+            <span class="detail-value">{synthesis.reanchoringEvents}</span>
+            <span class="detail-label">Reanchoring</span>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Budget Variance</span>
-            <span class="stat-value" class:variance-under={synthesis.budgetVarianceCents < 0} class:variance-over={synthesis.budgetVarianceCents > 0}>
+          <div class="detail-cell">
+            <span class="detail-value" class:variance-under={synthesis.budgetVarianceCents < 0} class:variance-over={synthesis.budgetVarianceCents > 0}>
               ${(synthesis.budgetVarianceCents / 100).toFixed(2)}
             </span>
+            <span class="detail-label">Budget Variance</span>
           </div>
         </div>
 
-        <!-- Soul Selection Retrospective -->
+        <!-- Prose blocks -->
         <div class="text-block">
           <span class="text-block-label">Soul Selection Retrospective</span>
           <p class="text-block-content">{synthesis.soulSelectionRetrospective}</p>
         </div>
 
-        <!-- Coordination Self-Assessment -->
         <div class="text-block">
           <span class="text-block-label">Coordination Self-Assessment</span>
           <p class="text-block-content">{synthesis.ringLeaderSelfAssessment}</p>
         </div>
 
-        <!-- Recommended Library Writes -->
+        <!-- Pills -->
         {#if synthesis.recommendedLibraryWrites.length > 0}
           <div class="pill-group">
             <span class="text-block-label">Recommended Library Writes</span>
@@ -184,7 +191,6 @@
           </div>
         {/if}
 
-        <!-- Pioneer Events -->
         {#if synthesis.pioneerEvents.length > 0}
           <div class="pill-group">
             <span class="text-block-label">Pioneer Events</span>
@@ -198,7 +204,7 @@
       </section>
     {/if}
 
-    <!-- Ring Leader Fitness (DASH-05) -->
+    <!-- Ring Leader Fitness -->
     {#if synthesisData?.fitness}
       {@const fitness = synthesisData.fitness}
       {@const c = fitness.coordinationScore}
@@ -206,15 +212,14 @@
       <section class="section">
         <h2>Ring Leader Fitness</h2>
 
-        <!-- Composite Score -->
-        <div class="composite-score-row">
-          <span class="stat-label">Composite Score</span>
-          <span class="composite-score-value {compositeScoreClass(fitness.compositeScore)}">
+        <div class="composite-row">
+          <span class="composite-label">Composite Score</span>
+          <span class="composite-value {compositeScoreClass(fitness.compositeScore)}">
             {fitness.compositeScore.toFixed(2)}
           </span>
         </div>
 
-        <!-- Coordination Score Breakdown (60% weight) -->
+        <!-- Coordination Score -->
         <div class="score-card">
           <div class="score-card-header">
             <span class="score-card-title">Coordination Score</span>
@@ -266,7 +271,7 @@
           </div>
         </div>
 
-        <!-- Soul Selection Score Breakdown (40% weight) -->
+        <!-- Soul Selection Score -->
         <div class="score-card">
           <div class="score-card-header">
             <span class="score-card-title">Soul Selection Score</span>
@@ -330,7 +335,7 @@
       </section>
     {/if}
 
-    <!-- Bot Leaderboard Table (UI-07) -->
+    <!-- Bot Leaderboard -->
     <section class="section">
       <h2>Bot Leaderboard</h2>
       {#if leaderboard.length === 0}
@@ -355,7 +360,7 @@
             </thead>
             <tbody>
               {#each leaderboard as entry, i}
-                <tr class:row-top={i === 0} class:row-second={i === 1} class:row-third={i === 2} class:row-alt={i % 2 !== 0}>
+                <tr>
                   <td class="rank-cell">
                     {#if i === 0}
                       <span class="rank-badge rank-1">{i + 1}</span>
@@ -368,21 +373,19 @@
                     {/if}
                   </td>
                   <td>
-                    <a href="/executions/{executionId}/bots/{entry.botId}">
+                    <a href="/executions/{executionId}/bots/{entry.botId}" class="bot-link">
                       {entry.botId.slice(0, 8)}
                     </a>
                   </td>
+                  <td class="col-mono">{entry.compositeScore?.toFixed(1) ?? '-'}</td>
                   <td>
-                    <span class="score-value">{entry.compositeScore?.toFixed(1) ?? '-'}</span>
-                  </td>
-                  <td>
-                    <span class="tier tier-{entry.tier?.toLowerCase() ?? 'none'}">
+                    <span class="tier-badge tier-{entry.tier?.toLowerCase() ?? 'none'}">
                       {entry.tier ?? '-'}
                     </span>
                   </td>
-                  <td>{entry.tasksCompleted}</td>
-                  <td>{entry.tasksFailed}</td>
-                  <td>{entry.botHours?.toFixed(3) ?? '-'}</td>
+                  <td class="col-mono">{entry.tasksCompleted}</td>
+                  <td class="col-mono">{entry.tasksFailed}</td>
+                  <td class="col-mono">{entry.botHours?.toFixed(3) ?? '-'}</td>
                   <td>
                     <SoulTierBadge agentClass={entry.agentClass} />
                   </td>
@@ -404,7 +407,7 @@
                     {/if}
                   </td>
                   <td>
-                    <button class="inspect-soul-btn" onclick={() => selectedBotId = entry.botId}>
+                    <button class="action-btn" onclick={() => selectedBotId = entry.botId}>
                       Inspect
                     </button>
                   </td>
@@ -424,60 +427,78 @@
   .page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 96px 36px 80px;
-    background: var(--bg);
+    padding: 96px var(--s-9) 80px;
     min-height: 100vh;
   }
 
   @media (max-width: 600px) {
-    .page {
-      padding: 88px 20px 60px;
-    }
+    .page { padding: 88px var(--s-5) 60px; }
   }
 
-  .breadcrumb {
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
+  /* ── Page header ──────────────────────────────── */
+  .page-header {
+    margin-bottom: var(--s-8);
   }
 
-  .breadcrumb a {
-    color: var(--violet-bright);
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    color: var(--violet-light);
-    text-decoration: underline;
-  }
-
-  h1 {
-    margin: 0 0 0.25rem;
-    font-size: 1.75rem;
-    color: var(--text);
-  }
-
-  .subtitle {
-    margin: 0 0 2rem;
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
     color: var(--text-muted);
-    font-size: 0.9rem;
+    text-decoration: none;
+    margin-bottom: var(--s-5);
+    transition: color 0.15s;
   }
 
+  .back-link:hover {
+    color: var(--violet-bright);
+  }
+
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: var(--s-2) 0 0;
+    line-height: 1.1;
+  }
+
+  .exec-id {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--violet-bright);
+    background: none;
+  }
+
+  /* ── States ───────────────────────────────────── */
   .loading {
-    padding: 2rem;
+    padding: var(--s-8);
     text-align: center;
     color: var(--text-muted);
   }
 
-  .error {
-    padding: 1rem;
+  .error-card {
+    padding: var(--s-4) var(--s-5);
     background: var(--error-dim);
-    border: 1px solid var(--error);
-    border-radius: 0.5rem;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-left: 3px solid var(--error);
+    border-radius: 6px;
     color: var(--error);
+    font-size: 0.875rem;
   }
 
+  .empty {
+    color: var(--text-faint);
+    font-style: italic;
+  }
+
+  /* ── Section ──────────────────────────────────── */
   .section {
-    margin-bottom: 2.5rem;
+    margin-bottom: var(--s-10);
   }
 
   .section h2 {
@@ -486,312 +507,115 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-faint);
-    margin: 0 0 1rem;
-    padding-bottom: 0.5rem;
+    margin: 0 0 var(--s-4);
+    padding-bottom: var(--s-2);
     border-bottom: 1px solid var(--border);
   }
 
-  /* Stats grid: 3 cols on desktop, 2 on tablet, 1 on mobile */
-  .stats-grid {
+  /* ── Hero metrics ─────────────────────────────── */
+  .hero-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
   }
 
-  @media (max-width: 768px) {
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .stat-card {
+  .hero-metric {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    padding: var(--s-5);
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    gap: var(--s-1);
   }
 
-  .stat-label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-faint);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-weight: 600;
+  .hero-primary {
+    border-color: var(--border-mid);
   }
 
-  .stat-value {
+  .hero-value {
     font-family: var(--font-mono);
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text);
+    line-height: 1;
   }
 
-  .empty {
-    color: var(--text-faint);
-    font-style: italic;
+  .hero-primary .hero-value {
+    color: var(--violet-bright);
   }
 
-  .table-wrapper {
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-  }
-
-  thead th {
-    text-align: left;
-    padding: 0.75rem 1rem;
-    background: var(--bg-3);
-    border-bottom: 2px solid var(--border);
+  .hero-label {
     font-family: var(--font-mono);
     font-size: 10px;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    font-weight: 600;
     color: var(--text-faint);
-    white-space: nowrap;
   }
 
-  tbody td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    background: var(--bg-card);
+  @media (max-width: 768px) {
+    .hero-row { grid-template-columns: repeat(2, 1fr); }
   }
 
-  tbody tr.row-alt td {
-    background: var(--bg-3);
+  @media (max-width: 480px) {
+    .hero-row { grid-template-columns: 1fr; }
   }
 
-  tbody tr:hover td {
-    background: var(--bg-2);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  tbody td a {
-    color: var(--violet-bright);
-    text-decoration: none;
-    font-family: var(--font-mono);
-    font-weight: 600;
-  }
-
-  tbody td a:hover {
-    text-decoration: underline;
-  }
-
-  /* Rank badges — podium colors */
-  .rank-cell {
-    text-align: center;
-  }
-
-  .rank-badge {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.7rem;
-  }
-
-  .rank-1 {
-    background: var(--amber-dim);
-    color: var(--amber);
-    border: 1px solid var(--amber);
-  }
-
-  .rank-2 {
-    background: rgba(99, 102, 241, 0.12);
-    color: var(--violet-bright);
-    border: 1px solid var(--violet-bright);
-  }
-
-  .rank-3 {
-    background: var(--teal-dim);
-    color: var(--teal);
-    border: 1px solid var(--teal);
-  }
-
-  .rank-num {
-    font-family: var(--font-mono);
-    color: var(--text-faint);
-    font-size: 0.8rem;
-  }
-
-  /* Score values */
-  .score-value {
-    font-family: var(--font-mono);
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  /* Percentages */
-  .pct-value {
-    font-family: var(--font-mono);
-    color: var(--text-muted);
-  }
-
-  /* Tier badges */
-  .tier {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-  }
-
-  .tier-high {
-    color: var(--teal);
-    background: var(--teal-dim);
-    border: 1px solid var(--teal);
-  }
-
-  .tier-medium {
-    color: var(--amber);
-    background: var(--amber-dim);
-    border: 1px solid var(--amber);
-  }
-
-  .tier-low {
-    color: var(--error);
-    background: var(--error-dim);
-    border: 1px solid var(--error);
-  }
-
-  .tier-none {
-    color: var(--text-muted);
-    background: var(--bg-3);
+  /* ── Detail grid ──────────────────────────────── */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
     border: 1px solid var(--border);
-  }
-
-  /* Pioneer badge */
-  .pioneer-badge {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--amber-dim);
-    color: var(--amber);
-    font-weight: 700;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    border: 1px solid var(--amber);
-  }
-
-  /* Verdict badges */
-  .verdict-badge {
-    display: inline-block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 9999px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-  }
-
-  .verdict-promote {
-    color: var(--teal);
-    background: var(--teal-dim);
-    border: 1px solid var(--teal);
-  }
-
-  .verdict-retire {
-    color: var(--rose);
-    background: var(--rose-dim);
-    border: 1px solid var(--rose);
-  }
-
-  .verdict-demote {
-    color: var(--amber);
-    background: var(--amber-dim);
-    border: 1px solid var(--amber);
-  }
-
-  .verdict-monitor {
-    color: var(--amber);
-    background: var(--amber-dim);
-    border: 1px solid var(--amber);
-  }
-
-  .verdict-maintain {
-    color: var(--violet-bright);
-    background: rgba(99, 102, 241, 0.12);
-    border: 1px solid var(--violet-bright);
-  }
-
-  .verdict-summary {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    max-width: 200px;
+    border-radius: 6px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-top: 0.2rem;
   }
 
-  .no-data {
+  .detail-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .detail-cell {
+    background: var(--bg-card);
+    padding: var(--s-4);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .detail-value {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .detail-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--text-faint);
   }
 
-  .inspect-soul-btn {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.2rem 0.55rem;
-    border-radius: 9999px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--violet-bright);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.1s, border-color 0.1s;
+  @media (max-width: 600px) {
+    .detail-grid { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid-4 { grid-template-columns: repeat(2, 1fr); }
   }
 
-  .inspect-soul-btn:hover {
-    background: var(--bg-3);
-    border-color: var(--border-mid);
-    opacity: 0.85;
-  }
-
-  /* Soul tier distribution */
+  /* ── Tier distribution ────────────────────────── */
   .tier-distribution {
     display: flex;
-    gap: 1.5rem;
+    gap: var(--s-6);
     flex-wrap: wrap;
   }
 
   .tier-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--s-2);
   }
 
   .tier-count {
@@ -800,48 +624,40 @@
     font-weight: 700;
   }
 
-  .tier-count-artisan { color: var(--amber); }
-  .tier-count-understudy { color: var(--teal); }
-  .tier-count-novice { color: var(--text-muted); }
-  .tier-count-retired { color: var(--rose); }
-
-  /* Ring Leader Synthesis styles */
-
-  .synthesis-achievement {
+  /* ── Achievement row ──────────────────────────── */
+  .achievement-row {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: var(--s-4);
+    margin-bottom: var(--s-5);
     flex-wrap: wrap;
   }
 
   .achievement-badge {
     display: inline-block;
-    padding: 0.3rem 0.75rem;
-    border-radius: 9999px;
+    padding: 3px var(--s-3);
+    border-radius: 3px;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.625rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
     flex-shrink: 0;
-    margin-top: 0.1rem;
+    margin-top: 2px;
   }
 
-  .achievement-achieved {
+  .achieved {
     color: var(--teal);
     background: var(--teal-dim);
-    border: 1px solid var(--teal);
   }
 
-  .achievement-not-achieved {
+  .not-achieved {
     color: var(--error);
     background: var(--error-dim);
-    border: 1px solid var(--error);
   }
 
-  .achievement-rationale {
+  .achievement-text {
     margin: 0;
     color: var(--text-muted);
     font-size: 14px;
@@ -849,24 +665,16 @@
     line-height: 1.65;
   }
 
-  .synthesis-stats {
-    margin-bottom: 1.5rem;
-  }
+  .variance-under { color: var(--teal) !important; }
+  .variance-over  { color: var(--error) !important; }
 
-  .variance-under {
-    color: var(--teal) !important;
-  }
-
-  .variance-over {
-    color: var(--error) !important;
-  }
-
+  /* ── Text blocks ──────────────────────────────── */
   .text-block {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 1rem;
+    border-radius: 6px;
+    padding: var(--s-5);
+    margin-bottom: var(--s-4);
   }
 
   .text-block-label {
@@ -876,7 +684,7 @@
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-faint);
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--s-3);
   }
 
   .text-block-content {
@@ -888,78 +696,77 @@
     white-space: pre-line;
   }
 
+  /* ── Pills ────────────────────────────────────── */
   .pill-group {
-    margin-bottom: 1rem;
+    margin-bottom: var(--s-4);
   }
 
   .pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: var(--s-2);
+    margin-top: var(--s-2);
   }
 
   .pill {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
+    padding: 3px var(--s-3);
+    border-radius: 3px;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 600;
+    letter-spacing: 0.04em;
   }
 
   .pill-teal {
     color: var(--teal);
     background: var(--teal-dim);
-    border: 1px solid var(--teal);
   }
 
   .pill-amber {
     color: var(--amber);
     background: var(--amber-dim);
-    border: 1px solid var(--amber);
   }
 
-  /* Ring Leader Fitness styles */
-
-  .composite-score-row {
+  /* ── Score cards ───────────────────────────────── */
+  .composite-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: var(--s-4);
+    margin-bottom: var(--s-5);
   }
 
-  .composite-score-value {
+  .composite-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .composite-value {
     font-family: var(--font-mono);
     font-size: 1.5rem;
     font-weight: 700;
   }
 
-  .composite-high {
-    color: var(--teal);
-  }
-
-  .composite-mid {
-    color: var(--amber);
-  }
-
-  .composite-low {
-    color: var(--error);
-  }
+  .composite-high { color: var(--teal); }
+  .composite-mid  { color: var(--amber); }
+  .composite-low  { color: var(--error); }
 
   .score-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 1rem;
+    border-radius: 6px;
+    padding: var(--s-5);
+    margin-bottom: var(--s-4);
   }
 
   .score-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    margin-bottom: var(--s-4);
   }
 
   .score-card-title {
@@ -980,11 +787,11 @@
   }
 
   .dimension {
-    margin-bottom: 0.875rem;
+    margin-bottom: var(--s-3);
   }
 
   .dimension:last-of-type {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--s-2);
   }
 
   .dimension-header {
@@ -1021,21 +828,13 @@
     transition: width 0.3s;
   }
 
-  .score-bar-fill.score-high {
-    background: var(--teal);
-  }
-
-  .score-bar-fill.score-mid {
-    background: var(--amber);
-  }
-
-  .score-bar-fill.score-low {
-    background: var(--error);
-  }
+  .score-bar-fill.score-high { background: var(--teal); }
+  .score-bar-fill.score-mid  { background: var(--amber); }
+  .score-bar-fill.score-low  { background: var(--error); }
 
   .score-subtotal {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
+    margin-top: var(--s-3);
+    padding-top: var(--s-3);
     border-top: 1px solid var(--border);
     font-family: var(--font-mono);
     font-size: 10px;
@@ -1049,5 +848,174 @@
     color: var(--text);
     font-size: 12px;
     font-weight: 700;
+  }
+
+  /* ── Leaderboard table ────────────────────────── */
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  thead th {
+    text-align: left;
+    padding: var(--s-3) var(--s-4);
+    background: var(--bg-3);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: var(--s-3) var(--s-4);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    background: var(--bg-card);
+  }
+
+  tbody tr:hover td {
+    background: var(--bg-2);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .col-mono {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  .bot-link {
+    color: var(--violet-bright);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .bot-link:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Rank badges ──────────────────────────────── */
+  .rank-cell {
+    text-align: center;
+  }
+
+  .rank-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.6875rem;
+  }
+
+  .rank-1 { background: var(--amber-dim); color: var(--amber); }
+  .rank-2 { background: rgba(99, 102, 241, 0.12); color: var(--violet-bright); }
+  .rank-3 { background: var(--teal-dim); color: var(--teal); }
+
+  .rank-num {
+    font-family: var(--font-mono);
+    color: var(--text-faint);
+    font-size: 0.8rem;
+  }
+
+  /* ── Tier / verdict / pioneer badges ──────────── */
+  .tier-badge {
+    display: inline-block;
+    padding: 3px var(--s-2);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tier-high   { color: var(--teal);  background: var(--teal-dim); }
+  .tier-medium { color: var(--amber); background: var(--amber-dim); }
+  .tier-low    { color: var(--error); background: var(--error-dim); }
+  .tier-none   { color: var(--text-muted); background: var(--bg-3); }
+
+  .verdict-badge {
+    display: inline-block;
+    padding: 3px var(--s-2);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .verdict-promote  { color: var(--teal);          background: var(--teal-dim); }
+  .verdict-retire   { color: var(--rose);          background: var(--rose-dim); }
+  .verdict-demote   { color: var(--amber);         background: var(--amber-dim); }
+  .verdict-monitor  { color: var(--amber);         background: var(--amber-dim); }
+  .verdict-maintain { color: var(--violet-bright); background: rgba(99, 102, 241, 0.12); }
+
+  .verdict-summary {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .pioneer-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+  }
+
+  .no-data {
+    color: var(--text-faint);
+  }
+
+  .action-btn {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px var(--s-3);
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--violet-bright);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .action-btn:hover {
+    background: var(--bg-3);
+    border-color: var(--border-mid);
   }
 </style>

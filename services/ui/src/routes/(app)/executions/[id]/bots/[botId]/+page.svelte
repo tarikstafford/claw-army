@@ -218,41 +218,50 @@
 </svelte:head>
 
 <div class="page">
-  <nav class="breadcrumb">
-    <a href="/executions/{executionId}/report">Back to Leaderboard</a>
-  </nav>
-
-  <h1>Bot Detail</h1>
-  <p class="subtitle">Bot <code>{botId.slice(0, 8)}</code></p>
+  <!-- Header -->
+  <div class="page-header">
+    <a href="/executions/{executionId}/report" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Leaderboard
+    </a>
+    <div class="sec-label">Bot Detail</div>
+    <h1>
+      <code class="bot-id-display">{botId.slice(0, 8)}</code>
+    </h1>
+  </div>
 
   {#if loading}
     <div class="loading">Loading bot details...</div>
   {:else if error}
-    <div class="error">{error}</div>
+    <div class="error-card">{error}</div>
   {:else if detail}
-    <!-- Bot status badge -->
-    <div class="bot-status-row">
-      <span class="status-badge status-{detail.bot.status}">{detail.bot.status}</span>
-      {#if detail.bot.tier}
-        <span class="tier tier-{detail.bot.tier.toLowerCase()}">{detail.bot.tier}</span>
-      {/if}
-      <SoulTierBadge agentClass={botAgentClass} />
-      {#if liveConnected}
-        <span class="live-badge">● LIVE</span>
-      {/if}
-      <button class="inspect-soul-btn" onclick={() => showInspector = true}>
-        Inspect Soul
-      </button>
-      <button class="dt-toggle-btn" onclick={toggleTraces}>
-        {showTraces ? 'Hide Traces' : 'Decision Traces'}
-      </button>
+    <!-- Bot identity strip -->
+    <div class="identity-strip">
+      <div class="identity-left">
+        <span class="status-badge status-{detail.bot.status}">{detail.bot.status}</span>
+        {#if detail.bot.tier}
+          <span class="tier-badge tier-{detail.bot.tier.toLowerCase()}">{detail.bot.tier}</span>
+        {/if}
+        <SoulTierBadge agentClass={botAgentClass} />
+        {#if liveConnected}
+          <span class="live-indicator"><span class="live-dot"></span> LIVE</span>
+        {/if}
+      </div>
+      <div class="identity-actions">
+        <button class="action-btn" onclick={() => showInspector = true}>Inspect Soul</button>
+        <button class="action-btn action-btn-teal" onclick={toggleTraces}>
+          {showTraces ? 'Hide Traces' : 'Decision Traces'}
+        </button>
+      </div>
     </div>
 
-    <!-- Process Log (live when active, historical when stopped) -->
-    <section class="section">
-      <div class="log-header">
+    <!-- Process Log -->
+    <section class="panel">
+      <div class="panel-header">
         <h2>Process Log</h2>
-        <span class="log-count">{logEntries.length} entries</span>
+        <span class="panel-meta">{logEntries.length} entries</span>
       </div>
       <div
         class="log-pane"
@@ -278,81 +287,73 @@
       </div>
     </section>
 
-    <!-- Bot Metrics Panel (UI-08) -->
-    <section class="section">
+    <!-- Performance Metrics -->
+    <section class="panel">
       <h2>Performance Metrics</h2>
+
+      <!-- Hero metrics row -->
+      <div class="hero-metrics">
+        <div class="hero-metric hero-metric-signal">
+          <span class="hero-value">{detail.bot.compositeScore?.toFixed(1) ?? '—'}</span>
+          <span class="hero-label">Composite Score</span>
+        </div>
+        <div class="hero-metric">
+          <span class="hero-value">{(detail.metrics.successRate * 100).toFixed(0)}%</span>
+          <span class="hero-label">Success Rate</span>
+        </div>
+        <div class="hero-metric">
+          <span class="hero-value">${(detail.metrics.totalCostCents / 100).toFixed(2)}</span>
+          <span class="hero-label">Total Cost</span>
+        </div>
+      </div>
+
+      <!-- Detail metrics grid -->
       <div class="metrics-grid">
-        <div class="metric-card">
-          <span class="metric-label">Tasks Completed</span>
+        <div class="metric-cell">
           <span class="metric-value">{detail.metrics.tasksCompleted}</span>
+          <span class="metric-label">Tasks Completed</span>
         </div>
-        <div class="metric-card">
+        <div class="metric-cell">
+          <span class="metric-value">{detail.metrics.tasksFailed}</span>
           <span class="metric-label">Tasks Failed</span>
-          <span class="metric-value">{detail.metrics.tasksFailed}</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Runtime</span>
-          <span class="metric-value">{detail.metrics.botHours.toFixed(3)} hours</span>
+        <div class="metric-cell">
+          <span class="metric-value">{detail.metrics.botHours.toFixed(3)}</span>
+          <span class="metric-label">Runtime (hrs)</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Token Usage</span>
+        <div class="metric-cell">
           <span class="metric-value">{detail.metrics.totalTokens.toLocaleString()}</span>
+          <span class="metric-label">Tokens</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Tool Calls</span>
+        <div class="metric-cell">
           <span class="metric-value">{detail.metrics.totalToolCalls}</span>
+          <span class="metric-label">Tool Calls</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Error Count</span>
-          <span class="metric-value">{detail.metrics.tasksFailed}</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Error Rate</span>
+        <div class="metric-cell">
           <span class="metric-value">{(detail.metrics.errorRate * 100).toFixed(1)}%</span>
+          <span class="metric-label">Error Rate</span>
         </div>
-        <div class="metric-card highlight">
-          <span class="metric-label">Composite Score</span>
-          <span class="metric-value large">{detail.bot.compositeScore?.toFixed(1) ?? '-'}</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Tier</span>
-          <span class="metric-value">
-            {#if detail.bot.tier}
-              <span class="tier tier-{detail.bot.tier.toLowerCase()}">{detail.bot.tier}</span>
-            {:else}
-              -
-            {/if}
-          </span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Cost</span>
-          <span class="metric-value">${(detail.metrics.totalCostCents / 100).toFixed(2)}</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Cost/Task</span>
+        <div class="metric-cell">
           <span class="metric-value">${(detail.metrics.costPerTaskCents / 100).toFixed(2)}</span>
+          <span class="metric-label">Cost/Task</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Tasks/Min</span>
+        <div class="metric-cell">
           <span class="metric-value">{detail.metrics.tasksPerMinute.toFixed(2)}</span>
+          <span class="metric-label">Tasks/Min</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Tokens/Task</span>
+        <div class="metric-cell">
           <span class="metric-value">{detail.metrics.tokensPerTask}</span>
+          <span class="metric-label">Tokens/Task</span>
         </div>
-        <div class="metric-card">
-          <span class="metric-label">Idle Ratio</span>
+        <div class="metric-cell">
           <span class="metric-value">{(detail.metrics.idleRatio * 100).toFixed(1)}%</span>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Success Rate</span>
-          <span class="metric-value">{(detail.metrics.successRate * 100).toFixed(1)}%</span>
+          <span class="metric-label">Idle Ratio</span>
         </div>
       </div>
     </section>
 
-    <!-- Expandable Step Trace (UI-09) -->
-    <section class="section">
+    <!-- Step Trace -->
+    <section class="panel">
       <details class="step-trace-outer">
         <summary class="step-trace-summary">
           Step Trace ({detail.steps.length} invocations)
@@ -396,22 +397,23 @@
         </div>
       </details>
     </section>
-    <!-- Decision Traces section (Phase 39 — SOUL-02) -->
+
+    <!-- Decision Traces -->
     {#if showTraces}
-      <section class="section dt-section">
-        <div class="dt-header">
+      <section class="panel dt-section">
+        <div class="panel-header">
           <h2>Decision Traces</h2>
           {#if !tracesLoading}
-            <span class="dt-count">{tracesTotal} total</span>
+            <span class="panel-meta">{tracesTotal} total</span>
           {/if}
         </div>
 
         {#if tracesLoading && decisionTraces.length === 0}
-          <div class="dt-loading">Loading decision traces...</div>
+          <div class="loading">Loading decision traces...</div>
         {:else if tracesError}
-          <div class="dt-error">{tracesError}</div>
+          <div class="error-card">{tracesError}</div>
         {:else if decisionTraces.length === 0}
-          <div class="dt-empty">No decision traces recorded for this bot.</div>
+          <div class="empty">No decision traces recorded for this bot.</div>
         {:else}
           <div class="dt-list">
             {#each decisionTraces as trace (trace.id)}
@@ -427,7 +429,7 @@
 
           {#if tracesHasMore}
             <button
-              class="dt-load-more"
+              class="load-more-btn"
               onclick={() => loadTraces(false)}
               disabled={tracesLoading}
             >
@@ -446,175 +448,324 @@
   .page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 96px 36px 80px;
-    background: var(--bg);
+    padding: 96px var(--s-9) 80px;
     min-height: 100vh;
   }
 
   @media (max-width: 600px) {
-    .page {
-      padding: 88px 20px 60px;
-    }
+    .page { padding: 88px var(--s-5) 60px; }
   }
 
-  .breadcrumb {
-    margin-bottom: 1rem;
-    font-size: 0.875rem;
+  /* ── Page header ──────────────────────────────── */
+  .page-header {
+    margin-bottom: var(--s-8);
   }
 
-  .breadcrumb a {
-    color: var(--violet-bright);
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    color: var(--violet-light);
-    text-decoration: underline;
-  }
-
-  h1 {
-    margin: 0 0 0.25rem;
-    font-size: 1.75rem;
-    color: var(--text);
-  }
-
-  .subtitle {
-    margin: 0 0 1rem;
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
     color: var(--text-muted);
-    font-size: 0.9rem;
+    text-decoration: none;
+    margin-bottom: var(--s-5);
+    transition: color 0.15s;
   }
 
-  .bot-status-row {
+  .back-link:hover {
+    color: var(--violet-bright);
+  }
+
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin: var(--s-2) 0 0;
+    line-height: 1.1;
+  }
+
+  .bot-id-display {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--violet-bright);
+    background: none;
+  }
+
+  /* ── Identity strip ───────────────────────────── */
+  .identity-strip {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.75rem;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-4) var(--s-5);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: var(--s-8);
+    flex-wrap: wrap;
   }
 
+  .identity-left {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+
+  .identity-actions {
+    display: flex;
+    gap: var(--s-2);
+  }
+
+  /* ── Status badge ─────────────────────────────── */
   .status-badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: capitalize;
+    padding: 3px var(--s-3);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     background: var(--bg-3);
     color: var(--text-muted);
   }
 
-  .status-running { background: rgba(99, 102, 241, 0.15); color: var(--violet-bright); }
-  .status-working { background: rgba(99, 102, 241, 0.15); color: var(--violet-bright); }
-  .status-idle { background: rgba(45, 212, 191, 0.12); color: var(--teal); }
-  .status-spawning { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
-  .status-stopping { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
+  .status-running, .status-working { background: rgba(99, 102, 241, 0.15); color: var(--violet-bright); }
+  .status-idle      { background: rgba(45, 212, 191, 0.12); color: var(--teal); }
+  .status-spawning, .status-stopping { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
   .status-completed { background: rgba(45, 212, 191, 0.12); color: var(--teal); }
-  .status-failed { background: rgba(248, 113, 113, 0.12); color: var(--error); }
-  .status-stopped { background: var(--bg-3); color: var(--text-faint); }
+  .status-failed    { background: rgba(248, 113, 113, 0.12); color: var(--error); }
+  .status-stopped   { background: var(--bg-3); color: var(--text-faint); }
 
-  .live-badge {
-    font-size: 0.75rem;
+  .tier-badge {
+    display: inline-block;
+    padding: 3px var(--s-3);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
     font-weight: 700;
-    color: var(--teal);
-    letter-spacing: 0.05em;
-    animation: pulse 2s ease-in-out infinite;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
-  .inspect-soul-btn {
-    font-size: 0.72rem;
+  .tier-high   { color: var(--teal);  background: var(--teal-dim); }
+  .tier-medium { color: var(--amber); background: var(--amber-dim); }
+  .tier-low    { color: var(--error); background: var(--error-dim); }
+  .tier-none   { color: var(--text-muted); background: var(--bg-3); }
+
+  .live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--teal);
+  }
+
+  /* ── Action buttons ───────────────────────────── */
+  .action-btn {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.25rem 0.65rem;
-    border-radius: 9999px;
+    padding: 6px var(--s-4);
+    border-radius: 3px;
     border: 1px solid var(--border);
-    background: var(--bg-card);
+    background: transparent;
     color: var(--violet-bright);
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.1s, border-color 0.1s;
-    margin-left: auto;
+    transition: background 0.15s, border-color 0.15s;
   }
 
-  .inspect-soul-btn:hover {
+  .action-btn:hover {
     background: var(--bg-3);
     border-color: var(--border-mid);
-    opacity: 0.85;
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+  .action-btn-teal {
+    color: var(--teal);
   }
 
+  /* ── Loading / error / empty ──────────────────── */
   .loading {
-    padding: 2rem;
+    padding: var(--s-8);
     text-align: center;
     color: var(--text-muted);
+    font-size: 0.875rem;
   }
 
-  .error {
-    padding: 1rem;
+  .error-card {
+    padding: var(--s-4) var(--s-5);
     background: var(--error-dim);
-    border: 1px solid var(--error);
-    border-radius: 0.5rem;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-left: 3px solid var(--error);
+    border-radius: 6px;
     color: var(--error);
+    font-size: 0.875rem;
   }
 
-  .section {
-    margin-bottom: 2.5rem;
+  .empty {
+    color: var(--text-faint);
+    font-size: 0.875rem;
+    padding: var(--s-4) 0;
   }
 
-  .section h2 {
+  /* ── Panel (section container) ────────────────── */
+  .panel {
+    margin-bottom: var(--s-8);
+  }
+
+  .panel > h2,
+  .panel-header h2 {
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--text-faint);
-    margin: 0 0 1rem;
-    padding-bottom: 0.5rem;
+    margin: 0 0 var(--s-4);
+    padding-bottom: var(--s-2);
     border-bottom: 1px solid var(--border);
   }
 
-  /* Process Log */
-  .log-header {
+  .panel-header {
     display: flex;
     align-items: baseline;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    gap: var(--s-3);
+    margin-bottom: var(--s-4);
+    padding-bottom: var(--s-2);
     border-bottom: 1px solid var(--border);
   }
 
-  .log-header h2 {
+  .panel-header h2 {
     margin: 0;
     padding: 0;
     border: none;
-    font-size: 10px;
   }
 
-  .log-count {
-    font-size: 0.8rem;
+  .panel-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     color: var(--text-faint);
   }
 
+  /* ── Hero metrics ─────────────────────────────── */
+  .hero-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-4);
+    margin-bottom: var(--s-5);
+  }
+
+  .hero-metric {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: var(--s-5) var(--s-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+  }
+
+  .hero-metric-signal {
+    border-color: var(--border-mid);
+  }
+
+  .hero-value {
+    font-family: var(--font-mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .hero-metric-signal .hero-value {
+    color: var(--violet-bright);
+  }
+
+  .hero-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 600px) {
+    .hero-metrics {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Detail metrics grid ──────────────────────── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .metric-cell {
+    background: var(--bg-card);
+    padding: var(--s-4) var(--s-4);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .metric-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 900px) {
+    .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 600px) {
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Process Log ──────────────────────────────── */
   .log-pane {
     background: var(--bg-2);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    padding: var(--s-3) var(--s-4);
     height: 320px;
     overflow-y: auto;
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.8125rem;
     line-height: 1.6;
     scroll-behavior: smooth;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   }
 
   .log-line {
     display: flex;
-    gap: 1rem;
-    padding: 0.1rem 0;
+    gap: var(--s-4);
+    padding: 1px 0;
   }
 
   .log-time {
@@ -631,22 +782,22 @@
   }
 
   .log-default .log-msg { color: var(--text-muted); }
-  .log-info .log-msg { color: var(--violet-bright); }
+  .log-info .log-msg    { color: var(--violet-bright); }
   .log-success .log-msg { color: var(--teal); }
-  .log-warn .log-msg { color: var(--amber); }
-  .log-error .log-msg { color: var(--error); }
-  .log-dim .log-msg { color: var(--text-faint); }
+  .log-warn .log-msg    { color: var(--amber); }
+  .log-error .log-msg   { color: var(--error); }
+  .log-dim .log-msg     { color: var(--text-faint); }
 
   .log-empty {
     color: var(--text-faint);
     font-style: italic;
-    padding: 0.5rem 0;
+    padding: var(--s-2) 0;
   }
 
   .log-cursor {
     color: var(--violet-bright);
     animation: blink 1s step-end infinite;
-    margin-top: 0.2rem;
+    margin-top: 2px;
   }
 
   @keyframes blink {
@@ -654,117 +805,19 @@
     50% { opacity: 0; }
   }
 
-  /* Metrics grid: 3-4 cols on desktop */
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-  }
-
-  @media (max-width: 900px) {
-    .metrics-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (max-width: 600px) {
-    .metrics-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  .metric-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0.875rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-
-  .metric-card.highlight {
-    background: var(--bg-card);
-    border-color: var(--violet-bright);
-  }
-
-  .metric-label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-faint);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-weight: 600;
-  }
-
-  .metric-value {
-    font-family: var(--font-mono);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .metric-value.large {
-    font-size: 1.5rem;
-    color: var(--violet-bright);
-  }
-
-  .empty {
-    color: var(--text-faint);
-    font-style: italic;
-    padding: 1rem 0;
-  }
-
-  /* Tier badges */
-  .tier {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-  }
-
-  .tier-high {
-    color: var(--teal);
-    background: var(--teal-dim);
-    border: 1px solid var(--teal);
-  }
-
-  .tier-medium {
-    color: var(--amber);
-    background: var(--amber-dim);
-    border: 1px solid var(--amber);
-  }
-
-  .tier-low {
-    color: var(--error);
-    background: var(--error-dim);
-    border: 1px solid var(--error);
-  }
-
-  .tier-none {
-    color: var(--text-muted);
-    background: var(--bg-3);
-    border: 1px solid var(--border);
-  }
-
-  /* Step trace */
+  /* ── Step trace ───────────────────────────────── */
   .step-trace-outer {
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   }
 
   .step-trace-summary {
-    padding: 0.875rem 1.25rem;
+    padding: var(--s-3) var(--s-5);
     background: var(--bg-3);
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--text);
     user-select: none;
     list-style: none;
@@ -791,27 +844,25 @@
   }
 
   .step {
-    padding: 0.875rem 1.25rem;
+    padding: var(--s-3) var(--s-5);
     border-bottom: 1px solid var(--bg-3);
     font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-size: 0.8125rem;
     background: var(--bg-card);
   }
 
-  .step:last-child {
-    border-bottom: none;
-  }
+  .step:last-child { border-bottom: none; }
 
   .step.rejected {
-    border-left: 4px solid var(--error);
+    border-left: 3px solid var(--error);
     background: var(--error-dim);
-    padding-left: calc(1.25rem - 4px);
+    padding-left: calc(var(--s-5) - 3px);
   }
 
   .step-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--s-3);
     flex-wrap: wrap;
   }
 
@@ -843,32 +894,32 @@
   }
 
   .step-rejection {
-    margin-top: 0.5rem;
+    margin-top: var(--s-2);
     color: var(--error);
     font-size: 0.8rem;
-    font-family: sans-serif;
+    font-family: var(--font-body);
   }
 
   .step-detail {
-    margin-top: 0.5rem;
+    margin-top: var(--s-2);
   }
 
   .step-detail > summary {
     cursor: pointer;
     color: var(--text-muted);
     font-size: 0.8rem;
-    font-family: sans-serif;
+    font-family: var(--font-body);
     user-select: none;
-    padding: 0.25rem 0;
+    padding: var(--s-1) 0;
   }
 
   .step-body {
-    margin-top: 0.5rem;
+    margin-top: var(--s-2);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    font-family: sans-serif;
-    font-size: 0.85rem;
+    gap: var(--s-3);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
     color: var(--text);
   }
 
@@ -877,9 +928,9 @@
     max-height: 200px;
     background: var(--bg-2);
     border: 1px solid var(--border);
-    border-radius: 0.25rem;
-    padding: 0.5rem;
-    margin: 0.25rem 0 0;
+    border-radius: 3px;
+    padding: var(--s-2);
+    margin: var(--s-1) 0 0;
     font-size: 0.8rem;
     font-family: var(--font-mono);
     color: var(--text);
@@ -890,80 +941,37 @@
     font-size: 0.8rem;
   }
 
-  /* Decision Traces section */
+  /* ── Decision Traces ──────────────────────────── */
   .dt-section {
-    margin-top: 2rem;
-  }
-
-  .dt-header {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .dt-header h2 {
-    margin: 0;
-    padding: 0;
-    border: none;
-    font-size: 10px;
-  }
-
-  .dt-count {
-    font-size: 0.8rem;
-    color: var(--text-faint);
-  }
-
-  .dt-loading {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    padding: 1rem 0;
-  }
-
-  .dt-error {
-    padding: 0.75rem 1rem;
-    background: var(--error-dim);
-    border: 1px solid var(--error);
-    border-radius: 0.5rem;
-    color: var(--error);
-    font-size: 0.85rem;
-  }
-
-  .dt-empty {
-    color: var(--text-faint);
-    font-style: italic;
-    padding: 1rem 0;
-    font-size: 0.9rem;
+    margin-top: var(--s-4);
   }
 
   .dt-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--s-2);
   }
 
   .dt-row {
     display: grid;
     grid-template-columns: auto 1fr auto auto auto;
     align-items: center;
-    gap: 1rem;
+    gap: var(--s-4);
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.625rem 1rem;
-    font-size: 0.85rem;
+    border-radius: 6px;
+    padding: var(--s-3) var(--s-4);
+    font-size: 0.8125rem;
   }
 
   .dt-badge {
     display: inline-block;
-    padding: 0.2rem 0.55rem;
-    border-radius: 9999px;
+    padding: 3px var(--s-2);
+    border-radius: 3px;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     white-space: nowrap;
   }
 
@@ -974,7 +982,7 @@
 
   .dt-directive {
     color: var(--text-muted);
-    font-size: 0.83rem;
+    font-size: 0.8125rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -989,11 +997,12 @@
 
   .dt-outcome {
     display: inline-block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 9999px;
+    padding: 3px var(--s-2);
+    border-radius: 3px;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    font-weight: 600;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     white-space: nowrap;
   }
 
@@ -1009,45 +1018,28 @@
     white-space: nowrap;
   }
 
-  .dt-toggle-btn {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.25rem 0.65rem;
-    border-radius: 9999px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--teal);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.1s, border-color 0.1s;
-  }
-
-  .dt-toggle-btn:hover {
-    background: var(--bg-3);
-    border-color: var(--border-mid);
-    opacity: 0.85;
-  }
-
-  .dt-load-more {
-    margin-top: 0.75rem;
-    font-size: 0.8rem;
+  .load-more-btn {
+    margin-top: var(--s-4);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.4rem 1rem;
-    border-radius: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: var(--s-2) var(--s-5);
+    border-radius: 3px;
     border: 1px solid var(--border);
-    background: var(--bg-card);
+    background: transparent;
     color: var(--text-muted);
     cursor: pointer;
-    transition: background 0.1s;
+    transition: background 0.15s, border-color 0.15s;
   }
 
-  .dt-load-more:hover:not(:disabled) {
+  .load-more-btn:hover:not(:disabled) {
     background: var(--bg-3);
+    border-color: var(--border-mid);
   }
 
-  .dt-load-more:disabled {
+  .load-more-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }

@@ -216,7 +216,7 @@
   .page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 96px 36px 160px;
+    padding: 96px var(--s-9) 160px;
   }
 
   /* ── Header ────────────────────────────────────────── */
@@ -267,7 +267,7 @@
     font-size: 12px;
     letter-spacing: 0.04em;
     padding: 8px 16px;
-    border-radius: 100px;
+    border-radius: 3px;
   }
 
   .status-assembling {
@@ -302,7 +302,7 @@
     background: var(--bg-card);
     border: 1px solid rgba(248, 113, 113, 0.2);
     border-left: 3px solid #f87171;
-    border-radius: 14px;
+    border-radius: 6px;
     padding: 24px 28px;
     margin-bottom: 32px;
   }
@@ -349,7 +349,7 @@
   .manifest-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 6px;
     padding: 24px;
     overflow: hidden;
   }
@@ -398,7 +398,7 @@
     text-transform: uppercase;
     letter-spacing: 0.14em;
     padding: 3px 10px;
-    border-radius: 100px;
+    border-radius: 3px;
     background: var(--violet-dim);
     color: var(--violet-bright);
   }
@@ -503,7 +503,7 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     padding: 3px 8px;
-    border-radius: 100px;
+    border-radius: 3px;
     white-space: nowrap;
   }
 

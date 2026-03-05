@@ -277,6 +277,10 @@ export async function getRingLeaderSynthesis(executionId: string): Promise<RingL
 
 // Phase 39 — Soul Library (SOUL-01)
 
+export async function getSoulDetail(soulId: string): Promise<import('./types').SoulDetail> {
+  return apiFetch(`${BASE}/souls/${soulId}`);
+}
+
 export async function getSoulLibrary(
   params: { category?: string; agentClass?: string; limit?: number; offset?: number } = {},
 ): Promise<SoulLibraryResponse> {

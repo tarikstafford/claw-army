@@ -21,6 +21,93 @@ const SoulSchema = Type.Object({
 });
 
 export const soulsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
+  // GET /souls/:id — single soul detail
+  fastify.get('/:id', {
+    schema: {
+      params: Type.Object({
+        id: Type.String({ format: 'uuid' }),
+      }),
+      response: {
+        200: Type.Object({
+          id: Type.String(),
+          taskCategory: Type.Union([Type.String(), Type.Null()]),
+          generation: Type.Integer(),
+          isArchetype: Type.Boolean(),
+          archetypeName: Type.Union([Type.String(), Type.Null()]),
+          soulContent: Type.String(),
+          dimensions: Type.Any(),
+          constitutionDirectives: Type.Any(),
+          parentSoulId: Type.Union([Type.String(), Type.Null()]),
+          botId: Type.Union([Type.String(), Type.Null()]),
+          executionId: Type.Union([Type.String(), Type.Null()]),
+          agentClass: Type.Union([
+            Type.Literal('Novice'),
+            Type.Literal('Understudy'),
+            Type.Literal('Artisan'),
+            Type.Literal('Retired'),
+            Type.Null(),
+          ]),
+          compositeScore: Type.Union([Type.Number(), Type.Null()]),
+          createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
+        }),
+        404: Type.Object({ error: Type.String() }),
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+
+    const rows = await db
+      .select({
+        id: botSouls.id,
+        taskCategory: botSouls.taskCategory,
+        generation: botSouls.generation,
+        isArchetype: botSouls.isArchetype,
+        archetypeName: botSouls.archetypeName,
+        soulContent: botSouls.soulContent,
+        dimensions: botSouls.dimensions,
+        constitutionDirectives: botSouls.constitutionDirectives,
+        parentSoulId: botSouls.parentSoulId,
+        botId: botSouls.botId,
+        executionId: botSouls.executionId,
+        agentClass: sql<string | null>`ac.current_class`,
+        compositeScore: sql<string | null>`b.composite_score`,
+        createdAt: botSouls.createdAt,
+      })
+      .from(botSouls)
+      .leftJoin(
+        sql`agent_classes ac`,
+        sql`ac.bot_id = ${botSouls.botId} AND ac.task_category = ${botSouls.taskCategory}`,
+      )
+      .leftJoin(
+        sql`bots b`,
+        sql`b.id = ${botSouls.botId}`,
+      )
+      .where(eq(botSouls.id, id))
+      .limit(1);
+
+    const row = rows[0];
+    if (!row) {
+      return reply.code(404).send({ error: 'Soul not found' });
+    }
+
+    return reply.code(200).send({
+      id: row.id,
+      taskCategory: row.taskCategory,
+      generation: row.generation,
+      isArchetype: row.isArchetype,
+      archetypeName: row.archetypeName,
+      soulContent: row.soulContent,
+      dimensions: row.dimensions,
+      constitutionDirectives: row.constitutionDirectives,
+      parentSoulId: row.parentSoulId,
+      botId: row.botId,
+      executionId: row.executionId,
+      agentClass: row.agentClass as 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null,
+      compositeScore: row.compositeScore != null ? Number(row.compositeScore) : null,
+      createdAt: row.createdAt,
+    });
+  });
+
   // GET /souls/categories — distinct task categories in the soul library
   fastify.get('/categories', {
     schema: {

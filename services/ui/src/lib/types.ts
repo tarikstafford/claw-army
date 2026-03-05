@@ -433,6 +433,31 @@ export interface RingLeaderSynthesisResponse {
 
 // Phase 39 — Soul Library types (SOUL-01)
 
+export interface SoulDetail {
+  id: string;
+  taskCategory: string | null;
+  generation: number;
+  isArchetype: boolean;
+  archetypeName: string | null;
+  soulContent: string;
+  dimensions: {
+    identityRole: string;
+    decisionPriorities: string;
+    toolUsageDoctrine: string;
+    riskTolerance: string;
+    communicationStyle: string;
+    recoveryBehavior: string;
+    ethicalHardStops: string;
+  };
+  constitutionDirectives: string[];
+  parentSoulId: string | null;
+  botId: string | null;
+  executionId: string | null;
+  agentClass: 'Novice' | 'Understudy' | 'Artisan' | 'Retired' | null;
+  compositeScore: number | null;
+  createdAt: string;
+}
+
 export interface SoulLibraryEntry {
   id: string;
   taskCategory: string | null;

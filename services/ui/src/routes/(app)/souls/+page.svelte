@@ -172,7 +172,7 @@
 
     <div class="sl-grid">
       {#each data.souls as soul (soul.id)}
-        <div class="sl-card">
+        <a href="/souls/{soul.id}" class="sl-card">
           <div class="sl-card-top">
             <span class="sl-category">{soulLabel(soul)}</span>
             <span class="sl-gen-badge">Gen {soul.generation}</span>
@@ -202,7 +202,7 @@
           <div class="sl-card-footer">
             <span class="sl-date">{formatDate(soul.createdAt)}</span>
           </div>
-        </div>
+        </a>
       {/each}
     </div>
 
@@ -376,18 +376,21 @@
 
   /* ── Soul card ── */
   .sl-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: var(--s-4);
     transition: border-color 0.15s;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
   }
 
   .sl-card:hover {
-    border-color: rgba(167, 139, 250, 0.3);
+    border-color: var(--border-mid);
   }
 
   .sl-card-top {
