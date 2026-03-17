@@ -1,4 +1,4 @@
-import { db, bots, telemetry } from '@claw/db';
+import { db, bots, telemetry, botSouls, soulRunScores } from '@claw/db';
 import { eq, and, count } from 'drizzle-orm';
 import { computeBotMetrics, type BotMetrics } from './metrics-computer';
 
@@ -226,6 +226,23 @@ export async function computeScoresForExecution(executionId: string): Promise<vo
         tier,
       })
       .where(eq(bots.id, botId));
+
+    // ── Write soul_run_scores if this bot has a linked soul ─────────────────────
+    const [soulRow] = await db
+      .select({ soulId: botSouls.soulId })
+      .from(botSouls)
+      .where(eq(botSouls.botId, botId))
+      .limit(1);
+
+    if (soulRow) {
+      await db.insert(soulRunScores).values({
+        soulId: soulRow.soulId,
+        botId,
+        executionId,
+        compositeScore: compositeClamped.toFixed(2),
+        tier,
+      });
+    }
 
     console.log('[score-engine] Scored bot:', {
       botId,
