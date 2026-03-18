@@ -1,13 +1,6 @@
 import 'dotenv/config';
 
-const REQUIRED_ENV = [
-  'TELEGRAM_BOT_TOKEN',
-  'TELEGRAM_WEBHOOK_URL',
-  'PAPERCLIP_API_URL',
-  'PAPERCLIP_COMPANY_ID',
-  'PAPERCLIP_API_KEY',
-  'PAPERCLIP_CEO_AGENT_ID',
-] as const;
+const REQUIRED_ENV = ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_URL', 'PAPERCLIP_API_URL', 'PAPERCLIP_COMPANY_ID', 'PAPERCLIP_API_KEY'] as const;
 
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missing.length > 0) {
@@ -17,7 +10,6 @@ if (missing.length > 0) {
 
 import { buildApp } from './app.js';
 import { setWebhook } from './lib/telegram.js';
-import { startPoller } from './conversation-manager.js';
 
 const app = buildApp();
 const port = Number(process.env['PORT'] ?? 3005);
@@ -38,13 +30,5 @@ try {
   console.warn('[main] Bot will start but webhook may not be active. Check TELEGRAM_WEBHOOK_URL.');
 }
 
-// Start background poller for CEO → Telegram replies
-const stopPoller = startPoller();
-
-function shutdown() {
-  stopPoller();
-  process.exit(0);
-}
-
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+process.on('SIGTERM', () => process.exit(0));
+process.on('SIGINT', () => process.exit(0));

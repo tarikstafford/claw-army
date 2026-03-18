@@ -1,28 +1,14 @@
 const API_URL = process.env['PAPERCLIP_API_URL'];
 const COMPANY_ID = process.env['PAPERCLIP_COMPANY_ID'];
 const API_KEY = process.env['PAPERCLIP_API_KEY'];
-export const CEO_AGENT_ID = process.env['PAPERCLIP_CEO_AGENT_ID'];
 
 if (!API_URL || !COMPANY_ID || !API_KEY) {
   throw new Error('[paperclip] Missing PAPERCLIP_API_URL, PAPERCLIP_COMPANY_ID, or PAPERCLIP_API_KEY');
 }
 
-export interface PaperclipComment {
-  id: string;
-  authorAgentId: string | null;
-  authorUserId: string | null;
-  body: string;
-  createdAt: string;
-}
-
-async function paperclipFetch(path: string, init?: RequestInit): Promise<unknown> {
+async function paperclipFetch(path: string): Promise<unknown> {
   const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${API_KEY}`,
-      ...(init?.headers ?? {}),
-    },
+    headers: { Authorization: `Bearer ${API_KEY}` },
   });
   if (!res.ok) {
     const body = await res.text();
@@ -31,67 +17,43 @@ async function paperclipFetch(path: string, init?: RequestInit): Promise<unknown
   return res.json();
 }
 
-/**
- * Creates a Paperclip issue representing a new Telegram conversation thread.
- * Assigned to the CEO agent.
- */
-export async function createConversationIssue(
-  chatId: number,
-  username: string,
-  firstMessage: string,
-): Promise<string> {
-  const projectId = process.env['PAPERCLIP_PROJECT_ID'] ?? null;
-  const body: Record<string, unknown> = {
-    title: `Telegram: ${username}`,
-    description: [
-      `Board communication channel via Telegram.`,
-      `Chat ID: \`${chatId}\``,
-      `Started by: @${username}`,
-      ``,
-      `---`,
-      `**First message:**`,
-      firstMessage,
-    ].join('\n'),
-    status: 'todo',
-    priority: 'high',
-    assigneeAgentId: CEO_AGENT_ID ?? undefined,
-  };
-  if (projectId) body['projectId'] = projectId;
-
-  const issue = (await paperclipFetch(`/api/companies/${COMPANY_ID}/issues`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  })) as { id: string };
-
-  return issue.id;
+export interface PaperclipProject {
+  id: string;
+  name: string;
+  status: string;
+  targetDate: string | null;
 }
 
-/**
- * Posts a board message as a comment on the conversation issue.
- */
-export async function postBoardMessage(
-  issueId: string,
-  username: string,
-  text: string,
-): Promise<void> {
-  await paperclipFetch(`/api/issues/${issueId}/comments`, {
-    method: 'POST',
-    body: JSON.stringify({ body: `**@${username} (Telegram):** ${text}` }),
-  });
+export interface PaperclipIssue {
+  id: string;
+  identifier: string;
+  title: string;
+  status: string;
+  priority: string;
+  assigneeAgentId: string | null;
 }
 
-/**
- * Fetches new comments after a given comment ID.
- * Returns comments in ascending order.
- */
-export async function getNewComments(
-  issueId: string,
-  afterCommentId: string | null,
-): Promise<PaperclipComment[]> {
-  const url = afterCommentId
-    ? `/api/issues/${issueId}/comments?after=${afterCommentId}&order=asc`
-    : `/api/issues/${issueId}/comments`;
+export interface PaperclipAgent {
+  id: string;
+  name: string;
+  role: string;
+  status?: string;
+  urlKey?: string;
+}
 
-  const comments = (await paperclipFetch(url)) as PaperclipComment[];
-  return comments;
+export async function getProjects(): Promise<PaperclipProject[]> {
+  const data = await paperclipFetch(`/api/companies/${COMPANY_ID}/projects`);
+  return data as PaperclipProject[];
+}
+
+export async function getActiveIssues(): Promise<PaperclipIssue[]> {
+  const data = await paperclipFetch(
+    `/api/companies/${COMPANY_ID}/issues?status=todo,in_progress,blocked`,
+  );
+  return data as PaperclipIssue[];
+}
+
+export async function getAgents(): Promise<PaperclipAgent[]> {
+  const data = await paperclipFetch(`/api/companies/${COMPANY_ID}/agents`);
+  return data as PaperclipAgent[];
 }

@@ -1,19 +1,17 @@
 import Fastify from 'fastify';
 import { sendMessage, type TelegramUpdate } from './lib/telegram.js';
-import { handleBoardMessage } from './conversation-manager.js';
-import { getConversation, upsertConversation } from './lib/conversation-store.js';
+import { handleHelp } from './commands/help.js';
+import { handleStatus } from './commands/status.js';
+import { handleInbox } from './commands/inbox.js';
+import { handleAgents } from './commands/agents.js';
 
-const HELP_TEXT = [
-  '*Akasa Board Bot*',
-  '',
-  'This bot connects you directly to the Akasa CEO.',
-  '',
-  'Just send any message and it will be forwarded to the CEO.',
-  'You\'ll receive their reply here when they respond.',
-  '',
-  '/help — Show this message',
-  '/new  — Start a fresh conversation thread',
-].join('\n');
+const COMMAND_HANDLERS: Record<string, (chatId: number) => Promise<void>> = {
+  '/help': handleHelp,
+  '/start': handleHelp,
+  '/status': handleStatus,
+  '/inbox': handleInbox,
+  '/agents': handleAgents,
+};
 
 export function buildApp() {
   const app = Fastify({
@@ -26,42 +24,29 @@ export function buildApp() {
   // Telegram webhook receiver
   app.post('/webhook', async (request, reply) => {
     const update = request.body as TelegramUpdate;
-    const message = update.message;
 
+    const message = update.message;
     if (!message?.text) {
       return reply.code(200).send({ ok: true });
     }
 
     const chatId = message.chat.id;
     const text = message.text.trim();
-    const username = message.from?.username ?? message.from?.first_name ?? String(message.from?.id ?? chatId);
 
     // Strip bot username suffix (e.g. /help@MyBot → /help)
     const command = text.split('@')[0]?.split(' ')[0]?.toLowerCase() ?? '';
 
-    if (command === '/help' || command === '/start') {
-      sendMessage(chatId, HELP_TEXT).catch((err: Error) =>
-        console.error('[app] sendMessage error:', err.message),
-      );
-      return reply.code(200).send({ ok: true });
-    }
-
-    if (command === '/new') {
-      // Reset this chat's conversation so the next message creates a fresh issue
-      const existing = getConversation(chatId);
-      if (existing) {
-        upsertConversation({ ...existing, issueId: '', lastSeenCommentId: null, updatedAt: new Date().toISOString() });
-      }
-      sendMessage(chatId, '🔄 Starting a new conversation thread. Send your message!').catch(
+    const handler = COMMAND_HANDLERS[command];
+    if (handler) {
+      // Respond asynchronously — Telegram expects a fast 200
+      handler(chatId).catch((err: Error) => {
+        console.error(`[app] Command handler error for ${command}:`, err.message);
+      });
+    } else if (command.startsWith('/')) {
+      sendMessage(chatId, `Unknown command: ${command}. Use /help for available commands.`).catch(
         (err: Error) => console.error('[app] sendMessage error:', err.message),
       );
-      return reply.code(200).send({ ok: true });
     }
-
-    // Any other message — forward to CEO via Paperclip
-    handleBoardMessage(chatId, username, text).catch((err: Error) => {
-      console.error('[app] handleBoardMessage error:', err.message);
-    });
 
     return reply.code(200).send({ ok: true });
   });
