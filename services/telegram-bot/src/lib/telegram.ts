@@ -1,6 +1,6 @@
 const TELEGRAM_API = 'https://api.telegram.org';
 
-const TOKEN = process.env['TELEGRAM_BOT_TOKEN'];
+export const TOKEN = process.env['TELEGRAM_BOT_TOKEN'];
 
 if (!TOKEN) {
   throw new Error('[telegram] TELEGRAM_BOT_TOKEN is not set');
