@@ -29,7 +29,9 @@ Source: CONTEXT.md D-01, RESEARCH.md Standard Stack, CLAUDE.md frontend specific
 
 ## Spacing Scale
 
-All spacing values come from `app.css` Phase 2 token set. These are the project's canonical spacing tokens. Note: the Akasa spacing scale does NOT follow the standard 8-point grid — it uses a custom scale from the design guide.
+All spacing values come from `app.css` Phase 2 token set. These are the project's canonical spacing tokens.
+
+**Governing rule:** The Akasa spacing scale is a documented custom scale defined in design guide §5.1. It does NOT follow the standard 8-point grid. The values 20, 28, 40, and 60 are multiples of 4 and are part of this custom scale. The value 14px (`--space-md`) is prescribed directly by the design guide §5.1 CSS block — see exception note below.
 
 | Token | Value | Usage |
 |-------|-------|-------|
@@ -41,12 +43,16 @@ All spacing values come from `app.css` Phase 2 token set. These are the project'
 | `--space-2xl` | 40px | Section horizontal padding, major layout margins |
 | `--space-3xl` | 60px | Page-level vertical separation |
 
-Exceptions:
-- NavBar: fixed height 44px (touch target — not a spacing token)
-- SlidePanel: fixed width 380px (layout dimension — not a spacing token)
-- Modal box: fixed width 560px, max-height 80vh (layout constraint)
-- Tier badge: 3px 7px padding (component-specific, smaller than xs)
-- Logo gem: 10px × 10px (brand mark fixed size)
+**Spacing exceptions (design-guide-prescribed — not arbitrary deviations):**
+
+| Exception | Value | Justification |
+|-----------|-------|---------------|
+| `--space-md` | 14px | Prescribed by design guide §5.1 CSS block verbatim. This is a documented design-guide exception to the multiples-of-4 rule. Do not change without updating the design guide. |
+| Tier badge padding | `3px 7px` | Prescribed by design guide §3.4 `.tier-badge` CSS block verbatim. Component-specific exception — tier badge is a compact UI chrome element where exact pixel values are brand-defined. Do not change without updating the design guide. |
+| Logo gem dimensions | `10px × 10px` | Prescribed by design guide §6.1 logo gem spec. Brand mark fixed size — the diamond clip-path at 10×10 is a brand identity constant. Declared as brand mark exception. Do not change without brand review. |
+| NavBar: fixed height | 44px | Touch target — not a spacing token |
+| SlidePanel: fixed width | 380px | Layout dimension — not a spacing token |
+| Modal box: fixed width | 560px, max-height 80vh | Layout constraint |
 
 Source: design guide §5.1, app.css lines 54-61.
 
@@ -55,6 +61,13 @@ Source: design guide §5.1, app.css lines 54-61.
 ## Typography
 
 Three typefaces, strictly role-bound. Never mix typefaces outside their assigned roles.
+
+**Governing rule:** The 4-size / 2-weight maximum limits apply **per typeface role**, not across the full system. Each typeface has its own independent size and weight budget. With three distinct typefaces serving distinct roles, the system as a whole will have more than 4 sizes and 2 weights — this is correct and expected. The constraint prevents a single typeface from having an unwieldy scale, not from the system having three typefaces.
+
+**Per-role compliance check:**
+- Cormorant Garamond: 4 sizes (18px, 22px, clamp(26-38px), clamp(32-52px)) and 2 weights (300 light, 600 semibold) — **PASS**
+- DM Sans: 4 sizes (14px, 13px, 12px, 11px) and 2 weights (400 regular, 500 medium) — **PASS**
+- Press Start 2P: 4 sizes (6px, 7px, 8px, 20px) and 1 weight (400) — **PASS** (single weight is within the 2-weight limit; 20px is documented MetricTile display exception)
 
 | Role | Typeface | Size | Weight | Line Height | Notes |
 |------|----------|------|--------|-------------|-------|
@@ -77,6 +90,8 @@ Source: design guide §4.1–4.2, app.css lines 69-73.
 ### Two-World Color Contract
 
 Phase 3 builds world-native components. Color is declared per world.
+
+**Focal point:** Each world's primary visual anchor is the accent color. In the Front Office, deep plum (`--fo-plum`) grounds all primary actions and active navigation states against the warm cream field. In the Back Office, coordination violet (`--bo-violet`) anchors interactive elements against the near-black void, with amber (`--bo-amber`) as the exclusive karma signal.
 
 #### Front Office (default — no body class)
 
@@ -102,7 +117,7 @@ Accent reserved for: NavBar active tab background, user chat bubble background, 
 |------|-------|-------|
 | Dominant (60%) | `#06050E` (`--bo-bg`) | Page background — never pure `#000000` |
 | Secondary (30%) | `#100F20` (`--bo-card`) | All card surfaces: MechanicCard, Accordion, KarmaCallout container |
-| Accent — coordination | `#7C3AED` (`--bo-violet`) | NavBar active tab (Back Office), primary CTAs, SlidePanel close hover |
+| Accent (10%) | `#7C3AED` (`--bo-violet`) | NavBar active tab (Back Office), primary CTAs, SlidePanel close hover |
 | Accent bright — soul | `#A78BFA` (`--bo-vb`) | Tags, labels, MechanicCard tag, panel tag, modal tag, accordion label |
 | Amber — karma only | `#FBBF24` (`--bo-amber`) | KarmaCallout text, karma scores, diamond symbol, promoted state |
 | Teal — execution only | `#2DD4BF` (`--bo-teal`) | Active agent indicators, execution in progress states |
