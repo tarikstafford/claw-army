@@ -147,7 +147,10 @@ Plans:
   3. The world toggle persists across page reloads via user preferences (localStorage fallback)
   4. Cormorant Garamond, DM Sans (variable), and Press Start 2P load from self-hosted `@fontsource` packages — no Google Fonts CDN requests
   5. All deprecated v5.0 token names (`--h-*`, `--d-*`, `--ak-*`) are removed from the codebase with a CI grep check blocking their reintroduction
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Token system, fonts, and mode-detection script
+- [ ] 02-02-PLAN.md — Consumer migration and lint:tokens enforcement
 **UI hint**: yes
 
 ### Phase 3: Design System Components and Motion
@@ -233,7 +236,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Submodule Integration | v6.0 | 2/2 | Complete   | 2026-03-23 |
-| 2. Design System Tokens and Typography | v6.0 | 0/- | Not started | - |
+| 2. Design System Tokens and Typography | v6.0 | 0/2 | Planned | - |
 | 3. Design System Components and Motion | v6.0 | 0/- | Not started | - |
 | 4. SvelteKit Frontend Core | v6.0 | 0/- | Not started | - |
 | 5. Evolution Routes | v6.0 | 0/- | Not started | - |
