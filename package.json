@@ -2,6 +2,7 @@
   "name": "claw-army",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.11.1",
   "engines": {
     "node": ">=20"
   },
