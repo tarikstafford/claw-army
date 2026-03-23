@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Ready to plan
-stopped_at: "Completed Phase 02 Plan 02 — consumer token migration and lint:tokens script"
-last_updated: "2026-03-23T15:46:35.765Z"
+stopped_at: Phase 3 context gathered
+last_updated: "2026-03-23T15:59:24.610Z"
 progress:
   total_phases: 8
   completed_phases: 2
@@ -82,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-23T15:42:40.363Z
-Stopped at: Completed Phase 02 Plan 02 — consumer token migration and lint:tokens script
-Resume file: None
+Last session: 2026-03-23T15:59:24.607Z
+Stopped at: Phase 3 context gathered
+Resume file: .planning/phases/03-design-system-components-and-motion/03-CONTEXT.md
