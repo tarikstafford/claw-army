@@ -27,13 +27,13 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 
 ### Design System
 
-- [ ] **DS-01**: CSS token system for Front Office — `--fo-bg`, `--fo-card`, `--fo-plum`, `--fo-gold`, `--ink`, `--muted` and all variants per akasa-design-guide-v2.md
-- [ ] **DS-02**: CSS token system for Back Office — `--bo-bg`, `--bo-card`, `--bo-violet`, `--bo-amber`, `--bo-teal`, `--bo-rose`, `--bo-text/muted/faint` per v2 guide
-- [ ] **DS-03**: `body.back-office` class toggle switches between modes, persisted in user preferences. Front Office is default (no class needed)
-- [ ] **DS-04**: Three typefaces loaded — Cormorant Garamond (display, 16px min), DM Sans (body/default), Press Start 2P (labels/tags, 6-8px max). Font vars: `--font-display`, `--font-body`, `--font-label`
-- [ ] **DS-05**: Opacity scale for Back Office text hierarchy — rgba(236, 232, 255, 0.52/0.42/0.24/0.14), never arbitrary grey hex values
-- [ ] **DS-06**: Semantic colour constants enforced — violet=coordination, amber=karma/compounding, teal=execution, rose=contractors/tools. Near-black (#06050E), #000000 banned
-- [ ] **DS-07**: Spacing scale (`--space-xs` through `--space-3xl`), border radius scale (`--radius-sm/md/lg`), section/card/grid padding per v2 guide
+- [x] **DS-01**: CSS token system for Front Office — `--fo-bg`, `--fo-card`, `--fo-plum`, `--fo-gold`, `--ink`, `--muted` and all variants per akasa-design-guide-v2.md
+- [x] **DS-02**: CSS token system for Back Office — `--bo-bg`, `--bo-card`, `--bo-violet`, `--bo-amber`, `--bo-teal`, `--bo-rose`, `--bo-text/muted/faint` per v2 guide
+- [x] **DS-03**: `body.back-office` class toggle switches between modes, persisted in user preferences. Front Office is default (no class needed)
+- [x] **DS-04**: Three typefaces loaded — Cormorant Garamond (display, 16px min), DM Sans (body/default), Press Start 2P (labels/tags, 6-8px max). Font vars: `--font-display`, `--font-body`, `--font-label`
+- [x] **DS-05**: Opacity scale for Back Office text hierarchy — rgba(236, 232, 255, 0.52/0.42/0.24/0.14), never arbitrary grey hex values
+- [x] **DS-06**: Semantic colour constants enforced — violet=coordination, amber=karma/compounding, teal=execution, rose=contractors/tools. Near-black (#06050E), #000000 banned
+- [x] **DS-07**: Spacing scale (`--space-xs` through `--space-3xl`), border radius scale (`--radius-sm/md/lg`), section/card/grid padding per v2 guide
 - [ ] **DS-08**: Core component patterns implemented — nav bar (44px fixed, mode toggle), mechanic cards, accordion, slide panel, modal, chat bubbles, metric tiles, karma callout
 - [ ] **DS-09**: Model tier colours shared across modes — `--tier-junior` (Haiku/blue), `--tier-mid` (Sonnet/violet), `--tier-senior` (Opus/amber)
 - [ ] **DS-10**: Agent identity colours — `--agent-indra`, `--agent-contr` + per-named-agent colours for office/chat/dashboard
@@ -128,13 +128,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-05 | Phase 4 | Pending |
 | UI-06 | Phase 4 | Pending |
 | UI-07 | Phase 4 | Pending |
-| DS-01 | Phase 2 | Pending |
-| DS-02 | Phase 2 | Pending |
-| DS-03 | Phase 2 | Pending |
-| DS-04 | Phase 2 | Pending |
-| DS-05 | Phase 2 | Pending |
-| DS-06 | Phase 2 | Pending |
-| DS-07 | Phase 2 | Pending |
+| DS-01 | Phase 2 | Complete |
+| DS-02 | Phase 2 | Complete |
+| DS-03 | Phase 2 | Complete |
+| DS-04 | Phase 2 | Complete |
+| DS-05 | Phase 2 | Complete |
+| DS-06 | Phase 2 | Complete |
+| DS-07 | Phase 2 | Complete |
 | DS-08 | Phase 3 | Pending |
 | DS-09 | Phase 3 | Pending |
 | DS-10 | Phase 3 | Pending |

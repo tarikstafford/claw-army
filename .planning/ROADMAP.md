@@ -150,7 +150,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 02-01-PLAN.md — Token system, fonts, and mode-detection script
-- [ ] 02-02-PLAN.md — Consumer migration and lint:tokens enforcement
+- [x] 02-02-PLAN.md — Consumer migration and lint:tokens enforcement
 **UI hint**: yes
 
 ### Phase 3: Design System Components and Motion
