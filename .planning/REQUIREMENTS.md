@@ -116,60 +116,60 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SUB-01 | — | Pending |
-| SUB-02 | — | Pending |
-| SUB-03 | — | Pending |
-| SUB-04 | — | Pending |
-| SUB-05 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| UI-03 | — | Pending |
-| UI-04 | — | Pending |
-| UI-05 | — | Pending |
-| UI-06 | — | Pending |
-| UI-07 | — | Pending |
-| DS-01 | — | Pending |
-| DS-02 | — | Pending |
-| DS-03 | — | Pending |
-| DS-04 | — | Pending |
-| DS-05 | — | Pending |
-| DS-06 | — | Pending |
-| DS-07 | — | Pending |
-| DS-08 | — | Pending |
-| DS-09 | — | Pending |
-| DS-10 | — | Pending |
-| DS-11 | — | Pending |
-| DS-12 | — | Pending |
-| EVO-01 | — | Pending |
-| EVO-02 | — | Pending |
-| EVO-03 | — | Pending |
-| EVO-04 | — | Pending |
-| EVO-05 | — | Pending |
-| EVO-06 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| DASH-04 | — | Pending |
-| DASH-05 | — | Pending |
-| DASH-06 | — | Pending |
-| DASH-07 | — | Pending |
-| DASH-08 | — | Pending |
-| TOOL-01 | — | Pending |
-| TOOL-02 | — | Pending |
-| TOOL-03 | — | Pending |
-| TOOL-04 | — | Pending |
-| TOOL-05 | — | Pending |
-| TOOL-06 | — | Pending |
-| TOOL-07 | — | Pending |
-| TOOL-08 | — | Pending |
-| TOOL-09 | — | Pending |
-| TOOL-10 | — | Pending |
+| SUB-01 | Phase 1 | Pending |
+| SUB-02 | Phase 1 | Pending |
+| SUB-03 | Phase 1 | Pending |
+| SUB-04 | Phase 1 | Pending |
+| SUB-05 | Phase 1 | Pending |
+| UI-01 | Phase 4 | Pending |
+| UI-02 | Phase 4 | Pending |
+| UI-03 | Phase 4 | Pending |
+| UI-04 | Phase 4 | Pending |
+| UI-05 | Phase 4 | Pending |
+| UI-06 | Phase 4 | Pending |
+| UI-07 | Phase 4 | Pending |
+| DS-01 | Phase 2 | Pending |
+| DS-02 | Phase 2 | Pending |
+| DS-03 | Phase 2 | Pending |
+| DS-04 | Phase 2 | Pending |
+| DS-05 | Phase 2 | Pending |
+| DS-06 | Phase 2 | Pending |
+| DS-07 | Phase 2 | Pending |
+| DS-08 | Phase 3 | Pending |
+| DS-09 | Phase 3 | Pending |
+| DS-10 | Phase 3 | Pending |
+| DS-11 | Phase 3 | Pending |
+| DS-12 | Phase 3 | Pending |
+| EVO-01 | Phase 5 | Pending |
+| EVO-02 | Phase 5 | Pending |
+| EVO-03 | Phase 5 | Pending |
+| EVO-04 | Phase 5 | Pending |
+| EVO-05 | Phase 5 | Pending |
+| EVO-06 | Phase 5 | Pending |
+| DASH-01 | Phase 8 | Pending |
+| DASH-02 | Phase 8 | Pending |
+| DASH-03 | Phase 8 | Pending |
+| DASH-04 | Phase 8 | Pending |
+| DASH-05 | Phase 8 | Pending |
+| DASH-06 | Phase 8 | Pending |
+| DASH-07 | Phase 8 | Pending |
+| DASH-08 | Phase 8 | Pending |
+| TOOL-01 | Phase 6 | Pending |
+| TOOL-02 | Phase 6 | Pending |
+| TOOL-03 | Phase 6 | Pending |
+| TOOL-04 | Phase 7 | Pending |
+| TOOL-05 | Phase 7 | Pending |
+| TOOL-06 | Phase 6 | Pending |
+| TOOL-07 | Phase 6 | Pending |
+| TOOL-08 | Phase 7 | Pending |
+| TOOL-09 | Phase 7 | Pending |
+| TOOL-10 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 46 total
-- Mapped to phases: 0
-- Unmapped: 46 ⚠️
+- Mapped to phases: 46
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after initial definition*
+*Last updated: 2026-03-23 — traceability filled during roadmap creation*

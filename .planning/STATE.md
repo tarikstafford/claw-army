@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: defining_requirements
+status: roadmap_complete
 stopped_at: null
 last_updated: "2026-03-23T00:00:00.000Z"
-last_activity: 2026-03-23 — Milestone v6.0 started
+last_activity: 2026-03-23 — Roadmap created, 8 phases, 46/46 requirements mapped
 progress:
-  total_phases: 0
+  total_phases: 8
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,31 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v6.0 Paperclip Foundation
+**Current focus:** v6.0 Paperclip Foundation — Phase 1: Submodule Integration
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-23 — Milestone v6.0 started
+Phase: 1 of 8 (Submodule Integration)
+Plan: — (not yet planned)
+Status: Ready to plan
+Last activity: 2026-03-23 — Roadmap defined, 8 phases covering 46 requirements
+
+Progress: [░░░░░░░░░░] 0%
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 0
+- Average duration: —
+- Total execution time: —
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| - | - | - | - |
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
@@ -36,12 +53,14 @@ Last activity: 2026-03-23 — Milestone v6.0 started
 
 All v1.0–v5.0 architectural decisions archived in PROJECT.md Key Decisions table.
 
-v6.0 key architectural decision:
-- Paperclip becomes the core agent runtime. Akasa is the product layer (evolution, skills, tools, billing, UI). GCE/OpenClaw direct-spawn architecture preserved but no longer the primary agent execution path — becomes a future Paperclip adapter option.
-
-### Roadmap Evolution
-
-- Phase numbering reset to 1 for v6.0 (previous milestones ended at Phase 42)
+v6.0 key architectural decisions:
+- Path C (submodule): claw-paper-clip imported as git submodule, not merged — preserves repo independence
+- Paperclip's Express server = primary backend; Akasa mounts evolution routes alongside it
+- SvelteKit replaces Paperclip's React UI entirely — one frontend, two-world design system
+- Design system: Front Office (`--fo-*`) and Back Office (`--bo-*`) tokens; `body.back-office` class toggle; Front Office is default
+- Old token names (`--h-*`, `--d-*`, `--ak-*`) must be removed atomically before new component work begins (Pitfall 3)
+- Tool Nexus connectors as Paperclip plugins — OAuth with key versioning mandatory before first credential is persisted (Pitfall 5)
+- Phase 2 (DS tokens) before Phase 4 (UI) — zombie token risk if incremental
 
 ### Pending Todos
 
@@ -49,12 +68,12 @@ None.
 
 ### Blockers/Concerns
 
-- [Production]: Confirm pgvector extension enabled on Cloud SQL before running migrations 0003–0007.
-- [Production]: Run archetype seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
-- [Integration]: Paperclip API availability and endpoint documentation needed for client implementation.
+- [Pre-Phase 5]: Paperclip API endpoint paths and auth mechanism unverified against live instance — must inspect `claw-paper-clip/server/` before implementing evolution routes
+- [Pre-Phase 1]: pgvector extension must be confirmed on Cloud SQL before running migrations
+- [Pre-Phase 1]: Run archetype seed after migration: `cd packages/db && npx tsx src/seed/archetypes.ts`
 
 ## Session Continuity
 
 Last session: 2026-03-23
-Stopped at: null
+Stopped at: Roadmap created — ready to plan Phase 1
 Resume file: None
