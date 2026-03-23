@@ -163,7 +163,11 @@ Plans:
   3. Agent identity colours (`--agent-indra`, `--agent-contr`, per-named-agent) distinguish agents visually in office, chat, and dashboard contexts
   4. All transitions use GPU-composited transforms at specified durations (mode switch 0.4s, card hover 0.15s, slide panel 0.38s) — no layout-triggering CSS properties animate
   5. UI text uses "Sanctum", "The Chronicle", "The Record", "Karma", and "work" per DS-12 product naming — "score", "run", "store" do not appear in visible UI strings
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 03-01-PLAN.md — NavBar component and layout refactor (sidebar to top nav)
+- [ ] 03-02-PLAN.md — Back Office components (MechanicCard, Accordion, SlidePanel, Modal, KarmaCallout)
+- [ ] 03-03-PLAN.md — Front Office components (ChatBubble, MetricTile)
 **UI hint**: yes
 
 ### Phase 4: SvelteKit Frontend Core
@@ -236,8 +240,8 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Submodule Integration | v6.0 | 2/2 | Complete   | 2026-03-23 |
-| 2. Design System Tokens and Typography | v6.0 | 1/2 | In Progress|  |
-| 3. Design System Components and Motion | v6.0 | 0/- | Not started | - |
+| 2. Design System Tokens and Typography | v6.0 | 2/2 | Complete |  |
+| 3. Design System Components and Motion | v6.0 | 0/3 | Not started | - |
 | 4. SvelteKit Frontend Core | v6.0 | 0/- | Not started | - |
 | 5. Evolution Routes | v6.0 | 0/- | Not started | - |
 | 6. Tool Nexus Backend | v6.0 | 0/- | Not started | - |
