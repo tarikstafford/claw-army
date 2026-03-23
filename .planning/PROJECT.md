@@ -133,7 +133,26 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ### Active
 
-(No active milestone — use `/gsd:new-milestone` to start next)
+## Current Milestone: v6.0 Paperclip Foundation
+
+**Goal:** Shift Akasa from direct GCE/OpenClaw agent management to Paperclip as the core agent runtime, build the generalized Tool Nexus, and rebuild the Evolution Dashboard with the new two-world design system.
+
+**Target features:**
+- Paperclip Integration — API client for agent dispatch, session management, adapter selection. Akasa becomes the product layer; Paperclip is the engine
+- Tool Nexus — Generalized tool gateway with OAuth/API key connections, typed contracts, tool catalog, Tool Belt, webhook receiver, OpenAPI import, custom tool registration
+- Evolution Dashboard — Rebuilt with Screenplay/Director's Cut design system, fleet overview, per-agent timelines, lineage trees, experiment ledger, category benchmarks, bit rate metrics
+- Design System Foundation — Two worlds (Screenplay light + Director's Cut dark), Cormorant Garamond/DM Sans/Press Start 2P typography, new CSS token system
+
+- [ ] Paperclip API client wraps agent dispatch, session management, and adapter selection
+- [ ] Tool Nexus generalizes existing tool-gateway with typed contracts, OAuth connections, webhook receiver
+- [ ] Tool catalog UI with connection flows, Tool Belt view, custom tool registration
+- [ ] OpenAPI/Swagger import for auto-generating tool contracts
+- [ ] Evolution Dashboard rebuilt with two-world design system (Screenplay + Director's Cut)
+- [ ] Fleet overview with bit rate metrics, agent class distribution, composite score trends
+- [ ] Per-agent evolution timeline with council verdicts, mutations, DNA captures
+- [ ] Lineage tree visualization and experiment ledger
+- [ ] Category benchmarks view with pioneer baselines
+- [ ] CSS token system for both worlds with Cormorant Garamond/DM Sans/Press Start 2P typography
 
 ### Out of Scope
 
@@ -248,5 +267,22 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 | agent_classes reused for Ring Leaders (taskCategory='ring_leader') | No new table or migration needed for Ring Leader class progression | ✓ Good — natural extension of existing class system |
 | Ring Leader SSE via existing subscription fan-out | RING_LEADER_EVENTS_TOPIC added to topicNames array | ✓ Good — zero new SSE infrastructure needed |
 
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
 ---
-*Last updated: 2026-03-03 after v5.0 milestone completed*
+*Last updated: 2026-03-23 after v6.0 milestone started*
