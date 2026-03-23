@@ -626,6 +626,22 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  services/akasa-server:
+    dependencies:
+      express:
+        specifier: ^5.1.0
+        version: 5.2.1
+    devDependencies:
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.6
+      tsx:
+        specifier: ^4.19.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
   services/execution-service:
     dependencies:
       '@ai-sdk/anthropic':
@@ -829,6 +845,15 @@ importers:
       '@auth/sveltekit':
         specifier: ^1.11.1
         version: 1.11.1(@sveltejs/kit@2.52.0(@opentelemetry/api@1.9.0)(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.51.3)(vite@6.4.1(@types/node@25.2.3)(tsx@4.21.0)))(svelte@5.51.3)(typescript@5.9.3)(vite@6.4.1(@types/node@25.2.3)(tsx@4.21.0)))(svelte@5.51.3)
+      '@fontsource-variable/dm-sans':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/cormorant-garamond':
+        specifier: ^5.2.11
+        version: 5.2.11
+      '@fontsource/press-start-2p':
+        specifier: ^5.2.7
+        version: 5.2.7
     devDependencies:
       '@sveltejs/adapter-vercel':
         specifier: ^6.3.2
@@ -1746,6 +1771,15 @@ packages:
     resolution: {integrity: sha512-k29cOitDRcZhMXVjtRq0+caKxdWoArz7su+dQWGzGWnFG+fSKhevgiZ7nexHWuXOEEQzgJlh6cptIMu69beaTA==}
     peerDependencies:
       typebox: ^1.0.13
+
+  '@fontsource-variable/dm-sans@5.2.8':
+    resolution: {integrity: sha512-AxkvMTvNWgfrmlyjiV05vlHYJa+nRQCf1EfvIrQAPBpFJW0O9VTz7oAFr9S3lvbWdmnFoBk7yFqQL86u64nl2g==}
+
+  '@fontsource/cormorant-garamond@5.2.11':
+    resolution: {integrity: sha512-5JjpN023lhA5soijgVT0BdRGzmlijm402ppjccMd6h+vRE0mX2lJnE+41UPfnlidrkV9/rCo1mf58WZlHnB0CA==}
+
+  '@fontsource/press-start-2p@5.2.7':
+    resolution: {integrity: sha512-ezSxYRchANoteja170ZHh2Tt4oejmVEvX42VFPOVVvERSZ68pcuZFjbhHfrK/sNjYmaGg656y7B3431ojO9PCQ==}
 
   '@google-cloud/compute@4.12.0':
     resolution: {integrity: sha512-N3isWbxIMd02qzdlFFxHxEM+2B/vNgn9N7WMpteY2sfwN1yT9PJHcilKDLyw+uIwuQAoErNxBM+JOLq3r/Tv+Q==}
@@ -5656,6 +5690,12 @@ snapshots:
   '@fastify/type-provider-typebox@6.1.0(typebox@1.0.81)':
     dependencies:
       typebox: 1.0.81
+
+  '@fontsource-variable/dm-sans@5.2.8': {}
+
+  '@fontsource/cormorant-garamond@5.2.11': {}
+
+  '@fontsource/press-start-2p@5.2.7': {}
 
   '@google-cloud/compute@4.12.0':
     dependencies:
