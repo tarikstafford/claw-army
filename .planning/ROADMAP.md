@@ -166,7 +166,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 03-01-PLAN.md — NavBar component and layout refactor (sidebar to top nav)
-- [ ] 03-02-PLAN.md — Back Office components (MechanicCard, Accordion, SlidePanel, Modal, KarmaCallout)
+- [x] 03-02-PLAN.md — Back Office components (MechanicCard, Accordion, SlidePanel, Modal, KarmaCallout)
 - [x] 03-03-PLAN.md — Front Office components (ChatBubble, MetricTile)
 **UI hint**: yes
 
