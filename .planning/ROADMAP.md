@@ -105,7 +105,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 
 ---
 
-### 🚧 v6.0 Paperclip Foundation (In Progress)
+### v6.0 Paperclip Foundation (In Progress)
 
 **Milestone Goal:** Unify claw-army and claw-paper-clip into a single product via git submodule, replace React UI with SvelteKit, extend Paperclip's Express backend with evolution routes, build Tool Nexus as Paperclip plugins, and rebuild the Evolution Dashboard with the two-world design system.
 
@@ -132,7 +132,10 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
   3. Paperclip's 55 tables and Akasa's evolution tables coexist in one Postgres database with no migration conflicts
   4. Paperclip's Express server starts and serves requests with Akasa evolution routes mounted alongside
   5. A single `pnpm dev` command brings up both Express backend and SvelteKit frontend without manual sequencing
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Git submodule + pnpm workspace + migration isolation
+- [ ] 01-02-PLAN.md — Express extension point + akasa-server + dev command + proxy
 
 ### Phase 2: Design System Tokens and Typography
 **Goal**: Every UI surface has a stable, complete token foundation for both Front Office and Back Office worlds
@@ -229,7 +232,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Submodule Integration | v6.0 | 0/- | Not started | - |
+| 1. Submodule Integration | v6.0 | 0/2 | Planning | - |
 | 2. Design System Tokens and Typography | v6.0 | 0/- | Not started | - |
 | 3. Design System Components and Motion | v6.0 | 0/- | Not started | - |
 | 4. SvelteKit Frontend Core | v6.0 | 0/- | Not started | - |
