@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-23T15:59:24.610Z"
+status: Ready to execute
+stopped_at: Completed 03-01-PLAN.md — NavBar and layout refactor
+last_updated: "2026-03-23T16:55:08.050Z"
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 7
+  completed_plans: 6
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 02 — design-system-tokens-and-typography
+**Current focus:** Phase 03 — design-system-components-and-motion
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (design-system-components-and-motion) — EXECUTING
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -45,6 +45,8 @@ Plan: Not started
 | Phase 01 P02 | 2 | 2 tasks | 7 files |
 | Phase 02-design-system-tokens-and-typography P01 | 2 | 2 tasks | 5 files |
 | Phase 02-design-system-tokens-and-typography P02 | 2 | 3 tasks | 26 files |
+| Phase 03-design-system-components-and-motion P01 | 94s | 2 tasks | 2 files |
+| Phase 03-design-system-components-and-motion P03 | 67s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -69,6 +71,10 @@ v6.0 key architectural decisions:
 - [Phase 02]: Semantic aliases default to Front Office in :root, overridden to Back Office in body.back-office block (D-02)
 - [Phase 02]: localStorage 'akasa-mode' key with blocking inline script in app.html for zero-flash mode persistence (D-03)
 - [Phase 02-design-system-tokens-and-typography]: guide/+page.svelte required explicit migration pass — initial grep on 300-line limit missed tokens below line 300
+- [Phase 03]: NavBar uses :global(body.back-office) scoped overrides for dual-world styling — avoids Svelte 5 reactivity issues with body class reads
+- [Phase 03-design-system-components-and-motion]: ChatBubble sender label uses 5px Press Start 2P per design guide §6.8 — design-guide-prescribed exception to 6-8px rule
+- [Phase 03-design-system-components-and-motion]: MetricTile value uses 20px Press Start 2P per §6.9 — only exception to 6-8px label rule for large display numbers
+- [Phase 03-design-system-components-and-motion]: MetricTile background literal #fff (not --fo-card) per design guide §6.9 verbatim
 
 ### Pending Todos
 
@@ -82,6 +88,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-23T15:59:24.607Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-design-system-components-and-motion/03-CONTEXT.md
+Last session: 2026-03-23T16:55:01.233Z
+Stopped at: Completed 03-01-PLAN.md — NavBar and layout refactor
+Resume file: None
