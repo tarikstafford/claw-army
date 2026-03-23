@@ -2,16 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-23T07:21:32.986Z"
-last_activity: 2026-03-23 — Roadmap defined, 8 phases covering 46 requirements
+status: Ready to execute
+stopped_at: Completed 01-submodule-integration 01-01-PLAN.md
+last_updated: "2026-03-23T10:25:23.141Z"
 progress:
   total_phases: 8
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State
@@ -21,16 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** v6.0 Paperclip Foundation — Phase 1: Submodule Integration
+**Current focus:** Phase 01 — submodule-integration
 
 ## Current Position
 
-Phase: 1 of 8 (Submodule Integration)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-23 — Roadmap defined, 8 phases covering 46 requirements
-
-Progress: [░░░░░░░░░░] 0%
+Phase: 01 (submodule-integration) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -47,6 +41,7 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 *Updated after each plan completion*
+| Phase 01-submodule-integration P01 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -63,6 +58,8 @@ v6.0 key architectural decisions:
 - Old token names (`--h-*`, `--d-*`, `--ak-*`) must be removed atomically before new component work begins (Pitfall 3)
 - Tool Nexus connectors as Paperclip plugins — OAuth with key versioning mandatory before first credential is persisted (Pitfall 5)
 - Phase 2 (DS tokens) before Phase 4 (UI) — zombie token risk if incremental
+- [Phase 01-submodule-integration]: strictPeerDependencies: false added to handle cross-repo zod v3/v4 and drizzle-orm version mismatches between Akasa and Paperclip workspaces
+- [Phase 01-submodule-integration]: Akasa migration journal renamed to __akasa_migrations — fresh v6.0 database assumed, no row migration from __drizzle_migrations needed
 
 ### Pending Todos
 
@@ -76,6 +73,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-23T07:21:32.984Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-submodule-integration/01-CONTEXT.md
+Last session: 2026-03-23T10:25:23.139Z
+Stopped at: Completed 01-submodule-integration 01-01-PLAN.md
+Resume file: None

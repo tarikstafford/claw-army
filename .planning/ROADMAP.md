@@ -134,7 +134,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
   5. A single `pnpm dev` command brings up both Express backend and SvelteKit frontend without manual sequencing
 **Plans:** 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Git submodule + pnpm workspace + migration isolation
+- [x] 01-01-PLAN.md — Git submodule + pnpm workspace + migration isolation
 - [ ] 01-02-PLAN.md — Express extension point + akasa-server + dev command + proxy
 
 ### Phase 2: Design System Tokens and Typography
