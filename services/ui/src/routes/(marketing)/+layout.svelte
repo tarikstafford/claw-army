@@ -128,13 +128,13 @@
   .btn-nav:hover { color: var(--text); }
 
   .btn-primary {
-    background: var(--violet);
+    background: var(--accent);
     color: white !important;
     font-weight: 600;
     transition: background 0.15s;
   }
 
-  .btn-primary:hover { background: var(--violet-bright); }
+  .btn-primary:hover { background: var(--accent-m); }
 
   main { position: relative; z-index: 2; }
 

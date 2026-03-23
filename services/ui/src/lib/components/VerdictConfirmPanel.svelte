@@ -48,11 +48,11 @@
 
   function verdictTypeBadgeStyle(type: string): string {
     switch (type) {
-      case 'Promote':  return 'color:var(--teal);background:var(--teal-dim);border:1px solid rgba(45,212,191,0.2);';
-      case 'Retire':   return 'color:var(--rose);background:var(--rose-dim);border:1px solid rgba(244,114,182,0.15);';
-      case 'Demote':   return 'color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,0.2);';
-      case 'Monitor':  return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
-      case 'Maintain': return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
+      case 'Promote':  return 'color:var(--bo-teal);background:rgba(45, 212, 191, 0.10);border:1px solid rgba(45,212,191,0.2);';
+      case 'Retire':   return 'color:var(--bo-rose);background:rgba(244, 114, 182, 0.08);border:1px solid rgba(244,114,182,0.15);';
+      case 'Demote':   return 'color:var(--karma);background:rgba(251, 191, 36, 0.10);border:1px solid rgba(251,191,36,0.2);';
+      case 'Monitor':  return 'color:var(--accent-m);background:var(--accent-dim);border:1px solid rgba(167,139,250,0.2);';
+      case 'Maintain': return 'color:var(--accent-m);background:var(--accent-dim);border:1px solid rgba(167,139,250,0.2);';
       default:         return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
     }
   }
@@ -173,9 +173,9 @@
     bottom: 0;
     width: 100%;
     max-width: 520px;
-    background: var(--bg-card);
+    background: var(--card);
     color: var(--text);
-    border-left: 1px solid var(--border-mid);
+    border-left: 1px solid var(--border);
     z-index: 101;
     display: flex;
     flex-direction: column;
@@ -220,7 +220,7 @@
   }
 
   .close-btn:hover {
-    border-color: var(--border-mid);
+    border-color: var(--border);
     color: var(--text);
   }
 
@@ -277,13 +277,13 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin: 0 0 0.75rem;
   }
 
   .evidence-note {
     font-size: 0.875rem;
-    color: var(--amber);
+    color: var(--karma);
     margin: 0 0 1rem;
   }
 
@@ -296,7 +296,7 @@
 
   /* Challenge cards */
   .challenge-card {
-    background: var(--bg-3);
+    background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 1rem;
@@ -305,7 +305,7 @@
   }
 
   .challenge-card:hover {
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .challenge-header {
@@ -324,14 +324,14 @@
   }
 
   .severity-strong {
-    color: var(--rose);
-    background: var(--rose-dim);
+    color: var(--bo-rose);
+    background: rgba(244, 114, 182, 0.08);
     border: 1px solid rgba(244,114,182,0.15);
   }
 
   .severity-moderate {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
@@ -365,7 +365,7 @@
   }
 
   .metric-item {
-    background: var(--bg-3);
+    background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 0.375rem;
     padding: 0.625rem 0.875rem;
@@ -376,13 +376,13 @@
   }
 
   .metric-item:hover {
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .metric-key {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 600;
@@ -436,17 +436,17 @@
 
   .reject-btn {
     background: transparent;
-    border-color: var(--rose);
-    color: var(--rose);
+    border-color: var(--bo-rose);
+    color: var(--bo-rose);
   }
 
   .reject-btn:hover:not(:disabled) {
-    background: var(--rose-dim);
+    background: rgba(244, 114, 182, 0.08);
   }
 
   .confirm-btn {
-    background: var(--teal);
-    border-color: var(--teal);
+    background: var(--bo-teal);
+    border-color: var(--bo-teal);
     color: var(--bg);
   }
 
@@ -463,11 +463,11 @@
   .already-resolved {
     margin-top: 1.5rem;
     padding: 0.875rem 1rem;
-    background: var(--bg-3);
+    background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     font-size: 0.875rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-style: italic;
   }
 </style>

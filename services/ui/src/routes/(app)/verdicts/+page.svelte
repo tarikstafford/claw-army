@@ -145,8 +145,8 @@
 
   .calibration-warning {
     border: 1px solid rgba(251,191,36,0.3);
-    background: var(--amber-dim);
-    color: var(--amber);
+    background: rgba(251, 191, 36, 0.10);
+    color: var(--karma);
     border-radius: 0.5rem;
     padding: 0.875rem 1rem;
     font-size: 0.875rem;
@@ -192,7 +192,7 @@
 
   .verdict-card {
     display: block;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 1.25rem;
@@ -202,7 +202,7 @@
   }
 
   .verdict-card:hover {
-    border-color: var(--border-mid);
+    border-color: var(--border);
     transform: translateY(-4px);
     box-shadow: 0 12px 40px rgba(0,0,0,0.5);
   }
@@ -227,30 +227,30 @@
 
   /* Promote → teal (confirmed, progressing soul) */
   .verdict-type-promote {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
     border: 1px solid rgba(45,212,191,0.2);
   }
 
   /* Retire → rose (soul lifecycle end) */
   .verdict-type-retire {
-    color: var(--rose);
-    background: var(--rose-dim);
+    color: var(--bo-rose);
+    background: rgba(244, 114, 182, 0.08);
     border: 1px solid rgba(244,114,182,0.15);
   }
 
   /* Demote → amber (soul soul-mechanic intervention) */
   .verdict-type-demote {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
   /* Monitor / Maintain → violet-dim treatment */
   .verdict-type-monitor,
   .verdict-type-maintain {
-    color: var(--violet-bright);
-    background: var(--violet-dim);
+    color: var(--accent-m);
+    background: var(--accent-dim);
     border: 1px solid rgba(167,139,250,0.2);
   }
 
@@ -274,7 +274,7 @@
 
   .meta-label {
     font-size: 0.65rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
@@ -299,15 +299,15 @@
   .da-flag {
     margin-top: 0.75rem;
     font-size: 0.75rem;
-    color: var(--amber);
+    color: var(--karma);
     font-weight: 600;
     font-family: var(--font-mono);
   }
 
   .new-verdicts-banner {
     border: 1px solid rgba(45,212,191,0.3);
-    background: var(--teal-dim);
-    color: var(--teal);
+    background: rgba(45, 212, 191, 0.10);
+    color: var(--bo-teal);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     font-size: 0.875rem;

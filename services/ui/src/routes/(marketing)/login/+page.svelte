@@ -57,7 +57,7 @@
   }
 
   .login-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 40px 36px;
@@ -135,7 +135,7 @@
     gap: 12px;
     width: 100%;
     padding: 13px 24px;
-    background: var(--bg-3);
+    background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
@@ -148,8 +148,8 @@
   }
 
   .google-btn:hover {
-    border-color: var(--border-mid);
-    background: var(--bg-2);
+    border-color: var(--border);
+    background: var(--bg2);
   }
 
   .google-icon {

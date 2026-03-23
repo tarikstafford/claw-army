@@ -62,21 +62,21 @@
 
   function agentClassStyle(cls: string | null): string {
     switch (cls) {
-      case 'Artisan':   return 'color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,0.2);';
-      case 'Understudy': return 'color:var(--teal);background:var(--teal-dim);border:1px solid rgba(45,212,191,0.2);';
+      case 'Artisan':   return 'color:var(--karma);background:rgba(251, 191, 36, 0.10);border:1px solid rgba(251,191,36,0.2);';
+      case 'Understudy': return 'color:var(--bo-teal);background:rgba(45, 212, 191, 0.10);border:1px solid rgba(45,212,191,0.2);';
       case 'Novice':    return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
-      case 'Retired':   return 'color:var(--rose);background:var(--rose-dim);border:1px solid rgba(244,114,182,0.15);';
+      case 'Retired':   return 'color:var(--bo-rose);background:rgba(244, 114, 182, 0.08);border:1px solid rgba(244,114,182,0.15);';
       default:          return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
     }
   }
 
   function verdictBadgeStyle(type: string): string {
     switch (type) {
-      case 'Promote':  return 'color:var(--teal);background:var(--teal-dim);border:1px solid rgba(45,212,191,0.2);';
-      case 'Retire':   return 'color:var(--rose);background:var(--rose-dim);border:1px solid rgba(244,114,182,0.15);';
-      case 'Demote':   return 'color:var(--amber);background:var(--amber-dim);border:1px solid rgba(251,191,36,0.2);';
-      case 'Monitor':  return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
-      case 'Maintain': return 'color:var(--violet-bright);background:var(--violet-dim);border:1px solid rgba(167,139,250,0.2);';
+      case 'Promote':  return 'color:var(--bo-teal);background:rgba(45, 212, 191, 0.10);border:1px solid rgba(45,212,191,0.2);';
+      case 'Retire':   return 'color:var(--bo-rose);background:rgba(244, 114, 182, 0.08);border:1px solid rgba(244,114,182,0.15);';
+      case 'Demote':   return 'color:var(--karma);background:rgba(251, 191, 36, 0.10);border:1px solid rgba(251,191,36,0.2);';
+      case 'Monitor':  return 'color:var(--accent-m);background:var(--accent-dim);border:1px solid rgba(167,139,250,0.2);';
+      case 'Maintain': return 'color:var(--accent-m);background:var(--accent-dim);border:1px solid rgba(167,139,250,0.2);';
       default:         return 'color:var(--text-muted);background:rgba(236,232,255,0.05);border:1px solid var(--border);';
     }
   }
@@ -239,9 +239,9 @@
     bottom: 0;
     width: 100%;
     max-width: 480px;
-    background: var(--bg-card);
+    background: var(--card);
     color: var(--text);
-    border-left: 1px solid var(--border-mid);
+    border-left: 1px solid var(--border);
     z-index: 101;
     display: flex;
     flex-direction: column;
@@ -286,7 +286,7 @@
   }
 
   .close-btn:hover {
-    border-color: var(--border-mid);
+    border-color: var(--border);
     color: var(--text);
   }
 
@@ -297,7 +297,7 @@
   }
 
   .loading-text {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 0.9rem;
     font-style: italic;
     margin: 0;
@@ -315,7 +315,7 @@
   }
 
   .empty-text {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 0.875rem;
     font-style: italic;
     margin: 0;
@@ -341,7 +341,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   /* Agent Class Badge */
@@ -375,7 +375,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .lineage-value {
@@ -412,7 +412,7 @@
     color: var(--text);
     line-height: 1.55;
     white-space: pre-wrap;
-    background: var(--bg-2);
+    background: var(--bg2);
     padding: 0.625rem 0.75rem;
     border-radius: 6px;
     border: 1px solid var(--border);
@@ -473,7 +473,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     margin-bottom: 0.5rem;
-    background: var(--bg-3);
+    background: var(--bg3);
   }
 
   .judge-summary {
@@ -494,7 +494,7 @@
   .judge-summary::before {
     content: '+ ';
     font-weight: 700;
-    color: var(--violet-bright);
+    color: var(--accent-m);
   }
 
   details[open] > .judge-summary::before {

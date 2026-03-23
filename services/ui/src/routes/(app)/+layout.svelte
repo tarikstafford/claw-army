@@ -58,10 +58,10 @@
 
   function getNotificationColor(type: LifecycleNotification['type']): string {
     switch (type) {
-      case 'soul_promoted':    return 'var(--teal)';
-      case 'soul_demoted':     return 'var(--amber)';
-      case 'soul_retired':     return 'var(--rose)';
-      case 'pioneer_detected': return 'var(--amber)';
+      case 'soul_promoted':    return 'var(--bo-teal)';
+      case 'soul_demoted':     return 'var(--karma)';
+      case 'soul_retired':     return 'var(--bo-rose)';
+      case 'pioneer_detected': return 'var(--karma)';
     }
   }
 </script>
@@ -223,7 +223,7 @@
     align-items: center;
     justify-content: center;
     padding: 0.5rem 1rem;
-    background: var(--violet);
+    background: var(--accent);
     color: white;
     font-size: 13px;
     font-weight: 600;
@@ -233,7 +233,7 @@
     margin-bottom: 20px;
   }
 
-  .btn-deploy:hover { background: var(--violet-bright); }
+  .btn-deploy:hover { background: var(--accent-m); }
 
   /* ── Nav groups ─────────────────────────────────────── */
   .sidebar-nav {
@@ -255,7 +255,7 @@
     font-weight: 400;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     padding: 0 8px;
     margin-bottom: 4px;
   }
@@ -278,8 +278,8 @@
   }
 
   .nav-link.active {
-    border-left-color: var(--violet-bright);
-    background: var(--violet-dim);
+    border-left-color: var(--accent-m);
+    background: var(--accent-dim);
     color: var(--text);
     font-weight: 500;
   }
@@ -299,13 +299,13 @@
     gap: 7px;
     font-family: var(--font-mono);
     font-size: 10.5px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     letter-spacing: 0.07em;
   }
 
   .user-email {
     font-size: 11px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -315,7 +315,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 12px;
     font-weight: 400;
     font-family: var(--font-body);
@@ -340,7 +340,7 @@
     top: 16px;
     left: 16px;
     z-index: 600;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px;
@@ -408,7 +408,7 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-left-width: 3px;
     border-radius: 10px;
@@ -446,7 +446,7 @@
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .toast-desc {
@@ -459,7 +459,7 @@
   .toast-dismiss {
     background: none;
     border: none;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     cursor: pointer;
     padding: 0;
     font-size: 14px;

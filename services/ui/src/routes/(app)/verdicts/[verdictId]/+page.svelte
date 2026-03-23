@@ -243,30 +243,30 @@
 
   /* Promote → teal (soul lifecycle progression) */
   .verdict-type-promote {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
     border: 1px solid rgba(45,212,191,0.2);
   }
 
   /* Retire → rose (soul lifecycle end) */
   .verdict-type-retire {
-    color: var(--rose);
-    background: var(--rose-dim);
+    color: var(--bo-rose);
+    background: rgba(244, 114, 182, 0.08);
     border: 1px solid rgba(244,114,182,0.15);
   }
 
   /* Demote → amber (soul-mechanic intervention) */
   .verdict-type-demote {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
   /* Monitor / Maintain → violet-dim */
   .verdict-type-monitor,
   .verdict-type-maintain {
-    color: var(--violet-bright);
-    background: var(--violet-dim);
+    color: var(--accent-m);
+    background: var(--accent-dim);
     border: 1px solid rgba(167,139,250,0.2);
   }
 
@@ -282,14 +282,14 @@
   }
 
   .status-confirmed {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
     border: 1px solid rgba(45,212,191,0.2);
   }
 
   .status-rejected {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
@@ -307,7 +307,7 @@
 
   .meta-label {
     font-size: 0.65rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
@@ -330,7 +330,7 @@
   .summary-section h2 {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0 0 0.75rem;
@@ -354,7 +354,7 @@
   .evidence-section h2 {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0 0 0.75rem;
@@ -363,7 +363,7 @@
 
   .evidence-note {
     font-size: 0.875rem;
-    color: var(--amber);
+    color: var(--karma);
     margin: 0 0 1rem;
   }
 
@@ -376,7 +376,7 @@
 
   /* Challenge cards */
   .challenge-card {
-    background: var(--bg-3);
+    background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     padding: 1rem;
@@ -400,15 +400,15 @@
 
   /* Strong challenge → rose (high severity) */
   .severity-strong {
-    color: var(--rose);
-    background: var(--rose-dim);
+    color: var(--bo-rose);
+    background: rgba(244, 114, 182, 0.08);
     border: 1px solid rgba(244,114,182,0.15);
   }
 
   /* Moderate challenge → amber */
   .severity-moderate {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
@@ -443,7 +443,7 @@
   }
 
   .metric-item {
-    background: var(--bg-3);
+    background: var(--bg3);
     border: 1px solid var(--border);
     border-radius: 0.375rem;
     padding: 0.625rem 0.875rem;
@@ -454,7 +454,7 @@
 
   .metric-key {
     font-size: 0.65rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-weight: 600;
@@ -479,7 +479,7 @@
   .soul-section h2 {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0 0 0.75rem;
@@ -509,9 +509,9 @@
 
   /* Reject → amber treatment (soul-mechanic correction, not an error) */
   .reject-btn {
-    background: var(--amber-dim);
+    background: rgba(251, 191, 36, 0.10);
     border-color: rgba(251,191,36,0.3);
-    color: var(--amber);
+    color: var(--karma);
   }
 
   .reject-btn:hover:not(:disabled) {
@@ -520,14 +520,14 @@
 
   /* Confirm → violet (primary action) */
   .confirm-btn {
-    background: var(--violet);
-    border-color: var(--violet);
+    background: var(--accent);
+    border-color: var(--accent);
     color: white;
   }
 
   .confirm-btn:hover:not(:disabled) {
-    background: var(--violet-bright);
-    border-color: var(--violet-bright);
+    background: var(--accent-m);
+    border-color: var(--accent-m);
   }
 
   .action-btn:disabled {
@@ -539,7 +539,7 @@
   .already-resolved {
     margin-top: 2rem;
     padding: 0.875rem 1rem;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 0.5rem;
     font-size: 0.875rem;

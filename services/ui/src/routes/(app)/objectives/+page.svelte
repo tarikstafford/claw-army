@@ -273,7 +273,7 @@
     display: inline-flex;
     align-items: center;
     padding: 0.55rem 1.1rem;
-    background: var(--violet);
+    background: var(--accent);
     color: white;
     font-size: 13.5px;
     font-weight: 600;
@@ -285,7 +285,7 @@
     transition: background 0.15s;
   }
 
-  .btn-deploy:hover { background: var(--violet-bright); }
+  .btn-deploy:hover { background: var(--accent-m); }
 
   h1 {
     font-family: var(--font-display);
@@ -326,7 +326,7 @@
   }
 
   .error-detail {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-family: var(--font-mono);
     font-size: 0.75rem;
   }
@@ -354,10 +354,10 @@
   thead th {
     text-align: left;
     padding: 0.75rem 1rem;
-    background: var(--bg-3);
+    background: var(--bg3);
     border-bottom: 1px solid var(--border);
     font-weight: 600;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     white-space: nowrap;
     font-family: var(--font-mono);
     text-transform: uppercase;
@@ -372,15 +372,15 @@
   }
 
   tbody tr {
-    background: var(--bg-card);
+    background: var(--card);
   }
 
   tbody tr:nth-child(even) {
-    background: var(--bg-3);
+    background: var(--bg3);
   }
 
   tbody tr:hover {
-    background: var(--bg-card-2);
+    background: var(--card);
   }
 
   tbody tr:last-child td {
@@ -392,7 +392,7 @@
   }
 
   .col-name a {
-    color: var(--violet-bright);
+    color: var(--accent-m);
     text-decoration: none;
     display: block;
     overflow: hidden;
@@ -411,12 +411,12 @@
   }
 
   .no-runs {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 0.85rem;
   }
 
   .no-class {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 0.85rem;
   }
 
@@ -433,8 +433,8 @@
   }
 
   .status-completed {
-    color: var(--violet-bright);
-    background: var(--violet-dim);
+    color: var(--accent-m);
+    background: var(--accent-dim);
     border: 1px solid rgba(167,139,250,0.2);
   }
 
@@ -445,26 +445,26 @@
   }
 
   .status-running {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
     border: 1px solid rgba(45,212,191,0.2);
   }
 
   .status-queued {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     background: rgba(236,232,255,0.05);
     border: 1px solid var(--border);
   }
 
   .status-stopped {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
   .status-paused {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
@@ -486,20 +486,20 @@
   }
 
   .class-understudy {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
     border: 1px solid rgba(45,212,191,0.2);
   }
 
   .class-artisan {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251,191,36,0.2);
   }
 
   .class-retired {
-    color: var(--rose);
-    background: var(--rose-dim);
+    color: var(--bo-rose);
+    background: rgba(244, 114, 182, 0.08);
     border: 1px solid rgba(244,114,182,0.15);
   }
 
@@ -526,7 +526,7 @@
   }
 
   .kebab-btn:hover {
-    background: var(--bg-3);
+    background: var(--bg3);
     color: var(--text);
   }
 
@@ -535,8 +535,8 @@
     right: 0;
     top: 100%;
     z-index: 10;
-    background: var(--bg-card);
-    border: 1px solid var(--border-mid);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 8px;
     min-width: 120px;
     overflow: hidden;
@@ -557,7 +557,7 @@
   }
 
   .kebab-item:hover {
-    background: var(--violet-dim);
+    background: var(--accent-dim);
   }
 
   .kebab-danger {
@@ -588,13 +588,13 @@
   }
 
   .toggle-archived:hover {
-    border-color: var(--violet);
+    border-color: var(--accent);
     color: var(--text);
   }
 
   .toggle-archived.active {
-    border-color: var(--violet);
-    color: var(--violet-bright);
+    border-color: var(--accent);
+    color: var(--accent-m);
   }
 
   /* Archived section */
@@ -628,7 +628,7 @@
   }
 
   .btn-unarchive:hover {
-    border-color: var(--violet);
+    border-color: var(--accent);
     color: var(--text);
   }
 
@@ -644,8 +644,8 @@
   }
 
   .dialog {
-    background: var(--bg-card);
-    border: 1px solid var(--border-mid);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 1.5rem 2rem;
     max-width: 400px;
@@ -673,7 +673,7 @@
 
   .btn-cancel {
     background: transparent;
-    border: 1px solid var(--border-mid);
+    border: 1px solid var(--border);
     color: var(--text-muted);
     padding: 0.5rem 1rem;
     border-radius: 10px;
@@ -684,7 +684,7 @@
   }
 
   .btn-cancel:hover {
-    background: var(--bg-3);
+    background: var(--bg3);
   }
 
   .btn-archive-confirm {
@@ -714,7 +714,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--violet-bright);
+    color: var(--accent-m);
     font-family: var(--font-mono);
     margin-bottom: 0.5rem;
   }

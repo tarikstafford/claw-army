@@ -27,15 +27,15 @@
   }
 
   .tier-novice     { color: var(--text-muted);  background: rgba(236,232,255,0.05); border: 1px solid var(--border); }
-  .tier-understudy { color: var(--teal);        background: var(--teal-dim);        border: 1px solid rgba(45,212,191,0.2); }
-  .tier-artisan    { color: var(--amber);       background: var(--amber-dim);       border: 1px solid rgba(251,191,36,0.2); }
-  .tier-retired    { color: var(--rose);        background: var(--rose-dim);        border: 1px solid rgba(244,114,182,0.15); }
+  .tier-understudy { color: var(--bo-teal);        background: rgba(45, 212, 191, 0.10);        border: 1px solid rgba(45,212,191,0.2); }
+  .tier-artisan    { color: var(--karma);       background: rgba(251, 191, 36, 0.10);       border: 1px solid rgba(251,191,36,0.2); }
+  .tier-retired    { color: var(--bo-rose);        background: rgba(244, 114, 182, 0.08);        border: 1px solid rgba(244,114,182,0.15); }
 
   .pip {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--amber);
+    background: var(--karma);
     flex-shrink: 0;
     animation: breathe 2.5s ease-in-out infinite;
   }

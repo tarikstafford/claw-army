@@ -230,7 +230,7 @@
   }
 
   .login-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 2.5rem 2rem;
@@ -280,7 +280,7 @@
 
   .login-card input:focus {
     outline: none;
-    border-color: var(--violet-bright);
+    border-color: var(--accent-m);
   }
 
   .error-msg {
@@ -291,7 +291,7 @@
   }
 
   .login-card button[type="submit"] {
-    background: var(--violet);
+    background: var(--accent);
     color: #fff;
     border: none;
     border-radius: 0.375rem;
@@ -303,7 +303,7 @@
   }
 
   .login-card button[type="submit"]:hover {
-    background: var(--violet-bright);
+    background: var(--accent-m);
   }
 
   /* Page */
@@ -347,7 +347,7 @@
 
   .logout-btn:hover {
     color: var(--text);
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   /* Stats */
@@ -363,7 +363,7 @@
   }
 
   .stat-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 1rem 1.25rem;
@@ -374,8 +374,8 @@
   }
 
   .stat-card.stat-running {
-    border-color: var(--teal);
-    background: var(--teal-dim);
+    border-color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
   }
 
   .stat-card.stat-failed {
@@ -385,7 +385,7 @@
 
   .stat-label {
     font-size: 0.7rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 600;
@@ -435,10 +435,10 @@
   thead th {
     text-align: left;
     padding: 0.75rem 1rem;
-    background: var(--bg-3);
+    background: var(--bg3);
     border-bottom: 1px solid var(--border);
     font-weight: 600;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -450,7 +450,7 @@
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--border);
     color: var(--text);
-    background: var(--bg-card);
+    background: var(--card);
   }
 
   tbody tr:last-child td {
@@ -458,7 +458,7 @@
   }
 
   tbody tr:hover td {
-    background: var(--bg-2);
+    background: var(--bg2);
   }
 
   .col-objective {
@@ -466,7 +466,7 @@
   }
 
   .col-objective a {
-    color: var(--violet-bright);
+    color: var(--accent-m);
     text-decoration: none;
     display: block;
     overflow: hidden;
@@ -475,7 +475,7 @@
   }
 
   .col-objective a:hover {
-    color: var(--violet-light);
+    color: var(--accent-m);
     text-decoration: underline;
   }
 
@@ -516,13 +516,13 @@
     font-family: var(--font-mono);
   }
 
-  .status-running   { color: var(--teal);         background: var(--teal-dim);   border: 1px solid var(--teal); }
-  .status-queued    { color: var(--text-faint);    background: var(--bg-3);       border: 1px solid var(--border); }
-  .status-completed { color: var(--violet-bright); background: var(--violet-dim); border: 1px solid var(--violet-bright); }
+  .status-running   { color: var(--bo-teal);         background: rgba(45, 212, 191, 0.10);   border: 1px solid var(--bo-teal); }
+  .status-queued    { color: var(--bo-faint);    background: var(--bg3);       border: 1px solid var(--border); }
+  .status-completed { color: var(--accent-m); background: var(--accent-dim); border: 1px solid var(--accent-m); }
   .status-failed    { color: var(--error);         background: var(--error-dim);  border: 1px solid var(--error); }
-  .status-stopped   { color: var(--amber);         background: var(--amber-dim);  border: 1px solid var(--amber); }
-  .status-paused    { color: var(--amber);         background: var(--amber-dim);  border: 1px solid var(--amber); }
-  .status-pre_flight { color: var(--text-faint);    background: var(--bg-3);       border: 1px solid var(--border); }
+  .status-stopped   { color: var(--karma);         background: rgba(251, 191, 36, 0.10);  border: 1px solid var(--karma); }
+  .status-paused    { color: var(--karma);         background: rgba(251, 191, 36, 0.10);  border: 1px solid var(--karma); }
+  .status-pre_flight { color: var(--bo-faint);    background: var(--bg3);       border: 1px solid var(--border); }
 
   /* Stop button — danger state uses --error */
   .stop-btn {
@@ -558,7 +558,7 @@
   }
 
   .dialog {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 2rem;
@@ -599,7 +599,7 @@
 
   .cancel-btn:hover {
     color: var(--text);
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .confirm-stop-btn {

@@ -106,16 +106,16 @@
   .page {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 40px var(--s-9) 80px;
+    padding: 40px var(--space-2xl) 80px;
   }
 
   @media (max-width: 960px) {
-    .page { padding: 32px var(--s-6) 60px; }
+    .page { padding: 32px var(--space-xl) 60px; }
   }
 
   /* ── Page header ──────────────────────────────── */
   .page-header {
-    margin-bottom: var(--s-10);
+    margin-bottom: var(--space-2xl);
   }
 
   .page-header h1 {
@@ -124,7 +124,7 @@
     font-weight: 600;
     letter-spacing: -0.025em;
     color: var(--text);
-    margin: 0 0 var(--s-2);
+    margin: 0 0 var(--space-sm);
   }
 
   .page-sub {
@@ -136,13 +136,13 @@
 
   /* ── States ───────────────────────────────────── */
   .loading {
-    padding: var(--s-8);
+    padding: var(--space-2xl);
     text-align: center;
     color: var(--text-muted);
   }
 
   .error-card {
-    padding: var(--s-4) var(--s-5);
+    padding: 16px var(--space-lg);
     background: var(--error-dim);
     border: 1px solid rgba(248, 113, 113, 0.2);
     border-left: 3px solid var(--error);
@@ -158,7 +158,7 @@
 
   /* ── Section ──────────────────────────────────── */
   .section {
-    margin-bottom: var(--s-10);
+    margin-bottom: var(--space-2xl);
   }
 
   .section h2 {
@@ -166,9 +166,9 @@
     font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--text-faint);
-    margin: 0 0 var(--s-4);
-    padding-bottom: var(--s-2);
+    color: var(--bo-faint);
+    margin: 0 0 16px;
+    padding-bottom: var(--space-sm);
     border-bottom: 1px solid var(--border);
   }
 
@@ -176,21 +176,21 @@
   .hero-row {
     display: grid;
     grid-template-columns: 1.4fr repeat(3, 1fr);
-    gap: var(--s-4);
+    gap: 16px;
   }
 
   .hero-metric {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: var(--s-6) var(--s-5);
+    padding: var(--space-xl) var(--space-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--s-2);
+    gap: var(--space-sm);
   }
 
   .hero-primary {
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .hero-value {
@@ -202,7 +202,7 @@
   }
 
   .hero-primary .hero-value {
-    color: var(--violet-bright);
+    color: var(--accent-m);
     font-size: 2rem;
   }
 
@@ -211,7 +211,7 @@
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   @media (max-width: 768px) {
@@ -241,27 +241,27 @@
 
   thead th {
     text-align: left;
-    padding: var(--s-3) var(--s-4);
-    background: var(--bg-3);
+    padding: 12px 16px;
+    background: var(--bg3);
     border-bottom: 1px solid var(--border);
     font-family: var(--font-mono);
     font-size: 9px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     font-weight: 600;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     white-space: nowrap;
   }
 
   tbody td {
-    padding: var(--s-3) var(--s-4);
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     color: var(--text);
-    background: var(--bg-card);
+    background: var(--card);
   }
 
   tbody tr:hover td {
-    background: var(--bg-2);
+    background: var(--bg2);
   }
 
   tbody tr:last-child td {
@@ -283,7 +283,7 @@
   }
 
   .col-objective a {
-    color: var(--violet-bright);
+    color: var(--accent-m);
     text-decoration: none;
     display: block;
     overflow: hidden;
@@ -292,7 +292,7 @@
   }
 
   .col-objective a:hover {
-    color: var(--violet-light);
+    color: var(--accent-m);
     text-decoration: underline;
   }
 
@@ -307,7 +307,7 @@
   /* ── Status badge ─────────────────────────────── */
   .status-badge {
     display: inline-block;
-    padding: 3px var(--s-2);
+    padding: 3px var(--space-sm);
     border-radius: 3px;
     font-family: var(--font-mono);
     font-size: 0.625rem;
@@ -316,10 +316,10 @@
     text-transform: uppercase;
   }
 
-  .status-completed { color: var(--violet-bright); background: var(--violet-dim); }
+  .status-completed { color: var(--accent-m); background: var(--accent-dim); }
   .status-failed    { color: var(--error);         background: var(--error-dim); }
-  .status-running   { color: var(--teal);          background: var(--teal-dim); }
-  .status-queued    { color: var(--text-faint);    background: var(--bg-3); }
-  .status-stopped   { color: var(--amber);         background: var(--amber-dim); }
-  .status-paused    { color: var(--amber);         background: var(--amber-dim); }
+  .status-running   { color: var(--bo-teal);          background: rgba(45, 212, 191, 0.10); }
+  .status-queued    { color: var(--bo-faint);    background: var(--bg3); }
+  .status-stopped   { color: var(--karma);         background: rgba(251, 191, 36, 0.10); }
+  .status-paused    { color: var(--karma);         background: rgba(251, 191, 36, 0.10); }
 </style>
