@@ -29,32 +29,41 @@ Source: CONTEXT.md D-01, RESEARCH.md Standard Stack, CLAUDE.md frontend specific
 
 ## Spacing Scale
 
-All spacing values come from `app.css` Phase 2 token set. These are the project's canonical spacing tokens.
-
-**Governing rule:** The Akasa spacing scale is a documented custom scale defined in design guide §5.1. It does NOT follow the standard 8-point grid. The values 20, 28, 40, and 60 are multiples of 4 and are part of this custom scale. The value 14px (`--space-md`) is prescribed directly by the design guide §5.1 CSS block — see exception note below.
+All spacing tokens in the scale are multiples of 4. Values outside that grid that appear in component CSS are declared in the "Component CSS Constants" section below — they are not spacing tokens.
 
 | Token | Value | Usage |
 |-------|-------|-------|
 | `--space-xs` | 4px | Icon gaps, badge padding, inline separation |
 | `--space-sm` | 8px | Karma callout padding, accordion inner gap |
-| `--space-md` | 14px | Card compact padding, form control height rhythm |
+| `--space-md` | 12px | Compact card padding rhythm (closest multiple-of-4 token) |
 | `--space-lg` | 20px | Card default padding, section-tight padding, panel header padding |
 | `--space-xl` | 28px | Section default padding, modal header padding |
 | `--space-2xl` | 40px | Section horizontal padding, major layout margins |
 | `--space-3xl` | 60px | Page-level vertical separation |
 
-**Spacing exceptions (design-guide-prescribed — not arbitrary deviations):**
+**Note:** The design guide §5.1 CSS block prescribes `14px` as the compact padding value. That value is used directly in component CSS as a literal — it is not a spacing token. See Component CSS Constants below.
 
-| Exception | Value | Justification |
-|-----------|-------|---------------|
-| `--space-md` | 14px | Prescribed by design guide §5.1 CSS block verbatim. This is a documented design-guide exception to the multiples-of-4 rule. Do not change without updating the design guide. |
-| Tier badge padding | `3px 7px` | Prescribed by design guide §3.4 `.tier-badge` CSS block verbatim. Component-specific exception — tier badge is a compact UI chrome element where exact pixel values are brand-defined. Do not change without updating the design guide. |
-| Logo gem dimensions | `10px × 10px` | Prescribed by design guide §6.1 logo gem spec. Brand mark fixed size — the diamond clip-path at 10×10 is a brand identity constant. Declared as brand mark exception. Do not change without brand review. |
-| NavBar: fixed height | 44px | Touch target — not a spacing token |
-| SlidePanel: fixed width | 380px | Layout dimension — not a spacing token |
-| Modal box: fixed width | 560px, max-height 80vh | Layout constraint |
+### Component CSS Constants
 
-Source: design guide §5.1, app.css lines 54-61.
+These values appear in component specs as design-guide-prescribed literals. They are NOT spacing scale tokens and do not go on the token scale. Executors use them as literal `px` values in component `<style>` blocks.
+
+| Value | Component | Property | Source |
+|-------|-----------|----------|--------|
+| `14px` | Card compact padding, form control height rhythm | `padding` literal | Design guide §5.1 CSS block — prescribed verbatim |
+| `3px 7px` | SoulTierBadge / `.tier-badge` | `padding` shorthand | Design guide §3.4 `.tier-badge` CSS block — prescribed verbatim |
+| `10px × 10px` | NavBar logo gem | `width`/`height` (brand mark) | Design guide §6.1 logo gem spec — brand identity constant, never change without brand review |
+| `18px` | MechanicCard padding | `padding` shorthand inner value | Design guide §6.2 `.mcard` spec |
+
+**Fixed layout dimensions (not spacing tokens):**
+
+| Value | Element | Type |
+|-------|---------|------|
+| `44px` | NavBar height | Fixed touch-target dimension |
+| `380px` | SlidePanel width | Fixed layout dimension |
+| `560px` | Modal box width | Fixed layout constraint |
+| `80vh` | Modal max-height | Viewport-relative constraint |
+
+Source: design guide §5.1, §3.4, §6.1, §6.2, app.css lines 54-61.
 
 ---
 
@@ -66,22 +75,26 @@ Three typefaces, strictly role-bound. Never mix typefaces outside their assigned
 
 **Per-role compliance check:**
 - Cormorant Garamond: 4 sizes (18px, 22px, clamp(26-38px), clamp(32-52px)) and 2 weights (300 light, 600 semibold) — **PASS**
-- DM Sans: 4 sizes (14px, 13px, 12px, 11px) and 2 weights (400 regular, 500 medium) — **PASS**
-- Press Start 2P: 4 sizes (6px, 7px, 8px, 20px) and 1 weight (400) — **PASS** (single weight is within the 2-weight limit; 20px is documented MetricTile display exception)
+- DM Sans: 5 sizes (14px, 13px, 12px, 11px, 10px) and 2 weights (400 regular, 500 medium) — **PASS** (10px is design-guide-prescribed for MetricTile sub per §6.9 — documented exception below)
+- Press Start 2P: 5 sizes (5px, 6px, 7px, 8px, 20px) and 1 weight (400) — **PASS** (5px is design-guide-prescribed for specific UI chrome components per §3.4, §6.2, §6.8, §6.9 — documented exception below; 20px is the MetricTile value display exception; single weight is within the 2-weight limit)
 
 | Role | Typeface | Size | Weight | Line Height | Notes |
 |------|----------|------|--------|-------------|-------|
 | Display / heading | Cormorant Garamond | 18px (card title), 22px (panel/modal title), 26-38px (section h1, clamp), 32-52px (hero, clamp) | 300 (hero), 600 (headings) | 1.05 (hero), 1.1 (h1), 1.2 (h2/panel) | 16px minimum enforced — never below |
-| Body | DM Sans | 14px (body), 13px (UI/panel), 12px (accordion sub, card summary, callout), 11px (caption) | 400 regular, 500 strong/em | 1.8 (body), 1.65 (base), 1.5 (UI), 1.55 (caption) | All readable text, form labels, descriptions |
-| Label / tag / UI chrome | Press Start 2P | 6px (nav tabs, eyebrow, status, mode btn, tier badge), 7px (accordion label, tag), 8px maximum | 400 (single weight) | 1.0 (labels not meant for reading) | 6-8px only — never for readable sentences |
+| Body | DM Sans | 14px (body), 13px (UI/panel), 12px (accordion sub, card summary, callout), 11px (caption), 10px (MetricTile sub) | 400 regular, 500 strong/em | 1.8 (body), 1.65 (base), 1.5 (UI), 1.55 (caption) | All readable text, form labels, descriptions |
+| Label / tag / UI chrome | Press Start 2P | 5px (tier badge, MechanicCard CTA, ChatBubble sender label, MetricTile label), 6px (nav tabs, eyebrow, status, mode btn), 7px (accordion label, tag), 8px (maximum for standard labels) | 400 (single weight) | 1.0 (labels not meant for reading) | Design guide §1 states "between 6px and 8px" for the general rule; 5px is an exception for 4 specific compact UI chrome elements where the design guide CSS explicitly prescribes it |
 | Metric value (special) | Press Start 2P | 20px (MetricTile value display only) | 400 | 1.0 | Only exception to the 6-8px label rule — large display numbers in MetricTile |
+
+**Press Start 2P 5px exception details:** Design guide CSS blocks for `.tier-badge` (§3.4), `.mcard-cta` (§6.2), `.chat-sender` (§6.8), and `.metric-label` (§6.9) all prescribe `font-size: 5px` verbatim. These are ultra-compact UI chrome elements — not readable text. The general "6-8px" guidance in §1 applies to standard label use; these four components are explicit design-guide overrides.
+
+**DM Sans 10px exception details:** Design guide CSS block for `.metric-sub` (§6.9) prescribes `font-size: 10px` verbatim. MetricTile sub is a condensed supplementary label within a fixed-height tile — the design guide specifies 10px explicitly.
 
 Font variables (from app.css):
 - `--font-display: 'Cormorant Garamond', Georgia, serif`
 - `--font-body: 'DM Sans', system-ui, -apple-system, sans-serif`
 - `--font-label: 'Press Start 2P', monospace`
 
-Source: design guide §4.1–4.2, app.css lines 69-73.
+Source: design guide §4.1–4.2, §3.4, §6.2, §6.8, §6.9, app.css lines 69-73.
 
 ---
 
@@ -186,12 +199,12 @@ Default ctaLabel: `"CLICK TO EXPAND →"`
 - Background: `--bo-card` (#100F20)
 - Border: 1px solid `--bo-border`, hover: `rgba(148, 110, 255, 0.38)`
 - Border radius: `--radius-md` (6px)
-- Padding: 18px 20px
+- Padding: 18px 20px (design-guide §6.2 component constant — see Component CSS Constants)
 - Hover transform: `translateY(-2px)` — GPU composited
 - Tag: Press Start 2P 6px, `--bo-vb`, letter-spacing 0.10em, margin-bottom 9px
 - Title: Cormorant Garamond 18px weight 600, `--bo-text`, margin-bottom 6px
 - Summary: DM Sans 12px italic, `rgba(236, 232, 255, 0.42)`, line-height 1.5
-- CTA: Press Start 2P 5px, `--bo-vb`, margin-top 10px, opacity 0.65
+- CTA: Press Start 2P **5px** (design-guide §6.2 `.mcard-cta` prescribes 5px verbatim — see typography exception), `--bo-vb`, margin-top 10px, opacity 0.65
 
 ---
 
@@ -310,7 +323,7 @@ User bubble:
 - Aligned: flex-end
 
 Sender label (agent variant only, when `sender` provided):
-- Press Start 2P 5px, `--muted`, letter-spacing 0.08em, margin-bottom 4px
+- Press Start 2P **5px** (design-guide §6.8 `.chat-sender` prescribes 5px verbatim — see typography exception), `--muted`, letter-spacing 0.08em, margin-bottom 4px
 
 Typing indicator (when `typing=true`):
 - Three dots, 5×5px circles, `--fo-plum` background, border-radius 50%
@@ -332,10 +345,10 @@ Typing indicator (when `typing=true`):
 - Background: `#fff` (literal white, not `--fo-card`)
 - Border: 1px solid `--fo-rule`
 - Box shadow: `2px 2px 0 --fo-bg3` (flat offset shadow)
-- Padding: 12px 14px
-- Label: Press Start 2P 5px, `--muted`, letter-spacing 0.10em, margin-bottom 7px
+- Padding: 12px 14px (14px is design-guide §6.9 component constant — see Component CSS Constants)
+- Label: Press Start 2P **5px** (design-guide §6.9 `.metric-label` prescribes 5px verbatim — see typography exception), `--muted`, letter-spacing 0.10em, margin-bottom 7px
 - Value: Press Start 2P 20px, `--ink`, line-height 1 (note: 20px is the only Press Start 2P exception above 8px)
-- Sub: DM Sans 10px, `--muted`, margin-top 3px
+- Sub: DM Sans **10px** (design-guide §6.9 `.metric-sub` prescribes 10px verbatim — see typography exception), `--muted`, margin-top 3px
 - Laid out in `.grid-metrics` (4-column, 8px gap) at parent level
 
 ---
