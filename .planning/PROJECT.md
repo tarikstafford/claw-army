@@ -135,24 +135,25 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 
 ## Current Milestone: v6.0 Paperclip Foundation
 
-**Goal:** Shift Akasa from direct GCE/OpenClaw agent management to Paperclip as the core agent runtime, build the generalized Tool Nexus, and rebuild the Evolution Dashboard with the new two-world design system.
+**Goal:** Unify claw-army and claw-paper-clip into a single product via git submodule (Path C), replace React UI with SvelteKit, extend Paperclip's Express backend with evolution routes, build Tool Nexus as Paperclip plugins, and rebuild the Evolution Dashboard with the two-world design system.
+
+**Architecture (Path C — Submodule):**
+- claw-paper-clip imported as git submodule inside claw-army
+- Paperclip's Express server = THE backend, extended with Akasa evolution routes
+- One Postgres DB: Paperclip's 55 tables + Akasa's evolution tables
+- SvelteKit replaces Paperclip's React UI (one frontend, two-world design system)
+- Tool Nexus connectors built as Paperclip plugins
+- Akasa imports @paperclipai/db, @paperclipai/shared, @paperclipai/adapters via pnpm workspace
+- Main model adapter: M2.7 Minimax (added to Paperclip fork)
 
 **Target features:**
-- Paperclip Integration — API client for agent dispatch, session management, adapter selection. Akasa becomes the product layer; Paperclip is the engine
-- Tool Nexus — Generalized tool gateway with OAuth/API key connections, typed contracts, tool catalog, Tool Belt, webhook receiver, OpenAPI import, custom tool registration
-- Evolution Dashboard — Rebuilt with Screenplay/Director's Cut design system, fleet overview, per-agent timelines, lineage trees, experiment ledger, category benchmarks, bit rate metrics
-- Design System Foundation — Two worlds (Screenplay light + Director's Cut dark), Cormorant Garamond/DM Sans/Press Start 2P typography, new CSS token system
-
-- [ ] Paperclip API client wraps agent dispatch, session management, and adapter selection
-- [ ] Tool Nexus generalizes existing tool-gateway with typed contracts, OAuth connections, webhook receiver
-- [ ] Tool catalog UI with connection flows, Tool Belt view, custom tool registration
-- [ ] OpenAPI/Swagger import for auto-generating tool contracts
-- [ ] Evolution Dashboard rebuilt with two-world design system (Screenplay + Director's Cut)
-- [ ] Fleet overview with bit rate metrics, agent class distribution, composite score trends
-- [ ] Per-agent evolution timeline with council verdicts, mutations, DNA captures
-- [ ] Lineage tree visualization and experiment ledger
-- [ ] Category benchmarks view with pioneer baselines
-- [ ] CSS token system for both worlds with Cormorant Garamond/DM Sans/Press Start 2P typography
+- [ ] Submodule integration — claw-paper-clip as git submodule, pnpm workspace spanning both, shared DB schema
+- [ ] Design System Foundation — Screenplay/Director's Cut CSS tokens, Cormorant Garamond/DM Sans/Press Start 2P typography
+- [ ] SvelteKit frontend replacing Paperclip React UI — leveraging Paperclip's backend APIs directly
+- [ ] Evolution routes on Paperclip's Express server — soul system, council, god layer wired into heartbeat lifecycle
+- [ ] Tool Nexus connectors as Paperclip plugins — OAuth connections, typed contracts, tool catalog
+- [ ] Tool Nexus UI — catalog, connection flows, Tool Belt view in SvelteKit
+- [ ] Evolution Dashboard — fleet overview, bit rate metrics, per-agent timelines, lineage trees, experiment ledger, category benchmarks
 
 ### Out of Scope
 
