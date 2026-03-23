@@ -7,6 +7,13 @@
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">
+    <script>
+      try {
+        if (localStorage.getItem('akasa-mode') === 'back-office') {
+          document.body.classList.add('back-office');
+        }
+      } catch (_) {}
+    </script>
     <div style="display: contents">%sveltekit.body%</div>
   </body>
 </html>
