@@ -149,7 +149,7 @@ Plans:
   5. All deprecated v5.0 token names (`--h-*`, `--d-*`, `--ak-*`) are removed from the codebase with a CI grep check blocking their reintroduction
 **Plans**: 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Token system, fonts, and mode-detection script
+- [x] 02-01-PLAN.md — Token system, fonts, and mode-detection script
 - [ ] 02-02-PLAN.md — Consumer migration and lint:tokens enforcement
 **UI hint**: yes
 
@@ -236,7 +236,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Submodule Integration | v6.0 | 2/2 | Complete   | 2026-03-23 |
-| 2. Design System Tokens and Typography | v6.0 | 0/2 | Planned | - |
+| 2. Design System Tokens and Typography | v6.0 | 1/2 | In Progress|  |
 | 3. Design System Components and Motion | v6.0 | 0/- | Not started | - |
 | 4. SvelteKit Frontend Core | v6.0 | 0/- | Not started | - |
 | 5. Evolution Routes | v6.0 | 0/- | Not started | - |

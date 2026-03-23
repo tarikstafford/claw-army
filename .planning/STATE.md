@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-23T15:07:48.148Z"
+status: Ready to execute
+stopped_at: Completed Phase 02 Plan 01 — v2 CSS token system, font packages, blocking mode script
+last_updated: "2026-03-23T15:37:50.113Z"
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 01 — submodule-integration
+**Current focus:** Phase 02 — design-system-tokens-and-typography
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (design-system-tokens-and-typography) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -43,6 +43,7 @@ Plan: Not started
 *Updated after each plan completion*
 | Phase 01-submodule-integration P01 | 2 | 2 tasks | 4 files |
 | Phase 01 P02 | 2 | 2 tasks | 7 files |
+| Phase 02-design-system-tokens-and-typography P01 | 2 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ v6.0 key architectural decisions:
 - [Phase 01-submodule-integration]: Akasa migration journal renamed to __akasa_migrations — fresh v6.0 database assumed, no row migration from __drizzle_migrations needed
 - [Phase 01]: Approach B (replicate startup sequence): akasa-server imports createApp directly rather than calling startServer — preserves Paperclip startServer as unmodified while letting Akasa control the extraApiRouter injection
 - [Phase 01]: Port 3100 not 3000: Paperclip default port is 3100 (config.ts), not 3000 as assumed in plan — SvelteKit proxy target corrected accordingly
+- [Phase 02]: Clean slate app.css replacement — no backward compat shims for v5 tokens (D-01)
+- [Phase 02]: Semantic aliases default to Front Office in :root, overridden to Back Office in body.back-office block (D-02)
+- [Phase 02]: localStorage 'akasa-mode' key with blocking inline script in app.html for zero-flash mode persistence (D-03)
 
 ### Pending Todos
 
@@ -76,6 +80,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-23T15:07:48.145Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-design-system-tokens-and-typography/02-CONTEXT.md
+Last session: 2026-03-23T15:37:50.110Z
+Stopped at: Completed Phase 02 Plan 01 — v2 CSS token system, font packages, blocking mode script
+Resume file: None
