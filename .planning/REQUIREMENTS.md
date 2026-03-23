@@ -34,11 +34,11 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 - [x] **DS-05**: Opacity scale for Back Office text hierarchy — rgba(236, 232, 255, 0.52/0.42/0.24/0.14), never arbitrary grey hex values
 - [x] **DS-06**: Semantic colour constants enforced — violet=coordination, amber=karma/compounding, teal=execution, rose=contractors/tools. Near-black (#06050E), #000000 banned
 - [x] **DS-07**: Spacing scale (`--space-xs` through `--space-3xl`), border radius scale (`--radius-sm/md/lg`), section/card/grid padding per v2 guide
-- [ ] **DS-08**: Core component patterns implemented — nav bar (44px fixed, mode toggle), mechanic cards, accordion, slide panel, modal, chat bubbles, metric tiles, karma callout
-- [ ] **DS-09**: Model tier colours shared across modes — `--tier-junior` (Haiku/blue), `--tier-mid` (Sonnet/violet), `--tier-senior` (Opus/amber)
-- [ ] **DS-10**: Agent identity colours — `--agent-indra`, `--agent-contr` + per-named-agent colours for office/chat/dashboard
-- [ ] **DS-11**: Motion system — purposeful only, GPU-composited transforms, mode switch (0.4s), card hover (0.15s), slide panel (0.38s cubic-bezier), gem-spin logo animation
-- [ ] **DS-12**: Product naming in UI — Sanctum (dashboard), The Chronicle (audit trail), The Record (soul storage). "Karma" not "score". Agents "work" not "run"
+- [x] **DS-08**: Core component patterns implemented — nav bar (44px fixed, mode toggle), mechanic cards, accordion, slide panel, modal, chat bubbles, metric tiles, karma callout
+- [x] **DS-09**: Model tier colours shared across modes — `--tier-junior` (Haiku/blue), `--tier-mid` (Sonnet/violet), `--tier-senior` (Opus/amber)
+- [x] **DS-10**: Agent identity colours — `--agent-indra`, `--agent-contr` + per-named-agent colours for office/chat/dashboard
+- [x] **DS-11**: Motion system — purposeful only, GPU-composited transforms, mode switch (0.4s), card hover (0.15s), slide panel (0.38s cubic-bezier), gem-spin logo animation
+- [x] **DS-12**: Product naming in UI — Sanctum (dashboard), The Chronicle (audit trail), The Record (soul storage). "Karma" not "score". Agents "work" not "run"
 
 ### Evolution Routes
 
@@ -135,11 +135,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DS-05 | Phase 2 | Complete |
 | DS-06 | Phase 2 | Complete |
 | DS-07 | Phase 2 | Complete |
-| DS-08 | Phase 3 | Pending |
-| DS-09 | Phase 3 | Pending |
-| DS-10 | Phase 3 | Pending |
-| DS-11 | Phase 3 | Pending |
-| DS-12 | Phase 3 | Pending |
+| DS-08 | Phase 3 | Complete |
+| DS-09 | Phase 3 | Complete |
+| DS-10 | Phase 3 | Complete |
+| DS-11 | Phase 3 | Complete |
+| DS-12 | Phase 3 | Complete |
 | EVO-01 | Phase 5 | Pending |
 | EVO-02 | Phase 5 | Pending |
 | EVO-03 | Phase 5 | Pending |
