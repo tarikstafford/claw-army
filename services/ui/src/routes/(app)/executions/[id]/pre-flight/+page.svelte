@@ -216,7 +216,7 @@
   .page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 40px var(--s-9) 160px;
+    padding: 40px var(--space-2xl) 160px;
   }
 
   /* ── Header ────────────────────────────────────────── */
@@ -229,7 +229,7 @@
     font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin: 0 0 10px;
   }
 
@@ -246,7 +246,7 @@
   .exec-id {
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin: 0;
   }
 
@@ -299,7 +299,7 @@
 
   /* ── Error card (assembly failed) ──────────────────── */
   .error-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid rgba(248, 113, 113, 0.2);
     border-left: 3px solid #f87171;
     border-radius: 6px;
@@ -319,7 +319,7 @@
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.08em;
-    color: var(--violet-bright);
+    color: var(--accent-m);
     text-decoration: none;
   }
 
@@ -347,7 +347,7 @@
   }
 
   .manifest-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 24px;
@@ -379,7 +379,7 @@
     font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     display: block;
     margin-bottom: 6px;
   }
@@ -399,8 +399,8 @@
     letter-spacing: 0.14em;
     padding: 3px 10px;
     border-radius: 3px;
-    background: var(--violet-dim);
-    color: var(--violet-bright);
+    background: var(--accent-dim);
+    color: var(--accent-m);
   }
 
   .pioneer-badge {
@@ -412,7 +412,7 @@
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.1em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     white-space: nowrap;
   }
 
@@ -429,7 +429,7 @@
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin-right: 6px;
   }
 
@@ -447,12 +447,12 @@
   }
 
   .soul-table th {
-    background: var(--bg-3);
+    background: var(--bg3);
     font-family: var(--font-mono);
     font-size: 9.5px;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     padding: 8px 12px;
     text-align: left;
     white-space: nowrap;
@@ -471,7 +471,7 @@
   }
 
   .soul-table tbody tr:hover td {
-    background: var(--bg-card-2);
+    background: var(--card);
   }
 
   .td-mono {
@@ -514,7 +514,7 @@
 
   .source-generated {
     background: rgba(148, 110, 255, 0.12);
-    color: var(--violet-bright);
+    color: var(--accent-m);
   }
 
   .source-mutated {
@@ -535,7 +535,7 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin-right: 6px;
   }
 
@@ -549,7 +549,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--bg-2);
+    background: var(--bg2);
     border-top: 1px solid var(--border);
     z-index: 10;
     padding: 16px 36px;
@@ -591,7 +591,7 @@
     align-items: center;
     gap: 8px;
     padding: 13px 32px;
-    background: var(--violet);
+    background: var(--accent);
     color: #fff;
     border: none;
     border-radius: 7px;

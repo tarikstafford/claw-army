@@ -86,11 +86,11 @@
 
   function agentClassColor(cls: string | null): string {
     switch (cls) {
-      case 'Artisan':    return 'var(--teal)';
-      case 'Understudy': return 'var(--amber)';
-      case 'Novice':     return 'var(--violet-light)';
-      case 'Retired':    return 'var(--rose)';
-      default:           return 'var(--text-faint)';
+      case 'Artisan':    return 'var(--bo-teal)';
+      case 'Understudy': return 'var(--karma)';
+      case 'Novice':     return 'var(--accent-m)';
+      case 'Retired':    return 'var(--bo-rose)';
+      default:           return 'var(--bo-faint)';
     }
   }
 
@@ -265,7 +265,7 @@
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     min-width: 60px;
     flex-shrink: 0;
   }
@@ -289,13 +289,13 @@
   }
 
   .sl-chip:hover {
-    border-color: var(--violet-light);
-    color: var(--violet-light);
+    border-color: var(--accent-m);
+    color: var(--accent-m);
   }
 
   .sl-chip-active {
-    background: var(--chip-active-color, var(--violet));
-    border-color: var(--chip-active-color, var(--violet));
+    background: var(--chip-active-color, var(--accent));
+    border-color: var(--chip-active-color, var(--accent));
     color: white;
   }
 
@@ -321,7 +321,7 @@
   .sl-error-title {
     font-size: 14px;
     font-weight: 500;
-    color: var(--rose);
+    color: var(--bo-rose);
   }
 
   .sl-error-detail {
@@ -343,14 +343,14 @@
   }
 
   .sl-clear-btn:hover {
-    border-color: var(--violet-light);
-    color: var(--violet-light);
+    border-color: var(--accent-m);
+    color: var(--accent-m);
   }
 
   .sl-meta {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     letter-spacing: 0.05em;
     margin-bottom: 20px;
   }
@@ -379,10 +379,10 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: var(--s-4);
+    padding: 16px;
     transition: border-color 0.15s;
     text-decoration: none;
     color: inherit;
@@ -390,7 +390,7 @@
   }
 
   .sl-card:hover {
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .sl-card-top {
@@ -413,7 +413,7 @@
   .sl-gen-badge {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     letter-spacing: 0.05em;
     white-space: nowrap;
     flex-shrink: 0;
@@ -435,7 +435,7 @@
   }
 
   .sl-class-null {
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .sl-archetype-badge {
@@ -444,7 +444,7 @@
     border: 1px solid rgba(167, 139, 250, 0.3);
     background: rgba(124, 58, 237, 0.1);
     font-size: 11px;
-    color: var(--violet-light);
+    color: var(--accent-m);
     letter-spacing: 0.02em;
   }
 
@@ -459,7 +459,7 @@
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .sl-score-value {
@@ -477,7 +477,7 @@
   .sl-date {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     letter-spacing: 0.04em;
   }
 
@@ -500,8 +500,8 @@
   }
 
   .sl-load-btn:hover:not(:disabled) {
-    border-color: var(--violet-light);
-    color: var(--violet-light);
+    border-color: var(--accent-m);
+    color: var(--accent-m);
   }
 
   .sl-load-btn:disabled {

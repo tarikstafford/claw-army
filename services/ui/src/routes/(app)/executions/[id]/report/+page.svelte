@@ -112,11 +112,11 @@
         <div class="tier-distribution">
           <div class="tier-item">
             <SoulTierBadge agentClass="Artisan" />
-            <span class="tier-count" style="color: var(--amber)">{report.soulTierDistribution.artisan}</span>
+            <span class="tier-count" style="color: var(--karma)">{report.soulTierDistribution.artisan}</span>
           </div>
           <div class="tier-item">
             <SoulTierBadge agentClass="Understudy" />
-            <span class="tier-count" style="color: var(--teal)">{report.soulTierDistribution.understudy}</span>
+            <span class="tier-count" style="color: var(--bo-teal)">{report.soulTierDistribution.understudy}</span>
           </div>
           <div class="tier-item">
             <SoulTierBadge agentClass="Novice" />
@@ -125,7 +125,7 @@
           {#if report.soulTierDistribution.retired > 0}
             <div class="tier-item">
               <SoulTierBadge agentClass="Retired" />
-              <span class="tier-count" style="color: var(--rose)">{report.soulTierDistribution.retired}</span>
+              <span class="tier-count" style="color: var(--bo-rose)">{report.soulTierDistribution.retired}</span>
             </div>
           {/if}
         </div>
@@ -427,34 +427,34 @@
   .page {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 40px var(--s-9) 80px;
+    padding: 40px var(--space-2xl) 80px;
     min-height: 100vh;
   }
 
   @media (max-width: 600px) {
-    .page { padding: 32px var(--s-5) 60px; }
+    .page { padding: 32px var(--space-lg) 60px; }
   }
 
   /* ── Page header ──────────────────────────────── */
   .page-header {
-    margin-bottom: var(--s-8);
+    margin-bottom: var(--space-2xl);
   }
 
   .back-link {
     display: inline-flex;
     align-items: center;
-    gap: var(--s-2);
+    gap: var(--space-sm);
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.04em;
     color: var(--text-muted);
     text-decoration: none;
-    margin-bottom: var(--s-5);
+    margin-bottom: var(--space-lg);
     transition: color 0.15s;
   }
 
   .back-link:hover {
-    color: var(--violet-bright);
+    color: var(--accent-m);
   }
 
   .page-header h1 {
@@ -463,26 +463,26 @@
     font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--text);
-    margin: var(--s-2) 0 0;
+    margin: var(--space-sm) 0 0;
     line-height: 1.1;
   }
 
   .exec-id {
     font-family: var(--font-mono);
     font-size: 0.85em;
-    color: var(--violet-bright);
+    color: var(--accent-m);
     background: none;
   }
 
   /* ── States ───────────────────────────────────── */
   .loading {
-    padding: var(--s-8);
+    padding: var(--space-2xl);
     text-align: center;
     color: var(--text-muted);
   }
 
   .error-card {
-    padding: var(--s-4) var(--s-5);
+    padding: 16px var(--space-lg);
     background: var(--error-dim);
     border: 1px solid rgba(248, 113, 113, 0.2);
     border-left: 3px solid var(--error);
@@ -492,13 +492,13 @@
   }
 
   .empty {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-style: italic;
   }
 
   /* ── Section ──────────────────────────────────── */
   .section {
-    margin-bottom: var(--s-10);
+    margin-bottom: var(--space-2xl);
   }
 
   .section h2 {
@@ -506,9 +506,9 @@
     font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--text-faint);
-    margin: 0 0 var(--s-4);
-    padding-bottom: var(--s-2);
+    color: var(--bo-faint);
+    margin: 0 0 16px;
+    padding-bottom: var(--space-sm);
     border-bottom: 1px solid var(--border);
   }
 
@@ -516,22 +516,22 @@
   .hero-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--s-4);
-    margin-bottom: var(--s-4);
+    gap: 16px;
+    margin-bottom: 16px;
   }
 
   .hero-metric {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: var(--s-5);
+    padding: var(--space-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--s-1);
+    gap: var(--space-xs);
   }
 
   .hero-primary {
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .hero-value {
@@ -543,7 +543,7 @@
   }
 
   .hero-primary .hero-value {
-    color: var(--violet-bright);
+    color: var(--accent-m);
   }
 
   .hero-label {
@@ -551,7 +551,7 @@
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   @media (max-width: 768px) {
@@ -578,8 +578,8 @@
   }
 
   .detail-cell {
-    background: var(--bg-card);
-    padding: var(--s-4);
+    background: var(--card);
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -597,7 +597,7 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   @media (max-width: 600px) {
@@ -608,14 +608,14 @@
   /* ── Tier distribution ────────────────────────── */
   .tier-distribution {
     display: flex;
-    gap: var(--s-6);
+    gap: var(--space-xl);
     flex-wrap: wrap;
   }
 
   .tier-item {
     display: flex;
     align-items: center;
-    gap: var(--s-2);
+    gap: var(--space-sm);
   }
 
   .tier-count {
@@ -628,14 +628,14 @@
   .achievement-row {
     display: flex;
     align-items: flex-start;
-    gap: var(--s-4);
-    margin-bottom: var(--s-5);
+    gap: 16px;
+    margin-bottom: var(--space-lg);
     flex-wrap: wrap;
   }
 
   .achievement-badge {
     display: inline-block;
-    padding: 3px var(--s-3);
+    padding: 3px 12px;
     border-radius: 3px;
     font-family: var(--font-mono);
     font-size: 0.625rem;
@@ -648,8 +648,8 @@
   }
 
   .achieved {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
   }
 
   .not-achieved {
@@ -665,16 +665,16 @@
     line-height: 1.65;
   }
 
-  .variance-under { color: var(--teal) !important; }
+  .variance-under { color: var(--bo-teal) !important; }
   .variance-over  { color: var(--error) !important; }
 
   /* ── Text blocks ──────────────────────────────── */
   .text-block {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: var(--s-5);
-    margin-bottom: var(--s-4);
+    padding: var(--space-lg);
+    margin-bottom: 16px;
   }
 
   .text-block-label {
@@ -683,8 +683,8 @@
     font-size: 9px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--text-faint);
-    margin-bottom: var(--s-3);
+    color: var(--bo-faint);
+    margin-bottom: 12px;
   }
 
   .text-block-content {
@@ -698,19 +698,19 @@
 
   /* ── Pills ────────────────────────────────────── */
   .pill-group {
-    margin-bottom: var(--s-4);
+    margin-bottom: 16px;
   }
 
   .pills {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s-2);
-    margin-top: var(--s-2);
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
   }
 
   .pill {
     display: inline-block;
-    padding: 3px var(--s-3);
+    padding: 3px 12px;
     border-radius: 3px;
     font-family: var(--font-mono);
     font-size: 0.6875rem;
@@ -719,21 +719,21 @@
   }
 
   .pill-teal {
-    color: var(--teal);
-    background: var(--teal-dim);
+    color: var(--bo-teal);
+    background: rgba(45, 212, 191, 0.10);
   }
 
   .pill-amber {
-    color: var(--amber);
-    background: var(--amber-dim);
+    color: var(--karma);
+    background: rgba(251, 191, 36, 0.10);
   }
 
   /* ── Score cards ───────────────────────────────── */
   .composite-row {
     display: flex;
     align-items: center;
-    gap: var(--s-4);
-    margin-bottom: var(--s-5);
+    gap: 16px;
+    margin-bottom: var(--space-lg);
   }
 
   .composite-label {
@@ -741,7 +741,7 @@
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .composite-value {
@@ -750,23 +750,23 @@
     font-weight: 700;
   }
 
-  .composite-high { color: var(--teal); }
-  .composite-mid  { color: var(--amber); }
+  .composite-high { color: var(--bo-teal); }
+  .composite-mid  { color: var(--karma); }
   .composite-low  { color: var(--error); }
 
   .score-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: var(--s-5);
-    margin-bottom: var(--s-4);
+    padding: var(--space-lg);
+    margin-bottom: 16px;
   }
 
   .score-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--s-4);
+    margin-bottom: 16px;
   }
 
   .score-card-title {
@@ -774,7 +774,7 @@
     font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-weight: 600;
   }
 
@@ -783,15 +783,15 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .dimension {
-    margin-bottom: var(--s-3);
+    margin-bottom: 12px;
   }
 
   .dimension:last-of-type {
-    margin-bottom: var(--s-2);
+    margin-bottom: var(--space-sm);
   }
 
   .dimension-header {
@@ -806,7 +806,7 @@
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .dimension-value {
@@ -828,19 +828,19 @@
     transition: width 0.3s;
   }
 
-  .score-bar-fill.score-high { background: var(--teal); }
-  .score-bar-fill.score-mid  { background: var(--amber); }
+  .score-bar-fill.score-high { background: var(--bo-teal); }
+  .score-bar-fill.score-mid  { background: var(--karma); }
   .score-bar-fill.score-low  { background: var(--error); }
 
   .score-subtotal {
-    margin-top: var(--s-3);
-    padding-top: var(--s-3);
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid var(--border);
     font-family: var(--font-mono);
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     text-align: right;
   }
 
@@ -865,27 +865,27 @@
 
   thead th {
     text-align: left;
-    padding: var(--s-3) var(--s-4);
-    background: var(--bg-3);
+    padding: 12px 16px;
+    background: var(--bg3);
     border-bottom: 1px solid var(--border);
     font-family: var(--font-mono);
     font-size: 9px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     font-weight: 600;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     white-space: nowrap;
   }
 
   tbody td {
-    padding: var(--s-3) var(--s-4);
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     color: var(--text);
-    background: var(--bg-card);
+    background: var(--card);
   }
 
   tbody tr:hover td {
-    background: var(--bg-2);
+    background: var(--bg2);
   }
 
   tbody tr:last-child td {
@@ -898,7 +898,7 @@
   }
 
   .bot-link {
-    color: var(--violet-bright);
+    color: var(--accent-m);
     text-decoration: none;
     font-family: var(--font-mono);
     font-weight: 600;
@@ -925,20 +925,20 @@
     font-size: 0.6875rem;
   }
 
-  .rank-1 { background: var(--amber-dim); color: var(--amber); }
-  .rank-2 { background: rgba(99, 102, 241, 0.12); color: var(--violet-bright); }
-  .rank-3 { background: var(--teal-dim); color: var(--teal); }
+  .rank-1 { background: rgba(251, 191, 36, 0.10); color: var(--karma); }
+  .rank-2 { background: rgba(99, 102, 241, 0.12); color: var(--accent-m); }
+  .rank-3 { background: rgba(45, 212, 191, 0.10); color: var(--bo-teal); }
 
   .rank-num {
     font-family: var(--font-mono);
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-size: 0.8rem;
   }
 
   /* ── Tier / verdict / pioneer badges ──────────── */
   .tier-badge {
     display: inline-block;
-    padding: 3px var(--s-2);
+    padding: 3px var(--space-sm);
     border-radius: 3px;
     font-family: var(--font-mono);
     font-size: 0.625rem;
@@ -947,14 +947,14 @@
     text-transform: uppercase;
   }
 
-  .tier-high   { color: var(--teal);  background: var(--teal-dim); }
-  .tier-medium { color: var(--amber); background: var(--amber-dim); }
+  .tier-high   { color: var(--bo-teal);  background: rgba(45, 212, 191, 0.10); }
+  .tier-medium { color: var(--karma); background: rgba(251, 191, 36, 0.10); }
   .tier-low    { color: var(--error); background: var(--error-dim); }
-  .tier-none   { color: var(--text-muted); background: var(--bg-3); }
+  .tier-none   { color: var(--text-muted); background: var(--bg3); }
 
   .verdict-badge {
     display: inline-block;
-    padding: 3px var(--s-2);
+    padding: 3px var(--space-sm);
     border-radius: 3px;
     font-family: var(--font-mono);
     font-size: 0.625rem;
@@ -963,11 +963,11 @@
     text-transform: uppercase;
   }
 
-  .verdict-promote  { color: var(--teal);          background: var(--teal-dim); }
-  .verdict-retire   { color: var(--rose);          background: var(--rose-dim); }
-  .verdict-demote   { color: var(--amber);         background: var(--amber-dim); }
-  .verdict-monitor  { color: var(--amber);         background: var(--amber-dim); }
-  .verdict-maintain { color: var(--violet-bright); background: rgba(99, 102, 241, 0.12); }
+  .verdict-promote  { color: var(--bo-teal);          background: rgba(45, 212, 191, 0.10); }
+  .verdict-retire   { color: var(--bo-rose);          background: rgba(244, 114, 182, 0.08); }
+  .verdict-demote   { color: var(--karma);         background: rgba(251, 191, 36, 0.10); }
+  .verdict-monitor  { color: var(--karma);         background: rgba(251, 191, 36, 0.10); }
+  .verdict-maintain { color: var(--accent-m); background: rgba(99, 102, 241, 0.12); }
 
   .verdict-summary {
     display: block;
@@ -987,15 +987,15 @@
     width: 22px;
     height: 22px;
     border-radius: 3px;
-    background: var(--amber-dim);
-    color: var(--amber);
+    background: rgba(251, 191, 36, 0.10);
+    color: var(--karma);
     font-weight: 700;
     font-family: var(--font-mono);
     font-size: 0.6875rem;
   }
 
   .no-data {
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .action-btn {
@@ -1004,18 +1004,18 @@
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    padding: 4px var(--s-3);
+    padding: 4px 12px;
     border-radius: 3px;
     border: 1px solid var(--border);
     background: transparent;
-    color: var(--violet-bright);
+    color: var(--accent-m);
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.15s, border-color 0.15s;
   }
 
   .action-btn:hover {
-    background: var(--bg-3);
-    border-color: var(--border-mid);
+    background: var(--bg3);
+    border-color: var(--border);
   }
 </style>

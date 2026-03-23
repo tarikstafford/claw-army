@@ -25,13 +25,13 @@
 
   function statusColor(status: string): string {
     switch (status) {
-      case 'running':   return 'var(--teal)';
-      case 'completed': return 'var(--violet-bright)';
-      case 'failed':    return 'var(--rose)';
-      case 'pre_flight': return 'var(--amber)';
-      case 'paused':    return 'var(--amber)';
-      case 'stopped':   return 'var(--text-faint)';
-      default:          return 'var(--text-faint)';
+      case 'running':   return 'var(--bo-teal)';
+      case 'completed': return 'var(--accent-m)';
+      case 'failed':    return 'var(--bo-rose)';
+      case 'pre_flight': return 'var(--karma)';
+      case 'paused':    return 'var(--karma)';
+      case 'stopped':   return 'var(--bo-faint)';
+      default:          return 'var(--bo-faint)';
     }
   }
 
@@ -133,8 +133,8 @@
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 0.12em;
-    color: var(--violet-bright);
-    background: var(--violet-dim);
+    color: var(--accent-m);
+    background: var(--accent-dim);
     padding: 4px 8px;
     border-radius: 5px;
     margin-top: 6px;
@@ -152,13 +152,13 @@
 
   .page-subtitle {
     font-size: 14px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin: 4px 0 0;
   }
 
   .loading {
     font-size: 14px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     padding: 40px 0;
   }
 
@@ -171,7 +171,7 @@
   }
 
   .metric-card {
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 20px;
@@ -185,8 +185,8 @@
     font-size: 9px;
     font-weight: 400;
     letter-spacing: 0.15em;
-    color: var(--violet-bright);
-    background: var(--violet-dim);
+    color: var(--accent-m);
+    background: var(--accent-dim);
     padding: 2px 6px;
     border-radius: 4px;
     align-self: flex-start;
@@ -202,7 +202,7 @@
 
   .metric-label {
     font-size: 12px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     letter-spacing: 0.02em;
   }
 
@@ -212,10 +212,10 @@
     align-items: center;
     gap: 8px;
     padding: 10px 18px;
-    background: var(--violet-dim);
+    background: var(--accent-dim);
     border: 1px solid var(--border);
     border-radius: 8px;
-    color: var(--violet-bright);
+    color: var(--accent-m);
     font-size: 13px;
     font-weight: 500;
     text-decoration: none;
@@ -225,7 +225,7 @@
 
   .quick-launch:hover {
     background: rgba(124,58,237,0.2);
-    border-color: var(--border-mid);
+    border-color: var(--border);
   }
 
   .quick-launch-icon {
@@ -245,7 +245,7 @@
     font-weight: 400;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     margin: 0 0 12px;
   }
 
@@ -261,7 +261,7 @@
     align-items: center;
     gap: 16px;
     padding: 12px 14px;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
     text-decoration: none;
@@ -269,8 +269,8 @@
   }
 
   .exec-row:hover {
-    border-color: var(--border-mid);
-    background: var(--bg-card-2);
+    border-color: var(--border);
+    background: var(--card);
   }
 
   .exec-objective {
@@ -302,7 +302,7 @@
 
   .exec-bots {
     font-size: 12px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     flex-shrink: 0;
     min-width: 50px;
     text-align: right;
@@ -320,7 +320,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 14px;
-    background: var(--bg-card);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
     text-decoration: none;
@@ -328,8 +328,8 @@
   }
 
   .obj-row:hover {
-    border-color: var(--border-mid);
-    background: var(--bg-card-2);
+    border-color: var(--border);
+    background: var(--card);
   }
 
   .obj-name {
@@ -339,7 +339,7 @@
 
   .obj-runs {
     font-size: 12px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     flex-shrink: 0;
   }
 

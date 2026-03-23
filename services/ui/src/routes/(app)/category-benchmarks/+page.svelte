@@ -158,7 +158,7 @@
   .cb-empty-hint {
     margin-top: 8px;
     font-size: 12px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .cb-error {
@@ -174,7 +174,7 @@
   .cb-error-title {
     font-size: 14px;
     font-weight: 500;
-    color: var(--rose);
+    color: var(--bo-rose);
   }
 
   .cb-error-detail {
@@ -208,7 +208,7 @@
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
@@ -248,7 +248,7 @@
   .cb-link {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--violet-light);
+    color: var(--accent-m);
     text-decoration: none;
     transition: opacity 0.15s;
   }
@@ -268,43 +268,43 @@
 
   .cb-badge-mature {
     background: rgba(45, 212, 191, 0.12);
-    color: var(--teal);
+    color: var(--bo-teal);
     border: 1px solid rgba(45, 212, 191, 0.25);
   }
 
   .cb-badge-immature {
     background: rgba(148, 163, 184, 0.08);
-    color: var(--text-faint);
+    color: var(--bo-faint);
     border: 1px solid var(--border);
   }
 
   .cb-badge-thin {
     background: rgba(251, 191, 36, 0.12);
-    color: var(--amber);
+    color: var(--karma);
     border: 1px solid rgba(251, 191, 36, 0.25);
   }
 
   .cb-badge-ok {
     background: rgba(148, 163, 184, 0.08);
-    color: var(--text-faint);
+    color: var(--bo-faint);
     border: 1px solid var(--border);
   }
 
   .cb-check {
-    color: var(--teal);
+    color: var(--bo-teal);
     font-size: 12px;
     font-weight: 500;
   }
 
   .cb-dash {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-family: var(--font-mono);
   }
 
   .cb-cell-date {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     white-space: nowrap;
   }
 </style>

@@ -201,7 +201,7 @@
     padding: 0.3rem 0.8rem;
     border-radius: 9999px;
     border: 1px solid var(--border);
-    background: var(--bg-card);
+    background: var(--card);
     color: var(--text-muted);
     font-size: 0.8rem;
     font-weight: 500;
@@ -211,14 +211,14 @@
   }
 
   .ns-chip:hover {
-    background: var(--bg-3);
+    background: var(--bg3);
     color: var(--text);
   }
 
   .ns-chip-active {
     background: rgba(124,58,237,0.15);
-    color: var(--violet-bright);
-    border-color: var(--violet-bright);
+    color: var(--accent-m);
+    border-color: var(--accent-m);
   }
 
   .ns-loading {
@@ -237,7 +237,7 @@
   }
 
   .ns-empty {
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-style: italic;
     padding: 2rem 0;
     text-align: center;
@@ -263,18 +263,18 @@
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     font-weight: 600;
     padding: 0.75rem 1rem;
     text-align: left;
-    background: var(--bg-3);
+    background: var(--bg3);
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
   .ns-table tbody tr {
-    border-bottom: 1px solid var(--bg-3);
-    background: var(--bg-card);
+    border-bottom: 1px solid var(--bg3);
+    background: var(--card);
     transition: background 0.1s;
   }
 
@@ -283,7 +283,7 @@
   }
 
   .ns-table tbody tr:hover {
-    background: var(--bg-3);
+    background: var(--bg3);
   }
 
   .ns-table td {
@@ -305,10 +305,10 @@
   }
 
   .ns-badge-rose    { background: rgba(244,63,94,0.14); color: #fb7185; }
-  .ns-badge-amber   { background: rgba(251,191,36,0.14); color: var(--amber); }
+  .ns-badge-amber   { background: rgba(251,191,36,0.14); color: var(--karma); }
   .ns-badge-red     { background: rgba(248,113,113,0.14); color: var(--error); }
-  .ns-badge-violet  { background: rgba(124,58,237,0.18); color: var(--violet-bright); }
-  .ns-badge-default { background: var(--bg-3); color: var(--text-muted); }
+  .ns-badge-violet  { background: rgba(124,58,237,0.18); color: var(--accent-m); }
+  .ns-badge-default { background: var(--bg3); color: var(--text-muted); }
 
   .ns-category {
     font-size: 0.83rem;
@@ -318,7 +318,7 @@
   .ns-gen {
     font-family: var(--font-mono);
     font-size: 0.83rem;
-    color: var(--teal);
+    color: var(--bo-teal);
     white-space: nowrap;
   }
 
@@ -334,14 +334,14 @@
   .ns-date {
     font-family: var(--font-mono);
     font-size: 0.78rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
     white-space: nowrap;
   }
 
   .ns-exec-link {
     font-family: var(--font-mono);
     font-size: 0.8rem;
-    color: var(--violet-bright);
+    color: var(--accent-m);
     text-decoration: none;
   }
 
@@ -350,7 +350,7 @@
   }
 
   .ns-none {
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .ns-footer {
@@ -364,7 +364,7 @@
   .ns-total {
     font-family: var(--font-mono);
     font-size: 0.8rem;
-    color: var(--text-faint);
+    color: var(--bo-faint);
   }
 
   .ns-load-more {
@@ -373,14 +373,14 @@
     padding: 0.4rem 1.2rem;
     border-radius: 8px;
     border: 1px solid var(--border);
-    background: var(--bg-card);
+    background: var(--card);
     color: var(--text-muted);
     cursor: pointer;
     transition: background 0.1s;
   }
 
   .ns-load-more:hover:not(:disabled) {
-    background: var(--bg-3);
+    background: var(--bg3);
   }
 
   .ns-load-more:disabled {
