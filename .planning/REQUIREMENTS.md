@@ -12,8 +12,8 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 - [x] **SUB-01**: claw-paper-clip added as git submodule inside claw-army, pinned to current commit
 - [x] **SUB-02**: pnpm workspace configured to span both repos — Akasa code can import @paperclipai/db, @paperclipai/shared, @paperclipai/adapters
 - [x] **SUB-03**: Shared Postgres database with unified migration strategy — Paperclip's 55 tables + Akasa's evolution tables coexist
-- [ ] **SUB-04**: Paperclip's Express server starts as the primary backend process with Akasa evolution routes mounted alongside
-- [ ] **SUB-05**: Dev environment works with single `pnpm dev` that starts Express backend + SvelteKit frontend
+- [x] **SUB-04**: Paperclip's Express server starts as the primary backend process with Akasa evolution routes mounted alongside
+- [x] **SUB-05**: Dev environment works with single `pnpm dev` that starts Express backend + SvelteKit frontend
 
 ### SvelteKit Frontend
 
@@ -119,8 +119,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SUB-01 | Phase 1 | Complete |
 | SUB-02 | Phase 1 | Complete |
 | SUB-03 | Phase 1 | Complete |
-| SUB-04 | Phase 1 | Pending |
-| SUB-05 | Phase 1 | Pending |
+| SUB-04 | Phase 1 | Complete |
+| SUB-05 | Phase 1 | Complete |
 | UI-01 | Phase 4 | Pending |
 | UI-02 | Phase 4 | Pending |
 | UI-03 | Phase 4 | Pending |

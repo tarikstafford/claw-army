@@ -111,7 +111,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 
 **Note:** Phase numbering resets to 1 for v6.0 (new milestone epoch).
 
-- [ ] **Phase 1: Submodule Integration** - Wire claw-paper-clip as a git submodule with unified pnpm workspace and shared database
+- [x] **Phase 1: Submodule Integration** - Wire claw-paper-clip as a git submodule with unified pnpm workspace and shared database (completed 2026-03-23)
 - [ ] **Phase 2: Design System Tokens and Typography** - CSS token foundation for both worlds with self-hosted fonts
 - [ ] **Phase 3: Design System Components and Motion** - Core component patterns, motion system, and product naming
 - [ ] **Phase 4: SvelteKit Frontend Core** - Auth, agent views, task views, chat, and real-time updates in SvelteKit
@@ -132,10 +132,10 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
   3. Paperclip's 55 tables and Akasa's evolution tables coexist in one Postgres database with no migration conflicts
   4. Paperclip's Express server starts and serves requests with Akasa evolution routes mounted alongside
   5. A single `pnpm dev` command brings up both Express backend and SvelteKit frontend without manual sequencing
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 01-01-PLAN.md — Git submodule + pnpm workspace + migration isolation
-- [ ] 01-02-PLAN.md — Express extension point + akasa-server + dev command + proxy
+- [x] 01-02-PLAN.md — Express extension point + akasa-server + dev command + proxy
 
 ### Phase 2: Design System Tokens and Typography
 **Goal**: Every UI surface has a stable, complete token foundation for both Front Office and Back Office worlds
@@ -232,7 +232,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Submodule Integration | v6.0 | 0/2 | Planning | - |
+| 1. Submodule Integration | v6.0 | 2/2 | Complete   | 2026-03-23 |
 | 2. Design System Tokens and Typography | v6.0 | 0/- | Not started | - |
 | 3. Design System Components and Motion | v6.0 | 0/- | Not started | - |
 | 4. SvelteKit Frontend Core | v6.0 | 0/- | Not started | - |

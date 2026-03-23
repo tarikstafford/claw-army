@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to execute
-stopped_at: Completed 01-submodule-integration 01-01-PLAN.md
-last_updated: "2026-03-23T10:25:23.141Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 01-submodule-integration 01-02-PLAN.md
+last_updated: "2026-03-23T10:30:24.308Z"
 progress:
   total_phases: 8
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -42,6 +42,7 @@ Plan: 2 of 2
 
 *Updated after each plan completion*
 | Phase 01-submodule-integration P01 | 2 | 2 tasks | 4 files |
+| Phase 01 P02 | 2 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -60,6 +61,8 @@ v6.0 key architectural decisions:
 - Phase 2 (DS tokens) before Phase 4 (UI) — zombie token risk if incremental
 - [Phase 01-submodule-integration]: strictPeerDependencies: false added to handle cross-repo zod v3/v4 and drizzle-orm version mismatches between Akasa and Paperclip workspaces
 - [Phase 01-submodule-integration]: Akasa migration journal renamed to __akasa_migrations — fresh v6.0 database assumed, no row migration from __drizzle_migrations needed
+- [Phase 01]: Approach B (replicate startup sequence): akasa-server imports createApp directly rather than calling startServer — preserves Paperclip startServer as unmodified while letting Akasa control the extraApiRouter injection
+- [Phase 01]: Port 3100 not 3000: Paperclip default port is 3100 (config.ts), not 3000 as assumed in plan — SvelteKit proxy target corrected accordingly
 
 ### Pending Todos
 
@@ -73,6 +76,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-23T10:25:23.139Z
-Stopped at: Completed 01-submodule-integration 01-01-PLAN.md
+Last session: 2026-03-23T10:30:24.306Z
+Stopped at: Completed 01-submodule-integration 01-02-PLAN.md
 Resume file: None
