@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "pnpm --parallel --filter @claw/akasa-server --filter @claw/ui dev",
     "db:generate": "pnpm --filter @claw/db generate",
-    "db:migrate": "pnpm --filter @claw/db migrate"
+    "db:migrate": "pnpm --filter @claw/db migrate",
+    "lint:tokens": "! grep -rn --include='*.svelte' --include='*.css' --include='*.ts' -e '--h-' -e '--d-' -e '--ak-' -e 'var(--bg-card)' -e 'var(--bg-2)' -e 'var(--bg-3)' -e 'var(--text-faint)' -e 'var(--border-mid)' -e 'var(--border-hi)' -e 'var(--violet-bright)' -e 'var(--violet-dim)' -e 'var(--violet-glow)' -e 'var(--amber-dim)' -e 'var(--teal-dim)' -e 'var(--rose-dim)' -e \"var(--s-\" services/ui/src/"
   }
 }
