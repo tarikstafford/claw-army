@@ -7,6 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "dev": "pnpm --parallel --filter @claw/akasa-server --filter @claw/ui dev",
     "db:generate": "pnpm --filter @claw/db generate",
     "db:migrate": "pnpm --filter @claw/db migrate"
   }
