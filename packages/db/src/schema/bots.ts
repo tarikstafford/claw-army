@@ -40,6 +40,7 @@ export const bots = pgTable(
     tier: varchar('tier', { length: 10 }),
     errorMessage: text('error_message'),
     soulId: uuid('soul_id'), // nullable; logical FK to bot_souls.id (no explicit FK to avoid circular dependency)
+    paperclipAgentId: uuid('paperclip_agent_id'), // nullable; links Akasa bot to Paperclip agent.id
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
@@ -47,6 +48,7 @@ export const bots = pgTable(
     index('bots_execution_id_idx').on(t.executionId),
     index('bots_status_idx').on(t.status),
     index('bots_composite_score_idx').on(t.compositeScore),
+    index('bots_paperclip_agent_id_idx').on(t.paperclipAgentId),
   ],
 );
 

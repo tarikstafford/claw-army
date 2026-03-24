@@ -4,14 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "@ai-sdk/anthropic": "^3.0.45",
+    "@ai-sdk/openai": "^3.0.29",
+    "@claw/db": "workspace:*",
+    "@claw/shared-types": "workspace:*",
+    "ai": "^6.0.90",
+    "drizzle-orm": "0.45.1",
+    "express": "^5.1.0",
+    "ioredis": "^5.9.3"
   },
   "devDependencies": {
-    "tsx": "^4.19.0",
     "@types/express": "^5.0.0",
-    "typescript": "^5.7.0"
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.4"
   }
 }
