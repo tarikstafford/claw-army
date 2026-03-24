@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to execute
-stopped_at: "Completed Phase 06 Plan 03 — Webhook receiver system: signature verification for HubSpot and Slack, unique URL tokens, Slack challenge handler"
-last_updated: "2026-03-24T12:18:58.015Z"
+status: Phase complete — ready for verification
+stopped_at: Completed Phase 06 Plan 02 — Tool Nexus plugin with 3 connectors (HubSpot, Slack, Google Sheets), 7 tools, credential bridge, invocation logger
+last_updated: "2026-03-24T12:24:00.578Z"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 12
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Plan: 3 of 3
 | Phase 05 P03 | 318 | 2 tasks | 8 files |
 | Phase 06-tool-nexus-backend P01 | 309 | 2 tasks | 11 files |
 | Phase 06-tool-nexus-backend P03 | 161 | 2 tasks | 4 files |
+| Phase 06-tool-nexus-backend P02 | 25 | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ v6.0 key architectural decisions:
 - [Phase 06-tool-nexus-backend]: AES-256-GCM credential encryption uses node:crypto with TOOL_ENCRYPTION_KEY (falls back to PAPERCLIP_SECRETS_MASTER_KEY) — no external crypto packages
 - [Phase 06-tool-nexus-backend]: In-memory Map rate limiter acceptable for single-process akasa-server; Redis migration path documented in code comment
 - [Phase 06-tool-nexus-backend]: Deterministic webhook token derivation (SHA-256 of connectionId + WEBHOOK_URL_SECRET) avoids DB schema change and keeps tokens stable across restarts
+- [Phase 06-tool-nexus-backend]: moduleResolution: Bundler for plugin tsconfig — avoids NodeNext .js extension requirement on workspace source files
+- [Phase 06-tool-nexus-backend]: @claw/akasa-server exports added for token-manager/credential-encryption — enables clean workspace import instead of fragile relative path
+- [Phase 06-tool-nexus-backend]: resolveCredential() returns {token, connectionId} tuple — avoids second DB query for audit logging in connectors
 
 ### Pending Todos
 
@@ -119,6 +123,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T12:18:58.013Z
-Stopped at: Completed Phase 06 Plan 03 — Webhook receiver system: signature verification for HubSpot and Slack, unique URL tokens, Slack challenge handler
+Last session: 2026-03-24T12:24:00.574Z
+Stopped at: Completed Phase 06 Plan 02 — Tool Nexus plugin with 3 connectors (HubSpot, Slack, Google Sheets), 7 tools, credential bridge, invocation logger
 Resume file: None
