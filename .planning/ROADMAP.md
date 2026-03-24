@@ -183,7 +183,7 @@ Plans:
   5. Chat threads and agent responses load in real time via Paperclip's WebSocket live events without polling
 **Plans**: 4 plans
 Plans:
-- [ ] 04-01-PLAN.md — Auth migration (BetterAuth), API proxy retarget, api.ts rewrite, WebSocket store
+- [x] 04-01-PLAN.md — Auth migration (BetterAuth), API proxy retarget, api.ts rewrite, WebSocket store
 - [ ] 04-02-PLAN.md — OFFICE pages (agents, issues, goals, projects with sub-navigation)
 - [ ] 04-03-PLAN.md — INDRA dashboard, CHAT with real-time messaging, SANCTUM costs
 - [ ] 04-04-PLAN.md — Old route cleanup, error page, and human verification
@@ -248,7 +248,7 @@ Plans:
 | 1. Submodule Integration | v6.0 | 2/2 | Complete   | 2026-03-23 |
 | 2. Design System Tokens and Typography | v6.0 | 2/2 | Complete |  |
 | 3. Design System Components and Motion | v6.0 | 3/4 | In Progress|  |
-| 4. SvelteKit Frontend Core | v6.0 | 0/4 | Not started | - |
+| 4. SvelteKit Frontend Core | v6.0 | 1/4 | In Progress|  |
 | 5. Evolution Routes | v6.0 | 0/- | Not started | - |
 | 6. Tool Nexus Backend | v6.0 | 0/- | Not started | - |
 | 7. Tool Nexus UI | v6.0 | 0/- | Not started | - |

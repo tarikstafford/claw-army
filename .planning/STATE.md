@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-24T02:32:56.624Z"
+status: Ready to execute
+stopped_at: Completed 04-sveltekit-frontend-core Plan 01 — BetterAuth migration, API proxy retarget, WebSocket store, auth page
+last_updated: "2026-03-24T06:58:32.406Z"
 progress:
   total_phases: 8
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 12
+  completed_plans: 9
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 03 — design-system-components-and-motion
+**Current focus:** Phase 04 — sveltekit-frontend-core
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 04 (sveltekit-frontend-core) — EXECUTING
+Plan: 2 of 4
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: Not started
 | Phase 03-design-system-components-and-motion P01 | 94s | 2 tasks | 2 files |
 | Phase 03-design-system-components-and-motion P03 | 67s | 2 tasks | 2 files |
 | Phase 03-design-system-components-and-motion P02 | 10 | 2 tasks | 5 files |
+| Phase 04-sveltekit-frontend-core P01 | 6 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ v6.0 key architectural decisions:
 - [Phase 03-02]: All 5 Back Office components use --bo-* tokens directly (world-native per D-03), no cross-world color usage
 - [Phase 03-02]: Accordion max-height transition (not GPU height) is spec-prescribed exception per DS-11 motion contract
 - [Phase 03-02]: Modal uses {#if open} for conditional render; SlidePanel uses translateX — both avoid display:none anti-pattern
+- [Phase 04-sveltekit-frontend-core]: Cookie forwarding replaces Bearer token in API proxy — BetterAuth manages session cookies natively; proxy copies cookie header verbatim to Paperclip Express
+- [Phase 04-sveltekit-frontend-core]: hooks.server.ts resolves session via GET PAPERCLIP_URL/api/auth/get-session with cookie forwarding; locals.session is null by default (not auth() function)
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T02:32:56.621Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-sveltekit-frontend-core/04-CONTEXT.md
+Last session: 2026-03-24T06:58:32.403Z
+Stopped at: Completed 04-sveltekit-frontend-core Plan 01 — BetterAuth migration, API proxy retarget, WebSocket store, auth page
+Resume file: None
