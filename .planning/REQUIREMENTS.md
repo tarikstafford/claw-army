@@ -19,8 +19,8 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 
 - [x] **UI-01**: SvelteKit v2 frontend configured to consume Paperclip's Express API directly (no separate Fastify backend)
 - [x] **UI-02**: Auth integrated — SvelteKit uses Paperclip's BetterAuth for session management (Google OAuth preserved)
-- [ ] **UI-03**: Agent management views rebuilt in SvelteKit — create, configure, view agents (replaces Paperclip React UI)
-- [ ] **UI-04**: Issue/task views rebuilt in SvelteKit — task board, issue detail, comments (replaces Paperclip React UI)
+- [x] **UI-03**: Agent management views rebuilt in SvelteKit — create, configure, view agents (replaces Paperclip React UI)
+- [x] **UI-04**: Issue/task views rebuilt in SvelteKit — task board, issue detail, comments (replaces Paperclip React UI)
 - [x] **UI-05**: Chat interface rebuilt in SvelteKit — threads, messages, agent responses (replaces Paperclip React UI)
 - [x] **UI-06**: Dashboard rebuilt in SvelteKit — metrics, costs, task status (replaces Paperclip React UI)
 - [x] **UI-07**: Real-time updates via Paperclip's WebSocket live events consumed by SvelteKit
@@ -123,8 +123,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SUB-05 | Phase 1 | Complete |
 | UI-01 | Phase 4 | Complete |
 | UI-02 | Phase 4 | Complete |
-| UI-03 | Phase 4 | Pending |
-| UI-04 | Phase 4 | Pending |
+| UI-03 | Phase 4 | Complete |
+| UI-04 | Phase 4 | Complete |
 | UI-05 | Phase 4 | Complete |
 | UI-06 | Phase 4 | Complete |
 | UI-07 | Phase 4 | Complete |

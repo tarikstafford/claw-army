@@ -184,7 +184,7 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [x] 04-01-PLAN.md — Auth migration (BetterAuth), API proxy retarget, api.ts rewrite, WebSocket store
-- [ ] 04-02-PLAN.md — OFFICE pages (agents, issues, goals, projects with sub-navigation)
+- [x] 04-02-PLAN.md — OFFICE pages (agents, issues, goals, projects with sub-navigation)
 - [x] 04-03-PLAN.md — INDRA dashboard, CHAT with real-time messaging, SANCTUM costs
 - [ ] 04-04-PLAN.md — Old route cleanup, error page, and human verification
 **UI hint**: yes
