@@ -115,7 +115,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [ ] **Phase 2: Design System Tokens and Typography** - CSS token foundation for both worlds with self-hosted fonts
 - [ ] **Phase 3: Design System Components and Motion** - Core component patterns, motion system, and product naming
 - [ ] **Phase 4: SvelteKit Frontend Core** - Auth, agent views, task views, chat, and real-time updates in SvelteKit
-- [ ] **Phase 5: Evolution Routes** - Soul system, council, god layer, and Karpathy loop wired to Paperclip heartbeat
+- [x] **Phase 5: Evolution Routes** - Soul system, council, god layer, and Karpathy loop wired to Paperclip heartbeat (completed 2026-03-24)
 - [ ] **Phase 6: Tool Nexus Backend** - Paperclip plugin connectors, OAuth/API key flows, webhooks, and invocation logging
 - [ ] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit
 - [ ] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks
@@ -203,7 +203,7 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — Dependencies, bots.paperclipAgentId, Vitest setup, soul CRUD routes, soul injection
 - [x] 05-02-PLAN.md — Council judges, council runner, verdict routes, evolution trigger polling
-- [ ] 05-03-PLAN.md — God Layer modules, class transitions, DNA capture, confirm/reject verdict routes
+- [x] 05-03-PLAN.md — God Layer modules, class transitions, DNA capture, confirm/reject verdict routes
 
 ### Phase 6: Tool Nexus Backend
 **Goal**: Agents can invoke external SaaS tools through a secure, logged, rate-limited gateway built as Paperclip plugins — credentials never leave the server
@@ -253,7 +253,7 @@ Plans:
 | 2. Design System Tokens and Typography | v6.0 | 2/2 | Complete |  |
 | 3. Design System Components and Motion | v6.0 | 3/4 | In Progress|  |
 | 4. SvelteKit Frontend Core | v6.0 | 2/4 | In Progress|  |
-| 5. Evolution Routes | v6.0 | 1/3 | In Progress|  |
+| 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 0/- | Not started | - |
 | 7. Tool Nexus UI | v6.0 | 0/- | Not started | - |
 | 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
