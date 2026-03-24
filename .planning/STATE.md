@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Completed Phase 04 Plan 04 — SvelteKit frontend core cleanup and human verification
-last_updated: "2026-03-24T07:27:14.562Z"
+status: Ready to execute
+stopped_at: Completed Phase 05 Plan 01 — soul generator, soul CRUD routes, soul injector, vitest setup
+last_updated: "2026-03-24T09:19:30.506Z"
 progress:
   total_phases: 8
   completed_phases: 4
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 04 — sveltekit-frontend-core
+**Current focus:** Phase 05 — performance-intelligence-and-dna-capture
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
+Phase: 05 (performance-intelligence-and-dna-capture) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: Not started
 | Phase 04-sveltekit-frontend-core P03 | 201s | 3 tasks | 6 files |
 | Phase 04-sveltekit-frontend-core P02 | 10 | 3 tasks | 19 files |
 | Phase 04-sveltekit-frontend-core P04 | 45 | 2 tasks | 29 files |
+| Phase 05 P01 | 326 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ v6.0 key architectural decisions:
 - [Phase 04-sveltekit-frontend-core]: Promise.allSettled for issue+comments parallel fetch — comment failure shows empty list rather than breaking page
 - [Phase 04-sveltekit-frontend-core]: Marketing layout BetterAuth migration gap fixed — event.locals.session replaces getServerSession(@auth/sveltekit)
 - [Phase 04-sveltekit-frontend-core]: Nav links updated /dashboard→/indra and /login→/auth after v5 route deletion
+- [Phase 05]: vitest.config.ts requires both @claw/source conditions AND path aliases — conditions alone insufficient; Vite cannot resolve workspace packages without explicit alias fallbacks (matched execution-service pattern)
+- [Phase 05]: Migration placed in packages/db/migrations/akasa/ subdirectory per plan spec — distinct from main Drizzle migration journal, applied manually via psql
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T07:19:54.304Z
-Stopped at: Completed Phase 04 Plan 04 — SvelteKit frontend core cleanup and human verification
+Last session: 2026-03-24T09:19:30.503Z
+Stopped at: Completed Phase 05 Plan 01 — soul generator, soul CRUD routes, soul injector, vitest setup
 Resume file: None

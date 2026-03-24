@@ -42,11 +42,11 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 
 ### Evolution Routes
 
-- [ ] **EVO-01**: Soul system routes mounted on Paperclip's Express server — CRUD for bot_souls, soul generation, mutation engine
+- [x] **EVO-01**: Soul system routes mounted on Paperclip's Express server — CRUD for bot_souls, soul generation, mutation engine
 - [ ] **EVO-02**: Council evaluation routes — trigger 3-judge evaluation after heartbeat run completes, store verdicts
 - [ ] **EVO-03**: God Layer routes — class transitions, DNA capture, negative signal updates, triggered by confirmed verdicts
 - [ ] **EVO-04**: Karpathy loop wired to Paperclip's heartbeat lifecycle — after each agent run: score → council → verdict → mutate/keep/discard → DNA capture
-- [ ] **EVO-05**: Soul injection into Paperclip agent sessions — SOUL.md content injected as system prompt when heartbeat dispatches an agent
+- [x] **EVO-05**: Soul injection into Paperclip agent sessions — SOUL.md content injected as system prompt when heartbeat dispatches an agent
 - [ ] **EVO-06**: Evolution event hooks — Paperclip emits events on heartbeat completion that trigger council evaluation pipeline
 
 ### Evolution Dashboard
@@ -140,11 +140,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DS-10 | Phase 3 | Complete |
 | DS-11 | Phase 3 | Complete |
 | DS-12 | Phase 3 | Complete |
-| EVO-01 | Phase 5 | Pending |
+| EVO-01 | Phase 5 | Complete |
 | EVO-02 | Phase 5 | Pending |
 | EVO-03 | Phase 5 | Pending |
 | EVO-04 | Phase 5 | Pending |
-| EVO-05 | Phase 5 | Pending |
+| EVO-05 | Phase 5 | Complete |
 | EVO-06 | Phase 5 | Pending |
 | DASH-01 | Phase 8 | Pending |
 | DASH-02 | Phase 8 | Pending |
