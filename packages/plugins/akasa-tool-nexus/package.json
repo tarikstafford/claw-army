@@ -1,0 +1,22 @@
+{
+  "name": "@claw/plugin-tool-nexus",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "main": "./dist/worker.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@paperclipai/plugin-sdk": "workspace:*",
+    "@claw/db": "workspace:*",
+    "@claw/akasa-server": "workspace:*",
+    "drizzle-orm": "0.45.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.1.1"
+  }
+}

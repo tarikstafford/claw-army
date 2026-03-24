@@ -3,6 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": {
+      "@claw/source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./services/token-manager": {
+      "@claw/source": "./src/services/token-manager.ts",
+      "default": "./dist/services/token-manager.js"
+    },
+    "./services/credential-encryption": {
+      "@claw/source": "./src/services/credential-encryption.ts",
+      "default": "./dist/services/credential-encryption.js"
+    }
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "test": "vitest run"
