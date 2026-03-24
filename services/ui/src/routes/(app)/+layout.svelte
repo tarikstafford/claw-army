@@ -1,67 +1,68 @@
 <script lang="ts">
   import '../../app.css';
   import { onMount } from 'svelte';
-  import { signOut } from '@auth/sveltekit/client';
   import { browser } from '$app/environment';
-  import { connectLifecycleSSE } from '$lib/sse';
-  import type { LifecycleNotification } from '$lib/types';
   import NavBar from '$lib/components/NavBar.svelte';
+  import { connectWebSocket, subscribeWS, type LiveEvent } from '$lib/ws';
 
   let { children, data } = $props();
   let session = $derived(data.session);
+  let companyId = $derived(data.companyId);
 
-  // ── Lifecycle notification toasts ──────────────────────────────
-  let notifications = $state<(LifecycleNotification & { id: string })[]>([]);
+  // ── Toast notification system ──────────────────────────────────
+  let notifications = $state<Array<{ id: string; type: string; text: string }>>([]);
 
-  function addNotification(event: LifecycleNotification) {
+  function addToast(text: string, type: string = 'info') {
     const id = crypto.randomUUID().slice(0, 8);
-    notifications = [{ ...event, id }, ...notifications].slice(0, 5);
+    notifications = [{ id, type, text }, ...notifications].slice(0, 5);
     setTimeout(() => {
       notifications = notifications.filter(n => n.id !== id);
-    }, 8000);
+    }, 4000);
   }
 
-  $effect(() => {
-    if (!browser) return;
-    const cleanup = connectLifecycleSSE(addNotification);
-    return () => cleanup?.();
-  });
-
-  function dismissNotification(id: string) {
+  function dismissToast(id: string) {
     notifications = notifications.filter(n => n.id !== id);
   }
 
-  function getNotificationIcon(type: LifecycleNotification['type']): string {
-    switch (type) {
-      case 'soul_promoted':   return 'UP';
-      case 'soul_demoted':    return 'DN';
-      case 'soul_retired':    return 'RT';
-      case 'pioneer_detected': return 'P1';
-    }
-  }
+  // ── WebSocket connection ───────────────────────────────────────
+  let wsConnected = $state(false);
+  let wsDisconnectVisible = $state(false);
 
-  function getNotificationColor(type: LifecycleNotification['type']): string {
-    switch (type) {
-      case 'soul_promoted':    return 'var(--bo-teal)';
-      case 'soul_demoted':     return 'var(--karma)';
-      case 'soul_retired':     return 'var(--bo-rose)';
-      case 'pioneer_detected': return 'var(--karma)';
-    }
-  }
+  onMount(() => {
+    if (!browser || !companyId) return;
+
+    const cleanup = connectWebSocket(companyId);
+
+    const unsub = subscribeWS((event: LiveEvent) => {
+      wsConnected = true;
+      wsDisconnectVisible = false;
+
+      // Route events to toasts
+      if (event.type === 'chat.message.created') {
+        addToast('New message received', 'chat');
+      }
+      // Add more event type handlers as needed
+    });
+
+    return () => {
+      cleanup?.();
+      unsub();
+    };
+  });
 </script>
 
 <NavBar />
 
+{#if wsDisconnectVisible}
+  <div class="ws-banner">Connection lost - reconnecting...</div>
+{/if}
+
 {#if notifications.length > 0}
-  <div class="lifecycle-toasts">
+  <div class="toast-container">
     {#each notifications as notif (notif.id)}
-      <div class="lifecycle-toast" style="border-left-color: {getNotificationColor(notif.type)}">
-        <span class="toast-icon" style="color: {getNotificationColor(notif.type)}">{getNotificationIcon(notif.type)}</span>
-        <div class="toast-content">
-          <span class="toast-type">{notif.type.replace(/_/g, ' ')}</span>
-          <span class="toast-desc">{notif.description}</span>
-        </div>
-        <button class="toast-dismiss" onclick={() => dismissNotification(notif.id)} aria-label="Dismiss">×</button>
+      <div class="toast">
+        <span class="toast-text">{notif.text}</span>
+        <button class="toast-dismiss" onclick={() => dismissToast(notif.id)} aria-label="Dismiss">×</button>
       </div>
     {/each}
   </div>
@@ -79,31 +80,51 @@
     padding-top: 44px;
   }
 
-  /* ── Lifecycle toasts ─────────────────────────────── */
-  .lifecycle-toasts {
+  /* ── WS disconnect banner ─────────────────────────── */
+  .ws-banner {
+    position: fixed;
+    top: 44px;
+    left: 0;
+    right: 0;
+    z-index: 500;
+    background: var(--fo-gold, #B8860B);
+    color: #ffffff;
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+    font-size: 13px;
+    text-align: center;
+    padding: 6px;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ── Toast container ──────────────────────────────── */
+  .toast-container {
     position: fixed;
     top: 56px;
     right: 20px;
     z-index: 600;
+    max-width: 360px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-width: 360px;
     pointer-events: none;
   }
 
-  .lifecycle-toast {
+  .toast {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-left-width: 3px;
-    border-radius: 10px;
+    background: var(--fo-card, #FFFFFF);
+    border: 1px solid var(--fo-border, #E8E4DC);
+    border-radius: var(--radius-md, 10px);
     padding: 12px 14px;
-    animation: slideIn 0.25s cubic-bezier(0.16,1,0.3,1);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.25s ease-out;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     pointer-events: all;
+  }
+
+  :global(body.back-office) .toast {
+    background: var(--card);
+    border-color: var(--border);
   }
 
   @keyframes slideIn {
@@ -111,50 +132,27 @@
     to   { opacity: 1; transform: translateX(0); }
   }
 
-  .toast-icon {
-    font-family: var(--font-mono);
-    font-size: 9px;
+  .toast-text {
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+    font-size: 13px;
     font-weight: 400;
-    letter-spacing: 0.08em;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .toast-content {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+    color: var(--text-muted, #6B6260);
+    line-height: 1.5;
     flex: 1;
     min-width: 0;
-  }
-
-  .toast-type {
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--bo-faint);
-  }
-
-  .toast-desc {
-    font-size: 13px;
-    font-weight: 300;
-    color: var(--text-muted);
-    line-height: 1.5;
   }
 
   .toast-dismiss {
     background: none;
     border: none;
-    color: var(--bo-faint);
+    color: var(--muted, #8A7E70);
     cursor: pointer;
     padding: 0;
     font-size: 14px;
     line-height: 1;
     flex-shrink: 0;
-    transition: color 0.2s;
+    transition: color 0.2s ease;
   }
 
-  .toast-dismiss:hover { color: var(--text-muted); }
+  .toast-dismiss:hover { color: var(--text-muted, #6B6260); }
 </style>
