@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Ready to execute
-stopped_at: Completed Phase 05 Plan 01 — soul generator, soul CRUD routes, soul injector, vitest setup
-last_updated: "2026-03-24T09:19:30.506Z"
+stopped_at: Completed Phase 05 Plan 02 — council judges, verdict routes, evolution trigger polling
+last_updated: "2026-03-24T09:30:10.947Z"
 progress:
   total_phases: 8
   completed_phases: 4
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 05 (performance-intelligence-and-dna-capture) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Plan: 2 of 3
 | Phase 04-sveltekit-frontend-core P02 | 10 | 3 tasks | 19 files |
 | Phase 04-sveltekit-frontend-core P04 | 45 | 2 tasks | 29 files |
 | Phase 05 P01 | 326 | 2 tasks | 10 files |
+| Phase 05 P02 | 461s | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ v6.0 key architectural decisions:
 - [Phase 04-sveltekit-frontend-core]: Nav links updated /dashboard→/indra and /login→/auth after v5 route deletion
 - [Phase 05]: vitest.config.ts requires both @claw/source conditions AND path aliases — conditions alone insufficient; Vite cannot resolve workspace packages without explicit alias fallbacks (matched execution-service pattern)
 - [Phase 05]: Migration placed in packages/db/migrations/akasa/ subdirectory per plan spec — distinct from main Drizzle migration journal, applied manually via psql
+- [Phase 05]: Devil's Advocate uses @ai-sdk/openai gpt-4o-mini (OpenAI family) NOT @ai-sdk/google as in execution-service — plan spec says OpenAI, satisfies CLAUDE.md heterogeneous provider requirement
+- [Phase 05]: Council runner weights 0.5/0.3/0.2 (PJ/SA/DA); Promote and Retire set requiresHumanConfirmation=true; partial judge failures handled via renormalized weights
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T09:19:30.503Z
-Stopped at: Completed Phase 05 Plan 01 — soul generator, soul CRUD routes, soul injector, vitest setup
+Last session: 2026-03-24T09:30:10.944Z
+Stopped at: Completed Phase 05 Plan 02 — council judges, verdict routes, evolution trigger polling
 Resume file: None

@@ -202,7 +202,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 05-01-PLAN.md — Dependencies, bots.paperclipAgentId, Vitest setup, soul CRUD routes, soul injection
-- [ ] 05-02-PLAN.md — Council judges, council runner, verdict routes, evolution trigger polling
+- [x] 05-02-PLAN.md — Council judges, council runner, verdict routes, evolution trigger polling
 - [ ] 05-03-PLAN.md — God Layer modules, class transitions, DNA capture, confirm/reject verdict routes
 
 ### Phase 6: Tool Nexus Backend
