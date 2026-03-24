@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Completed Phase 05 Plan 03 — God Layer modules (class-machine, dna-writer, negative-register, pioneer-tracker, god-layer-handler), confirm/reject verdict routes
-last_updated: "2026-03-24T09:42:33.361Z"
+status: Ready to execute
+stopped_at: "Completed Phase 06 Plan 01 — Tool Nexus backend data foundation: tool_connections schema, credential encryption, token manager, rate limiter, CRUD routes"
+last_updated: "2026-03-24T12:13:32.903Z"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 12
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 05 — performance-intelligence-and-dna-capture
+**Current focus:** Phase 06 — ui-command-center
 
 ## Current Position
 
-Phase: 6
-Plan: Not started
+Phase: 06 (ui-command-center) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: Not started
 | Phase 05 P01 | 326 | 2 tasks | 10 files |
 | Phase 05 P02 | 461s | 2 tasks | 11 files |
 | Phase 05 P03 | 318 | 2 tasks | 8 files |
+| Phase 06-tool-nexus-backend P01 | 309 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,8 @@ v6.0 key architectural decisions:
 - [Phase 05]: Council runner weights 0.5/0.3/0.2 (PJ/SA/DA); Promote and Retire set requiresHumanConfirmation=true; partial judge failures handled via renormalized weights
 - [Phase 05]: class-machine simplified for akasa-server: computeClassTransition(currentClass, verdictType) -> { newClass, transitioned } pure function without run counters — simpler interface for God Layer HTTP context vs BullMQ worker context
 - [Phase 05]: godLayerRouter mounts at /akasa/verdicts alongside councilRouter — coexist cleanly (GET vs PATCH method separation)
+- [Phase 06-tool-nexus-backend]: AES-256-GCM credential encryption uses node:crypto with TOOL_ENCRYPTION_KEY (falls back to PAPERCLIP_SECRETS_MASTER_KEY) — no external crypto packages
+- [Phase 06-tool-nexus-backend]: In-memory Map rate limiter acceptable for single-process akasa-server; Redis migration path documented in code comment
 
 ### Pending Todos
 
@@ -114,6 +117,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T09:38:24.891Z
-Stopped at: Completed Phase 05 Plan 03 — God Layer modules (class-machine, dna-writer, negative-register, pioneer-tracker, god-layer-handler), confirm/reject verdict routes
+Last session: 2026-03-24T12:13:32.900Z
+Stopped at: Completed Phase 06 Plan 01 — Tool Nexus backend data foundation: tool_connections schema, credential encryption, token manager, rate limiter, CRUD routes
 Resume file: None
