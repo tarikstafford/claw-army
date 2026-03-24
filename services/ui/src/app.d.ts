@@ -4,7 +4,10 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			auth(): Promise<import('@auth/sveltekit').Session | null>;
+			session: {
+				user: { id: string; email: string | null; name: string | null; image?: string | null };
+				session: { id: string; userId: string };
+			} | null;
 		}
 		// interface PageData {}
 		// interface PageState {}
