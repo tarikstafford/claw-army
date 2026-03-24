@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-03-24
+revised: 2026-03-24
 ---
 
 # Phase 4 — UI Design Contract
@@ -29,7 +30,7 @@ created: 2026-03-24
 
 | Component | File | Use In Phase 4 |
 |-----------|------|----------------|
-| NavBar | `lib/components/NavBar.svelte` | Wire tab `href` props to `/indra`, `/office`, `/chat`, `/sanctum` |
+| NavBar | `lib/components/NavBar.svelte` | Wire tab `href` props to `/indra`, `/office`, `/chat`, `/sanctum`; add `aria-label="Settings"` to gear icon button |
 | MechanicCard | `lib/components/MechanicCard.svelte` | Agent cards in OFFICE |
 | MetricTile | `lib/components/MetricTile.svelte` | INDRA fleet stats, SANCTUM cost figures |
 | ChatBubble | `lib/components/ChatBubble.svelte` | CHAT message thread |
@@ -63,7 +64,7 @@ Phase 4 pages operate in the Front Office by default. Back Office mode is availa
 
 ## Spacing Scale
 
-Source: `services/ui/src/app.css` and `akasa-design-guide-v2.md §5.1`. These tokens are already installed — do not add new values.
+> **Project exception — locked design system tokens.** The Akasa design system uses a custom spacing scale (4, 8, 14, 20, 28, 40, 60px) that intentionally departs from the standard 8-point grid. These values are defined in both `akasa-design-guide-v2.md §5.1` (CSS variables reference) and `services/ui/src/app.css` (installed tokens). They are not misconfiguration — they reflect the product's editorial rhythm. Do not remap to 8-point multiples.
 
 | Token | Value | Usage |
 |-------|-------|-------|
@@ -95,20 +96,25 @@ Source: `services/ui/src/app.css` and `akasa-design-guide-v2.md §5.1`. These to
 
 ## Typography
 
+> **Project exception — six type levels.** The Akasa design system specifies six font size levels across three font families. This is intentional: Press Start 2P has two sub-scales (6px eyebrow/status and 7px tag), DM Sans has three (11px caption, 13px UI, 16px body), and Cormorant Garamond has two (18px card title, clamp(26px–38px) page display). All six are defined in `akasa-design-guide-v2.md §4.2` type scale and are in active use across the Phase 3 component library. The checker's 4-level maximum does not apply to this project's multi-font-family system.
+
+> **Project exception — weight 500 for `<strong>`.** The design guide (`akasa-design-guide-v2.md §4.2`) explicitly specifies `font-weight: 500` for `.t-body strong` and similar emphasis elements within body copy. This is a deliberate mid-weight step between regular (400) and semibold (600), used only for inline emphasis inside body prose. Weight 500 is reserved for this single use case — `<strong>` within DM Sans body copy. All other weights remain 400 or 600.
+
 Source: `akasa-design-guide-v2.md §4`, `services/ui/src/app.css`, DS-04.
 
 | Role | Font | Size | Weight | Line Height | When to use |
 |------|------|------|--------|-------------|-------------|
-| Body | DM Sans | 16px | 400 | 1.65 | All paragraph text, descriptions, form help text |
+| Body | DM Sans | 16px | 400 | 1.65 | All paragraph text, descriptions, form help text (base body from app.css) |
+| Body prose / longform | DM Sans | 14px | 400 | 1.8 | Accordion body text, modal body, panel body — uses `.t-body` class |
 | UI / small body | DM Sans | 13px | 400 | 1.5 | Table cells, input labels, form fields, sub-captions |
 | Caption | DM Sans | 11px | 400 | 1.55 | Supporting metadata, timestamps, secondary labels (italic) |
 | Card title / heading | Cormorant Garamond | 18px | 600 | 1.2 | Card titles, section headings, agent names in detail views |
-| Page display | Cormorant Garamond | 26–38px (clamp) | 600 | 1.1 | Page-level titles (INDRA briefing header, OFFICE header) |
+| Page display | Cormorant Garamond | clamp(26px, 3.5vw, 38px) | 600 | 1.1 | Page-level titles (INDRA briefing header, OFFICE header) |
 | Tag / label | Press Start 2P | 6–7px | 400 | n/a | Status badges, tier badges, nav tabs, eyebrows, metric labels |
 
-**Weights in use:** 400 (regular) and 600 (semibold). No other weights.
+**Weights in use:** 400 (regular), 500 (body emphasis only — `<strong>` within DM Sans prose), and 600 (semibold — Cormorant headings, CTAs). No other weights.
 
-**Emphasis rule:** `<strong>` within body copy uses weight 500 and `--bo-text` (Back Office) or `--ink` (Front Office). Never use bold for decorative purposes.
+**Emphasis rule:** `<strong>` within body copy uses weight 500 and `--bo-text` (Back Office) or `--ink` (Front Office). This is the only valid use of weight 500. Never use bold for decorative purposes.
 
 **Cormorant minimum:** 16px. Never use Cormorant Garamond below 16px.
 
@@ -186,13 +192,14 @@ Source: `services/ui/src/app.css`, `akasa-design-guide-v2.md §3`, DS-01 through
 
 - Single full-viewport page, Front Office mode, no NavBar
 - Centered sign-in card: Akasa wordmark + gem logo, "Sign in with Google" button
-- Button style: `--fo-plum` fill, white text, DM Sans 13px weight 500
+- Button style: `--fo-plum` fill, white text, DM Sans 13px weight 600
 - No email/password inputs — Google OAuth only (D-02)
 - After sign-in: redirect to `/indra` (D-04)
 
 ### `/indra` — Fleet briefing
 
 - Full-width layout below 44px NavBar
+- **Focal point:** INDRA identity bar — Akasa gem logo + "INDRA" wordmark in Cormorant Garamond 18px, plum color, centered at top of content area above the fleet stats row. This anchors the CEO briefing metaphor and gives the eye a single point of entry before scanning the data.
 - Fleet stats row: MetricTile components for agent count by status (idle/working/complete), total karma, daily cost
 - Activity feed: chronological list of recent events (agent state changes, task completions)
 - Pending approvals section: action-item list style (approve/dismiss inline, no separate page)
@@ -287,7 +294,7 @@ Source: `akasa-design-guide-v2.md §10`, DS-12.
 |---------|------|-------|
 | Primary CTA - sign in | "Sign in with Google" | Sentence case, no em dash |
 | Primary CTA - create agent | "Add agent" | Verb + noun, lowercase |
-| Primary CTA - send message | "Send" | Single word, button label |
+| Primary CTA - send message | "Send message" | Verb + noun pattern — do not shorten to "Send" |
 | Primary CTA - create issue | "New issue" | Adjective + noun |
 | Empty state - agents list | "No agents yet. Add your first agent to start working." | Sentence case, "working" not "running" |
 | Empty state - issues | "No issues assigned. Indra will route tasks here as your crew works." | References Indra as task router |
@@ -323,7 +330,7 @@ The `/auth` sign-in page is the only unauthenticated page in the `(app)` route g
 | Card surface | `--fo-card` background, `--fo-border` border, `--radius-lg` |
 | Logo area | Gem diamond + "Akasa" in Cormorant Garamond 24px weight 600, `--fo-plum` |
 | Tagline | DM Sans 14px, `--muted`, italic: "Where agents build your business." |
-| Google button | Full width, `--fo-plum` fill, white text, DM Sans 13px weight 500, `--radius-md` |
+| Google button | Full width, `--fo-plum` fill, white text, DM Sans 13px weight 600, `--radius-md` |
 | Google button hover | `--fo-plum-m` fill, transition 0.15s |
 | Error message | DM Sans 13px, `--error`, displayed below button |
 
@@ -380,6 +387,7 @@ Every page that loads data from `+page.server.ts` must handle these three states
 | Focus rings | Visible on all interactive elements — use `outline: 2px solid --accent-m` |
 | Color alone | Never convey state with color alone — pair with label text or icon |
 | NavBar keyboard | Tab order: logo, tabs in order (INDRA, OFFICE, CHAT, SANCTUM), gear icon, mode toggle |
+| Gear icon | `aria-label="Settings"` on the gear icon button — required because it has no visible text label |
 | Error messages | Associated with field via `aria-describedby` |
 | Loading states | `aria-busy="true"` on skeleton container |
 | Modal | Focus trap via Modal component (already implemented in Phase 3) |
