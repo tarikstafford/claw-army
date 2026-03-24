@@ -1,35 +1,4 @@
-import type {
-  Execution,
-  ExecutionMetrics,
-  ExecutionReport,
-  LeaderboardEntry,
-  BotDetail,
-  BillingHistoryEntry,
-  BillingSummary,
-  ExecutionBot,
-  PendingVerdict,
-  VerdictDetail,
-  ExecutionPendingVerdict,
-  CalibrationData,
-  ArmyBuilderAnalysis,
-  Objective,
-  ObjectiveListItem,
-  ObjectiveRun,
-  ObjectiveStats,
-  ObjectiveTimeline,
-  BotSoul,
-  RingLeaderManifestResponse,
-  RingLeaderStateResponse,
-  RingLeaderEventsResponse,
-  RingLeaderSynthesisResponse,
-  SoulLibraryResponse,
-  SoulCategoriesResponse,
-  CategoryBenchmarksResponse,
-  DecisionTracesResponse,
-  NegativeSignalsResponse,
-} from './types';
-
-const BASE = import.meta.env.VITE_API_URL ?? '/api';
+const BASE = '/api';
 
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options);
@@ -40,291 +9,348 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function createExecution(body: {
-  objective: string;
-  maxBots: number;
-  budgetCapCents: number;
-  allowedTools: string[];
-  objectiveId?: string;
-}): Promise<{ executionId: string; status: 'queued' | 'pre_flight' }> {
-  return apiFetch(`${BASE}/executions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-}
+// ── Domain types ──────────────────────────────────────────────────
 
-export async function getExecution(id: string): Promise<Execution> {
-  return apiFetch(`${BASE}/executions/${id}`);
-}
-
-export async function getExecutionMetrics(id: string): Promise<ExecutionMetrics> {
-  return apiFetch(`${BASE}/executions/${id}/metrics`);
-}
-
-export async function getExecutionReport(id: string): Promise<ExecutionReport> {
-  return apiFetch(`${BASE}/executions/${id}/report`);
-}
-
-export async function getLeaderboard(id: string): Promise<LeaderboardEntry[]> {
-  return apiFetch(`${BASE}/executions/${id}/leaderboard`);
-}
-
-export async function getBotDetail(botId: string): Promise<BotDetail> {
-  return apiFetch(`${BASE}/bots/${botId}/detail`);
-}
-
-export async function getExecutionBots(executionId: string): Promise<ExecutionBot[]> {
-  return apiFetch(`${BASE}/bots/by-execution/${executionId}`);
-}
-
-export async function getBillingHistory(): Promise<BillingHistoryEntry[]> {
-  return apiFetch(`${BASE}/billing/history`);
-}
-
-export async function getBillingSummary(): Promise<BillingSummary> {
-  return apiFetch(`${BASE}/billing/summary`);
-}
-
-// Admin
-
-export interface AdminExecution {
+export interface Company {
   id: string;
-  status: 'queued' | 'pre_flight' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
-  objective: string;
-  maxBots: number;
-  budgetCapCents: number;
-  allowedTools: string[];
+  name: string;
   createdAt: string;
   updatedAt: string;
-  activeBotCount: number;
 }
 
-export async function listAllExecutions(): Promise<AdminExecution[]> {
-  return apiFetch(`${BASE}/executions/all`);
+export interface Agent {
+  id: string;
+  companyId: string;
+  name: string;
+  description?: string | null;
+  adapter?: string | null;
+  status?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export async function stopExecution(id: string): Promise<{ success: boolean }> {
-  return apiFetch(`${BASE}/executions/${id}/stop`, { method: 'POST' });
+export interface CreateAgentInput {
+  name: string;
+  description?: string;
+  adapter?: string;
 }
 
-export async function confirmExecution(id: string): Promise<{ success: boolean }> {
-  return apiFetch(`${BASE}/executions/${id}/confirm`, { method: 'POST' });
+export interface Issue {
+  id: string;
+  companyId: string;
+  title: string;
+  body?: string | null;
+  status: string;
+  projectId?: string | null;
+  assigneeAgentId?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export async function cancelExecution(id: string): Promise<{ success: boolean }> {
-  return apiFetch(`${BASE}/executions/${id}/cancel`, { method: 'POST' });
+export interface CreateIssueInput {
+  title: string;
+  body?: string;
+  projectId?: string;
+  assigneeAgentId?: string;
 }
 
-// Verdicts (Phase 12 — confirmation gate)
-
-export async function getPendingVerdicts(): Promise<PendingVerdict[]> {
-  return apiFetch(`${BASE}/verdicts/pending`);
+export interface IssueComment {
+  id: string;
+  issueId: string;
+  body: string;
+  senderType?: string | null;
+  senderId?: string | null;
+  createdAt: string;
 }
 
-export async function getVerdict(verdictId: string): Promise<VerdictDetail> {
-  return apiFetch(`${BASE}/verdicts/${verdictId}`);
+export interface Goal {
+  id: string;
+  companyId: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export async function confirmVerdict(
-  verdictId: string,
-  body: { userId: string; timeOnScreenMs: number },
-): Promise<{ ok: boolean }> {
-  return apiFetch(`${BASE}/verdicts/${verdictId}/confirm`, {
+export interface CreateGoalInput {
+  title: string;
+  description?: string;
+}
+
+export interface Project {
+  id: string;
+  companyId: string;
+  name: string;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProjectInput {
+  name: string;
+  description?: string;
+}
+
+export interface ChatThread {
+  id: string;
+  companyId: string;
+  agentId: string;
+  title?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  threadId: string;
+  body: string;
+  senderType?: string | null;
+  senderId?: string | null;
+  createdAt: string;
+}
+
+export interface DashboardSummary {
+  totalAgents: number;
+  activeAgents: number;
+  openIssues: number;
+  pendingApprovals: number;
+  recentActivity?: ActivityEvent[];
+}
+
+export interface ActivityEvent {
+  id: string | number;
+  type: string;
+  description?: string;
+  createdAt: string;
+  agentId?: string | null;
+  payload?: Record<string, unknown>;
+}
+
+export interface SidebarBadges {
+  pendingApprovals?: number;
+  openIssues?: number;
+  activeAgents?: number;
+}
+
+export interface Approval {
+  id: string;
+  companyId: string;
+  type: string;
+  status: string;
+  payload?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CostSummary {
+  totalCents: number;
+  periodStart: string;
+  periodEnd: string;
+  breakdown?: Record<string, number>;
+}
+
+export interface CostByAgent {
+  agentId: string;
+  agentName?: string | null;
+  totalCents: number;
+}
+
+export interface BudgetOverview {
+  dailyBudgetCents: number;
+  spentTodayCents: number;
+  remainingTodayCents: number;
+  monthlyTotalCents: number;
+}
+
+// ── Companies ─────────────────────────────────────────────────────
+
+export async function getCompanies(): Promise<Company[]> {
+  return apiFetch(`${BASE}/companies`);
+}
+
+// ── Dashboard (INDRA) ─────────────────────────────────────────────
+
+export async function getDashboard(companyId: string): Promise<DashboardSummary> {
+  return apiFetch(`${BASE}/companies/${companyId}/dashboard`);
+}
+
+export async function getActivity(companyId: string, params?: { agentId?: string }): Promise<ActivityEvent[]> {
+  const query = params?.agentId ? `?agentId=${encodeURIComponent(params.agentId)}` : '';
+  return apiFetch(`${BASE}/companies/${companyId}/activity${query}`);
+}
+
+export async function getSidebarBadges(companyId: string): Promise<SidebarBadges> {
+  return apiFetch(`${BASE}/companies/${companyId}/sidebar-badges`);
+}
+
+// ── Approvals ─────────────────────────────────────────────────────
+
+export async function getApprovals(companyId: string): Promise<Approval[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/approvals`);
+}
+
+// ── Agents ────────────────────────────────────────────────────────
+
+export async function getAgents(companyId: string): Promise<Agent[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/agents`);
+}
+
+export async function getAgent(agentId: string): Promise<Agent> {
+  return apiFetch(`${BASE}/agents/${agentId}`);
+}
+
+export async function createAgent(companyId: string, body: CreateAgentInput): Promise<Agent> {
+  return apiFetch(`${BASE}/companies/${companyId}/agents`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 }
 
-export async function rejectVerdict(
-  verdictId: string,
-  body: { userId: string; timeOnScreenMs: number },
-): Promise<{ ok: boolean }> {
-  return apiFetch(`${BASE}/verdicts/${verdictId}/reject`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-}
-
-export async function getCalibration(userId: string): Promise<CalibrationData> {
-  return apiFetch(`${BASE}/verdicts/calibration?userId=${encodeURIComponent(userId)}`);
-}
-
-// Army Builder (Phase 14 — UIEX-04/05)
-
-export async function getArmyBuilderAnalysis(
-  objective: string,
-  maxBots: number,
-): Promise<ArmyBuilderAnalysis> {
-  const params = new URLSearchParams({
-    objective,
-    maxBots: String(maxBots),
-  });
-  return apiFetch(`${BASE}/army-builder/analysis?${params}`);
-}
-
-// Phase 17 — Objectives API
-
-export async function getObjectives(): Promise<ObjectiveListItem[]> {
-  return apiFetch(`${BASE}/objectives`);
-}
-
-export async function getArchivedObjectives(): Promise<ObjectiveListItem[]> {
-  return apiFetch(`${BASE}/objectives?archived=true`);
-}
-
-export async function getObjective(id: string): Promise<Objective> {
-  return apiFetch(`${BASE}/objectives/${id}`);
-}
-
-export async function getObjectiveExecutions(id: string): Promise<ObjectiveRun[]> {
-  return apiFetch(`${BASE}/objectives/${id}/executions`);
-}
-
-export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
-  return apiFetch(`${BASE}/objectives/${id}/stats`);
-}
-
-// Phase 38 — DNA Evolution Timeline
-
-export async function getObjectiveTimeline(
-  id: string,
-  params: { limit?: number; offset?: number; filter?: string } = {},
-): Promise<ObjectiveTimeline> {
-  const query = new URLSearchParams();
-  if (params.limit != null) query.set('limit', String(params.limit));
-  if (params.offset != null) query.set('offset', String(params.offset));
-  if (params.filter && params.filter !== 'all') query.set('filter', params.filter);
-  const qs = query.toString();
-  return apiFetch(`${BASE}/objectives/${id}/timeline${qs ? `?${qs}` : ''}`);
-}
-
-// Phase 37 — Objective Mutations (used by server actions and client-side code)
-
-export async function updateObjective(
-  id: string,
-  body: Partial<{
-    name: string;
-    description: string;
-    defaultMaxBots: number;
-    defaultBudgetCapCents: number;
-    defaultRuntimeLimitSeconds: number;
-    defaultAllowedTools: string[];
-    isArchived: boolean;
-  }>,
-): Promise<Objective> {
-  return apiFetch(`${BASE}/objectives/${id}`, {
+export async function updateAgent(agentId: string, body: Partial<Agent>): Promise<Agent> {
+  return apiFetch(`${BASE}/agents/${agentId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 }
 
-export async function archiveObjective(id: string): Promise<Objective> {
-  return updateObjective(id, { isArchived: true });
+// ── Issues ────────────────────────────────────────────────────────
+
+export async function getIssues(
+  companyId: string,
+  params?: { status?: string; projectId?: string; assigneeAgentId?: string; q?: string },
+): Promise<Issue[]> {
+  const query = new URLSearchParams();
+  if (params?.status) query.set('status', params.status);
+  if (params?.projectId) query.set('projectId', params.projectId);
+  if (params?.assigneeAgentId) query.set('assigneeAgentId', params.assigneeAgentId);
+  if (params?.q) query.set('q', params.q);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/companies/${companyId}/issues${qs ? `?${qs}` : ''}`);
 }
 
-export async function unarchiveObjective(id: string): Promise<Objective> {
-  return updateObjective(id, { isArchived: false });
+export async function getIssue(issueId: string): Promise<Issue> {
+  return apiFetch(`${BASE}/issues/${issueId}`);
 }
 
-export async function createObjective(body: {
-  name: string;
-  description?: string;
-  defaultMaxBots: number;
-  defaultBudgetCapCents?: number;
-  defaultRuntimeLimitSeconds?: number;
-  defaultAllowedTools?: string[];
-}): Promise<Objective> {
-  return apiFetch(`${BASE}/objectives`, {
+export async function createIssue(companyId: string, body: CreateIssueInput): Promise<Issue> {
+  return apiFetch(`${BASE}/companies/${companyId}/issues`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 }
 
-// Phase 18 — Soul Inspector
-
-export async function getBotSoul(botId: string): Promise<BotSoul> {
-  return apiFetch(`${BASE}/bots/${botId}/soul`);
+export async function updateIssue(issueId: string, body: Partial<Issue>): Promise<Issue> {
+  return apiFetch(`${BASE}/issues/${issueId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
-// Phase 19 — Run View Enhancements
-
-export async function getExecutionPendingVerdicts(executionId: string): Promise<ExecutionPendingVerdict[]> {
-  return apiFetch(`${BASE}/executions/${executionId}/pending-verdicts`);
+export async function getIssueComments(issueId: string): Promise<IssueComment[]> {
+  return apiFetch(`${BASE}/issues/${issueId}/comments`);
 }
 
-// Phase 32 — Ring Leader Dashboard API
-
-export async function getRingLeaderManifest(executionId: string): Promise<RingLeaderManifestResponse> {
-  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}`);
+export async function addIssueComment(
+  issueId: string,
+  body: { body: string; reopen?: boolean; interrupt?: boolean },
+): Promise<IssueComment> {
+  return apiFetch(`${BASE}/issues/${issueId}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
-export async function getRingLeaderState(executionId: string): Promise<RingLeaderStateResponse> {
-  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/state`);
+// ── Goals ─────────────────────────────────────────────────────────
+
+export async function getGoals(companyId: string): Promise<Goal[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/goals`);
 }
 
-export async function getRingLeaderEvents(executionId: string): Promise<RingLeaderEventsResponse> {
-  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/events`);
+export async function getGoal(goalId: string): Promise<Goal> {
+  return apiFetch(`${BASE}/goals/${goalId}`);
 }
 
-export async function getRingLeaderSynthesis(executionId: string): Promise<RingLeaderSynthesisResponse> {
-  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/synthesis`);
+export async function createGoal(companyId: string, body: CreateGoalInput): Promise<Goal> {
+  return apiFetch(`${BASE}/companies/${companyId}/goals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
-// Phase 39 — Soul Library (SOUL-01)
+// ── Projects ──────────────────────────────────────────────────────
 
-export async function getSoulDetail(soulId: string): Promise<import('./types').SoulDetail> {
-  return apiFetch(`${BASE}/souls/${soulId}`);
+export async function getProjects(companyId: string): Promise<Project[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/projects`);
 }
 
-export async function getSoulLibrary(
-  params: { category?: string; agentClass?: string; limit?: number; offset?: number } = {},
-): Promise<SoulLibraryResponse> {
+export async function getProject(projectId: string): Promise<Project> {
+  return apiFetch(`${BASE}/projects/${projectId}`);
+}
+
+export async function createProject(companyId: string, body: CreateProjectInput): Promise<Project> {
+  return apiFetch(`${BASE}/companies/${companyId}/projects`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+// ── Chat ──────────────────────────────────────────────────────────
+
+export async function getChatThreads(companyId: string): Promise<ChatThread[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/chat/threads`);
+}
+
+export async function createChatThread(
+  companyId: string,
+  body: { agentId: string; title?: string },
+): Promise<ChatThread> {
+  return apiFetch(`${BASE}/companies/${companyId}/chat/threads`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function getChatMessages(
+  threadId: string,
+  params?: { after?: string; limit?: number },
+): Promise<{ messages: ChatMessage[]; nextCursor?: string }> {
   const query = new URLSearchParams();
-  if (params.category) query.set('category', params.category);
-  if (params.agentClass) query.set('agentClass', params.agentClass);
-  if (params.limit != null) query.set('limit', String(params.limit));
-  if (params.offset != null) query.set('offset', String(params.offset));
+  if (params?.after) query.set('after', params.after);
+  if (params?.limit != null) query.set('limit', String(params.limit));
   const qs = query.toString();
-  return apiFetch(`${BASE}/souls${qs ? `?${qs}` : ''}`);
+  return apiFetch(`${BASE}/chat/threads/${threadId}/messages${qs ? `?${qs}` : ''}`);
 }
 
-export async function getSoulCategories(): Promise<SoulCategoriesResponse> {
-  return apiFetch(`${BASE}/souls/categories`);
+export async function sendChatMessage(
+  threadId: string,
+  body: { body: string; senderType?: string },
+): Promise<ChatMessage> {
+  return apiFetch(`${BASE}/chat/threads/${threadId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
-// Phase 39 — Category Benchmarks (SOUL-04)
+// ── Costs (SANCTUM) ───────────────────────────────────────────────
 
-export async function getCategoryBenchmarks(): Promise<CategoryBenchmarksResponse> {
-  return apiFetch(`${BASE}/category-benchmarks`);
+export async function getCostsSummary(companyId: string): Promise<CostSummary> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/summary`);
 }
 
-// Phase 39 — Decision Traces (SOUL-02)
-
-export async function getBotDecisionTraces(
-  botId: string,
-  params: { limit?: number; offset?: number } = {},
-): Promise<DecisionTracesResponse> {
-  const query = new URLSearchParams();
-  if (params.limit != null) query.set('limit', String(params.limit));
-  if (params.offset != null) query.set('offset', String(params.offset));
-  const qs = query.toString();
-  return apiFetch(`${BASE}/decision-traces/${botId}${qs ? `?${qs}` : ''}`);
+export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/by-agent`);
 }
 
-// Phase 39 — Negative Signals (SOUL-03)
-
-export async function getNegativeSignals(
-  params: { failureType?: string; limit?: number; offset?: number } = {},
-): Promise<NegativeSignalsResponse> {
-  const query = new URLSearchParams();
-  if (params.failureType) query.set('failureType', params.failureType);
-  if (params.limit != null) query.set('limit', String(params.limit));
-  if (params.offset != null) query.set('offset', String(params.offset));
-  const qs = query.toString();
-  return apiFetch(`${BASE}/negative-signals${qs ? `?${qs}` : ''}`);
+export async function getBudgetOverview(companyId: string): Promise<BudgetOverview> {
+  return apiFetch(`${BASE}/companies/${companyId}/budgets/overview`);
 }

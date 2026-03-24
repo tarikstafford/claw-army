@@ -1,23 +1,17 @@
 import type { RequestHandler } from '@sveltejs/kit';
 
 const handler: RequestHandler = async (event) => {
-  const executionServiceUrl = process.env.EXECUTION_SERVICE_URL;
-  if (!executionServiceUrl) {
+  const paperclipUrl = process.env.PAPERCLIP_URL;
+  if (!paperclipUrl) {
     return new Response(
-      JSON.stringify({ error: 'Server configuration error: EXECUTION_SERVICE_URL not set.' }),
+      JSON.stringify({ error: 'Server configuration error: PAPERCLIP_URL not set.' }),
       { status: 500, headers: { 'content-type': 'application/json' } },
     );
   }
 
-  // Extract Auth.js session token from cookies
-  // Auth.js uses 'authjs.session-token' on HTTP (dev) and '__Secure-authjs.session-token' on HTTPS (prod)
-  const sessionToken =
-    event.cookies.get('__Secure-authjs.session-token') ??
-    event.cookies.get('authjs.session-token');
-
   // Build the target URL preserving the sub-path and query string
   const path = event.params.path ?? '';
-  const target = new URL(`/${path}`, executionServiceUrl);
+  const target = new URL(`/${path}`, paperclipUrl);
   target.search = event.url.search;
 
   // Forward headers that matter
@@ -26,8 +20,10 @@ const handler: RequestHandler = async (event) => {
   if (contentType) {
     headers.set('content-type', contentType);
   }
-  if (sessionToken) {
-    headers.set('authorization', `Bearer ${sessionToken}`);
+  // Forward cookies for BetterAuth session (not Bearer token)
+  const cookieHeader = event.request.headers.get('cookie');
+  if (cookieHeader) {
+    headers.set('cookie', cookieHeader);
   }
 
   // Stream the request body through without buffering
@@ -45,7 +41,7 @@ const handler: RequestHandler = async (event) => {
     });
   } catch {
     return new Response(
-      JSON.stringify({ error: 'Could not reach execution service.' }),
+      JSON.stringify({ error: 'Could not reach Paperclip server.' }),
       { status: 503, headers: { 'content-type': 'application/json' } },
     );
   }
