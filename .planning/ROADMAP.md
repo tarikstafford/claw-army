@@ -215,11 +215,12 @@ Plans:
   3. A user can connect via API key — the key is stored masked, and a test-connection call confirms validity before saving
   4. Each webhook URL is unique per user per tool with a cryptographic token in the path; incoming payloads are signature-verified where the provider supports it
   5. Every tool invocation produces an audit log entry with toolId, action, agentId, timestamp, latency, and success/failure — readable by the user
-**Plans**: 3 plans
+**Plans**: 4 plans
 Plans:
-- [ ] 06-01-PLAN.md — DB schema (tool_connections, tool_invocation_logs), credential encryption, CRUD routes
-- [ ] 06-02-PLAN.md — Paperclip plugin with 3 connectors (HubSpot, Slack, Google Sheets), invocation logging
-- [ ] 06-03-PLAN.md — Webhook receiver with unique URLs, signature verification (HubSpot, Slack)
+- [x] 06-01-PLAN.md — DB schema (tool_connections, tool_invocation_logs), credential encryption, CRUD routes
+- [x] 06-02-PLAN.md — Paperclip plugin with 3 connectors (HubSpot, Slack, Google Sheets), invocation logging
+- [x] 06-03-PLAN.md — Webhook receiver with unique URLs, signature verification (HubSpot, Slack)
+- [ ] 06-04-PLAN.md — Gap closure: OAuth redirect/callback flow routes
 
 ### Phase 7: Tool Nexus UI
 **Goal**: Users can browse available tools, connect their accounts, manage their connected tools, and configure webhook routing — all from the SvelteKit UI
@@ -258,6 +259,6 @@ Plans:
 | 3. Design System Components and Motion | v6.0 | 3/4 | In Progress|  |
 | 4. SvelteKit Frontend Core | v6.0 | 2/4 | In Progress|  |
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
-| 6. Tool Nexus Backend | v6.0 | 0/3 | Not started | - |
+| 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
 | 7. Tool Nexus UI | v6.0 | 0/- | Not started | - |
 | 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
