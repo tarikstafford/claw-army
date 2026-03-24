@@ -199,7 +199,11 @@ Plans:
   3. Confirming a Promote or Retire verdict triggers God Layer: class transition executes, DNA capture writes, negative signal updates
   4. Each agent session receives a SOUL.md injected as its system prompt — the soul content is observable in Paperclip's session payload
   5. Paperclip heartbeat completion events reliably trigger the council pipeline with no manual intervention required
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 05-01-PLAN.md — Dependencies, bots.paperclipAgentId, Vitest setup, soul CRUD routes, soul injection
+- [ ] 05-02-PLAN.md — Council judges, council runner, verdict routes, evolution trigger polling
+- [ ] 05-03-PLAN.md — God Layer modules, class transitions, DNA capture, confirm/reject verdict routes
 
 ### Phase 6: Tool Nexus Backend
 **Goal**: Agents can invoke external SaaS tools through a secure, logged, rate-limited gateway built as Paperclip plugins — credentials never leave the server
@@ -249,7 +253,7 @@ Plans:
 | 2. Design System Tokens and Typography | v6.0 | 2/2 | Complete |  |
 | 3. Design System Components and Motion | v6.0 | 3/4 | In Progress|  |
 | 4. SvelteKit Frontend Core | v6.0 | 2/4 | In Progress|  |
-| 5. Evolution Routes | v6.0 | 0/- | Not started | - |
+| 5. Evolution Routes | v6.0 | 0/3 | Not started | - |
 | 6. Tool Nexus Backend | v6.0 | 0/- | Not started | - |
 | 7. Tool Nexus UI | v6.0 | 0/- | Not started | - |
 | 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
