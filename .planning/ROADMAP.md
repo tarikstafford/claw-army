@@ -220,7 +220,7 @@ Plans:
 - [x] 06-01-PLAN.md — DB schema (tool_connections, tool_invocation_logs), credential encryption, CRUD routes
 - [x] 06-02-PLAN.md — Paperclip plugin with 3 connectors (HubSpot, Slack, Google Sheets), invocation logging
 - [x] 06-03-PLAN.md — Webhook receiver with unique URLs, signature verification (HubSpot, Slack)
-- [ ] 06-04-PLAN.md — Gap closure: OAuth redirect/callback flow routes
+- [x] 06-04-PLAN.md — Gap closure: OAuth redirect/callback flow routes
 
 ### Phase 7: Tool Nexus UI
 **Goal**: Users can browse available tools, connect their accounts, manage their connected tools, and configure webhook routing — all from the SvelteKit UI

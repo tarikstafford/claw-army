@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Phase complete — ready for verification
-stopped_at: Completed Phase 06 Plan 02 — Tool Nexus plugin with 3 connectors (HubSpot, Slack, Google Sheets), 7 tools, credential bridge, invocation logger
-last_updated: "2026-03-24T12:24:00.578Z"
+stopped_at: Completed Phase 06 Plan 04 — OAuth authorization code flow routes for Tool Nexus
+last_updated: "2026-03-24T16:14:22.854Z"
 progress:
   total_phases: 8
-  completed_phases: 4
-  total_plans: 12
-  completed_plans: 15
+  completed_phases: 5
+  total_plans: 13
+  completed_plans: 16
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 06 — ui-command-center
+**Current focus:** Phase 06 — tool-nexus-backend
 
 ## Current Position
 
-Phase: 06 (ui-command-center) — EXECUTING
-Plan: 3 of 3
+Phase: 06 (tool-nexus-backend) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: 3 of 3
 | Phase 06-tool-nexus-backend P01 | 309 | 2 tasks | 11 files |
 | Phase 06-tool-nexus-backend P03 | 161 | 2 tasks | 4 files |
 | Phase 06-tool-nexus-backend P02 | 25 | 2 tasks | 15 files |
+| Phase 06-tool-nexus-backend P04 | 15 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ v6.0 key architectural decisions:
 - [Phase 06-tool-nexus-backend]: moduleResolution: Bundler for plugin tsconfig — avoids NodeNext .js extension requirement on workspace source files
 - [Phase 06-tool-nexus-backend]: @claw/akasa-server exports added for token-manager/credential-encryption — enables clean workspace import instead of fragile relative path
 - [Phase 06-tool-nexus-backend]: resolveCredential() returns {token, connectionId} tuple — avoids second DB query for audit logging in connectors
+- [Phase 06-tool-nexus-backend]: base64url encodes JSON state (userId+toolId+redirectUri) for OAuth flow — server-only use, no separate CSRF session needed
+- [Phase 06-tool-nexus-backend]: OAuth upsert: try insert first, catch unique violation, fallback to update — consistent with tool-connections.ts approach
 
 ### Pending Todos
 
@@ -123,6 +126,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T12:24:00.574Z
-Stopped at: Completed Phase 06 Plan 02 — Tool Nexus plugin with 3 connectors (HubSpot, Slack, Google Sheets), 7 tools, credential bridge, invocation logger
+Last session: 2026-03-24T16:14:22.851Z
+Stopped at: Completed Phase 06 Plan 04 — OAuth authorization code flow routes for Tool Nexus
 Resume file: None
