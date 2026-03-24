@@ -13,3 +13,5 @@ export * from './agent-classes';
 export * from './category-benchmarks';
 export * from './objectives';
 export * from './ring-leader-runs';
+export * from './tool-connections';
+export * from './tool-invocation-logs';
