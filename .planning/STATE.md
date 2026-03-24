@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to execute
-stopped_at: Completed 04-sveltekit-frontend-core Plan 02 — OFFICE sub-routes (agents, issues, goals, projects)
-last_updated: "2026-03-24T07:09:04.465Z"
+status: Phase complete — ready for verification
+stopped_at: Completed Phase 04 Plan 04 — SvelteKit frontend core cleanup and human verification
+last_updated: "2026-03-24T07:19:54.306Z"
 progress:
   total_phases: 8
   completed_phases: 3
@@ -51,6 +51,7 @@ Plan: 4 of 4
 | Phase 04-sveltekit-frontend-core P01 | 6 | 3 tasks | 12 files |
 | Phase 04-sveltekit-frontend-core P03 | 201s | 3 tasks | 6 files |
 | Phase 04-sveltekit-frontend-core P02 | 10 | 3 tasks | 19 files |
+| Phase 04-sveltekit-frontend-core P04 | 45 | 2 tasks | 29 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ v6.0 key architectural decisions:
 - [Phase 04-sveltekit-frontend-core]: Optimistic UI for chat send - replace optimistic message with confirmed on success, restore input on failure
 - [Phase 04-sveltekit-frontend-core]: Task 1 files committed by parallel 04-03 agent in 7787ad4 — verified acceptance criteria passed, proceeded to Tasks 2-3
 - [Phase 04-sveltekit-frontend-core]: Promise.allSettled for issue+comments parallel fetch — comment failure shows empty list rather than breaking page
+- [Phase 04-sveltekit-frontend-core]: Marketing layout BetterAuth migration gap fixed — event.locals.session replaces getServerSession(@auth/sveltekit)
+- [Phase 04-sveltekit-frontend-core]: Nav links updated /dashboard→/indra and /login→/auth after v5 route deletion
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T07:09:04.463Z
-Stopped at: Completed 04-sveltekit-frontend-core Plan 02 — OFFICE sub-routes (agents, issues, goals, projects)
+Last session: 2026-03-24T07:19:54.304Z
+Stopped at: Completed Phase 04 Plan 04 — SvelteKit frontend core cleanup and human verification
 Resume file: None
