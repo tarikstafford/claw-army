@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Ready to execute
-stopped_at: "Completed Phase 06 Plan 01 — Tool Nexus backend data foundation: tool_connections schema, credential encryption, token manager, rate limiter, CRUD routes"
-last_updated: "2026-03-24T12:13:32.903Z"
+stopped_at: "Completed Phase 06 Plan 03 — Webhook receiver system: signature verification for HubSpot and Slack, unique URL tokens, Slack challenge handler"
+last_updated: "2026-03-24T12:18:58.015Z"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 12
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 06 (ui-command-center) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Plan: 2 of 3
 | Phase 05 P02 | 461s | 2 tasks | 11 files |
 | Phase 05 P03 | 318 | 2 tasks | 8 files |
 | Phase 06-tool-nexus-backend P01 | 309 | 2 tasks | 11 files |
+| Phase 06-tool-nexus-backend P03 | 161 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,7 @@ v6.0 key architectural decisions:
 - [Phase 05]: godLayerRouter mounts at /akasa/verdicts alongside councilRouter — coexist cleanly (GET vs PATCH method separation)
 - [Phase 06-tool-nexus-backend]: AES-256-GCM credential encryption uses node:crypto with TOOL_ENCRYPTION_KEY (falls back to PAPERCLIP_SECRETS_MASTER_KEY) — no external crypto packages
 - [Phase 06-tool-nexus-backend]: In-memory Map rate limiter acceptable for single-process akasa-server; Redis migration path documented in code comment
+- [Phase 06-tool-nexus-backend]: Deterministic webhook token derivation (SHA-256 of connectionId + WEBHOOK_URL_SECRET) avoids DB schema change and keeps tokens stable across restarts
 
 ### Pending Todos
 
@@ -117,6 +119,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T12:13:32.900Z
-Stopped at: Completed Phase 06 Plan 01 — Tool Nexus backend data foundation: tool_connections schema, credential encryption, token manager, rate limiter, CRUD routes
+Last session: 2026-03-24T12:18:58.013Z
+Stopped at: Completed Phase 06 Plan 03 — Webhook receiver system: signature verification for HubSpot and Slack, unique URL tokens, Slack challenge handler
 Resume file: None
