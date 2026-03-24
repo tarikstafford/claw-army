@@ -1,10 +1,12 @@
 import { createServer } from 'node:http';
 import { createDb, applyPendingMigrations } from '@paperclipai/db';
+import { db as akasaDb } from '@claw/db';
 import { createApp } from '../../../paperclip/server/src/app.js';
 import { loadConfig } from '../../../paperclip/server/src/config.js';
 import { createStorageServiceFromConfig } from '../../../paperclip/server/src/storage/index.js';
 import { setupLiveEventsWebSocketServer } from '../../../paperclip/server/src/realtime/live-events-ws.js';
 import { akasaRouter } from './routes/index.js';
+import { startEvolutionPolling } from './routes/evolution-trigger.js';
 
 const config = loadConfig();
 
@@ -52,3 +54,7 @@ await new Promise<void>((resolve, reject) => {
 
 console.log(`[akasa-server] Listening on http://${config.host}:${config.port}`);
 console.log(`[akasa-server] Health check: http://localhost:${config.port}/api/akasa/health`);
+
+// Start evolution polling — checks heartbeat_runs every 60s for completed Akasa-managed agent runs
+startEvolutionPolling(db as never, akasaDb as never);
+console.log('[akasa-server] Evolution polling started (60s interval)');
