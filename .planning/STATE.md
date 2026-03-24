@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Ready to execute
-stopped_at: Completed 04-sveltekit-frontend-core Plan 01 — BetterAuth migration, API proxy retarget, WebSocket store, auth page
-last_updated: "2026-03-24T06:58:32.406Z"
+stopped_at: Completed 04-sveltekit-frontend-core Plan 03 — INDRA, CHAT, SANCTUM pages
+last_updated: "2026-03-24T07:04:22.326Z"
 progress:
   total_phases: 8
   completed_phases: 3
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 04 (sveltekit-frontend-core) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Plan: 2 of 4
 | Phase 03-design-system-components-and-motion P03 | 67s | 2 tasks | 2 files |
 | Phase 03-design-system-components-and-motion P02 | 10 | 2 tasks | 5 files |
 | Phase 04-sveltekit-frontend-core P01 | 6 | 3 tasks | 12 files |
+| Phase 04-sveltekit-frontend-core P03 | 201s | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ v6.0 key architectural decisions:
 - [Phase 03-02]: Modal uses {#if open} for conditional render; SlidePanel uses translateX — both avoid display:none anti-pattern
 - [Phase 04-sveltekit-frontend-core]: Cookie forwarding replaces Bearer token in API proxy — BetterAuth manages session cookies natively; proxy copies cookie header verbatim to Paperclip Express
 - [Phase 04-sveltekit-frontend-core]: hooks.server.ts resolves session via GET PAPERCLIP_URL/api/auth/get-session with cookie forwarding; locals.session is null by default (not auth() function)
+- [Phase 04-sveltekit-frontend-core]: INDRA fleet stats use null-safe field mapping with -- fallback per UI-SPEC (show -- not zero when data unavailable)
+- [Phase 04-sveltekit-frontend-core]: Chat messages fetched client-side only (not SSR) because thread selection is interactive
+- [Phase 04-sveltekit-frontend-core]: Optimistic UI for chat send - replace optimistic message with confirmed on success, restore input on failure
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T06:58:32.403Z
-Stopped at: Completed 04-sveltekit-frontend-core Plan 01 — BetterAuth migration, API proxy retarget, WebSocket store, auth page
+Last session: 2026-03-24T07:04:22.323Z
+Stopped at: Completed 04-sveltekit-frontend-core Plan 03 — INDRA, CHAT, SANCTUM pages
 Resume file: None
