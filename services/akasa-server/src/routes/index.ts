@@ -3,6 +3,7 @@ import { soulsRouter } from './souls.js';
 import { councilRouter } from './council.js';
 import { evolutionTriggerRouter } from './evolution-trigger.js';
 import { godLayerRouter } from './god-layer.js';
+import { toolConnectionsRouter } from './tool-connections.js';
 
 const akasaRouter = Router();
 
@@ -22,5 +23,8 @@ akasaRouter.use('/akasa/verdicts', godLayerRouter());
 
 // Evolution trigger routes (manual trigger + polling setup)
 akasaRouter.use('/akasa/evolution', evolutionTriggerRouter());
+
+// Tool connection CRUD routes + test + logs
+akasaRouter.use('/akasa/tool-connections', toolConnectionsRouter());
 
 export { akasaRouter };
