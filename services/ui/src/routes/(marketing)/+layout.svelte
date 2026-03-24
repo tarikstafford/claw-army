@@ -51,9 +51,9 @@
 
       <div class="nav-right">
         {#if session?.user}
-          <a href="/dashboard" class="btn-nav btn-primary">Dashboard</a>
+          <a href="/indra" class="btn-nav btn-primary">Dashboard</a>
         {:else}
-          <a href="/login" class="btn-nav">Login</a>
+          <a href="/auth" class="btn-nav">Login</a>
           <a href="#access" class="btn-nav btn-primary">Sign up</a>
         {/if}
       </div>

@@ -42,7 +42,7 @@
   async function handleApprove(id: string) {
     try {
       await fetch(`/api/approvals/${id}/approve`, { method: 'POST' });
-      approvals = approvals.filter((a) => a.id !== id);
+      approvals = approvals.filter((a: { id: string }) => a.id !== id);
     } catch {
       // non-critical — approval action failed silently
     }
@@ -51,7 +51,7 @@
   async function handleDismiss(id: string) {
     try {
       await fetch(`/api/approvals/${id}/dismiss`, { method: 'POST' });
-      approvals = approvals.filter((a) => a.id !== id);
+      approvals = approvals.filter((a: { id: string }) => a.id !== id);
     } catch {
       // non-critical — dismiss action failed silently
     }
