@@ -168,7 +168,7 @@ Plans:
 - [x] 03-01-PLAN.md — NavBar component and layout refactor (sidebar to top nav)
 - [x] 03-02-PLAN.md — Back Office components (MechanicCard, Accordion, SlidePanel, Modal, KarmaCallout)
 - [x] 03-03-PLAN.md — Front Office components (ChatBubble, MetricTile)
-- [ ] 03-04-PLAN.md — Gap closure: add 0.4s mode switch transition to body in app.css
+- [x] 03-04-PLAN.md — Gap closure: add 0.4s mode switch transition to body in app.css
 **UI hint**: yes
 
 ### Phase 4: SvelteKit Frontend Core
