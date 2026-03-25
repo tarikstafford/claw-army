@@ -249,7 +249,11 @@ Plans:
   4. Experiment ledger shows a run-by-run log per agent: composite score, score delta, mutation applied, verdict, keep/discard outcome
   5. Category benchmarks view shows pioneer baselines, benchmark maturity status (3+ confirmed runs), thin-data flags, and current best score per category
   6. Pending Promote/Retire verdicts surface in the UI with evidence and inline approve/reject controls; Pioneer designations receive permanent amber treatment with "First in [category]" label
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 08-01-PLAN.md — Backend API routes + NavBar extension + evolution layout + page skeletons
+- [ ] 08-02-PLAN.md — Fleet overview page with class grid, pending verdicts, and agent list
+- [ ] 08-03-PLAN.md — Bot detail page (timeline, lineage tree, ledger) + benchmarks page
 **UI hint**: yes
 
 ---
@@ -265,4 +269,4 @@ Plans:
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
-| 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
+| 8. Evolution Dashboard | v6.0 | 0/3 | Not started | - |
