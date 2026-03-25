@@ -227,11 +227,15 @@ Plans:
 **Depends on**: Phase 3, Phase 6
 **Requirements**: TOOL-04, TOOL-05, TOOL-08, TOOL-09
 **Success Criteria** (what must be TRUE):
-  1. Tool catalog shows all available integrations grouped by category (CRM, Communication, Payments, Data) with connection status per tool
+  1. Tool catalog shows all available integrations grouped by category (CRM, Communication, Data) with connection status per tool
   2. Tool Belt lists the user's connected tools with live status badges (connected / expired / rate_limited / errored), last-used timestamp, and a re-auth button on expired connections
   3. User can create a webhook routing rule — "when [event] matches [condition] → assign to [agent]" — and save it without errors
   4. Webhook event log displays all received webhooks with payload, routing decision, and resulting action in a browsable list
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 07-01-PLAN.md — Backend gap closure (routing rules + webhook logs) + UI scaffolding (NavBar, layout, auth, tool catalog data)
+- [ ] 07-02-PLAN.md — Tool Catalog and Tool Belt pages with ToolCard and StatusBadge components
+- [ ] 07-03-PLAN.md — Webhooks page with routing rule management and event log
 **UI hint**: yes
 
 ### Phase 8: Evolution Dashboard
@@ -260,5 +264,5 @@ Plans:
 | 4. SvelteKit Frontend Core | v6.0 | 2/4 | In Progress|  |
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
-| 7. Tool Nexus UI | v6.0 | 0/- | Not started | - |
+| 7. Tool Nexus UI | v6.0 | 0/3 | Not started | - |
 | 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
