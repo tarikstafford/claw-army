@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-03-25
+revised: 2026-03-25
 ---
 
 # Phase 7 — Tool Nexus UI Design Contract
@@ -43,19 +44,21 @@ The `/tools` route layout must apply `body.back-office` on mount and remove it o
 
 The project spacing scale from `app.css` is authoritative. Phase 7 uses it without deviation.
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | 4px | Icon gaps, inline padding, badge internal padding |
-| `--space-sm` | 8px | Between status badge and label, gap within tool card meta row |
-| `--space-md` | 14px | Default element spacing, form field gap, list item padding |
-| `--space-lg` | 20px | Card internal padding, section padding within tool cards |
-| `--space-xl` | 28px | Between catalog category sections, page content gap |
-| `--space-2xl` | 40px | Page top padding, between tab content and nav |
-| `--space-3xl` | 60px | Reserved for major page-level breaks (not used in tool pages) |
+**Project-established exceptions:** The values below are the actual tokens defined in `services/ui/src/app.css` lines 54–61. They do not conform to the standard 8-point scale (4, 8, 16, 24, 32, 48, 64). These are intentional project decisions established prior to Phase 7 and must not be altered. All Phase 7 layout work uses these tokens as-is.
 
-Exceptions: Touch target for the Connect/Disconnect button minimum is 44px height — use `min-height: 44px` inline. This is a touch accessibility requirement that does not introduce a new spacing token.
+| Token | Value | app.css Line | Usage |
+|-------|-------|-------------|-------|
+| `--space-xs` | 4px | 55 | Icon gaps, inline padding, badge internal padding |
+| `--space-sm` | 8px | 56 | Between status badge and label, gap within tool card meta row |
+| `--space-md` | 14px | 57 | Default element spacing, form field gap, list item padding |
+| `--space-lg` | 20px | 58 | Card internal padding, section padding within tool cards |
+| `--space-xl` | 28px | 59 | Between catalog category sections, page content gap |
+| `--space-2xl` | 40px | 60 | Page top padding, between tab content and nav |
+| `--space-3xl` | 60px | 61 | Reserved for major page-level breaks (not used in tool pages) |
 
-**Source:** `services/ui/src/app.css` lines 54-62 (verified)
+Exceptions: Touch target for the Connect Tool / Disconnect button minimum is 44px height — use `min-height: 44px` inline. This is a touch accessibility requirement that does not introduce a new spacing token.
+
+**Source:** `services/ui/src/app.css` lines 54–61 (verified — project-established token values)
 
 ---
 
@@ -63,16 +66,16 @@ Exceptions: Touch target for the Connect/Disconnect button minimum is 44px heigh
 
 All sizes from the established design guide §4. Tool Nexus is a Back Office surface — DM Sans is primary, Cormorant Garamond for section heads, Press Start 2P for status tags only.
 
+Exactly 4 font sizes are declared. The 13px size covers both body text and UI interactive elements (buttons, inputs, labels). No separate 14px size is used.
+
 | Role | Font | Size | Weight | Line Height | Usage |
 |------|------|------|--------|-------------|-------|
-| Body | DM Sans | 14px | 400 | 1.8 | Tool descriptions, webhook payload text, log entries |
-| UI text | DM Sans | 13px | 400 | 1.5 | Buttons, inputs, table cells, form labels |
+| Body / UI text | DM Sans | 13px | 400 | 1.5 | Tool descriptions, buttons, inputs, table cells, form labels, log entries, timestamps |
 | Section heading | Cormorant Garamond | 18px | 600 | 1.2 | Category headers (CRM, Communication, Data), page section titles |
+| Caption | DM Sans | 11px | 400 | 1.55 | Last-used timestamps, log timestamps — color `var(--bo-caption)` |
 | Status tag | Press Start 2P | 7px | 400 | 1.0 | Status badges only: CONNECTED, EXPIRED, ERRORED, RATE LIMITED, DISCONNECTED |
 
 Weight set: 400 (regular) + 600 (semibold). No other weights permitted.
-
-Caption/metadata text (last-used timestamp, log timestamps): DM Sans 11px, weight 400, line-height 1.55, color `var(--bo-caption)`.
 
 **Source:** design guide §4.2, STATE.md Phase 03 decisions (Press Start 2P 6-8px rule)
 
@@ -92,7 +95,7 @@ Tool Nexus is a Back Office world surface. All colors reference `--bo-*` tokens.
 **Accent (`--bo-rose`) reserved exclusively for:**
 - Section heading "TOOLS" in the nav bar tab
 - Category section label underline/indicator
-- "Connect" CTA button border (not fill — use transparent background with rose border)
+- "Connect Tool" CTA button border (not fill — use transparent background with rose border)
 - Tool Nexus page header title accent dot or underline
 - Active tab indicator on the CATALOG / MY TOOLS / WEBHOOKS tab bar
 
@@ -112,6 +115,12 @@ Tool Nexus is a Back Office world surface. All colors reference `--bo-*` tokens.
 Border: `--bo-border` (`rgba(148, 110, 255, 0.13)`) default, `--bo-bhi` on hover/active states.
 
 **Source:** `app.css` lines 22-36, RESEARCH.md §Pattern 4, design guide §3.1
+
+---
+
+## Catalog Screen — Primary Visual Anchor
+
+The primary visual anchor of the catalog screen is the tool card grid: a dense `auto-fill` CSS grid of `--bo-card` cards grouped under Cormorant Garamond category headings, with rose-bordered "Connect Tool" buttons creating a recurring accent rhythm across the dark background.
 
 ---
 
@@ -173,8 +182,8 @@ Three tabs rendered as a horizontal tab bar immediately below the global NavBar:
 - Tool name: DM Sans 13px, weight 400, color `--bo-text`
 - Tool description: DM Sans 13px, weight 400, color `--bo-muted`, margin-top `--space-xs`
 - Category label: Press Start 2P 7px, color `--bo-faint`, margin-bottom `--space-sm`
-- Connect button: min-height 44px, border `1px solid var(--bo-rose)`, color `--bo-rose`, background transparent, DM Sans 13px weight 400, border-radius `--radius-md`
-- Connect button hover: background `rgba(244, 114, 182, 0.08)`, transition `0.15s ease`
+- Connect Tool button: min-height 44px, border `1px solid var(--bo-rose)`, color `--bo-rose`, background transparent, DM Sans 13px weight 400, border-radius `--radius-md`
+- Connect Tool button hover: background `rgba(244, 114, 182, 0.08)`, transition `0.15s ease`
 - Status badge: rendered in top-right corner of card when connected
 
 ### Tool Belt List (`/tools/belt`)
@@ -198,7 +207,7 @@ Section separator: `--space-2xl` (40px)
 
 ### OAuth Connect Flow
 
-1. User clicks "Connect" on a tool card
+1. User clicks "Connect Tool" on a tool card
 2. `window.location.href` redirects to `/api/akasa/tool-connections/oauth/:toolId/start?userId=...`
 3. Provider OAuth page opens (full page redirect, not popup)
 4. On success: provider redirects to `/tools?connected=:toolId`
@@ -209,7 +218,7 @@ Toast pattern: fixed position bottom-right, background `--bo-card`, border `1px 
 
 ### Re-auth for Expired Connections
 
-The "Re-auth" button on an expired connection in the Tool Belt calls the same `startOAuth(toolId)` function as the initial connect. It is not a separate code path. Label: "Re-authorise" (not "Connect" — context-specific label).
+The "Re-auth" button on an expired connection in the Tool Belt calls the same `startOAuth(toolId)` function as the initial connect. It is not a separate code path. Label: "Re-authorise" (not "Connect Tool" — context-specific label).
 
 ### Disconnect
 
@@ -249,7 +258,7 @@ The "Re-auth" button on an expired connection in the Tool Belt calls the same `s
 
 | Element | Copy |
 |---------|------|
-| Primary CTA — connect tool | "Connect" |
+| Primary CTA — connect tool | "Connect Tool" |
 | Primary CTA — re-auth expired | "Re-authorise" |
 | Primary CTA — create routing rule | "Add Rule" |
 | Nav tab — catalog | "CATALOG" |
@@ -281,6 +290,8 @@ The "Re-auth" button on an expired connection in the Tool Belt calls the same `s
 
 Status badge copy renders in Press Start 2P 7px, uppercase.
 
+**CTA context note:** "Connect Tool" uses a noun because tool cards display the tool name separately (in the card heading). The button label "Connect Tool" is self-contained and does not require the tool name to be inlined in the button text.
+
 ---
 
 ## States Required
@@ -306,7 +317,7 @@ Inherits from Phase 3 motion system (DS-11). Tool Nexus specific:
 |---------|----------|----------|--------|
 | Tool card hover | `transform: translateY(-2px)` | 0.15s | ease |
 | Tool card hover border | `border-color` | 0.15s | ease |
-| Connect button hover | `background` | 0.15s | ease |
+| Connect Tool button hover | `background` | 0.15s | ease |
 | SlidePanel open (routing rule form) | `transform: translateX(0)` from `translateX(100%)` | 0.38s | cubic-bezier(0.4, 0, 0.2, 1) |
 | Modal open | `opacity` 0→1, `transform: scale(0.96)→scale(1)` | 0.2s | ease |
 | Toast in | `transform: translateY(0)` from `translateY(16px)`, `opacity` 0→1 | 0.2s | ease |
@@ -347,7 +358,7 @@ No third-party component registries are used. All components are hand-rolled pur
 
 - All interactive elements minimum 44px touch target height
 - Status badges use both color and text (not color alone) — CONNECTED/EXPIRED text appears alongside the color
-- Connect button text is never "Click here" — always the specific action label
+- Connect Tool button text is never "Click here" — always the specific action label
 - Error messages are associated with their form fields via `aria-describedby`
 - Modal traps focus while open (existing Modal.svelte handles this per Phase 3 implementation)
 - SlidePanel traps focus while open (existing SlidePanel.svelte handles this per Phase 3)
