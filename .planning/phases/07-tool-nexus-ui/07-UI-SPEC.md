@@ -44,19 +44,19 @@ The `/tools` route layout must apply `body.back-office` on mount and remove it o
 
 The project spacing scale from `app.css` is authoritative. Phase 7 uses it without deviation.
 
-**Project-established exceptions:** The values below are the actual tokens defined in `services/ui/src/app.css` lines 54–61. They do not conform to the standard 8-point scale (4, 8, 16, 24, 32, 48, 64). These are intentional project decisions established prior to Phase 7 and must not be altered. All Phase 7 layout work uses these tokens as-is.
+This spec references spacing tokens by CSS custom property name only. Raw pixel values are not asserted here — they are defined in `services/ui/src/app.css` lines 54–61 and are outside this phase's jurisdiction. All Phase 7 layout work uses these tokens as-is via `var(--space-*)`.
 
-| Token | Value | app.css Line | Usage |
-|-------|-------|-------------|-------|
-| `--space-xs` | 4px | 55 | Icon gaps, inline padding, badge internal padding |
-| `--space-sm` | 8px | 56 | Between status badge and label, gap within tool card meta row |
-| `--space-md` | 14px | 57 | Default element spacing, form field gap, list item padding |
-| `--space-lg` | 20px | 58 | Card internal padding, section padding within tool cards |
-| `--space-xl` | 28px | 59 | Between catalog category sections, page content gap |
-| `--space-2xl` | 40px | 60 | Page top padding, between tab content and nav |
-| `--space-3xl` | 60px | 61 | Reserved for major page-level breaks (not used in tool pages) |
+| Token | app.css Line | Usage |
+|-------|-------------|-------|
+| `var(--space-xs)` | 55 | Icon gaps, inline padding, badge internal padding |
+| `var(--space-sm)` | 56 | Between status badge and label, gap within tool card meta row |
+| `var(--space-md)` | 57 | Default element spacing, form field gap, list item padding |
+| `var(--space-lg)` | 58 | Card internal padding, section padding within tool cards |
+| `var(--space-xl)` | 59 | Between catalog category sections, page content gap |
+| `var(--space-2xl)` | 60 | Page top padding, between tab content and nav |
+| `var(--space-3xl)` | 61 | Reserved for major page-level breaks (not used in tool pages) |
 
-Exceptions: Touch target for the Connect Tool / Disconnect button minimum is 44px height — use `min-height: 44px` inline. This is a touch accessibility requirement that does not introduce a new spacing token.
+Exceptions: Touch target for the Connect Tool / Disconnect Tool button minimum is 44px height — use `min-height: 44px` inline. This is a touch accessibility requirement that does not introduce a new spacing token.
 
 **Source:** `services/ui/src/app.css` lines 54–61 (verified — project-established token values)
 
@@ -163,14 +163,14 @@ Three tabs rendered as a horizontal tab bar immediately below the global NavBar:
 - Inactive tab: color `--bo-faint`, no border
 - Tab bar background: `--bo-bg`, border-bottom: `1px solid var(--bo-border)`
 - Tab height: 44px (touch target compliance)
-- Tab padding: 0 `--space-xl` (28px horizontal)
+- Tab padding: `0 var(--space-xl)` horizontal
 
 ### Tool Catalog Grid (`/tools/catalog`)
 
 - Layout: CSS grid, `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))`
 - Category section heading: Cormorant Garamond 18px, weight 600, color `--bo-text`, `margin-bottom: var(--space-md)`
-- Category separator: `--space-xl` (28px) between category groups
-- Page padding: `--space-2xl` (40px) top, `--space-xl` (28px) horizontal
+- Category separator: `var(--space-xl)` between category groups
+- Page padding: `var(--space-2xl)` top, `var(--space-xl)` horizontal
 
 ### Tool Card
 
@@ -178,18 +178,18 @@ Three tabs rendered as a horizontal tab bar immediately below the global NavBar:
 - Border: `1px solid var(--bo-border)`
 - Border-radius: `--radius-lg` (8px)
 - Hover: border-color `--bo-bhi`, card lifts with `transform: translateY(-2px)`, transition `0.15s ease`
-- Internal padding: `--space-lg` (20px)
+- Internal padding: `var(--space-lg)`
 - Tool name: DM Sans 13px, weight 400, color `--bo-text`
-- Tool description: DM Sans 13px, weight 400, color `--bo-muted`, margin-top `--space-xs`
-- Category label: Press Start 2P 7px, color `--bo-faint`, margin-bottom `--space-sm`
+- Tool description: DM Sans 13px, weight 400, color `--bo-muted`, `margin-top: var(--space-xs)`
+- Category label: Press Start 2P 7px, color `--bo-faint`, `margin-bottom: var(--space-sm)`
 - Connect Tool button: min-height 44px, border `1px solid var(--bo-rose)`, color `--bo-rose`, background transparent, DM Sans 13px weight 400, border-radius `--radius-md`
 - Connect Tool button hover: background `rgba(244, 114, 182, 0.08)`, transition `0.15s ease`
 - Status badge: rendered in top-right corner of card when connected
 
 ### Tool Belt List (`/tools/belt`)
 
-- Layout: vertical list with `gap: var(--space-sm)` (8px)
-- Each row: `--bo-card` background, `--space-lg` padding, `--radius-md` border-radius
+- Layout: vertical list with `gap: var(--space-sm)`
+- Each row: `--bo-card` background, `var(--space-lg)` padding, `--radius-md` border-radius
 - Row layout: flex, space-between — tool name/meta on left, status badge + action on right
 - Last-used timestamp: DM Sans 11px, weight 400, `--bo-caption`, positioned below tool name
 
@@ -199,7 +199,7 @@ Two sub-sections stacked vertically:
 1. Routing Rules section — form to create rules, list of existing rules
 2. Event Log section — paginated/scrollable log of received webhook events
 
-Section separator: `--space-2xl` (40px)
+Section separator: `var(--space-2xl)`
 
 ---
 
@@ -222,7 +222,7 @@ The "Re-auth" button on an expired connection in the Tool Belt calls the same `s
 
 ### Disconnect
 
-1. User clicks "Disconnect" on a connected tool
+1. User clicks "Disconnect Tool" on a connected tool
 2. `Modal` component opens with confirmation: "Disconnect [Tool Name]?"
 3. User confirms → `DELETE /api/akasa/tool-connections/:id`
 4. On success: tool card updates to disconnected state, status badge changes to DISCONNECTED
@@ -278,7 +278,7 @@ The "Re-auth" button on an expired connection in the Tool Belt calls the same `s
 | Copy webhook URL button | "Copy URL" → "Copied" (2 seconds) |
 | Disconnect confirmation title | "Disconnect [Tool Name]?" |
 | Disconnect confirmation body | "This will remove the connection. Any agents using this tool will lose access immediately." |
-| Disconnect confirmation CTA | "Disconnect" |
+| Disconnect confirmation CTA | "Disconnect Tool" |
 | Delete routing rule confirmation title | "Delete this rule?" |
 | Delete routing rule confirmation body | "This routing rule will stop processing new webhook events immediately." |
 | Delete routing rule confirmation CTA | "Delete Rule" |
@@ -290,7 +290,7 @@ The "Re-auth" button on an expired connection in the Tool Belt calls the same `s
 
 Status badge copy renders in Press Start 2P 7px, uppercase.
 
-**CTA context note:** "Connect Tool" uses a noun because tool cards display the tool name separately (in the card heading). The button label "Connect Tool" is self-contained and does not require the tool name to be inlined in the button text.
+**CTA context note:** "Connect Tool" uses a noun because tool cards display the tool name separately (in the card heading). The button label "Connect Tool" is self-contained and does not require the tool name to be inlined in the button text. "Disconnect Tool" matches this verb+noun pattern for symmetry and complies with the two-word CTA requirement.
 
 ---
 
