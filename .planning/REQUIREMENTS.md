@@ -65,8 +65,8 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 - [x] **TOOL-01**: Tool Nexus connectors built as Paperclip plugins — each connector registers tools (actions + schemas) with the plugin tool dispatcher
 - [x] **TOOL-02**: OAuth connection flow for SaaS integrations — redirect to provider, callback, encrypted token storage via Paperclip's secret system, auto-refresh on expiry
 - [x] **TOOL-03**: API key connection flow as fallback — masked input, test-connection button, clear error on bad credential
-- [ ] **TOOL-04**: Tool catalog UI in SvelteKit — browsable by category (CRM, Communication, Payments, Data), shows connection status per tool
-- [ ] **TOOL-05**: Tool Belt view — user's connected tools with status badges (connected/expired/rate_limited/errored), last used, re-auth button on expired
+- [x] **TOOL-04**: Tool catalog UI in SvelteKit — browsable by category (CRM, Communication, Payments, Data), shows connection status per tool
+- [x] **TOOL-05**: Tool Belt view — user's connected tools with status badges (connected/expired/rate_limited/errored), last used, re-auth button on expired
 - [x] **TOOL-06**: Starter connectors shipped — minimum 3 integrations (e.g., HubSpot, Slack, Google Sheets) as working Paperclip plugins
 - [x] **TOOL-07**: Webhook receiver — unique URL per user per tool, signature verification where supported, incoming payloads routed to appropriate agent/objective
 - [x] **TOOL-08**: Webhook routing rules configurable — "when [event] matches [condition] → assign to [agent]"
@@ -157,8 +157,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOOL-01 | Phase 6 | Complete |
 | TOOL-02 | Phase 6 | Complete |
 | TOOL-03 | Phase 6 | Complete |
-| TOOL-04 | Phase 7 | Pending |
-| TOOL-05 | Phase 7 | Pending |
+| TOOL-04 | Phase 7 | Complete |
+| TOOL-05 | Phase 7 | Complete |
 | TOOL-06 | Phase 6 | Complete |
 | TOOL-07 | Phase 6 | Complete |
 | TOOL-08 | Phase 7 | Complete |
