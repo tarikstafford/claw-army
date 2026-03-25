@@ -24,7 +24,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   const isProtected = event.url.pathname.startsWith('/indra') ||
     event.url.pathname.startsWith('/office') ||
     event.url.pathname.startsWith('/chat') ||
-    event.url.pathname.startsWith('/sanctum');
+    event.url.pathname.startsWith('/sanctum') ||
+    event.url.pathname.startsWith('/tools');
 
   if (isProtected && !event.locals.session) {
     throw redirect(303, '/auth');
