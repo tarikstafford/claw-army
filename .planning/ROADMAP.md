@@ -117,7 +117,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [ ] **Phase 4: SvelteKit Frontend Core** - Auth, agent views, task views, chat, and real-time updates in SvelteKit
 - [x] **Phase 5: Evolution Routes** - Soul system, council, god layer, and Karpathy loop wired to Paperclip heartbeat (completed 2026-03-24)
 - [ ] **Phase 6: Tool Nexus Backend** - Paperclip plugin connectors, OAuth/API key flows, webhooks, and invocation logging
-- [ ] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit
+- [x] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit (completed 2026-03-25)
 - [ ] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks
 
 ## Phase Details
@@ -234,8 +234,8 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 07-01-PLAN.md — Backend gap closure (routing rules + webhook logs) + UI scaffolding (NavBar, layout, auth, tool catalog data)
-- [ ] 07-02-PLAN.md — Tool Catalog and Tool Belt pages with ToolCard and StatusBadge components
-- [ ] 07-03-PLAN.md — Webhooks page with routing rule management and event log
+- [x] 07-02-PLAN.md — Tool Catalog and Tool Belt pages with ToolCard and StatusBadge components
+- [x] 07-03-PLAN.md — Webhooks page with routing rule management and event log
 **UI hint**: yes
 
 ### Phase 8: Evolution Dashboard
@@ -264,5 +264,5 @@ Plans:
 | 4. SvelteKit Frontend Core | v6.0 | 2/4 | In Progress|  |
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
-| 7. Tool Nexus UI | v6.0 | 1/3 | In Progress|  |
+| 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
 | 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
