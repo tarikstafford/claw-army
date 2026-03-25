@@ -6,6 +6,8 @@ import { godLayerRouter } from './god-layer.js';
 import { toolConnectionsRouter } from './tool-connections.js';
 import { webhooksRouter } from './webhooks.js';
 import { oauthFlowRouter } from './oauth-flow.js';
+import { webhookRoutingRulesRouter } from './webhook-routing-rules.js';
+import { webhookLogsRouter } from './webhook-logs.js';
 
 const akasaRouter = Router();
 
@@ -34,5 +36,11 @@ akasaRouter.use('/akasa/tool-connections', oauthFlowRouter());
 
 // Webhook receiver routes: unique URL tokens + signature verification
 akasaRouter.use('/akasa/webhooks', webhooksRouter());
+
+// Webhook routing rules CRUD (GET / POST / DELETE /:id)
+akasaRouter.use('/akasa/webhook-routing-rules', webhookRoutingRulesRouter());
+
+// Aggregated webhook logs (GET /logs?userId=...)
+akasaRouter.use('/akasa/webhooks', webhookLogsRouter());
 
 export { akasaRouter };

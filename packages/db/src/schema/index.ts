@@ -15,3 +15,4 @@ export * from './objectives';
 export * from './ring-leader-runs';
 export * from './tool-connections';
 export * from './tool-invocation-logs';
+export * from './webhook-routing-rules';
