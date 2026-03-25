@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Completed Phase 06 Plan 04 — OAuth authorization code flow routes for Tool Nexus
-last_updated: "2026-03-24T16:24:32.974Z"
+status: Ready to execute
+stopped_at: Completed 07-tool-nexus-ui Plan 01 — webhook_routing_rules backend gap closure and /tools UI scaffolding
+last_updated: "2026-03-25T04:27:05.052Z"
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 13
-  completed_plans: 16
+  total_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 06 — tool-nexus-backend
+**Current focus:** Phase 07 — tool-nexus-ui
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 07 (tool-nexus-ui) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Plan: Not started
 | Phase 06-tool-nexus-backend P03 | 161 | 2 tasks | 4 files |
 | Phase 06-tool-nexus-backend P02 | 25 | 2 tasks | 15 files |
 | Phase 06-tool-nexus-backend P04 | 15 | 2 tasks | 4 files |
+| Phase 07-tool-nexus-ui P01 | 2 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,9 @@ v6.0 key architectural decisions:
 - [Phase 06-tool-nexus-backend]: resolveCredential() returns {token, connectionId} tuple — avoids second DB query for audit logging in connectors
 - [Phase 06-tool-nexus-backend]: base64url encodes JSON state (userId+toolId+redirectUri) for OAuth flow — server-only use, no separate CSRF session needed
 - [Phase 06-tool-nexus-backend]: OAuth upsert: try insert first, catch unique violation, fallback to update — consistent with tool-connections.ts approach
+- [Phase 07-tool-nexus-ui]: webhook_routing_rules connectionId uses logical FK (no references()) to avoid circular TypeScript inference — consistent with CLAUDE.md pattern
+- [Phase 07-tool-nexus-ui]: Tools layout enforces Back Office world via onMount setMode with previousMode capture and cleanup restore
+- [Phase 07-tool-nexus-ui]: TOOL_CATALOG is static (3 tools) in tool-catalog.ts — no backend catalog endpoint, live status overlaid from API
 
 ### Pending Todos
 
@@ -126,6 +130,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T16:14:22.851Z
-Stopped at: Completed Phase 06 Plan 04 — OAuth authorization code flow routes for Tool Nexus
+Last session: 2026-03-25T04:27:05.049Z
+Stopped at: Completed 07-tool-nexus-ui Plan 01 — webhook_routing_rules backend gap closure and /tools UI scaffolding
 Resume file: None

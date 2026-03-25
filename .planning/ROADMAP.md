@@ -233,7 +233,7 @@ Plans:
   4. Webhook event log displays all received webhooks with payload, routing decision, and resulting action in a browsable list
 **Plans**: 3 plans
 Plans:
-- [ ] 07-01-PLAN.md — Backend gap closure (routing rules + webhook logs) + UI scaffolding (NavBar, layout, auth, tool catalog data)
+- [x] 07-01-PLAN.md — Backend gap closure (routing rules + webhook logs) + UI scaffolding (NavBar, layout, auth, tool catalog data)
 - [ ] 07-02-PLAN.md — Tool Catalog and Tool Belt pages with ToolCard and StatusBadge components
 - [ ] 07-03-PLAN.md — Webhooks page with routing rule management and event log
 **UI hint**: yes
@@ -264,5 +264,5 @@ Plans:
 | 4. SvelteKit Frontend Core | v6.0 | 2/4 | In Progress|  |
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
-| 7. Tool Nexus UI | v6.0 | 0/3 | Not started | - |
+| 7. Tool Nexus UI | v6.0 | 1/3 | In Progress|  |
 | 8. Evolution Dashboard | v6.0 | 0/- | Not started | - |
