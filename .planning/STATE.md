@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to plan
-stopped_at: Completed 07-02-PLAN.md — Tool Catalog and Tool Belt pages
-last_updated: "2026-03-25T04:37:31.949Z"
+status: Ready to execute
+stopped_at: Completed 08-evolution-dashboard Plan 01 — Evolution Dashboard API routes, test suite, and UI scaffold
+last_updated: "2026-03-26T04:06:43.103Z"
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 16
-  completed_plans: 19
+  total_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 07 — tool-nexus-ui
+**Current focus:** Phase 08 — evolution-dashboard
 
 ## Current Position
 
-Phase: 8
-Plan: Not started
+Phase: 08 (evolution-dashboard) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Plan: Not started
 | Phase 07-tool-nexus-ui P01 | 2 | 2 tasks | 11 files |
 | Phase 07-tool-nexus-ui P03 | 4 | 2 tasks | 4 files |
 | Phase 07-tool-nexus-ui P02 | 2 | 2 tasks | 8 files |
+| Phase 08-evolution-dashboard P01 | 6 | 4 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -122,6 +123,9 @@ v6.0 key architectural decisions:
 - [Phase 07-tool-nexus-ui]: WebhookLogEntry uses inline accordion instead of Accordion.svelte — Accordion API (label/color/children) incompatible with log entry header layout needing tool name + action + timestamp left / dot + latency right
 - [Phase 07-tool-nexus-ui]: StatusBadge uses inline style attribute for border/color from derived colorMap — avoids dynamic class names
 - [Phase 07-tool-nexus-ui]: ToolCard renders Re-authorise button only when status === expired per UI-SPEC copywriting contract
+- [Phase 08-evolution-dashboard]: Evolution sub-nav uses violet active indicator not rose — evolution is violet-domain per UI-SPEC
+- [Phase 08-evolution-dashboard]: FLEET tab uses exact pathname match, AGENTS/BENCHMARKS use startsWith — avoids FLEET being perpetually active
+- [Phase 08-evolution-dashboard]: keepDiscard: confirmed Promote/Maintain=keep, confirmed Demote/Retire=discard, all other=pending
 
 ### Pending Todos
 
@@ -135,6 +139,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-25T04:32:32.706Z
-Stopped at: Completed 07-02-PLAN.md — Tool Catalog and Tool Belt pages
+Last session: 2026-03-26T04:06:43.100Z
+Stopped at: Completed 08-evolution-dashboard Plan 01 — Evolution Dashboard API routes, test suite, and UI scaffold
 Resume file: None

@@ -251,7 +251,7 @@ Plans:
   6. Pending Promote/Retire verdicts surface in the UI with evidence and inline approve/reject controls; Pioneer designations receive permanent amber treatment with "First in [category]" label
 **Plans**: 3 plans
 Plans:
-- [ ] 08-01-PLAN.md — Wave 0 tests + backend API routes (7 endpoints incl. agents & score trend) + NavBar + layout + page skeletons
+- [x] 08-01-PLAN.md — Wave 0 tests + backend API routes (7 endpoints incl. agents & score trend) + NavBar + layout + page skeletons
 - [ ] 08-02-PLAN.md — Fleet overview page with class grid, score trend sparkline, pending verdicts, and agent list
 - [ ] 08-03-PLAN.md — Bot detail page (timeline, lineage tree, ledger) + benchmarks page
 **UI hint**: yes
