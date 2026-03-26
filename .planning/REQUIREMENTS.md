@@ -51,14 +51,14 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 
 ### Evolution Dashboard
 
-- [ ] **DASH-01**: Fleet overview showing agent count by class (Novice/Understudy/Artisan/Retired), composite score trends over time
+- [x] **DASH-01**: Fleet overview showing agent count by class (Novice/Understudy/Artisan/Retired), composite score trends over time
 - [ ] **DASH-02**: Per-agent evolution timeline — every council verdict, class transition, mutation event, DNA capture shown chronologically
 - [ ] **DASH-03**: Lineage tree visualization (depth-1) — archetype origin → mutations → current soul form, clickable nodes to inspect soul versions
 - [ ] **DASH-04**: Experiment ledger per agent — run-by-run log showing composite score, score delta, mutation applied, verdict, keep/discard outcome
 - [ ] **DASH-05**: Category benchmarks view — pioneer baselines, benchmark maturity (3+ confirmed runs), thin-data flags, current best score per category
-- [ ] **DASH-06**: Pending confirmation notifications — Promote/Retire verdicts surfaced with evidence, approve/reject inline
-- [ ] **DASH-07**: Pioneer designation visual treatment — amber/gold, permanent badge, "First in [category]" with date
-- [ ] **DASH-08**: Evolution Dashboard defaults to Director's Cut world. Toggle to Screenplay available in nav
+- [x] **DASH-06**: Pending confirmation notifications — Promote/Retire verdicts surfaced with evidence, approve/reject inline
+- [x] **DASH-07**: Pioneer designation visual treatment — amber/gold, permanent badge, "First in [category]" with date
+- [x] **DASH-08**: Evolution Dashboard defaults to Director's Cut world. Toggle to Screenplay available in nav
 
 ### Tool Nexus
 
@@ -146,14 +146,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EVO-04 | Phase 5 | Complete |
 | EVO-05 | Phase 5 | Complete |
 | EVO-06 | Phase 5 | Complete |
-| DASH-01 | Phase 8 | Pending |
+| DASH-01 | Phase 8 | Complete |
 | DASH-02 | Phase 8 | Pending |
 | DASH-03 | Phase 8 | Pending |
 | DASH-04 | Phase 8 | Pending |
 | DASH-05 | Phase 8 | Pending |
-| DASH-06 | Phase 8 | Pending |
-| DASH-07 | Phase 8 | Pending |
-| DASH-08 | Phase 8 | Pending |
+| DASH-06 | Phase 8 | Complete |
+| DASH-07 | Phase 8 | Complete |
+| DASH-08 | Phase 8 | Complete |
 | TOOL-01 | Phase 6 | Complete |
 | TOOL-02 | Phase 6 | Complete |
 | TOOL-03 | Phase 6 | Complete |

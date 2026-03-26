@@ -252,7 +252,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 08-01-PLAN.md — Wave 0 tests + backend API routes (7 endpoints incl. agents & score trend) + NavBar + layout + page skeletons
-- [ ] 08-02-PLAN.md — Fleet overview page with class grid, score trend sparkline, pending verdicts, and agent list
+- [x] 08-02-PLAN.md — Fleet overview page with class grid, score trend sparkline, pending verdicts, and agent list
 - [ ] 08-03-PLAN.md — Bot detail page (timeline, lineage tree, ledger) + benchmarks page
 **UI hint**: yes
 
@@ -269,4 +269,4 @@ Plans:
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
-| 8. Evolution Dashboard | v6.0 | 0/3 | Not started | - |
+| 8. Evolution Dashboard | v6.0 | 2/3 | In Progress|  |
