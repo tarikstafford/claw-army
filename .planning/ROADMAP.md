@@ -118,7 +118,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [x] **Phase 5: Evolution Routes** - Soul system, council, god layer, and Karpathy loop wired to Paperclip heartbeat (completed 2026-03-24)
 - [ ] **Phase 6: Tool Nexus Backend** - Paperclip plugin connectors, OAuth/API key flows, webhooks, and invocation logging
 - [x] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit (completed 2026-03-25)
-- [ ] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks
+- [x] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks (completed 2026-03-26)
 
 ## Phase Details
 
@@ -253,7 +253,7 @@ Plans:
 Plans:
 - [x] 08-01-PLAN.md — Wave 0 tests + backend API routes (7 endpoints incl. agents & score trend) + NavBar + layout + page skeletons
 - [x] 08-02-PLAN.md — Fleet overview page with class grid, score trend sparkline, pending verdicts, and agent list
-- [ ] 08-03-PLAN.md — Bot detail page (timeline, lineage tree, ledger) + benchmarks page
+- [x] 08-03-PLAN.md — Bot detail page (timeline, lineage tree, ledger) + benchmarks page
 **UI hint**: yes
 
 ---
@@ -269,4 +269,4 @@ Plans:
 | 5. Evolution Routes | v6.0 | 3/3 | Complete   | 2026-03-24 |
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
-| 8. Evolution Dashboard | v6.0 | 2/3 | In Progress|  |
+| 8. Evolution Dashboard | v6.0 | 3/3 | Complete   | 2026-03-26 |

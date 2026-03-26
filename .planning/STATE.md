@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Ready to execute
-stopped_at: Completed Phase 08 Plan 02 — fleet overview page with FleetOverview, VerdictConfirm components
-last_updated: "2026-03-26T04:10:51.396Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 08-03 — bot detail visualization components and benchmarks page wiring
+last_updated: "2026-03-26T04:11:53.004Z"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 19
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -64,6 +64,7 @@ Plan: 3 of 3
 | Phase 07-tool-nexus-ui P02 | 2 | 2 tasks | 8 files |
 | Phase 08-evolution-dashboard P01 | 6 | 4 tasks | 16 files |
 | Phase 08-evolution-dashboard P02 | 8 | 2 tasks | 3 files |
+| Phase 08-evolution-dashboard P03 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,9 @@ v6.0 key architectural decisions:
 - [Phase 08-evolution-dashboard]: MetricTile reuse avoided in FleetOverview — inline Press Start 2P 20px count used directly; MetricTile has Front Office token defaults incompatible with Back Office world
 - [Phase 08-evolution-dashboard]: CSS sparkline bar heights computed as percentage of maxScore in array — relative proportions preserved even when all scores are low
 - [Phase 08-evolution-dashboard]: VerdictConfirm fade-out defers onaction 200ms — allows animation to complete before parent removes row from list
+- [Phase 08-03]: d3-hierarchy layout computed in $derived.by() not $effect() — reactive derived value prevents stale layout on prop change
+- [Phase 08-03]: Flat soul chain converted to nested tree via buildTree() before hierarchy() — API returns root-first flat array, d3 needs nested structure
+- [Phase 08-03]: Inline tooltip preferred over SlidePanel for lineage node info — read-only soul inspection per UI-SPEC
 
 ### Pending Todos
 
@@ -143,6 +147,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:10:51.394Z
-Stopped at: Completed Phase 08 Plan 02 — fleet overview page with FleetOverview, VerdictConfirm components
+Last session: 2026-03-26T04:11:53.001Z
+Stopped at: Completed 08-03 — bot detail visualization components and benchmarks page wiring
 Resume file: None
