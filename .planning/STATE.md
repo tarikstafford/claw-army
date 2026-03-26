@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Phase complete — ready for verification
-stopped_at: Completed 08-03 — bot detail visualization components and benchmarks page wiring
-last_updated: "2026-03-26T04:11:53.004Z"
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-03-26T04:46:29.263Z"
 progress:
   total_phases: 8
   completed_phases: 7
-  total_plans: 19
-  completed_plans: 22
+  total_plans: 20
+  completed_plans: 23
 ---
 
 # Project State
@@ -65,6 +65,7 @@ Plan: 3 of 3
 | Phase 08-evolution-dashboard P01 | 6 | 4 tasks | 16 files |
 | Phase 08-evolution-dashboard P02 | 8 | 2 tasks | 3 files |
 | Phase 08-evolution-dashboard P03 | 8 | 2 tasks | 6 files |
+| Phase 08 P04 | 4 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,7 @@ v6.0 key architectural decisions:
 - [Phase 08-03]: d3-hierarchy layout computed in $derived.by() not $effect() — reactive derived value prevents stale layout on prop change
 - [Phase 08-03]: Flat soul chain converted to nested tree via buildTree() before hierarchy() — API returns root-first flat array, d3 needs nested structure
 - [Phase 08-03]: Inline tooltip preferred over SlidePanel for lineage node info — read-only soul inspection per UI-SPEC
+- [Phase 08]: groupBy includes bots.compositeScore because it is a selected non-aggregate column from a joined table; lastVerdictAt uses MAX() so it is excluded; both JOINs are LEFT JOIN to preserve agent_classes rows for bots with no verdicts
 
 ### Pending Todos
 
@@ -147,6 +149,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:11:53.001Z
-Stopped at: Completed 08-03 — bot detail visualization components and benchmarks page wiring
+Last session: 2026-03-26T04:46:29.260Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None
