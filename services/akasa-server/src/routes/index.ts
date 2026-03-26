@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { soulsRouter } from './souls.js';
 import { councilRouter } from './council.js';
 import { evolutionTriggerRouter } from './evolution-trigger.js';
+import { evolutionDashboardRouter } from './evolution-dashboard.js';
 import { godLayerRouter } from './god-layer.js';
 import { toolConnectionsRouter } from './tool-connections.js';
 import { webhooksRouter } from './webhooks.js';
@@ -27,6 +28,9 @@ akasaRouter.use('/akasa/verdicts', godLayerRouter());
 
 // Evolution trigger routes (manual trigger + polling setup)
 akasaRouter.use('/akasa/evolution', evolutionTriggerRouter());
+
+// Evolution dashboard GET routes (fleet, agents, timeline, lineage, ledger, benchmarks, pending)
+akasaRouter.use('/akasa/evolution', evolutionDashboardRouter());
 
 // Tool connection CRUD routes + test + logs
 akasaRouter.use('/akasa/tool-connections', toolConnectionsRouter());
