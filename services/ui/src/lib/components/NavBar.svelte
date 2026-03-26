@@ -3,7 +3,7 @@
   import { toggleMode, getMode } from '$lib/mode';
   import { browser } from '$app/environment';
 
-  let { activeTab }: { activeTab?: 'indra' | 'office' | 'chat' | 'sanctum' | 'tools' } = $props();
+  let { activeTab }: { activeTab?: 'indra' | 'office' | 'chat' | 'sanctum' | 'tools' | 'evolution' } = $props();
 
   let currentMode = $state<'front-office' | 'back-office'>('front-office');
 
@@ -13,11 +13,12 @@
   });
 
   const tabs = [
-    { href: '/indra',   label: 'INDRA',   key: 'indra' },
-    { href: '/office',  label: 'OFFICE',  key: 'office' },
-    { href: '/chat',    label: 'CHAT',    key: 'chat' },
-    { href: '/sanctum', label: 'SANCTUM', key: 'sanctum' },
-    { href: '/tools',   label: 'TOOLS',   key: 'tools' },
+    { href: '/indra',     label: 'INDRA',     key: 'indra' },
+    { href: '/office',    label: 'OFFICE',    key: 'office' },
+    { href: '/chat',      label: 'CHAT',      key: 'chat' },
+    { href: '/sanctum',   label: 'SANCTUM',   key: 'sanctum' },
+    { href: '/tools',     label: 'TOOLS',     key: 'tools' },
+    { href: '/evolution', label: 'EVOLUTION', key: 'evolution' },
   ] as const;
 
   function isActive(href: string, key: string): boolean {
