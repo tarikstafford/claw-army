@@ -296,24 +296,30 @@ describe('GET /agents', () => {
     vi.mocked(mockDb.select)
       .mockReturnValueOnce({
         from: vi.fn().mockReturnValue({
-          orderBy: vi.fn().mockResolvedValue([
-            {
-              botId: 'bot-1',
-              currentClass: 'Artisan',
-              compositeScore: '0.88',
-              isPioneer: true,
-              taskCategory: 'web-research',
-              lastVerdictAt: '2026-03-01T00:00:00Z',
-            },
-            {
-              botId: 'bot-2',
-              currentClass: 'Novice',
-              compositeScore: '0.62',
-              isPioneer: false,
-              taskCategory: 'data-analysis',
-              lastVerdictAt: null,
-            },
-          ]),
+          leftJoin: vi.fn().mockReturnValue({
+            leftJoin: vi.fn().mockReturnValue({
+              groupBy: vi.fn().mockReturnValue({
+                orderBy: vi.fn().mockResolvedValue([
+                  {
+                    botId: 'bot-1',
+                    currentClass: 'Artisan',
+                    compositeScore: '0.88',
+                    isPioneer: true,
+                    taskCategory: 'web-research',
+                    lastVerdictAt: '2026-03-01T00:00:00Z',
+                  },
+                  {
+                    botId: 'bot-2',
+                    currentClass: 'Novice',
+                    compositeScore: '0.62',
+                    isPioneer: false,
+                    taskCategory: 'data-analysis',
+                    lastVerdictAt: null,
+                  },
+                ]),
+              }),
+            }),
+          }),
         }),
       } as any);
 
@@ -335,7 +341,13 @@ describe('GET /agents', () => {
 
     vi.mocked(mockDb.select).mockReturnValueOnce({
       from: vi.fn().mockReturnValue({
-        orderBy: vi.fn().mockResolvedValue([]),
+        leftJoin: vi.fn().mockReturnValue({
+          leftJoin: vi.fn().mockReturnValue({
+            groupBy: vi.fn().mockReturnValue({
+              orderBy: vi.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
       }),
     } as any);
 

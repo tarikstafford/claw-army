@@ -106,6 +106,9 @@ export function evolutionDashboardRouter(): Router {
           lastVerdictAt: sql<string | null>`MAX(${councilVerdicts.createdAt})`,
         })
         .from(agentClasses)
+        .leftJoin(bots, eq(agentClasses.botId, bots.id))
+        .leftJoin(councilVerdicts, eq(agentClasses.botId, councilVerdicts.botId))
+        .groupBy(agentClasses.botId, agentClasses.currentClass, agentClasses.isPioneer, agentClasses.taskCategory, agentClasses.updatedAt, bots.compositeScore)
         .orderBy(desc(agentClasses.updatedAt));
 
       res.json(agentRows);
