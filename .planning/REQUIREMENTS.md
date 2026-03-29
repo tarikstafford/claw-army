@@ -68,7 +68,7 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 - [x] **TOOL-04**: Tool catalog UI in SvelteKit — browsable by category (CRM, Communication, Payments, Data), shows connection status per tool
 - [x] **TOOL-05**: Tool Belt view — user's connected tools with status badges (connected/expired/rate_limited/errored), last used, re-auth button on expired
 - [x] **TOOL-06**: Starter connectors shipped — minimum 3 integrations (e.g., HubSpot, Slack, Google Sheets) as working Paperclip plugins
-- [ ] **TOOL-07**: Webhook receiver — unique URL per user per tool, signature verification where supported, incoming payloads routed to appropriate agent/objective
+- [x] **TOOL-07**: Webhook receiver — unique URL per user per tool, signature verification where supported, incoming payloads routed to appropriate agent/objective
 - [x] **TOOL-08**: Webhook routing rules configurable — "when [event] matches [condition] → assign to [agent]"
 - [x] **TOOL-09**: Webhook event log — all received webhooks with payload, routing decision, resulting action
 - [x] **TOOL-10**: Invocation logging — per-invocation audit trail: toolId, action, agentId, timestamp, latency, success/failure
@@ -160,7 +160,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOOL-04 | Phase 7 | Complete |
 | TOOL-05 | Phase 7 | Complete |
 | TOOL-06 | Phase 6 | Complete |
-| TOOL-07 | Phase 9 | Pending |
+| TOOL-07 | Phase 9 | Complete |
 | TOOL-08 | Phase 7 | Complete |
 | TOOL-09 | Phase 7 | Complete |
 | TOOL-10 | Phase 6 | Complete |

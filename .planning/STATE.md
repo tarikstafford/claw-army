@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Milestone complete
-stopped_at: Completed 08-04-PLAN.md
-last_updated: "2026-03-26T07:31:38.630Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 09-02 — webhook routing rule evaluation and dispatch
+last_updated: "2026-03-29T09:12:10.365Z"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 7
-  total_plans: 20
-  completed_plans: 23
+  total_plans: 22
+  completed_plans: 24
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 08 — evolution-dashboard
+**Current focus:** Phase 09 — tool-nexus-wiring
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
+Phase: 09 (tool-nexus-wiring) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Plan: Not started
 | Phase 08-evolution-dashboard P02 | 8 | 2 tasks | 3 files |
 | Phase 08-evolution-dashboard P03 | 8 | 2 tasks | 6 files |
 | Phase 08 P04 | 4 | 1 tasks | 2 files |
+| Phase 09 P02 | 5 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,8 @@ v6.0 key architectural decisions:
 - [Phase 08-03]: Flat soul chain converted to nested tree via buildTree() before hierarchy() — API returns root-first flat array, d3 needs nested structure
 - [Phase 08-03]: Inline tooltip preferred over SlidePanel for lineage node info — read-only soul inspection per UI-SPEC
 - [Phase 08]: groupBy includes bots.compositeScore because it is a selected non-aggregate column from a joined table; lastVerdictAt uses MAX() so it is excluded; both JOINs are LEFT JOIN to preserve agent_classes rows for bots with no verdicts
+- [Phase 09]: extractEventType and evaluateRoutingRules exported as named exports for unit testability — pure functions with no DB dependency
+- [Phase 09]: Fire-and-forget void async IIFE for routing evaluation — 200 response always fires before routing evaluation (Pitfall 4 prevention)
 
 ### Pending Todos
 
@@ -149,6 +152,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:46:29.260Z
-Stopped at: Completed 08-04-PLAN.md
+Last session: 2026-03-29T09:11:53.521Z
+Stopped at: Completed 09-02 — webhook routing rule evaluation and dispatch
 Resume file: None
