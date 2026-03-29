@@ -1,8 +1,37 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { createHash } from 'node:crypto';
-import { db, toolConnections, toolInvocationLogs } from '@claw/db';
-import { eq } from 'drizzle-orm';
+import { db, toolConnections, toolInvocationLogs, webhookRoutingRules } from '@claw/db';
+import { eq, and } from 'drizzle-orm';
 import { verifyHubSpotSignature, verifySlackSignature } from '../services/webhook-verifier.js';
+
+// ─── Routing rule helpers ─────────────────────────────────────────────────────
+
+/**
+ * Extract provider-specific event type from webhook payload.
+ * HubSpot sends an array of subscription events; Slack sends a top-level type.
+ */
+export function extractEventType(toolId: string, payload: Record<string, unknown>): string {
+  if (toolId === 'hubspot') {
+    const events = payload['events'] as Array<{ subscriptionType?: string }> | undefined;
+    return events?.[0]?.subscriptionType ?? 'unknown';
+  }
+  if (toolId === 'slack') {
+    const event = payload['event'] as { type?: string } | undefined;
+    return event?.type ?? (payload['type'] as string | undefined) ?? 'unknown';
+  }
+  return (payload['type'] as string | undefined) ?? 'unknown';
+}
+
+/**
+ * Find the first routing rule that matches the given event type.
+ * Supports exact match and wildcard ('*').
+ */
+export function evaluateRoutingRules(
+  rules: Array<{ eventType: string; assignToAgentId: string | null; id: string }>,
+  eventType: string,
+): { eventType: string; assignToAgentId: string | null; id: string } | null {
+  return rules.find((rule) => rule.eventType === eventType || rule.eventType === '*') ?? null;
+}
 
 // ─── Token derivation ─────────────────────────────────────────────────────────
 
@@ -175,7 +204,78 @@ export function webhooksRouter(): Router {
           }
         }
 
+        // Return 200 immediately — routing evaluation is fire-and-forget
         res.json({ received: true });
+
+        // ── Routing rule evaluation (fire-and-forget) ─────────────────────────
+        let parsedPayload: Record<string, unknown> = {};
+        try { parsedPayload = JSON.parse(rawBody) as Record<string, unknown>; } catch { /* not JSON */ }
+
+        const eventType = extractEventType(toolId, parsedPayload);
+
+        void (async () => {
+          try {
+            const rules = await db
+              .select()
+              .from(webhookRoutingRules)
+              .where(
+                and(
+                  eq(webhookRoutingRules.userId, userId),
+                  eq(webhookRoutingRules.toolId, toolId),
+                  eq(webhookRoutingRules.isActive, true),
+                ),
+              );
+
+            const matchedRule = evaluateRoutingRules(rules, eventType);
+
+            if (!matchedRule) {
+              await db.insert(toolInvocationLogs).values({
+                toolId,
+                action: `webhook:${toolId}:no_match`,
+                userId,
+                connectionId,
+                success: true,
+                requestSummary: `no_match event_type=${eventType}`.slice(0, 500),
+              });
+              console.log(`[webhooks] No routing rule matched for ${toolId} event_type=${eventType}`);
+              return;
+            }
+
+            // Log dispatch decision
+            await db.insert(toolInvocationLogs).values({
+              toolId,
+              action: `webhook:${toolId}:dispatched`,
+              agentId: matchedRule.assignToAgentId,
+              userId,
+              connectionId,
+              success: true,
+              requestSummary: `dispatched to agentId=${matchedRule.assignToAgentId} event_type=${eventType} ruleId=${matchedRule.id}`.slice(0, 500),
+            });
+
+            console.log(`[webhooks] Dispatched ${toolId} event_type=${eventType} to agent ${matchedRule.assignToAgentId}`);
+
+            // Best-effort agent notification via Paperclip heartbeat API
+            if (matchedRule.assignToAgentId) {
+              const port = Number(process.env['PORT'] ?? '3100');
+              const heartbeatRes = await fetch(
+                `http://localhost:${port}/api/companies/default/agents/${matchedRule.assignToAgentId}/heartbeat`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    context: `Webhook received: ${toolId} event_type=${eventType}`,
+                    payload: parsedPayload,
+                  }),
+                },
+              );
+              if (!heartbeatRes.ok) {
+                console.warn(`[webhooks] Agent heartbeat notification failed: ${heartbeatRes.status}`);
+              }
+            }
+          } catch (err) {
+            console.error('[webhooks] Routing evaluation error:', (err as Error).message);
+          }
+        })();
       } catch (err) {
         next(err);
       }
