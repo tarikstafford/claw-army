@@ -52,10 +52,10 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 ### Evolution Dashboard
 
 - [x] **DASH-01**: Fleet overview showing agent count by class (Novice/Understudy/Artisan/Retired), composite score trends over time
-- [ ] **DASH-02**: Per-agent evolution timeline — every council verdict, class transition, mutation event, DNA capture shown chronologically
-- [ ] **DASH-03**: Lineage tree visualization (depth-1) — archetype origin → mutations → current soul form, clickable nodes to inspect soul versions
-- [ ] **DASH-04**: Experiment ledger per agent — run-by-run log showing composite score, score delta, mutation applied, verdict, keep/discard outcome
-- [ ] **DASH-05**: Category benchmarks view — pioneer baselines, benchmark maturity (3+ confirmed runs), thin-data flags, current best score per category
+- [x] **DASH-02**: Per-agent evolution timeline — every council verdict, class transition, mutation event, DNA capture shown chronologically
+- [x] **DASH-03**: Lineage tree visualization (depth-1) — archetype origin → mutations → current soul form, clickable nodes to inspect soul versions
+- [x] **DASH-04**: Experiment ledger per agent — run-by-run log showing composite score, score delta, mutation applied, verdict, keep/discard outcome
+- [x] **DASH-05**: Category benchmarks view — pioneer baselines, benchmark maturity (3+ confirmed runs), thin-data flags, current best score per category
 - [x] **DASH-06**: Pending confirmation notifications — Promote/Retire verdicts surfaced with evidence, approve/reject inline
 - [x] **DASH-07**: Pioneer designation visual treatment — amber/gold, permanent badge, "First in [category]" with date
 - [x] **DASH-08**: Evolution Dashboard defaults to Director's Cut world. Toggle to Screenplay available in nav
@@ -68,7 +68,7 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 - [x] **TOOL-04**: Tool catalog UI in SvelteKit — browsable by category (CRM, Communication, Payments, Data), shows connection status per tool
 - [x] **TOOL-05**: Tool Belt view — user's connected tools with status badges (connected/expired/rate_limited/errored), last used, re-auth button on expired
 - [x] **TOOL-06**: Starter connectors shipped — minimum 3 integrations (e.g., HubSpot, Slack, Google Sheets) as working Paperclip plugins
-- [x] **TOOL-07**: Webhook receiver — unique URL per user per tool, signature verification where supported, incoming payloads routed to appropriate agent/objective
+- [ ] **TOOL-07**: Webhook receiver — unique URL per user per tool, signature verification where supported, incoming payloads routed to appropriate agent/objective
 - [x] **TOOL-08**: Webhook routing rules configurable — "when [event] matches [condition] → assign to [agent]"
 - [x] **TOOL-09**: Webhook event log — all received webhooks with payload, routing decision, resulting action
 - [x] **TOOL-10**: Invocation logging — per-invocation audit trail: toolId, action, agentId, timestamp, latency, success/failure
@@ -147,10 +147,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EVO-05 | Phase 5 | Complete |
 | EVO-06 | Phase 5 | Complete |
 | DASH-01 | Phase 8 | Complete |
-| DASH-02 | Phase 8 | Pending |
-| DASH-03 | Phase 8 | Pending |
-| DASH-04 | Phase 8 | Pending |
-| DASH-05 | Phase 8 | Pending |
+| DASH-02 | Phase 8 | Complete |
+| DASH-03 | Phase 8 | Complete |
+| DASH-04 | Phase 8 | Complete |
+| DASH-05 | Phase 8 | Complete |
 | DASH-06 | Phase 8 | Complete |
 | DASH-07 | Phase 8 | Complete |
 | DASH-08 | Phase 8 | Complete |
@@ -160,13 +160,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOOL-04 | Phase 7 | Complete |
 | TOOL-05 | Phase 7 | Complete |
 | TOOL-06 | Phase 6 | Complete |
-| TOOL-07 | Phase 6 | Complete |
+| TOOL-07 | Phase 9 | Pending |
 | TOOL-08 | Phase 7 | Complete |
 | TOOL-09 | Phase 7 | Complete |
 | TOOL-10 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 46 total
+- Satisfied: 45
+- Pending: 1 (TOOL-07 → Phase 9)
 - Mapped to phases: 46
 - Unmapped: 0 ✓
 

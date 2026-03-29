@@ -119,6 +119,8 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [ ] **Phase 6: Tool Nexus Backend** - Paperclip plugin connectors, OAuth/API key flows, webhooks, and invocation logging
 - [x] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit (completed 2026-03-25)
 - [x] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks (completed 2026-03-26)
+- [ ] **Phase 9: Tool Nexus Wiring** - Load plugin into Paperclip runtime and wire webhook dispatch to routing rules (gap closure)
+- [ ] **Phase 10: v6.0 Tech Debt Cleanup** - Stale env vars, auth protection gaps, missing .env.example, data fidelity fixes
 
 ## Phase Details
 
@@ -256,6 +258,33 @@ Plans:
 - [x] 08-03-PLAN.md — Bot detail page (timeline, lineage tree, ledger) + benchmarks page
 **UI hint**: yes
 
+### Phase 9: Tool Nexus Wiring
+**Goal**: Agents can discover and invoke Tool Nexus connectors at runtime, and incoming webhooks dispatch to the correct agent via stored routing rules — closing the two unwired integration gaps from the v6.0 audit
+**Depends on**: Phase 6, Phase 7
+**Requirements**: TOOL-01, TOOL-06, TOOL-07
+**Gap Closure**: Closes gaps from v6.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `@claw/plugin-tool-nexus` worker is loaded into Paperclip's runtime — agents can discover HubSpot, Slack, and Google Sheets tools via the plugin dispatcher
+  2. An agent invoking a registered tool action (e.g., `hubspot.create_contact`) succeeds end-to-end: plugin dispatches → credential lookup → API call → response returned to agent
+  3. When a webhook is received at the unique URL, stored routing rules are evaluated and the payload is dispatched to the matched agent/objective
+  4. If no routing rule matches an incoming webhook, the payload is logged with a "no_match" routing decision (no silent drops)
+Plans:
+- [ ] 09-01-PLAN.md — Plugin registration into Paperclip runtime + agent invocation path
+- [ ] 09-02-PLAN.md — Webhook routing rule evaluation + agent dispatch on receipt
+
+### Phase 10: v6.0 Tech Debt Cleanup
+**Goal**: Eliminate security gaps, stale references, and data fidelity issues flagged by the v6.0 milestone audit — no functional gaps remain before milestone completion
+**Depends on**: Phase 9
+**Requirements**: None (tech debt)
+**Gap Closure**: Closes tech debt from v6.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. Marketing page no longer references `EXECUTION_SERVICE_URL` — stale v5 env var removed
+  2. `pioneer-tracker.ts` uses `executionId` (not `botId`) for the `pioneerExecutionId` column
+  3. `WEBHOOK_URL_SECRET` has no predictable fallback — server fails to start if env var is unset
+  4. `/evolution` is in `hooks.server.ts` `isProtected` list
+  5. `services/akasa-server/.env.example` exists with all required env vars documented
+  6. `AKASA_BASE_URL` documented in .env.example with explanation of OAuth callback impact
+
 ---
 
 ## Progress
@@ -270,3 +299,5 @@ Plans:
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
 | 8. Evolution Dashboard | v6.0 | 4/4 | Complete   | 2026-03-26 |
+| 9. Tool Nexus Wiring | v6.0 | 0/2 | Pending | - |
+| 10. v6.0 Tech Debt Cleanup | v6.0 | 0/1 | Pending | - |
