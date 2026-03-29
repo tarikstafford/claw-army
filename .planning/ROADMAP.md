@@ -268,6 +268,7 @@ Plans:
   2. An agent invoking a registered tool action (e.g., `hubspot.create_contact`) succeeds end-to-end: plugin dispatches → credential lookup → API call → response returned to agent
   3. When a webhook is received at the unique URL, stored routing rules are evaluated and the payload is dispatched to the matched agent/objective
   4. If no routing rule matches an incoming webhook, the payload is logged with a "no_match" routing decision (no silent drops)
+**Plans:** 2 plans
 Plans:
 - [ ] 09-01-PLAN.md — Plugin registration into Paperclip runtime + agent invocation path
 - [ ] 09-02-PLAN.md — Webhook routing rule evaluation + agent dispatch on receipt
