@@ -207,6 +207,7 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 - AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_TRUST_HOST must be configured in Vercel env vars
 - Cloud Scheduler should POST /admin/cleanup/decision-traces on cron for 90-day TTL enforcement
 - landing page `.tok { color: #4ade80 }` uses raw hex (no --green token) — low-priority cosmetic
+- ✅ Phase 10 v6.0 tech debt cleanup: stale env vars, pioneer data fidelity, webhook secret hardening, /evolution auth, .env.example — resolved 2026-03-30
 
 ## Constraints
 
