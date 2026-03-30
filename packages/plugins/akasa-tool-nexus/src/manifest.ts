@@ -21,6 +21,13 @@ const manifest: PaperclipPluginManifestV1 = {
   entrypoints: {
     worker: './dist/worker.js',
   },
+  instanceConfigSchema: {
+    akasaPort: {
+      type: 'string',
+      description: 'Port number of the akasa-server process for internal API calls',
+      default: '3100',
+    },
+  },
   tools: [
     {
       name: TOOL_NAMES.hubspotCreateContact,

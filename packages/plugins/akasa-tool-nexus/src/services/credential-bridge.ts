@@ -1,13 +1,3 @@
-import { db, toolConnections } from '@claw/db';
-import { eq, and } from 'drizzle-orm';
-import {
-  getValidToken,
-  refreshHubSpotToken,
-  refreshSlackToken,
-  refreshGoogleToken,
-  type RefreshFn,
-} from '@claw/akasa-server/services/token-manager';
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ResolvedCredential {
@@ -15,61 +5,60 @@ export interface ResolvedCredential {
   connectionId: string;
 }
 
+// ─── Akasa server port for internal HTTP calls ───────────────────────────────
+
+let _akasaPort = '3100';
+
+export function setAkasaPort(port: string): void {
+  _akasaPort = port;
+}
+
+// ─── Company → User ID resolution via HTTP ──────────────────────────────────
+
+async function resolveUserId(companyId: string): Promise<string> {
+  const resp = await fetch(
+    `http://localhost:${_akasaPort}/api/akasa/internal/user-by-company/${companyId}`
+  );
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({ error: 'unknown' })) as { error?: string };
+    throw new Error(
+      `Failed to resolve userId for company ${companyId}: ${resp.status} ${body.error ?? ''}`
+    );
+  }
+  const data = await resp.json() as { userId: string };
+  return data.userId;
+}
+
+// ─── Tool credential resolution via HTTP ─────────────────────────────────────
+
+async function fetchToolCredential(userId: string, toolId: string): Promise<ResolvedCredential> {
+  const resp = await fetch(
+    `http://localhost:${_akasaPort}/api/akasa/internal/tool-credential/${userId}/${toolId}`
+  );
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({ error: 'unknown' })) as { error?: string };
+    throw new Error(
+      `Failed to resolve credential for ${toolId} (user ${userId}): ${resp.status} ${body.error ?? ''}`
+    );
+  }
+  const data = await resp.json() as { token: string; connectionId: string };
+  return { token: data.token, connectionId: data.connectionId };
+}
+
 // ─── Credential resolution ────────────────────────────────────────────────────
 
 /**
- * Resolves a valid access token for the given tool and user from Akasa's
- * tool_connections table. Handles auto-refresh for OAuth tokens.
+ * Resolves a valid access token for the given tool and Paperclip company.
  *
- * This bridges the Paperclip plugin context to Akasa's credential store.
- * Do NOT use ctx.secrets.resolve() — Paperclip secrets is a separate store
- * that does not contain Akasa tool_connections data.
+ * Two-step HTTP resolution (plugin worker has no DB access):
+ * 1. Calls akasa-server GET /akasa/internal/user-by-company/:companyId → { userId }
+ * 2. Calls akasa-server GET /akasa/internal/tool-credential/:userId/:toolId → { token, connectionId }
  *
  * @param toolId - Tool identifier, e.g. 'hubspot', 'slack', 'google-sheets'
- * @param userId - User ID whose connection to resolve
+ * @param companyId - Paperclip company UUID from ToolRunContext.companyId
  * @returns The decrypted, valid access token and the connection ID (for audit logging)
  */
-export async function resolveCredential(toolId: string, userId: string): Promise<ResolvedCredential> {
-  const rows = await db
-    .select()
-    .from(toolConnections)
-    .where(and(eq(toolConnections.userId, userId), eq(toolConnections.toolId, toolId)))
-    .limit(1);
-
-  const connection = rows[0];
-  if (!connection) {
-    throw new Error(
-      `No connected ${toolId} account for user ${userId}. Connect via Tool Belt.`,
-    );
-  }
-
-  if (connection.status !== 'connected') {
-    throw new Error(
-      `${toolId} connection is not active (status: ${connection.status}). Reconnect via Tool Belt.`,
-    );
-  }
-
-  const refreshFn = getRefreshFn(toolId);
-  const token = await getValidToken(connection.id, refreshFn);
-
-  return { token, connectionId: connection.id };
-}
-
-// ─── Provider-specific refresh function selection ─────────────────────────────
-
-function getRefreshFn(toolId: string): RefreshFn {
-  switch (toolId) {
-    case 'hubspot':
-      return refreshHubSpotToken();
-    case 'slack':
-      return refreshSlackToken();
-    case 'google-sheets':
-      return refreshGoogleToken();
-    default:
-      // For API key connections, the refresh function is never called
-      // (getValidToken handles api_key type without calling refreshFn)
-      return async (_refreshToken: string) => {
-        throw new Error(`No token refresh configured for tool: ${toolId}`);
-      };
-  }
+export async function resolveCredential(toolId: string, companyId: string): Promise<ResolvedCredential> {
+  const userId = await resolveUserId(companyId);
+  return fetchToolCredential(userId, toolId);
 }
