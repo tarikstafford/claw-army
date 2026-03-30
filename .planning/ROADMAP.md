@@ -240,7 +240,6 @@ Plans:
 - [x] 07-01-PLAN.md — Backend gap closure (routing rules + webhook logs) + UI scaffolding (NavBar, layout, auth, tool catalog data)
 - [x] 07-02-PLAN.md — Tool Catalog and Tool Belt pages with ToolCard and StatusBadge components
 - [x] 07-03-PLAN.md — Webhooks page with routing rule management and event log
-**UI hint**: yes
 
 ### Phase 8: Evolution Dashboard
 **Goal**: Users can see their agents evolving over time — class progression, soul lineage, experiment outcomes, category benchmarks, and pending confirmations all in one place
@@ -302,7 +301,10 @@ Plans:
   2. `resolveCredential()` uses BetterAuth userId (not Paperclip companyId) for tool_connections lookup — agent tool invocations succeed
   3. `ensureToolNexusPlugin` uses correct relative path (3x `../`) — plugin installs into Paperclip at server startup
   4. Webhook agent dispatch uses the real Paperclip company UUID (not `companies/default`) — heartbeat POST returns 200
-**Plans:** 0 plans
+**Plans:** 2 plans
+Plans:
+- [ ] 11-01-PLAN.md — Fix OAuth redirectUri, plugin path, webhook dispatch + internal user-by-company endpoint
+- [ ] 11-02-PLAN.md — Credential bridge HTTP refactor, plugin config plumbing, plugin rebuild
 
 ### Phase 12: Evolution Routes Verification
 **Goal**: Phase 5 (Evolution Routes) has complete GSD verification artifacts — the orphaned EVO-01 through EVO-06 requirements are formally verified against the existing functional code
@@ -330,5 +332,5 @@ Plans:
 | 8. Evolution Dashboard | v6.0 | 4/4 | Complete   | 2026-03-26 |
 | 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
-| 11. Tool Nexus Integration Fixes | v6.0 | 0/0 | Pending | - |
+| 11. Tool Nexus Integration Fixes | v6.0 | 0/2 | Pending | - |
 | 12. Evolution Routes Verification | v6.0 | 0/0 | Pending | - |
