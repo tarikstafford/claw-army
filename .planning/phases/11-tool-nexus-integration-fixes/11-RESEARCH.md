@@ -447,10 +447,10 @@ Step 2.6 is relevant because the Paperclip API must be reachable for the wakeup 
 |----------|-------|
 | Framework | Vitest ^3.1.1 |
 | Config file | `services/akasa-server/vitest.config.ts` |
-| Quick run command | `pnpm --filter @claw/execution-service exec vitest run` |
-| Full suite command | `pnpm --filter @claw/execution-service exec vitest run` |
+| Quick run command | `pnpm --filter @claw/akasa-server exec vitest run` |
+| Full suite command | `pnpm --filter @claw/akasa-server exec vitest run` |
 
-Note: The CLAUDE.md specifies `pnpm --filter @claw/execution-service exec vitest run`. The akasa-server package does not appear to have its own script. Verify the actual filter name against the akasa-server package.json.
+Note: Confirmed — `services/akasa-server/package.json` `name` is `@claw/akasa-server`. Filter verified 2026-03-30.
 
 ### Phase Requirements → Test Map
 
