@@ -5,17 +5,19 @@
   "private": true,
   "main": "./dist/worker.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs --watch",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "@paperclipai/plugin-sdk": "workspace:*",
-    "@claw/db": "workspace:*",
     "@claw/akasa-server": "workspace:*",
+    "@claw/db": "workspace:*",
+    "@paperclipai/plugin-sdk": "workspace:*",
     "drizzle-orm": "0.45.1"
   },
   "devDependencies": {
+    "esbuild": "^0.27.3",
     "typescript": "^5.9.3",
     "vitest": "^3.1.1"
   }
