@@ -13,9 +13,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "paths": {
-      "@claw/db": ["../../../packages/db/dist/index.d.ts"],
-      "@claw/akasa-server/services/token-manager": ["../../../services/akasa-server/src/services/token-manager.d.ts"],
-      "@claw/akasa-server/services/credential-encryption": ["../../../services/akasa-server/src/services/credential-encryption.d.ts"],
+      "@claw/db": ["../../../packages/db/src/index.ts"],
+      "@claw/akasa-server/services/token-manager": ["../../../services/akasa-server/src/services/token-manager.ts"],
+      "@claw/akasa-server/services/credential-encryption": ["../../../services/akasa-server/src/services/credential-encryption.ts"],
       "@paperclipai/shared": ["../../../paperclip/packages/shared/dist/index.d.ts"],
       "@paperclipai/shared/*": ["../../../paperclip/packages/shared/dist/*.d.ts"]
     }
