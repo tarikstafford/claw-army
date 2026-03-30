@@ -25,7 +25,7 @@
     window.location.href =
       '/api/akasa/tool-connections/oauth/' + toolId +
       '/start?userId=' + encodeURIComponent(data.userId) +
-      '&redirectUri=' + encodeURIComponent(window.location.origin + '/tools');
+      '&redirectUri=' + encodeURIComponent(window.location.origin + '/api/akasa/tool-connections/oauth/' + toolId + '/callback');
   }
 
   async function handleDisconnect() {

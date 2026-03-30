@@ -13,7 +13,7 @@ import { startEvolutionPolling } from './routes/evolution-trigger.js';
 async function ensureToolNexusPlugin(port: number): Promise<void> {
   const pluginPath = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
-    '../../../../packages/plugins/akasa-tool-nexus'
+    '../../../packages/plugins/akasa-tool-nexus'
   );
 
   // Skip if dist not built (dev without pre-build)

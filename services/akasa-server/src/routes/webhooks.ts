@@ -254,22 +254,23 @@ export function webhooksRouter(): Router {
 
             console.log(`[webhooks] Dispatched ${toolId} event_type=${eventType} to agent ${matchedRule.assignToAgentId}`);
 
-            // Best-effort agent notification via Paperclip heartbeat API
+            // Best-effort agent notification via Paperclip wakeup API
             if (matchedRule.assignToAgentId) {
               const port = Number(process.env['PORT'] ?? '3100');
-              const heartbeatRes = await fetch(
-                `http://localhost:${port}/api/companies/default/agents/${matchedRule.assignToAgentId}/heartbeat`,
+              const wakeupRes = await fetch(
+                `http://localhost:${port}/api/agents/${matchedRule.assignToAgentId}/wakeup`,
                 {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    context: `Webhook received: ${toolId} event_type=${eventType}`,
+                    source: 'webhook',
+                    triggerDetail: `webhook:${toolId}:event_type=${eventType}`,
                     payload: parsedPayload,
                   }),
                 },
               );
-              if (!heartbeatRes.ok) {
-                console.warn(`[webhooks] Agent heartbeat notification failed: ${heartbeatRes.status}`);
+              if (!wakeupRes.ok) {
+                console.warn(`[webhooks] Agent wakeup notification failed: ${wakeupRes.status}`);
               }
             }
           } catch (err) {
