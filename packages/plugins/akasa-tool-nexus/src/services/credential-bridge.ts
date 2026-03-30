@@ -13,6 +13,11 @@ export function setAkasaPort(port: string): void {
   _akasaPort = port;
 }
 
+/** Returns the current akasa-server port. Used by other services in this package. */
+export function _akasaPortRef(): string {
+  return _akasaPort;
+}
+
 // ─── Company → User ID resolution via HTTP ──────────────────────────────────
 
 async function resolveUserId(companyId: string): Promise<string> {

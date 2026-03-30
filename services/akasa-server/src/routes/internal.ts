@@ -2,7 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import { eq, and } from 'drizzle-orm';
 import { createDb, companyMemberships } from '@paperclipai/db';
 import { db } from '@claw/db';
-import { toolConnections } from '@claw/db';
+import { toolConnections, toolInvocationLogs } from '@claw/db';
 import {
   getValidToken,
   refreshHubSpotToken,
@@ -106,6 +106,47 @@ export function internalRouter(): Router {
       const token = await getValidToken(connection.id, refreshFn);
 
       res.json({ token, connectionId: connection.id });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ─── Endpoint 3: Log tool invocation from plugin worker ─────────────────────
+  // Used by Tool Nexus plugin worker — replaces @claw/db import in invocation-logger
+  // Fire-and-forget from caller side; errors are logged but don't affect tool execution
+  router.post('/log-invocation', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body as {
+        toolId: string;
+        action: string;
+        agentId: string | null;
+        userId: string;
+        connectionId: string;
+        latencyMs: number;
+        success: boolean;
+        errorMessage?: string;
+        requestSummary?: string;
+        responseSummary?: string;
+      };
+
+      const MAX_SUMMARY_LENGTH = 500;
+      await db.insert(toolInvocationLogs).values({
+        toolId: body.toolId,
+        action: body.action,
+        agentId: body.agentId,
+        userId: body.userId,
+        connectionId: body.connectionId,
+        latencyMs: body.latencyMs,
+        success: body.success,
+        errorMessage: body.errorMessage,
+        requestSummary: body.requestSummary
+          ? body.requestSummary.slice(0, MAX_SUMMARY_LENGTH)
+          : undefined,
+        responseSummary: body.responseSummary
+          ? body.responseSummary.slice(0, MAX_SUMMARY_LENGTH)
+          : undefined,
+      });
+      res.status(204).end();
     } catch (err) {
       next(err);
     }

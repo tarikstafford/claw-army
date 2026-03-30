@@ -11,13 +11,13 @@ const workerCtx = await esbuild.context({
   platform: 'node',
   target: 'node20',
   sourcemap: true,
-  // Externalize workspace packages — resolved at runtime via pnpm workspace
+  // Externalize only packages that Paperclip's plugin runtime provides at runtime
+  // NOTE: @claw/db and @claw/akasa-server are intentionally NOT externalized —
+  // the plugin worker has no DB access and must use HTTP to reach akasa-server.
+  // If they appear here, they would resolve at runtime and fail silently.
   external: [
-    '@claw/db',
-    '@claw/akasa-server',
     '@paperclipai/plugin-sdk',
     '@paperclipai/shared',
-    'drizzle-orm',
   ],
 });
 

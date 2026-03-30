@@ -29,12 +29,19 @@ async function ensureToolNexusPlugin(port: number): Promise<void> {
   try {
     // Check if already loaded
     const listRes = await fetch(`http://localhost:${port}/api/plugins`);
+    let pluginDbId: string | undefined;
+
     if (listRes.ok) {
-      const plugins = (await listRes.json()) as Array<{ pluginKey: string; status: string }>;
+      const plugins = (await listRes.json()) as Array<{ id: string; pluginKey: string; status: string }>;
       const existing = plugins.find(p => p.pluginKey === 'akasa.tool-nexus');
-      if (existing?.status === 'ready') {
-        console.log('[akasa-server] Tool Nexus plugin already ready');
-        return;
+      if (existing) {
+        pluginDbId = existing.id;
+        if (existing.status === 'ready') {
+          console.log('[akasa-server] Tool Nexus plugin already ready');
+          // Still set config in case port changed
+          await postPluginConfig(port, pluginDbId);
+          return;
+        }
       }
     }
 
@@ -49,6 +56,15 @@ async function ensureToolNexusPlugin(port: number): Promise<void> {
       const body = (await installRes.json()) as { error?: string };
       if (body.error?.includes('already installed')) {
         console.log('[akasa-server] Tool Nexus plugin already in registry');
+        // Resolve plugin ID for config POST
+        if (!pluginDbId) {
+          const listRes2 = await fetch(`http://localhost:${port}/api/plugins`);
+          if (listRes2.ok) {
+            const plugins = (await listRes2.json()) as Array<{ id: string; pluginKey: string }>;
+            pluginDbId = plugins.find(p => p.pluginKey === 'akasa.tool-nexus')?.id;
+          }
+        }
+        if (pluginDbId) await postPluginConfig(port, pluginDbId);
         return;
       }
       console.error('[akasa-server] Tool Nexus plugin install failed:', body.error);
@@ -56,9 +72,36 @@ async function ensureToolNexusPlugin(port: number): Promise<void> {
     }
 
     console.log('[akasa-server] Tool Nexus plugin installed and ready');
+
+    // Resolve plugin DB ID and set config
+    if (!pluginDbId) {
+      const listRes3 = await fetch(`http://localhost:${port}/api/plugins`);
+      if (listRes3.ok) {
+        const plugins = (await listRes3.json()) as Array<{ id: string; pluginKey: string }>;
+        pluginDbId = plugins.find(p => p.pluginKey === 'akasa.tool-nexus')?.id;
+      }
+    }
+    if (pluginDbId) await postPluginConfig(port, pluginDbId);
   } catch (err) {
     console.error('[akasa-server] Tool Nexus startup install error:', (err as Error).message);
     // Non-fatal — server continues without tool nexus
+  }
+}
+
+async function postPluginConfig(port: number, pluginDbId: string): Promise<void> {
+  try {
+    const configRes = await fetch(`http://localhost:${port}/api/plugins/${pluginDbId}/config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ configJson: { akasaPort: String(port) } }),
+    });
+    if (configRes.ok) {
+      console.log('[akasa-server] Tool Nexus plugin config set: akasaPort=' + port);
+    } else {
+      console.warn('[akasa-server] Tool Nexus plugin config POST failed:', configRes.status);
+    }
+  } catch (err) {
+    console.warn('[akasa-server] Tool Nexus plugin config POST error:', (err as Error).message);
   }
 }
 
