@@ -305,4 +305,4 @@ Plans:
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
 | 8. Evolution Dashboard | v6.0 | 4/4 | Complete   | 2026-03-26 |
 | 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
-| 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete   | 2026-03-30 |
+| 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
