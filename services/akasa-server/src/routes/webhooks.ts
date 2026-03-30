@@ -41,7 +41,7 @@ export function evaluateRoutingRules(
  * restarts and never needs to be persisted.
  */
 function deriveWebhookToken(connectionId: string): string {
-  const webhookSecret = process.env['WEBHOOK_URL_SECRET'] ?? 'dev-webhook-secret';
+  const webhookSecret = process.env['WEBHOOK_URL_SECRET']!;
   return createHash('sha256').update(connectionId + webhookSecret).digest('hex');
 }
 

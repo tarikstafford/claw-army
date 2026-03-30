@@ -37,6 +37,7 @@ export async function checkAndRecordPioneer(
   soulId: string | null | undefined,
   taskCategory: string,
   compositeScore: string,
+  executionId: string,
 ): Promise<boolean> {
   // Query for existing benchmark row
   const existing = await db
@@ -52,7 +53,7 @@ export async function checkAndRecordPioneer(
       taskCategory,
       pioneerBotId: botId,
       pioneerSoulId: soulId ?? undefined,
-      pioneerExecutionId: botId, // use botId as placeholder; real executionId passed if available
+      pioneerExecutionId: executionId,
       baselineCompositeScore: compositeScore,
       confirmedRunCount: 1,
       thinDataFlag: true,

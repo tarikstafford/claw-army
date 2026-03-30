@@ -71,6 +71,13 @@ if (!config.databaseUrl) {
   );
 }
 
+if (!process.env['WEBHOOK_URL_SECRET']) {
+  throw new Error(
+    '[akasa-server] WEBHOOK_URL_SECRET must be set. ' +
+    'Generate with: openssl rand -hex 32',
+  );
+}
+
 console.log('[akasa-server] Applying Paperclip migrations...');
 await applyPendingMigrations(config.databaseUrl);
 

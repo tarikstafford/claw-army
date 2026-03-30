@@ -262,7 +262,7 @@ describe('checkAndRecordPioneer', () => {
     } as any);
 
     const { checkAndRecordPioneer } = await import('../god-layer/pioneer-tracker.js');
-    const result = await checkAndRecordPioneer('bot-1', 'soul-1', 'new-category', '0.80');
+    const result = await checkAndRecordPioneer('bot-1', 'soul-1', 'new-category', '0.80', 'exec-1');
     expect(result).toBe(true);
   });
 
@@ -285,7 +285,7 @@ describe('checkAndRecordPioneer', () => {
     } as any);
 
     const { checkAndRecordPioneer } = await import('../god-layer/pioneer-tracker.js');
-    const result = await checkAndRecordPioneer('bot-1', 'soul-1', 'web-research', '0.80');
+    const result = await checkAndRecordPioneer('bot-1', 'soul-1', 'web-research', '0.80', 'exec-1');
     expect(result).toBe(false);
   });
 });

@@ -218,6 +218,7 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
         verdict.soulId,
         taskCategory,
         compositeScore,
+        verdict.executionId,
       );
       if (isPioneer) {
         console.log('[god-layer] Pioneer detected:', { botId: verdict.botId, taskCategory });
