@@ -119,7 +119,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [ ] **Phase 6: Tool Nexus Backend** - Paperclip plugin connectors, OAuth/API key flows, webhooks, and invocation logging
 - [x] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit (completed 2026-03-25)
 - [x] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks (completed 2026-03-26)
-- [ ] **Phase 9: Tool Nexus Wiring** - Load plugin into Paperclip runtime and wire webhook dispatch to routing rules (gap closure)
+- [x] **Phase 9: Tool Nexus Wiring** - Load plugin into Paperclip runtime and wire webhook dispatch to routing rules (gap closure) (completed 2026-03-30)
 - [ ] **Phase 10: v6.0 Tech Debt Cleanup** - Stale env vars, auth protection gaps, missing .env.example, data fidelity fixes
 
 ## Phase Details
@@ -268,11 +268,11 @@ Plans:
   2. An agent invoking a registered tool action (e.g., `hubspot.create_contact`) succeeds end-to-end: plugin dispatches → credential lookup → API call → response returned to agent
   3. When a webhook is received at the unique URL, stored routing rules are evaluated and the payload is dispatched to the matched agent/objective
   4. If no routing rule matches an incoming webhook, the payload is logged with a "no_match" routing decision (no silent drops)
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
 - [x] 09-01-PLAN.md — Plugin registration into Paperclip runtime + agent invocation path
 - [x] 09-02-PLAN.md — Webhook routing rule evaluation + agent dispatch on receipt
-- [ ] 09-03-PLAN.md — Gap closure: fix tsconfig paths and rebuild plugin dist
+- [x] 09-03-PLAN.md — Gap closure: fix tsconfig paths and rebuild plugin dist
 
 ### Phase 10: v6.0 Tech Debt Cleanup
 **Goal**: Eliminate security gaps, stale references, and data fidelity issues flagged by the v6.0 milestone audit — no functional gaps remain before milestone completion
@@ -301,5 +301,5 @@ Plans:
 | 6. Tool Nexus Backend | v6.0 | 3/4 | In Progress | - |
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
 | 8. Evolution Dashboard | v6.0 | 4/4 | Complete   | 2026-03-26 |
-| 9. Tool Nexus Wiring | v6.0 | 2/3 | In Progress|  |
+| 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 0/1 | Pending | - |

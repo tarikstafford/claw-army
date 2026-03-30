@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Phase complete — ready for verification
-stopped_at: Completed 09-02 — webhook routing rule evaluation and dispatch
-last_updated: "2026-03-29T09:12:10.365Z"
+status: Ready to execute
+stopped_at: Completed 09-03-PLAN.md — Tool Nexus plugin build fix
+last_updated: "2026-03-30T06:03:06.499Z"
 progress:
   total_phases: 9
-  completed_phases: 7
-  total_plans: 22
-  completed_plans: 24
+  completed_phases: 8
+  total_plans: 23
+  completed_plans: 26
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 09 (tool-nexus-wiring) — EXECUTING
-Plan: 2 of 2
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -67,6 +67,8 @@ Plan: 2 of 2
 | Phase 08-evolution-dashboard P03 | 8 | 2 tasks | 6 files |
 | Phase 08 P04 | 4 | 1 tasks | 2 files |
 | Phase 09 P02 | 5 | 1 tasks | 2 files |
+| Phase 09-tool-nexus-wiring P01 | 5 | 1 tasks | 3 files |
+| Phase 09 P03 | 173 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -139,6 +141,9 @@ v6.0 key architectural decisions:
 - [Phase 08]: groupBy includes bots.compositeScore because it is a selected non-aggregate column from a joined table; lastVerdictAt uses MAX() so it is excluded; both JOINs are LEFT JOIN to preserve agent_classes rows for bots with no verdicts
 - [Phase 09]: extractEventType and evaluateRoutingRules exported as named exports for unit testability — pure functions with no DB dependency
 - [Phase 09]: Fire-and-forget void async IIFE for routing evaluation — 200 response always fires before routing evaluation (Pitfall 4 prevention)
+- [Phase 09-tool-nexus-wiring]: Plugin install via Paperclip HTTP API (POST /api/plugins/install) not private loader import — local_trusted mode allows unauthenticated install calls from localhost
+- [Phase 09-tool-nexus-wiring]: tsconfig cross-package paths: point to .d.ts type files not .ts source files to maintain rootDir: ./src integrity for correct dist/worker.js output
+- [Phase 09]: Switch from tsc to esbuild for plugin build — tsc rootDir violation with cross-package .ts path resolution is unfixable; esbuild bundles correctly with workspace externals following Paperclip plugin SDK pattern
 
 ### Pending Todos
 
@@ -152,6 +157,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-29T09:11:53.521Z
-Stopped at: Completed 09-02 — webhook routing rule evaluation and dispatch
+Last session: 2026-03-30T06:03:06.497Z
+Stopped at: Completed 09-03-PLAN.md — Tool Nexus plugin build fix
 Resume file: None
