@@ -286,6 +286,9 @@ Plans:
   4. `/evolution` is in `hooks.server.ts` `isProtected` list
   5. `services/akasa-server/.env.example` exists with all required env vars documented
   6. `AKASA_BASE_URL` documented in .env.example with explanation of OAuth callback impact
+**Plans:** 1 plan
+Plans:
+- [ ] 10-01-PLAN.md — Security fixes, data fidelity, stale env cleanup, .env.example
 
 ---
 
