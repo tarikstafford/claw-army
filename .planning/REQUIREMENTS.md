@@ -140,12 +140,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DS-10 | Phase 3 | Complete |
 | DS-11 | Phase 3 | Complete |
 | DS-12 | Phase 3 | Complete |
-| EVO-01 | Phase 5 | Complete |
-| EVO-02 | Phase 5 | Complete |
-| EVO-03 | Phase 5 | Complete |
-| EVO-04 | Phase 5 | Complete |
-| EVO-05 | Phase 5 | Complete |
-| EVO-06 | Phase 5 | Complete |
+| EVO-01 | Phase 12 | Pending |
+| EVO-02 | Phase 12 | Pending |
+| EVO-03 | Phase 12 | Pending |
+| EVO-04 | Phase 12 | Pending |
+| EVO-05 | Phase 12 | Pending |
+| EVO-06 | Phase 12 | Pending |
 | DASH-01 | Phase 8 | Complete |
 | DASH-02 | Phase 8 | Complete |
 | DASH-03 | Phase 8 | Complete |
@@ -154,21 +154,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-06 | Phase 8 | Complete |
 | DASH-07 | Phase 8 | Complete |
 | DASH-08 | Phase 8 | Complete |
-| TOOL-01 | Phase 6 | Complete |
-| TOOL-02 | Phase 6 | Complete |
-| TOOL-03 | Phase 6 | Complete |
+| TOOL-01 | Phase 6, Phase 11 | Pending |
+| TOOL-02 | Phase 6, Phase 11 | Pending |
+| TOOL-03 | Phase 6, Phase 11 | Pending |
 | TOOL-04 | Phase 7 | Complete |
-| TOOL-05 | Phase 7 | Complete |
-| TOOL-06 | Phase 6 | Complete |
-| TOOL-07 | Phase 9 | Complete |
-| TOOL-08 | Phase 7 | Complete |
+| TOOL-05 | Phase 7, Phase 11 | Pending |
+| TOOL-06 | Phase 6, Phase 11 | Pending |
+| TOOL-07 | Phase 9, Phase 11 | Pending |
+| TOOL-08 | Phase 7, Phase 11 | Pending |
 | TOOL-09 | Phase 7 | Complete |
 | TOOL-10 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 46 total
-- Satisfied: 45
-- Pending: 1 (TOOL-07 → Phase 9)
+- Satisfied: 34
+- Pending: 12 (EVO-01–06 → Phase 12, TOOL-01/02/03/05/06/07/08 → Phase 11)
 - Mapped to phases: 46
 - Unmapped: 0 ✓
 

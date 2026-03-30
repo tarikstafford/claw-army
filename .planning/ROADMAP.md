@@ -8,7 +8,7 @@
 - ✅ **v3.0 Bot Reliability & UX Overhaul** — Phases 15-23 (shipped 2026-02-23)
 - ✅ **v4.0 The Ring Leader** — Phases 24-32 (shipped 2026-03-02)
 - ✅ **v5.0 Full Spectrum** — Phases 33-41 (shipped 2026-03-03)
-- 🚧 **v6.0 Paperclip Foundation** — Phases 1-8 (in progress)
+- 🚧 **v6.0 Paperclip Foundation** — Phases 1-12 (in progress)
 
 ---
 
@@ -121,6 +121,8 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [x] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks (completed 2026-03-26)
 - [x] **Phase 9: Tool Nexus Wiring** - Load plugin into Paperclip runtime and wire webhook dispatch to routing rules (gap closure) (completed 2026-03-30)
 - [x] **Phase 10: v6.0 Tech Debt Cleanup** - Stale env vars, auth protection gaps, missing .env.example, data fidelity fixes (completed 2026-03-30)
+- [ ] **Phase 11: Tool Nexus Integration Fixes** - Fix OAuth redirectUri, credential lookup mismatch, plugin install path, and webhook dispatch (gap closure)
+- [ ] **Phase 12: Evolution Routes Verification** - Retroactive GSD verification artifacts for Phase 5 evolution routes (gap closure)
 
 ## Phase Details
 
@@ -290,6 +292,28 @@ Plans:
 Plans:
 - [x] 10-01-PLAN.md — Security fixes, data fidelity, stale env cleanup, .env.example
 
+### Phase 11: Tool Nexus Integration Fixes
+**Goal**: All Tool Nexus integration paths work end-to-end — OAuth connections complete, agents invoke tools successfully, and webhooks dispatch to agents
+**Depends on**: Phase 9
+**Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-05, TOOL-06, TOOL-07, TOOL-08
+**Gap Closure**: Closes 4 integration gaps + 3 broken E2E flows from v6.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. OAuth connection flow completes — redirectUri points to `/api/akasa/tool-connections/oauth/:toolId/callback`, authorization code reaches the handler
+  2. `resolveCredential()` uses BetterAuth userId (not Paperclip companyId) for tool_connections lookup — agent tool invocations succeed
+  3. `ensureToolNexusPlugin` uses correct relative path (3x `../`) — plugin installs into Paperclip at server startup
+  4. Webhook agent dispatch uses the real Paperclip company UUID (not `companies/default`) — heartbeat POST returns 200
+**Plans:** 0 plans
+
+### Phase 12: Evolution Routes Verification
+**Goal**: Phase 5 (Evolution Routes) has complete GSD verification artifacts — the orphaned EVO-01 through EVO-06 requirements are formally verified against the existing functional code
+**Depends on**: Phase 5
+**Requirements**: EVO-01, EVO-02, EVO-03, EVO-04, EVO-05, EVO-06
+**Gap Closure**: Closes 6 orphaned requirements from v6.0-MILESTONE-AUDIT.md (verification artifact gap, not code gap)
+**Success Criteria** (what must be TRUE):
+  1. `.planning/phases/12-evolution-routes-verification/` contains VERIFICATION.md confirming all 6 EVO requirements are satisfied by existing code
+  2. Each EVO requirement has evidence linking to specific source files and routes in `services/akasa-server/src/routes/`
+**Plans:** 0 plans
+
 ---
 
 ## Progress
@@ -306,3 +330,5 @@ Plans:
 | 8. Evolution Dashboard | v6.0 | 4/4 | Complete   | 2026-03-26 |
 | 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
+| 11. Tool Nexus Integration Fixes | v6.0 | 0/0 | Pending | - |
+| 12. Evolution Routes Verification | v6.0 | 0/0 | Pending | - |
