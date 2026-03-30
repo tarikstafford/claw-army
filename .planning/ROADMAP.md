@@ -120,7 +120,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [x] **Phase 7: Tool Nexus UI** - Tool catalog, Tool Belt, webhook configuration, and event log in SvelteKit (completed 2026-03-25)
 - [x] **Phase 8: Evolution Dashboard** - Fleet overview, agent timelines, lineage trees, experiment ledger, and category benchmarks (completed 2026-03-26)
 - [x] **Phase 9: Tool Nexus Wiring** - Load plugin into Paperclip runtime and wire webhook dispatch to routing rules (gap closure) (completed 2026-03-30)
-- [ ] **Phase 10: v6.0 Tech Debt Cleanup** - Stale env vars, auth protection gaps, missing .env.example, data fidelity fixes
+- [x] **Phase 10: v6.0 Tech Debt Cleanup** - Stale env vars, auth protection gaps, missing .env.example, data fidelity fixes (completed 2026-03-30)
 
 ## Phase Details
 
@@ -286,9 +286,9 @@ Plans:
   4. `/evolution` is in `hooks.server.ts` `isProtected` list
   5. `services/akasa-server/.env.example` exists with all required env vars documented
   6. `AKASA_BASE_URL` documented in .env.example with explanation of OAuth callback impact
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 10-01-PLAN.md — Security fixes, data fidelity, stale env cleanup, .env.example
+- [x] 10-01-PLAN.md — Security fixes, data fidelity, stale env cleanup, .env.example
 
 ---
 
@@ -305,4 +305,4 @@ Plans:
 | 7. Tool Nexus UI | v6.0 | 3/3 | Complete   | 2026-03-25 |
 | 8. Evolution Dashboard | v6.0 | 4/4 | Complete   | 2026-03-26 |
 | 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
-| 10. v6.0 Tech Debt Cleanup | v6.0 | 0/1 | Pending | - |
+| 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete   | 2026-03-30 |

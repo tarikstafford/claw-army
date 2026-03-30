@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Milestone complete
-stopped_at: Completed 09-03-PLAN.md — Tool Nexus plugin build fix
-last_updated: "2026-03-30T06:07:54.052Z"
+status: Phase complete — ready for verification
+stopped_at: "Completed 10-v6-tech-debt-cleanup-01 — v6.0 tech debt cleanup: security hardening, data fidelity, auth guard, env docs"
+last_updated: "2026-03-30T07:11:46.060Z"
 progress:
   total_phases: 9
   completed_phases: 8
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 09 — tool-nexus-wiring
+**Current focus:** Phase 10 — v6-tech-debt-cleanup
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
+Phase: 10 (v6-tech-debt-cleanup) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Plan: Not started
 | Phase 09 P02 | 5 | 1 tasks | 2 files |
 | Phase 09-tool-nexus-wiring P01 | 5 | 1 tasks | 3 files |
 | Phase 09 P03 | 173 | 2 tasks | 4 files |
+| Phase 10-v6-tech-debt-cleanup P01 | 5 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -144,6 +145,9 @@ v6.0 key architectural decisions:
 - [Phase 09-tool-nexus-wiring]: Plugin install via Paperclip HTTP API (POST /api/plugins/install) not private loader import — local_trusted mode allows unauthenticated install calls from localhost
 - [Phase 09-tool-nexus-wiring]: tsconfig cross-package paths: point to .d.ts type files not .ts source files to maintain rootDir: ./src integrity for correct dist/worker.js output
 - [Phase 09]: Switch from tsc to esbuild for plugin build — tsc rootDir violation with cross-package .ts path resolution is unfixable; esbuild bundles correctly with workspace externals following Paperclip plugin SDK pattern
+- [Phase 10-v6-tech-debt-cleanup]: WEBHOOK_URL_SECRET uses non-null assertion not fallback — no predictable secrets in production
+- [Phase 10-v6-tech-debt-cleanup]: executionId added as 5th parameter to checkAndRecordPioneer — pioneer tracker now records correct execution reference
+- [Phase 10-v6-tech-debt-cleanup]: /evolution added to isProtected in hooks.server.ts — consistent with existing route guard pattern
 
 ### Pending Todos
 
@@ -157,6 +161,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-30T06:03:06.497Z
-Stopped at: Completed 09-03-PLAN.md — Tool Nexus plugin build fix
+Last session: 2026-03-30T07:11:46.057Z
+Stopped at: Completed 10-v6-tech-debt-cleanup-01 — v6.0 tech debt cleanup: security hardening, data fidelity, auth guard, env docs
 Resume file: None
