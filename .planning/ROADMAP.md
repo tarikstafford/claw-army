@@ -314,7 +314,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `.planning/phases/12-evolution-routes-verification/` contains VERIFICATION.md confirming all 6 EVO requirements are satisfied by existing code
   2. Each EVO requirement has evidence linking to specific source files and routes in `services/akasa-server/src/routes/`
-**Plans:** 0 plans
+**Plans:** 1 plan
+Plans:
+- [ ] 12-01-PLAN.md — Audit evolution source files, run tests, write VERIFICATION.md
 
 ---
 
@@ -333,4 +335,4 @@ Plans:
 | 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
 | 11. Tool Nexus Integration Fixes | v6.0 | 2/2 | Complete    | 2026-03-31 |
-| 12. Evolution Routes Verification | v6.0 | 0/0 | Pending | - |
+| 12. Evolution Routes Verification | v6.0 | 0/1 | In Progress | - |
