@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Milestone complete
-stopped_at: Completed Phase 11 Plan 02 — credential-bridge HTTP refactor and plugin config wiring
-last_updated: "2026-03-31T03:26:08.543Z"
+status: Phase complete — ready for verification
+stopped_at: Completed Phase 12 Plan 01 — evolution routes verification VERIFICATION.md created
+last_updated: "2026-03-31T07:08:38.350Z"
 progress:
   total_phases: 9
   completed_phases: 8
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 11 — tool-nexus-integration-fixes
+**Current focus:** Phase 12 — evolution-routes-verification
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
+Phase: 12 (evolution-routes-verification) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Plan: Not started
 | Phase 10-v6-tech-debt-cleanup P01 | 5 | 2 tasks | 8 files |
 | Phase 11-tool-nexus-integration-fixes P01 | 15 | 3 tasks | 7 files |
 | Phase 11 P02 | 15 | 2 tasks | 7 files |
+| Phase 12 P01 | 5 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,7 @@ v6.0 key architectural decisions:
 - [Phase 11]: credential-bridge second param renamed from userId to companyId — reflects Paperclip company UUID not BetterAuth userId
 - [Phase 11]: invocation-logger refactored to HTTP (POST /akasa/internal/log-invocation) — no @claw/db in plugin bundle; @claw/db removed from esbuild external list
 - [Phase 11]: postPluginConfig called in all install paths using pluginDbId (UUID id field, not pluginKey) for Paperclip config endpoint
+- [Phase 12]: EVO-06 uses 60s DB polling of heartbeat_runs not Paperclip push events — documented as SATISFIED MEDIUM confidence with architectural note
 
 ### Pending Todos
 
@@ -169,6 +171,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-30T11:07:22.999Z
-Stopped at: Completed Phase 11 Plan 02 — credential-bridge HTTP refactor and plugin config wiring
+Last session: 2026-03-31T07:08:38.347Z
+Stopped at: Completed Phase 12 Plan 01 — evolution routes verification VERIFICATION.md created
 Resume file: None

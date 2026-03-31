@@ -122,7 +122,7 @@ See `.planning/milestones/v5.0-ROADMAP.md` for full phase details.
 - [x] **Phase 9: Tool Nexus Wiring** - Load plugin into Paperclip runtime and wire webhook dispatch to routing rules (gap closure) (completed 2026-03-30)
 - [x] **Phase 10: v6.0 Tech Debt Cleanup** - Stale env vars, auth protection gaps, missing .env.example, data fidelity fixes (completed 2026-03-30)
 - [x] **Phase 11: Tool Nexus Integration Fixes** - Fix OAuth redirectUri, credential lookup mismatch, plugin install path, and webhook dispatch (gap closure) (completed 2026-03-30)
-- [ ] **Phase 12: Evolution Routes Verification** - Retroactive GSD verification artifacts for Phase 5 evolution routes (gap closure)
+- [x] **Phase 12: Evolution Routes Verification** - Retroactive GSD verification artifacts for Phase 5 evolution routes (gap closure) (completed 2026-03-31)
 
 ## Phase Details
 
@@ -314,9 +314,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `.planning/phases/12-evolution-routes-verification/` contains VERIFICATION.md confirming all 6 EVO requirements are satisfied by existing code
   2. Each EVO requirement has evidence linking to specific source files and routes in `services/akasa-server/src/routes/`
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 12-01-PLAN.md — Audit evolution source files, run tests, write VERIFICATION.md
+- [x] 12-01-PLAN.md — Audit evolution source files, run tests, write VERIFICATION.md
 
 ---
 
@@ -335,4 +335,4 @@ Plans:
 | 9. Tool Nexus Wiring | v6.0 | 3/3 | Complete   | 2026-03-30 |
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
 | 11. Tool Nexus Integration Fixes | v6.0 | 2/2 | Complete    | 2026-03-31 |
-| 12. Evolution Routes Verification | v6.0 | 0/1 | In Progress | - |
+| 12. Evolution Routes Verification | v6.0 | 1/1 | Complete   | 2026-03-31 |
