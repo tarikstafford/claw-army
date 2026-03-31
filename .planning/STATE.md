@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
 status: Milestone complete
-stopped_at: "Completed 10-v6-tech-debt-cleanup-01 — v6.0 tech debt cleanup: security hardening, data fidelity, auth guard, env docs"
-last_updated: "2026-03-30T07:15:15.297Z"
+stopped_at: Completed Phase 11 Plan 02 — credential-bridge HTTP refactor and plugin config wiring
+last_updated: "2026-03-31T03:26:08.543Z"
 progress:
   total_phases: 9
   completed_phases: 8
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 10 — v6-tech-debt-cleanup
+**Current focus:** Phase 11 — tool-nexus-integration-fixes
 
 ## Current Position
 
-Phase: 10
+Phase: 11
 Plan: Not started
 
 ## Performance Metrics
@@ -70,6 +70,8 @@ Plan: Not started
 | Phase 09-tool-nexus-wiring P01 | 5 | 1 tasks | 3 files |
 | Phase 09 P03 | 173 | 2 tasks | 4 files |
 | Phase 10-v6-tech-debt-cleanup P01 | 5 | 2 tasks | 8 files |
+| Phase 11-tool-nexus-integration-fixes P01 | 15 | 3 tasks | 7 files |
+| Phase 11 P02 | 15 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -148,6 +150,12 @@ v6.0 key architectural decisions:
 - [Phase 10-v6-tech-debt-cleanup]: WEBHOOK_URL_SECRET uses non-null assertion not fallback — no predictable secrets in production
 - [Phase 10-v6-tech-debt-cleanup]: executionId added as 5th parameter to checkAndRecordPioneer — pioneer tracker now records correct execution reference
 - [Phase 10-v6-tech-debt-cleanup]: /evolution added to isProtected in hooks.server.ts — consistent with existing route guard pattern
+- [Phase 11-tool-nexus-integration-fixes]: OAuth redirectUri must point to Express callback handler at /api/akasa/tool-connections/oauth/:toolId/callback, not the SvelteKit /tools page
+- [Phase 11-tool-nexus-integration-fixes]: Internal endpoints rely on local_trusted mode for security (no auth tokens) — localhost-only processes only
+- [Phase 11-tool-nexus-integration-fixes]: Webhook dispatch uses /api/agents/:id/wakeup with source+triggerDetail+payload body (Paperclip v2 API)
+- [Phase 11]: credential-bridge second param renamed from userId to companyId — reflects Paperclip company UUID not BetterAuth userId
+- [Phase 11]: invocation-logger refactored to HTTP (POST /akasa/internal/log-invocation) — no @claw/db in plugin bundle; @claw/db removed from esbuild external list
+- [Phase 11]: postPluginConfig called in all install paths using pluginDbId (UUID id field, not pluginKey) for Paperclip config endpoint
 
 ### Pending Todos
 
@@ -161,6 +169,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-30T07:11:46.057Z
-Stopped at: Completed 10-v6-tech-debt-cleanup-01 — v6.0 tech debt cleanup: security hardening, data fidelity, auth guard, env docs
+Last session: 2026-03-30T11:07:22.999Z
+Stopped at: Completed Phase 11 Plan 02 — credential-bridge HTTP refactor and plugin config wiring
 Resume file: None
