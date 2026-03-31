@@ -209,6 +209,7 @@ Users deploy a crew of AI bots that gets measurably smarter with every run — b
 - landing page `.tok { color: #4ade80 }` uses raw hex (no --green token) — low-priority cosmetic
 - ✅ Phase 10 v6.0 tech debt cleanup: stale env vars, pioneer data fidelity, webhook secret hardening, /evolution auth, .env.example — resolved 2026-03-30
 - ✅ Phase 11 Tool Nexus integration fixes: OAuth redirectUri, plugin path, webhook dispatch, credential bridge HTTP refactor — resolved 2026-03-31
+- ✅ Phase 12 Evolution routes verification: all 6 EVO requirements (EVO-01–EVO-06) formally verified with codebase evidence, 103/103 tests passing — resolved 2026-03-31
 
 ## Constraints
 
@@ -288,4 +289,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-31 — Phase 11 (Tool Nexus Integration Fixes) complete: OAuth redirectUri fixed to Express callback, plugin path corrected, webhook dispatch wired to /api/agents/:id/wakeup, credential bridge refactored to HTTP-only (no @claw/db in plugin worker), internal endpoints for cross-service lookups*
+*Last updated: 2026-03-31 — Phase 12 (Evolution Routes Verification) complete: all 6 EVO requirements (EVO-01–EVO-06) formally verified with file-path-level codebase evidence, 103/103 tests passing, EVO-06 architectural note on 60s polling mechanism*
