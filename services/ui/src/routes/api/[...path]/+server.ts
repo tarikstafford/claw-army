@@ -56,6 +56,16 @@ const handler: RequestHandler = async (event) => {
   if (contentDisposition) {
     responseHeaders.set('content-disposition', contentDisposition);
   }
+  // Forward set-cookie headers (critical for BetterAuth session cookies)
+  const setCookies = upstream.headers.getSetCookie();
+  for (const cookie of setCookies) {
+    responseHeaders.append('set-cookie', cookie);
+  }
+  // Forward location header for OAuth redirects
+  const location = upstream.headers.get('location');
+  if (location) {
+    responseHeaders.set('location', location);
+  }
 
   return new Response(upstream.body, {
     status: upstream.status,
