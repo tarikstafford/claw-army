@@ -1,17 +1,17 @@
 import type { RequestHandler } from '@sveltejs/kit';
 
 const handler: RequestHandler = async (event) => {
-  const paperclipUrl = process.env.PAPERCLIP_URL;
-  if (!paperclipUrl) {
+  const backendUrl = process.env.EXECUTION_SERVICE_URL;
+  if (!backendUrl) {
     return new Response(
-      JSON.stringify({ error: 'Server configuration error: PAPERCLIP_URL not set.' }),
+      JSON.stringify({ error: 'Server configuration error: EXECUTION_SERVICE_URL not set.' }),
       { status: 500, headers: { 'content-type': 'application/json' } },
     );
   }
 
   // Build the target URL preserving the sub-path and query string
   const path = event.params.path ?? '';
-  const target = new URL(`/${path}`, paperclipUrl);
+  const target = new URL(`/${path}`, backendUrl);
   target.search = event.url.search;
 
   // Forward headers that matter
@@ -41,7 +41,7 @@ const handler: RequestHandler = async (event) => {
     });
   } catch {
     return new Response(
-      JSON.stringify({ error: 'Could not reach Paperclip server.' }),
+      JSON.stringify({ error: 'Could not reach backend server.' }),
       { status: 503, headers: { 'content-type': 'application/json' } },
     );
   }

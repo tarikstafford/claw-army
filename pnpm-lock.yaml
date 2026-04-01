@@ -744,6 +744,9 @@ importers:
       ai:
         specifier: ^6.0.90
         version: 6.0.90(zod@4.3.6)
+      better-auth:
+        specifier: 1.4.18
+        version: 1.4.18(@sveltejs/kit@2.52.0(@opentelemetry/api@1.9.0)(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.51.3)(vite@6.4.1(@types/node@25.2.3)(tsx@4.21.0)))(svelte@5.51.3)(typescript@5.9.3)(vite@6.4.1(@types/node@25.2.3)(tsx@4.21.0)))(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.14)(pg@8.18.0)(postgres@3.4.8))(pg@8.18.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(svelte@5.51.3)(vitest@4.0.18(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(jsdom@28.1.0(@noble/hashes@2.0.1))(tsx@4.21.0))
       bullmq:
         specifier: ^5.69.3
         version: 5.69.3

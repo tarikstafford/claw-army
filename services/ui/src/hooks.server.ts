@@ -1,13 +1,13 @@
 import type { Handle } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 
-const PAPERCLIP_URL = process.env.PAPERCLIP_URL ?? 'http://localhost:3100';
+const BACKEND_URL = process.env.EXECUTION_SERVICE_URL ?? 'http://localhost:3001';
 
 export const handle: Handle = async ({ event, resolve }) => {
   const cookieHeader = event.request.headers.get('cookie') ?? '';
 
   try {
-    const res = await fetch(`${PAPERCLIP_URL}/api/auth/get-session`, {
+    const res = await fetch(`${BACKEND_URL}/auth/get-session`, {
       headers: { cookie: cookieHeader, accept: 'application/json' },
     });
 

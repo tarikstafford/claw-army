@@ -1,3 +1,4 @@
+export * from './auth';
 export * from './executions';
 export * from './tasks';
 export * from './bots';

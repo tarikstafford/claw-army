@@ -16,6 +16,7 @@ import { soulsRoutes } from './routes/souls';
 import { categoryBenchmarksRoutes } from './routes/category-benchmarks';
 import { decisionTracesRoutes } from './routes/decision-traces';
 import { negativeSignalsRoutes } from './routes/negative-signals';
+import { authRoutes } from './routes/auth';
 
 export async function buildApp() {
   const app = Fastify({
@@ -25,6 +26,7 @@ export async function buildApp() {
   // CORS must be registered BEFORE routes — Fastify plugin registration order matters
   await app.register(cors, {
     origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+    credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
@@ -69,6 +71,9 @@ export async function buildApp() {
 
   // Negative Signal Register (Phase 39 — SOUL-03)
   app.register(negativeSignalsRoutes, { prefix: '/negative-signals' });
+
+  // BetterAuth — Google OAuth + session management
+  app.register(authRoutes, { prefix: '/auth' });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
