@@ -10,7 +10,11 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
 
   app.all('/*', async (request: FastifyRequest, reply: FastifyReply) => {
     console.log(`[auth-routes] Handling ${request.method} ${request.url}`);
-    const url = new URL(request.url, `http://${request.hostname}`);
+    // Fastify strips the prefix from request.url inside a plugin, but request.raw.url
+    // has the full path. BetterAuth expects the full path including its basePath (/auth).
+    const rawUrl = request.raw.url ?? request.url;
+    console.log(`[auth-routes] rawUrl=${rawUrl}`);
+    const url = new URL(rawUrl, `http://${request.hostname}`);
 
     const headers = new Headers();
     for (const [key, value] of Object.entries(request.headers)) {
