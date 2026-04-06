@@ -30,8 +30,6 @@ const handler: RequestHandler = async (event) => {
   const hasBody = !['GET', 'HEAD'].includes(event.request.method);
   const body = hasBody ? event.request.body : undefined;
 
-  console.log(`[api-proxy] ${event.request.method} ${target.toString()} (EXECUTION_SERVICE_URL=${backendUrl})`);
-
   let upstream: Response;
   try {
     upstream = await fetch(target.toString(), {
