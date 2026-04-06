@@ -345,6 +345,13 @@
 </footer>
 
 <style>
+  /* ── Content wrapper ──────────────────────── */
+  :global(.w) {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 36px;
+  }
+
   /* ── HERO ──────────────────────────────────── */
   .hero {
     min-height: 100vh;
