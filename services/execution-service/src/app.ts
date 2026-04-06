@@ -73,7 +73,10 @@ export async function buildApp() {
   app.register(negativeSignalsRoutes, { prefix: '/negative-signals' });
 
   // BetterAuth — Google OAuth + session management
-  app.register(authRoutes, { prefix: '/auth' });
+  app.register(authRoutes, { prefix: '/auth' }).after((err) => {
+    if (err) console.error('[app] Auth plugin registration FAILED:', err);
+    else console.log('[app] Auth plugin registered successfully');
+  });
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));

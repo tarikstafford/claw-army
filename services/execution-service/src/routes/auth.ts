@@ -6,7 +6,10 @@ import { auth } from '../auth';
  * Registers a wildcard route that forwards all /auth/* requests to BetterAuth.
  */
 export const authRoutes: FastifyPluginAsync = async (app) => {
+  console.log('[auth-routes] Registering BetterAuth wildcard route under /auth');
+
   app.all('/*', async (request: FastifyRequest, reply: FastifyReply) => {
+    console.log(`[auth-routes] Handling ${request.method} ${request.url}`);
     const url = new URL(request.url, `http://${request.hostname}`);
 
     const headers = new Headers();
