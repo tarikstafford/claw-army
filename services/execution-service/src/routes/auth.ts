@@ -8,13 +8,11 @@ import { auth } from '../auth';
 const PUBLIC_URL = process.env['PUBLIC_URL'] ?? '';
 
 async function handleAuth(request: FastifyRequest, reply: FastifyReply) {
-  // BetterAuth uses baseURL path for route matching. PUBLIC_URL includes /api,
-  // so we must build the request URL from the public base + the request path
-  // so BetterAuth sees /api/auth/... instead of just /auth/...
+  // Use the public origin so BetterAuth constructs correct callback URLs,
+  // but keep the raw path as-is (/auth/...) to match basePath: '/auth'.
   const rawPath = request.raw.url ?? request.url;
-  const url = PUBLIC_URL
-    ? new URL(rawPath, PUBLIC_URL)
-    : new URL(rawPath, `http://${request.hostname}`);
+  const origin = PUBLIC_URL ? new URL(PUBLIC_URL).origin : `http://${request.hostname}`;
+  const url = new URL(rawPath, origin);
 
   const headers = new Headers();
   for (const [key, value] of Object.entries(request.headers)) {
