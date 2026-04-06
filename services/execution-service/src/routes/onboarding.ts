@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 import { Type } from '@sinclair/typebox';
-import { listCompanies, createCompany, createAgent } from '../services/paperclip-client';
+import { listCompaniesForUser, createCompanyForUser, createAgentInCompany } from '../services/paperclip-client';
+import { auth } from '../auth';
 
 const AGENT_ROSTER = [
   { name: 'Mira', role: 'marketing', title: 'Marketing Strategist', archetype: 'Creative Synthesizer' },
@@ -25,16 +26,33 @@ function budgetToTier(budget: string): string {
   return budget === '<50' ? 'haiku' : 'sonnet';
 }
 
+async function resolveUserId(request: FastifyRequest): Promise<string | null> {
+  const cookie = request.headers.cookie ?? '';
+  if (!cookie) return null;
+
+  try {
+    const webRequest = new Request(`http://${request.hostname}/auth/get-session`, {
+      method: 'GET',
+      headers: new Headers({ cookie }),
+    });
+    const webResponse = await auth.handler(webRequest);
+    if (!webResponse.ok) return null;
+    const data = await webResponse.json() as { session?: { userId?: string } };
+    return data?.session?.userId ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export const onboardingRoutes: FastifyPluginAsync = async (app) => {
-  // Check if user has completed onboarding (has a company)
   app.get('/status', async (request: FastifyRequest, reply: FastifyReply) => {
-    const cookie = request.headers.cookie ?? '';
-    if (!cookie) {
+    const userId = await resolveUserId(request);
+    if (!userId) {
       return reply.code(401).send({ error: 'Not authenticated' });
     }
 
     try {
-      const companies = await listCompanies(cookie);
+      const companies = await listCompaniesForUser(userId);
       if (companies.length > 0) {
         return { onboarded: true, companyId: companies[0]!.id };
       }
@@ -45,7 +63,6 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
     }
   });
 
-  // Create company + agents based on onboarding answers
   app.post('/summon', {
     schema: {
       body: Type.Object({
@@ -58,8 +75,8 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
   }, async (request: FastifyRequest<{
     Body: { businessType: string; firstGoal: string; budget: string; companyName: string };
   }>, reply: FastifyReply) => {
-    const cookie = request.headers.cookie ?? '';
-    if (!cookie) {
+    const userId = await resolveUserId(request);
+    if (!userId) {
       return reply.code(401).send({ error: 'Not authenticated' });
     }
 
@@ -67,10 +84,9 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
     const tier = budgetToTier(budget);
     const budgetCents = budgetToCents(budget);
 
-    // Create company in Paperclip
     let company;
     try {
-      company = await createCompany(cookie, {
+      company = await createCompanyForUser(userId, {
         name: companyName,
         description: `${businessType} — Goal: ${firstGoal}`,
         budgetMonthlyCents: budgetCents,
@@ -80,7 +96,6 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(500).send({ error: 'Failed to create company' });
     }
 
-    // Build agent list
     const agentsToCreate = [
       ...AGENT_ROSTER.map((a) => ({ ...a, tier })),
     ];
@@ -88,11 +103,10 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
       agentsToCreate.push({ ...FINANCE_AGENT, tier: 'haiku' });
     }
 
-    // Create agents in Paperclip
     const createdAgents = [];
     for (const agent of agentsToCreate) {
       try {
-        const created = await createAgent(cookie, company.id, {
+        const created = await createAgentInCompany(company.id, {
           name: agent.name,
           role: agent.role,
           title: agent.title,
