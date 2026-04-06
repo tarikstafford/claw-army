@@ -84,7 +84,7 @@
     error = '';
 
     try {
-      const res = await fetch('/api/onboarding/summon', {
+      const res = await fetch('/onboarding/api/summon', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({

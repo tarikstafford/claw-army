@@ -9,7 +9,7 @@ export const load: LayoutServerLoad = async ({ locals, fetch }) => {
   // Check if user has completed onboarding (has a company)
   let companyId: string | null = null;
   try {
-    const res = await fetch('/api/onboarding/status');
+    const res = await fetch('/onboarding/api/status');
     if (res.ok) {
       const data = await res.json();
       if (data.onboarded && data.companyId) {

@@ -8,7 +8,7 @@ export const load: LayoutServerLoad = async ({ locals, fetch }) => {
 
   // If user already has a company, skip onboarding
   try {
-    const res = await fetch('/api/onboarding/status');
+    const res = await fetch('/onboarding/api/status');
     if (res.ok) {
       const data = await res.json();
       if (data.onboarded) {
