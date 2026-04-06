@@ -1,6 +1,11 @@
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-export const authUsers = pgTable('auth_user', {
+/**
+ * Auth tables — must match Paperclip's table names exactly so both services
+ * share the same BetterAuth session store. Paperclip uses: user, session,
+ * account, verification (BetterAuth defaults).
+ */
+export const authUsers = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull(),
@@ -10,7 +15,7 @@ export const authUsers = pgTable('auth_user', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
 
-export const authSessions = pgTable('auth_session', {
+export const authSessions = pgTable('session', {
   id: text('id').primaryKey(),
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   token: text('token').notNull(),
@@ -21,7 +26,7 @@ export const authSessions = pgTable('auth_session', {
   userId: text('user_id').notNull().references(() => authUsers.id, { onDelete: 'cascade' }),
 });
 
-export const authAccounts = pgTable('auth_account', {
+export const authAccounts = pgTable('account', {
   id: text('id').primaryKey(),
   accountId: text('account_id').notNull(),
   providerId: text('provider_id').notNull(),
@@ -37,7 +42,7 @@ export const authAccounts = pgTable('auth_account', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
 
-export const authVerifications = pgTable('auth_verification', {
+export const authVerifications = pgTable('verification', {
   id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
