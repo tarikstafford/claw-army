@@ -8,7 +8,7 @@ const secret = process.env['AUTH_SECRET'] ?? 'dev-secret-change-me';
 const publicUrl = process.env['PUBLIC_URL'];
 
 export const auth = betterAuth({
-  ...(publicUrl ? { baseURL: publicUrl } : {}),
+  ...(publicUrl ? { baseURL: new URL(publicUrl).origin } : {}),
   basePath: '/auth',
   secret,
   trustedOrigins: process.env['TRUSTED_ORIGINS']

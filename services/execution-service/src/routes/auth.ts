@@ -3,18 +3,12 @@ import { auth } from '../auth';
 
 /**
  * Bridges BetterAuth (Web API Request/Response) to Fastify.
- * Registers individual method handlers to avoid wildcard routing issues.
+ * BetterAuth has basePath: '/auth' and no baseURL — it infers origin from each request.
+ * The route handler passes request.raw.url (/auth/...) straight through.
  */
-const PUBLIC_URL = process.env['PUBLIC_URL'] ?? '';
-
 async function handleAuth(request: FastifyRequest, reply: FastifyReply) {
-  // BetterAuth route matching uses baseURL path (/api) + basePath (/auth) as prefix.
-  // The proxy strips /api, so we must re-add the PUBLIC_URL path prefix.
   const rawPath = request.raw.url ?? request.url;
-  const publicUrlObj = PUBLIC_URL ? new URL(PUBLIC_URL) : null;
-  const proxyPrefix = publicUrlObj ? publicUrlObj.pathname.replace(/\/$/, '') : '';
-  const origin = publicUrlObj?.origin ?? `http://${request.hostname}`;
-  const url = new URL(`${proxyPrefix}${rawPath}`, origin);
+  const url = new URL(rawPath, `http://${request.hostname}`);
 
   const headers = new Headers();
   for (const [key, value] of Object.entries(request.headers)) {
