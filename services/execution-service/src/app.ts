@@ -18,6 +18,7 @@ import { decisionTracesRoutes } from './routes/decision-traces';
 import { negativeSignalsRoutes } from './routes/negative-signals';
 import { registerAuthRoutes } from './routes/auth';
 import { onboardingRoutes } from './routes/onboarding';
+import { paperclipProxyRoutes } from './routes/paperclip-proxy';
 
 export async function buildApp() {
   const app = Fastify({
@@ -75,6 +76,9 @@ export async function buildApp() {
 
   // Onboarding — company + agent creation via Paperclip
   app.register(onboardingRoutes, { prefix: '/onboarding' });
+
+  // Paperclip proxy — forwards company/agent/issue/chat/cost requests to Paperclip
+  app.register(paperclipProxyRoutes);
 
   // BetterAuth — Google OAuth + session management
   registerAuthRoutes(app);
