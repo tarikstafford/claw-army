@@ -6,26 +6,21 @@ export const load: LayoutServerLoad = async ({ locals, fetch }) => {
     throw redirect(303, '/auth');
   }
 
-  // Check if user has completed onboarding (has a company)
-  let companyId: string | null = null;
+  // If user already has a company, skip onboarding
   try {
     const res = await fetch('/api/onboarding/status');
     if (res.ok) {
       const data = await res.json();
-      if (data.onboarded && data.companyId) {
-        companyId = data.companyId;
+      if (data.onboarded) {
+        throw redirect(303, '/indra');
       }
     }
-  } catch {
-    // Status check failure — treat as not onboarded
-  }
-
-  if (!companyId) {
-    throw redirect(303, '/onboarding');
+  } catch (err) {
+    // redirect throws are re-thrown by SvelteKit
+    if (err && typeof err === 'object' && 'status' in err) throw err;
   }
 
   return {
     session: locals.session,
-    companyId,
   };
 };

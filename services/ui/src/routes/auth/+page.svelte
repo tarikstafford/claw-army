@@ -8,7 +8,7 @@
     loading = true;
     error = '';
     try {
-      const result = await authClient.signIn.social({ provider: 'google', callbackURL: '/indra' });
+      const result = await authClient.signIn.social({ provider: 'google', callbackURL: '/onboarding' });
       if (result?.error) {
         error = result.error.message ?? 'Sign in failed. Please try again.';
         loading = false;

@@ -17,6 +17,7 @@ import { categoryBenchmarksRoutes } from './routes/category-benchmarks';
 import { decisionTracesRoutes } from './routes/decision-traces';
 import { negativeSignalsRoutes } from './routes/negative-signals';
 import { registerAuthRoutes } from './routes/auth';
+import { onboardingRoutes } from './routes/onboarding';
 
 export async function buildApp() {
   const app = Fastify({
@@ -71,6 +72,9 @@ export async function buildApp() {
 
   // Negative Signal Register (Phase 39 — SOUL-03)
   app.register(negativeSignalsRoutes, { prefix: '/negative-signals' });
+
+  // Onboarding — company + agent creation via Paperclip
+  app.register(onboardingRoutes, { prefix: '/onboarding' });
 
   // BetterAuth — Google OAuth + session management
   registerAuthRoutes(app);
