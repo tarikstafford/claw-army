@@ -3,7 +3,9 @@ import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ fetch, parent }) => {
   const { companyId } = await parent();
-  if (!companyId) throw error(500, 'No company found');
+  if (!companyId) {
+    return { dashboard: null, activity: [], approvals: [] };
+  }
 
   const [dashboardRes, activityRes, approvalsRes] = await Promise.allSettled([
     fetch(`/api/companies/${companyId}/dashboard`),
