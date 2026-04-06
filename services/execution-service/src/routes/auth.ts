@@ -5,8 +5,16 @@ import { auth } from '../auth';
  * Bridges BetterAuth (Web API Request/Response) to Fastify.
  * Registers individual method handlers to avoid wildcard routing issues.
  */
+const PUBLIC_URL = process.env['PUBLIC_URL'] ?? '';
+
 async function handleAuth(request: FastifyRequest, reply: FastifyReply) {
-  const url = new URL(request.raw.url ?? request.url, `http://${request.hostname}`);
+  // BetterAuth uses baseURL path for route matching. PUBLIC_URL includes /api,
+  // so we must build the request URL from the public base + the request path
+  // so BetterAuth sees /api/auth/... instead of just /auth/...
+  const rawPath = request.raw.url ?? request.url;
+  const url = PUBLIC_URL
+    ? new URL(rawPath, PUBLIC_URL)
+    : new URL(rawPath, `http://${request.hostname}`);
 
   const headers = new Headers();
   for (const [key, value] of Object.entries(request.headers)) {
