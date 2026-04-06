@@ -17,6 +17,9 @@ const handler: RequestHandler = async (event) => {
   if (contentType) headers.set('content-type', contentType);
   const cookieHeader = event.request.headers.get('cookie');
   if (cookieHeader) headers.set('cookie', cookieHeader);
+  // BetterAuth requires Origin header for CSRF protection on POST requests
+  const origin = event.request.headers.get('origin');
+  if (origin) headers.set('origin', origin);
 
   const hasBody = !['GET', 'HEAD'].includes(event.request.method);
 
