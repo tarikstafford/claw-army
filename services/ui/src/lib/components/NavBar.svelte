@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { toggleMode, getMode } from '$lib/mode';
+  import { authClient } from '$lib/auth-client';
   import { browser } from '$app/environment';
 
   let { activeTab }: { activeTab?: 'indra' | 'office' | 'chat' | 'sanctum' | 'tools' | 'evolution' } = $props();
@@ -60,6 +62,10 @@
         onclick={() => handleToggle('back-office')}
       >BACK OFFICE</button>
     </div>
+    <button class="sign-out-btn" type="button" onclick={async () => {
+      await authClient.signOut();
+      goto('/auth');
+    }}>SIGN OUT</button>
   </div>
 </nav>
 
@@ -217,5 +223,24 @@
   :global(body.back-office) .mode-btn.active {
     background: var(--bo-violet);
     color: #fff;
+  }
+
+  .sign-out-btn {
+    font-family: var(--font-label);
+    font-size: 6px;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+    border: 1px solid var(--fo-border, #D9CEBB);
+    border-radius: 3px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    margin-left: 8px;
+    transition: all 0.2s;
+  }
+
+  .sign-out-btn:hover {
+    border-color: var(--fo-plum);
+    color: var(--fo-plum);
   }
 </style>
