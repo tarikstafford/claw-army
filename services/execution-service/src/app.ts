@@ -16,7 +16,7 @@ import { soulsRoutes } from './routes/souls';
 import { categoryBenchmarksRoutes } from './routes/category-benchmarks';
 import { decisionTracesRoutes } from './routes/decision-traces';
 import { negativeSignalsRoutes } from './routes/negative-signals';
-import { authRoutes } from './routes/auth';
+import { registerAuthRoutes } from './routes/auth';
 
 export async function buildApp() {
   const app = Fastify({
@@ -73,10 +73,7 @@ export async function buildApp() {
   app.register(negativeSignalsRoutes, { prefix: '/negative-signals' });
 
   // BetterAuth — Google OAuth + session management
-  app.register(authRoutes, { prefix: '/auth' }).after((err) => {
-    if (err) console.error('[app] Auth plugin registration FAILED:', err);
-    else console.log('[app] Auth plugin registered successfully');
-  });
+  registerAuthRoutes(app);
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
