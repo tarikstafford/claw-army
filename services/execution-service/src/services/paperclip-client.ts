@@ -103,6 +103,12 @@ export async function listCompaniesForUser(userId: string): Promise<CompanyRecor
   }));
 }
 
+function deriveIssuePrefix(name: string): string {
+  const base = name.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase() || 'AKA';
+  const suffix = Math.random().toString(36).slice(2, 5).toUpperCase();
+  return `${base}${suffix}`;
+}
+
 export async function createCompanyForUser(
   userId: string,
   data: { name: string; description?: string; budgetMonthlyCents?: number },
@@ -113,7 +119,7 @@ export async function createCompanyForUser(
       name: data.name,
       description: data.description ?? null,
       budgetMonthlyCents: data.budgetMonthlyCents ?? 0,
-      issuePrefix: 'AKA',
+      issuePrefix: deriveIssuePrefix(data.name),
     })
     .returning();
 
