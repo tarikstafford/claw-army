@@ -30,5 +30,5 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: MiniMax/MiniMax-M2.7
+          model: minimax-coding-plan/MiniMax-M2.7
           use_github_token: true
