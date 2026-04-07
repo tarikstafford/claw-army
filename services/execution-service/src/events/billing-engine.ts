@@ -1,6 +1,6 @@
 import { PubSub, type Message } from '@google-cloud/pubsub';
 import IORedis from 'ioredis';
-import { db, billingEvents, telemetry, bots } from '@claw/db';
+import { db, billingEvents, telemetry, bots, executions } from '@claw/db';
 import { eq } from 'drizzle-orm';
 import { publishBudgetExceeded, publishBillingEvent } from './publisher';
 import { stopBot } from '../orchestrator/bot-orchestrator';
@@ -167,6 +167,7 @@ export async function recordBotHours(botId: string, executionId: string): Promis
 /**
  * Insert a billing event row into the billing_events table.
  * Called for every billing-relevant action to provide full auditability (METR-01).
+ * Inherits projectId from the parent execution for project-level cost attribution.
  */
 async function writeBillingEvent(params: {
   executionId: string;
@@ -176,8 +177,21 @@ async function writeBillingEvent(params: {
   tokenCount?: number;
   metadata?: Record<string, unknown>;
 }): Promise<void> {
+  // Look up projectId from parent execution for project-level cost attribution
+  let projectId: string | null = null;
+  try {
+    const [execRow] = await db
+      .select({ projectId: executions.projectId })
+      .from(executions)
+      .where(eq(executions.id, params.executionId));
+    projectId = execRow?.projectId ?? null;
+  } catch (err) {
+    console.warn('[billing-engine] Could not look up projectId for execution:', params.executionId);
+  }
+
   await db.insert(billingEvents).values({
     executionId: params.executionId,
+    projectId,
     botId: params.botId,
     eventType: params.eventType,
     amountCents: params.amountCents,

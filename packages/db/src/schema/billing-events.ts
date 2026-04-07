@@ -24,6 +24,7 @@ export const billingEvents = pgTable(
     executionId: uuid('execution_id')
       .notNull()
       .references(() => executions.id, { onDelete: 'cascade' }),
+    projectId: uuid('project_id'), // nullable; inherited from parent execution at insert time
     botId: uuid('bot_id'),
     eventType: billingEventTypeEnum('event_type').notNull(),
     amountCents: integer('amount_cents'),
@@ -33,6 +34,7 @@ export const billingEvents = pgTable(
   },
   (t) => [
     index('billing_events_execution_id_idx').on(t.executionId),
+    index('billing_events_project_id_idx').on(t.projectId),
     index('billing_events_event_type_idx').on(t.eventType),
     index('billing_events_occurred_at_idx').on(t.occurredAt),
   ],

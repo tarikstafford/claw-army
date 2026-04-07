@@ -59,6 +59,20 @@ const instanceUserRoles = pgTable('instance_user_roles', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+const projects = pgTable('projects', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  companyId: uuid('company_id').notNull(),
+  name: text('name').notNull(),
+  description: text('description'),
+  status: text('status').notNull().default('backlog'),
+  leadAgentId: uuid('lead_agent_id'),
+  targetDate: timestamp('target_date', { withTimezone: true }),
+  color: text('color'),
+  executionWorkspacePolicy: text('execution_workspace_policy'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export interface CompanyRecord {
   id: string;
   name: string;
@@ -72,6 +86,14 @@ export interface AgentRecord {
   name: string;
   role: string;
   title: string | null;
+  status: string;
+}
+
+export interface ProjectRecord {
+  id: string;
+  companyId: string;
+  name: string;
+  description: string | null;
   status: string;
 }
 
@@ -177,4 +199,20 @@ export async function createAgentInCompany(
   });
 
   return { id: agent.id, companyId: agent.companyId, name: agent.name, role: agent.role, title: agent.title, status: agent.status };
+}
+
+export async function getProject(projectId: string): Promise<ProjectRecord | null> {
+  const rows = await db
+    .select({
+      id: projects.id,
+      companyId: projects.companyId,
+      name: projects.name,
+      description: projects.description,
+      status: projects.status,
+    })
+    .from(projects)
+    .where(eq(projects.id, projectId));
+
+  if (rows.length === 0) return null;
+  return rows[0] ?? null;
 }

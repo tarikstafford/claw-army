@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore } from '@claw/db';
+import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore, executions } from '@claw/db';
 import { eq, and, desc, asc, count, isNotNull, sql, avg } from 'drizzle-orm';
 
 // Lazy Paperclip DB instance to avoid circular initialization
@@ -32,8 +32,15 @@ export function evolutionDashboardRouter(): Router {
 
   // ── GET /fleet ──────────────────────────────────────────────────────────────
 
-  router.get('/fleet', async (_req, res, next) => {
+  router.get('/fleet', async (req, res, next) => {
     try {
+      const { projectId } = req.query as { projectId?: string };
+
+      // Build conditions for project-scoped queries
+      const projectCondition = projectId
+        ? sql`${bots.executionId} IN (SELECT id FROM executions WHERE project_id = ${projectId})`
+        : undefined;
+
       // 1. Class counts
       const classCountRows = await db
         .select({
@@ -41,6 +48,8 @@ export function evolutionDashboardRouter(): Router {
           rowCount: count(),
         })
         .from(agentClasses)
+        .leftJoin(bots, eq(agentClasses.botId, bots.id))
+        .where(projectCondition ? sql`${agentClasses.botId} = ${bots.id} AND ${projectCondition}` : undefined)
         .groupBy(agentClasses.currentClass);
 
       const classCounts: Record<string, number> = {
@@ -57,37 +66,49 @@ export function evolutionDashboardRouter(): Router {
         totalBots += n;
       }
 
-      // 2. Score history — daily avg from council_verdicts (last 30 days)
+      // 2. Score history — daily avg from council_verdicts (last 30 days), optionally project-scoped
       const scoreHistoryRows = await db
         .select({
           date: sql<string>`DATE(${councilVerdicts.createdAt})::text`,
           score: sql<string>`AVG(${councilVerdicts.weightedConfidenceScore})::text`,
         })
         .from(councilVerdicts)
-        .where(isNotNull(councilVerdicts.weightedConfidenceScore))
+        .leftJoin(bots, eq(councilVerdicts.botId, bots.id))
+        .where(
+          projectCondition
+            ? sql`${isNotNull(councilVerdicts.weightedConfidenceScore)} AND ${councilVerdicts.botId} = ${bots.id} AND ${projectCondition}`
+            : isNotNull(councilVerdicts.weightedConfidenceScore),
+        )
         .groupBy(sql`DATE(${councilVerdicts.createdAt})`)
         .orderBy(asc(sql`DATE(${councilVerdicts.createdAt})`))
         .limit(30);
 
       const scoreHistory = scoreHistoryRows.map((r) => ({ date: r.date, score: r.score }));
 
-      // 3. Average composite score from bots with non-null scores
+      // 3. Average composite score from bots with non-null scores, optionally project-scoped
       const avgRows = await db
         .select({ avgScore: sql<string>`AVG(${bots.compositeScore})::text` })
         .from(bots)
-        .where(isNotNull(bots.compositeScore));
+        .where(
+          projectCondition
+            ? sql`${isNotNull(bots.compositeScore)} AND ${projectCondition}`
+            : isNotNull(bots.compositeScore),
+        );
 
       const averageCompositeScore = avgRows[0]?.avgScore ?? null;
 
-      // 4. Pending verdict count (requiresHumanConfirmation AND status=pending)
+      // 4. Pending verdict count (requiresHumanConfirmation AND status=pending), optionally project-scoped
       const pendingRows = await db
         .select({ pendingCount: sql<string>`COUNT(*)::text` })
         .from(councilVerdicts)
+        .leftJoin(bots, eq(councilVerdicts.botId, bots.id))
         .where(
-          and(
-            eq(councilVerdicts.requiresHumanConfirmation, true),
-            eq(councilVerdicts.status, 'pending'),
-          ),
+          projectCondition
+            ? sql`${councilVerdicts.requiresHumanConfirmation} = true AND ${councilVerdicts.status} = 'pending' AND ${councilVerdicts.botId} = ${bots.id} AND ${projectCondition}`
+            : and(
+                eq(councilVerdicts.requiresHumanConfirmation, true),
+                eq(councilVerdicts.status, 'pending'),
+              ),
         );
 
       const pendingVerdictCount = Number(pendingRows[0]?.pendingCount ?? 0);
@@ -106,8 +127,14 @@ export function evolutionDashboardRouter(): Router {
 
   // ── GET /agents ─────────────────────────────────────────────────────────────
 
-  router.get('/agents', async (_req, res, next) => {
+  router.get('/agents', async (req, res, next) => {
     try {
+      const { projectId } = req.query as { projectId?: string };
+
+      const projectCondition = projectId
+        ? sql`${bots.executionId} IN (SELECT id FROM executions WHERE project_id = ${projectId})`
+        : undefined;
+
       // Query agent_classes with a JOIN to bots for compositeScore and the latest verdict date
       const agentRows = await db
         .select({
@@ -121,6 +148,7 @@ export function evolutionDashboardRouter(): Router {
         .from(agentClasses)
         .leftJoin(bots, eq(agentClasses.botId, bots.id))
         .leftJoin(councilVerdicts, eq(agentClasses.botId, councilVerdicts.botId))
+        .where(projectCondition ? sql`${agentClasses.botId} = ${bots.id} AND ${projectCondition}` : undefined)
         .groupBy(agentClasses.botId, agentClasses.currentClass, agentClasses.isPioneer, agentClasses.taskCategory, agentClasses.updatedAt, bots.compositeScore)
         .orderBy(desc(agentClasses.updatedAt));
 

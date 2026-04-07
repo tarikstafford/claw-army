@@ -1,24 +1,26 @@
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ fetch, parent }) => {
+export const load: PageServerLoad = async ({ fetch, parent, url }) => {
   const { session } = await parent();
   if (!session) throw error(401, 'Not authenticated');
 
-  const [fleetRes, pendingRes, agentsRes] = await Promise.allSettled([
-    fetch('/api/akasa/evolution/fleet'),
+  const projectId = url.searchParams.get('projectId') ?? undefined;
+
+  const fleetRes = await Promise.allSettled([
+    fetch(`/api/akasa/evolution/fleet${projectId ? `?projectId=${projectId}` : ''}`),
     fetch('/api/akasa/evolution/pending'),
-    fetch('/api/akasa/evolution/agents'),
+    fetch(`/api/akasa/evolution/agents${projectId ? `?projectId=${projectId}` : ''}`),
   ]);
 
-  const fleet = fleetRes.status === 'fulfilled' && fleetRes.value.ok
-    ? await fleetRes.value.json()
+  const fleet = fleetRes[0].status === 'fulfilled' && fleetRes[0].value.ok
+    ? await fleetRes[0].value.json()
     : null;
-  const pendingVerdicts = pendingRes.status === 'fulfilled' && pendingRes.value.ok
-    ? await pendingRes.value.json()
+  const pendingVerdicts = fleetRes[1].status === 'fulfilled' && fleetRes[1].value.ok
+    ? await fleetRes[1].value.json()
     : [];
-  const agents = agentsRes.status === 'fulfilled' && agentsRes.value.ok
-    ? await agentsRes.value.json()
+  const agents = fleetRes[2].status === 'fulfilled' && fleetRes[2].value.ok
+    ? await fleetRes[2].value.json()
     : [];
 
   return { fleet, pendingVerdicts, agents };

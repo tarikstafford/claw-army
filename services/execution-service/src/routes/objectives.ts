@@ -4,7 +4,7 @@ import { verifyAuthToken } from '../lib/verify-auth-token.js';
 import { db, objectives, executions, councilVerdicts, bots, dnaStore, agentClasses, categoryBenchmarks } from '@claw/db';
 import { eq, sql, and, desc, inArray } from 'drizzle-orm';
 
-// Reusable schema for the base objective object (10 fields)
+// Reusable schema for the base objective object (11 fields)
 const ObjectiveSchema = Type.Object({
   id: Type.String({ format: 'uuid' }),
   name: Type.String(),
@@ -14,6 +14,7 @@ const ObjectiveSchema = Type.Object({
   defaultRuntimeLimitSeconds: Type.Union([Type.Integer(), Type.Null()]),
   defaultAllowedTools: Type.Array(Type.String()),
   isArchived: Type.Boolean(),
+  projectId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
   createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
   updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
 });
@@ -28,6 +29,7 @@ const ObjectiveWithAggregationSchema = Type.Object({
   defaultRuntimeLimitSeconds: Type.Union([Type.Integer(), Type.Null()]),
   defaultAllowedTools: Type.Array(Type.String()),
   isArchived: Type.Boolean(),
+  projectId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
   createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
   updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
   lastRunStatus: Type.Union([Type.String(), Type.Null()]),
@@ -74,6 +76,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         defaultBudgetCapCents: Type.Optional(Type.Integer({ minimum: 0 })),
         defaultRuntimeLimitSeconds: Type.Optional(Type.Integer({ minimum: 60 })),
         defaultAllowedTools: Type.Optional(Type.Array(Type.String())),
+        projectId: Type.Optional(Type.String({ format: 'uuid' })),
       }),
       response: {
         201: ObjectiveSchema,
@@ -97,6 +100,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       defaultBudgetCapCents,
       defaultRuntimeLimitSeconds,
       defaultAllowedTools = [],
+      projectId,
     } = request.body;
 
     const [created] = await db
@@ -108,6 +112,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         defaultBudgetCapCents,
         defaultRuntimeLimitSeconds,
         defaultAllowedTools,
+        projectId: projectId ?? null,
       })
       .returning();
 
@@ -118,18 +123,24 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     return reply.code(201).send(created);
   });
 
-  // GET / — list objectives with aggregation, supports ?archived=true (OBJ-03)
+  // GET / — list objectives with aggregation, supports ?archived=true&projectId= (OBJ-03)
   fastify.get('/', {
     schema: {
       querystring: Type.Object({
         archived: Type.Optional(Type.String()),
+        projectId: Type.Optional(Type.String({ format: 'uuid' })),
       }),
       response: {
         200: Type.Array(ObjectiveWithAggregationSchema),
       },
     },
-  }, async (_request, reply) => {
-    const showArchived = _request.query?.archived === 'true';
+  }, async (request, reply) => {
+    const showArchived = request.query?.archived === 'true';
+    const { projectId } = request.query ?? {};
+    const conditions = [eq(objectives.isArchived, showArchived)];
+    if (projectId) {
+      conditions.push(eq(objectives.projectId, projectId) as ReturnType<typeof eq>);
+    }
     const rows = await db
       .select({
         id: objectives.id,
@@ -140,6 +151,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         defaultRuntimeLimitSeconds: objectives.defaultRuntimeLimitSeconds,
         defaultAllowedTools: objectives.defaultAllowedTools,
         isArchived: objectives.isArchived,
+        projectId: objectives.projectId,
         createdAt: objectives.createdAt,
         updatedAt: objectives.updatedAt,
         lastRunStatus: sql<string | null>`(
@@ -178,7 +190,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         )`,
       })
       .from(objectives)
-      .where(eq(objectives.isArchived, showArchived))
+      .where(and(...conditions))
       .orderBy(sql`${objectives.createdAt} DESC`);
 
     return reply.code(200).send(rows);
@@ -715,6 +727,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           defaultRuntimeLimitSeconds: Type.Integer({ minimum: 60 }),
           defaultAllowedTools: Type.Array(Type.String()),
           isArchived: Type.Boolean(),
+          projectId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
         }),
       ),
       response: {
@@ -741,6 +754,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       defaultRuntimeLimitSeconds,
       defaultAllowedTools,
       isArchived,
+      projectId,
     } = request.body;
 
     // Build updates object with only provided fields
@@ -755,6 +769,7 @@ export const objectivesRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     if (defaultRuntimeLimitSeconds !== undefined) updates['defaultRuntimeLimitSeconds'] = defaultRuntimeLimitSeconds;
     if (defaultAllowedTools !== undefined) updates['defaultAllowedTools'] = defaultAllowedTools;
     if (isArchived !== undefined) updates['isArchived'] = isArchived;
+    if (projectId !== undefined) updates['projectId'] = projectId;
 
     const [updated] = await db
       .update(objectives)

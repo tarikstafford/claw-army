@@ -25,6 +25,7 @@ export const executions = pgTable('executions', {
   campaignType: varchar('campaign_type', { length: 20 }), // nullable; 'ad_hoc' | 'campaign'
   objectiveId: uuid('objective_id').references(() => objectives.id, { onDelete: 'set null' }),
   ringLeaderRunId: uuid('ring_leader_run_id'), // nullable; logical FK to ring_leader_runs.id — no explicit ref to avoid circular
+  projectId: uuid('project_id'), // nullable; logical FK to Paperclip's projects table — Akasa does not own projects
   createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
 });

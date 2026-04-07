@@ -36,6 +36,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         campaignType: Type.Optional(
           Type.Union([Type.Literal('ad_hoc'), Type.Literal('campaign')])
         ),
+        projectId: Type.Optional(Type.String({ format: 'uuid' })),
       }),
       response: {
         201: Type.Object({
@@ -79,6 +80,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       allowedDomains,
       objectiveId,
       campaignType,
+      projectId,
     } = request.body;
 
     const MIN_POPULATION = 3;
@@ -126,6 +128,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         allowedDomains,
         objectiveId,
         campaignType,
+        projectId,
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -199,6 +202,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
           llmProvider: Type.Union([Type.String(), Type.Null()]),
           allowedDomains: Type.Union([Type.Array(Type.String()), Type.Null()]),
           campaignType: Type.Union([Type.String(), Type.Null()]),
+          projectId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
           createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
           updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
         }),
@@ -583,6 +587,9 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // GET / — list all executions (admin)
   fastify.get('/all', {
     schema: {
+      querystring: Type.Object({
+        projectId: Type.Optional(Type.String({ format: 'uuid' })),
+      }),
       response: {
         200: Type.Array(
           Type.Object({
@@ -600,6 +607,7 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
             maxBots: Type.Integer(),
             budgetCapCents: Type.Integer(),
             allowedTools: Type.Array(Type.String()),
+            projectId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
             createdAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
             updatedAt: Type.Unsafe<Date>({ type: 'string', format: 'date-time' }),
             activeBotCount: Type.Integer(),
@@ -607,10 +615,16 @@ export const executionsRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         ),
       },
     },
-  }, async (_request, reply) => {
+  }, async (request, reply) => {
+    const { projectId } = request.query ?? {};
+    const conditions = [];
+    if (projectId) {
+      conditions.push(eq(executions.projectId, projectId));
+    }
     const allExecutions = await db
       .select()
       .from(executions)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(executions.createdAt));
 
     const result = await Promise.all(
