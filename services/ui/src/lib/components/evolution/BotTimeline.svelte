@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Accordion from '$lib/components/Accordion.svelte';
+
   interface TimelineEvent {
     id: string;
     type: 'verdict' | 'class_transition' | 'dna_capture';
@@ -9,6 +11,9 @@
     newClass?: string;
     previousClass?: string;
     compositeScore?: string;
+    performanceJudgeOutput?: Record<string, unknown> | null;
+    soulAnalystOutput?: Record<string, unknown> | null;
+    devilsAdvocateOutput?: Record<string, unknown> | null;
   }
 
   let { events }: { events: TimelineEvent[] } = $props();
@@ -27,6 +32,12 @@
     Retire: 'var(--error)',
   };
 
+  let expandedId = $state<string | null>(null);
+
+  function toggleExpand(id: string) {
+    expandedId = expandedId === id ? null : id;
+  }
+
   function formatTimestamp(ts: string): string {
     return new Date(ts).toLocaleDateString('en-US', {
       month: 'short',
@@ -35,6 +46,17 @@
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  function renderJudgeOutput(output: Record<string, unknown>): string[] {
+    if ('reasoning' in output || 'score' in output || 'recommendation' in output) {
+      const parts: string[] = [];
+      if (output.score !== undefined) parts.push(`Score: ${output.score}`);
+      if (output.reasoning) parts.push(`Reasoning: ${output.reasoning}`);
+      if (output.recommendation) parts.push(`Recommendation: ${output.recommendation}`);
+      return parts;
+    }
+    return [JSON.stringify(output, null, 2)];
   }
 </script>
 
@@ -73,6 +95,37 @@
               {/if}
             </div>
             <span class="event-timestamp">{formatTimestamp(event.timestamp)}</span>
+
+            {#if event.type === 'verdict' && (event.performanceJudgeOutput || event.soulAnalystOutput || event.devilsAdvocateOutput)}
+              <button class="expand-toggle" onclick={() => toggleExpand(event.id)}>
+                {expandedId === event.id ? 'Hide' : 'Show'} Judge Detail
+              </button>
+              {#if expandedId === event.id}
+                <div class="verdict-detail" style="--card: var(--bo-card); --border: var(--bo-border); --text-muted: var(--bo-muted)">
+                  {#if event.performanceJudgeOutput}
+                    <Accordion label="PERFORMANCE JUDGE" color="var(--bo-violet)">
+                      {#each renderJudgeOutput(event.performanceJudgeOutput) as part}
+                        <p class="judge-output">{part}</p>
+                      {/each}
+                    </Accordion>
+                  {/if}
+                  {#if event.soulAnalystOutput}
+                    <Accordion label="SOUL ANALYST" color="var(--bo-teal)">
+                      {#each renderJudgeOutput(event.soulAnalystOutput) as part}
+                        <p class="judge-output">{part}</p>
+                      {/each}
+                    </Accordion>
+                  {/if}
+                  {#if event.devilsAdvocateOutput}
+                    <Accordion label="DEVIL'S ADVOCATE" color="var(--bo-rose)">
+                      {#each renderJudgeOutput(event.devilsAdvocateOutput) as part}
+                        <p class="judge-output">{part}</p>
+                      {/each}
+                    </Accordion>
+                  {/if}
+                </div>
+              {/if}
+            {/if}
           </div>
         </li>
       {/each}
@@ -202,5 +255,39 @@
     font-size: 11px;
     color: var(--bo-caption);
     display: block;
+  }
+
+  .expand-toggle {
+    font-family: var(--font-label);
+    font-size: 7px;
+    letter-spacing: 0.10em;
+    color: var(--bo-violet);
+    background: none;
+    border: 1px solid var(--bo-violet);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+    cursor: pointer;
+    margin-top: var(--space-xs);
+  }
+
+  .expand-toggle:hover {
+    background: rgba(124, 58, 237, 0.08);
+  }
+
+  .verdict-detail {
+    margin-top: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .judge-output {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    color: var(--bo-text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+    line-height: 1.6;
   }
 </style>
