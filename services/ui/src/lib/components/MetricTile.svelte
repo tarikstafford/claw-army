@@ -10,9 +10,8 @@
 
 <style>
   .metric-tile {
-    background: #fff;
-    border: 1px solid var(--fo-rule);
-    box-shadow: 2px 2px 0 var(--fo-bg3);
+    background: var(--card);
+    border: 1px solid var(--border);
     padding: 12px 14px;
     border-radius: var(--radius-md);
   }
@@ -20,7 +19,7 @@
   .metric-label {
     font-family: var(--font-label);
     font-size: 5px;
-    color: var(--muted);
+    color: var(--text-muted);
     letter-spacing: 0.10em;
     display: block;
     margin-bottom: 7px;
@@ -29,7 +28,7 @@
   .metric-value {
     font-family: var(--font-label);
     font-size: 20px;
-    color: var(--ink);
+    color: var(--text);
     line-height: 1;
     display: block;
   }
@@ -37,7 +36,7 @@
   .metric-sub {
     font-family: var(--font-body);
     font-size: 10px;
-    color: var(--muted);
+    color: var(--text-muted);
     display: block;
     margin-top: 3px;
   }

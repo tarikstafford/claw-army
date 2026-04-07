@@ -36,8 +36,8 @@
 		right: 0;
 		width: 380px;
 		height: calc(100vh - 44px);
-		background: #080714;
-		border-left: 1px solid rgba(148, 110, 255, 0.30);
+		background: var(--card);
+		border-left: 1px solid var(--border);
 		z-index: 200;
 		display: flex;
 		flex-direction: column;
@@ -51,7 +51,7 @@
 
 	.panel-header {
 		padding: 20px 22px;
-		border-bottom: 1px solid rgba(148, 110, 255, 0.12);
+		border-bottom: 1px solid var(--border);
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
@@ -66,7 +66,7 @@
 	.panel-tag {
 		font-family: var(--font-label);
 		font-size: 6px;
-		color: var(--bo-vb);
+		color: var(--accent);
 		letter-spacing: 0.10em;
 		display: block;
 		margin-bottom: 7px;
@@ -76,7 +76,7 @@
 		font-family: var(--font-display);
 		font-size: 22px;
 		font-weight: 600;
-		color: var(--bo-text);
+		color: var(--text);
 		line-height: 1.2;
 	}
 
@@ -84,9 +84,9 @@
 		width: 26px;
 		height: 26px;
 		border-radius: 50%;
-		background: rgba(148, 110, 255, 0.12);
-		border: 1px solid rgba(148, 110, 255, 0.25);
-		color: var(--bo-muted);
+		background: var(--accent-dim);
+		border: 1px solid var(--border);
+		color: var(--text-muted);
 		cursor: pointer;
 		display: flex;
 		align-items: center;
@@ -97,9 +97,9 @@
 	}
 
 	.panel-close:hover {
-		background: var(--bo-violet);
+		background: var(--accent);
 		color: #fff;
-		border-color: var(--bo-violet);
+		border-color: var(--accent);
 	}
 
 	.panel-body {
@@ -107,6 +107,6 @@
 		overflow-y: auto;
 		padding: 20px 22px;
 		scrollbar-width: thin;
-		scrollbar-color: rgba(148, 110, 255, 0.20) transparent;
+		scrollbar-color: var(--accent-dim) transparent;
 	}
 </style>

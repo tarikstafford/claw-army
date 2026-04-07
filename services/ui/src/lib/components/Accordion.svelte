@@ -47,7 +47,7 @@
 
 <style>
 	.accordion {
-		background: var(--bo-card);
+		background: var(--card);
 		border: 1px solid var(--acc-color);
 		border-radius: var(--radius-md);
 		overflow: hidden;
@@ -101,7 +101,7 @@
 	.acc-sublabel {
 		font-family: var(--font-body);
 		font-size: 12px;
-		color: rgba(236, 232, 255, 0.40);
+		color: var(--text-muted);
 		margin-top: 3px;
 		display: block;
 	}
@@ -109,12 +109,12 @@
 	.acc-meta {
 		font-family: var(--font-label);
 		font-size: 7px;
-		color: rgba(236, 232, 255, 0.40);
+		color: var(--text-muted);
 	}
 
 	.acc-arrow {
 		font-size: 11px;
-		color: rgba(236, 232, 255, 0.35);
+		color: var(--text-muted);
 		transition: transform 0.2s;
 		display: inline-block;
 	}
@@ -135,10 +135,10 @@
 
 	.accordion-inner {
 		padding: 0 20px 20px;
-		border-top: 1px solid rgba(148, 110, 255, 0.12);
+		border-top: 1px solid var(--border);
 		font-family: var(--font-body);
 		font-size: 14px;
-		color: rgba(236, 232, 255, 0.55);
+		color: var(--text-muted);
 		line-height: 1.8;
 	}
 </style>

@@ -38,7 +38,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 9000;
-		background: rgba(6, 5, 14, 0.88);
+		background: rgba(14, 13, 11, 0.6);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
 		display: flex;
@@ -46,9 +46,13 @@
 		justify-content: center;
 	}
 
+	:global(body.back-office) .modal-overlay {
+		background: rgba(6, 5, 14, 0.88);
+	}
+
 	.modal-box {
-		background: #0D0C1E;
-		border: 1px solid rgba(148, 110, 255, 0.35);
+		background: var(--card);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		width: 560px;
 		max-width: calc(100vw - 40px);
@@ -60,13 +64,13 @@
 
 	.modal-header {
 		padding: 22px 26px;
-		border-bottom: 1px solid rgba(148, 110, 255, 0.12);
+		border-bottom: 1px solid var(--border);
 		display: flex;
 		align-items: flex-start;
 		justify-content: space-between;
 		position: sticky;
 		top: 0;
-		background: #0D0C1E;
+		background: var(--card);
 		z-index: 1;
 		flex-shrink: 0;
 	}
@@ -79,7 +83,7 @@
 	.modal-tag {
 		font-family: var(--font-label);
 		font-size: 6px;
-		color: var(--bo-vb);
+		color: var(--accent);
 		letter-spacing: 0.10em;
 		display: block;
 		margin-bottom: 7px;
@@ -89,16 +93,16 @@
 		font-family: var(--font-display);
 		font-size: 22px;
 		font-weight: 600;
-		color: var(--bo-text);
+		color: var(--text);
 	}
 
 	.modal-close {
 		width: 26px;
 		height: 26px;
 		border-radius: 50%;
-		background: rgba(148, 110, 255, 0.12);
-		border: 1px solid rgba(148, 110, 255, 0.25);
-		color: var(--bo-muted);
+		background: var(--accent-dim);
+		border: 1px solid var(--border);
+		color: var(--text-muted);
 		cursor: pointer;
 		display: flex;
 		align-items: center;
@@ -109,16 +113,16 @@
 	}
 
 	.modal-close:hover {
-		background: var(--bo-violet);
+		background: var(--accent);
 		color: #fff;
-		border-color: var(--bo-violet);
+		border-color: var(--accent);
 	}
 
 	.modal-body {
 		padding: 22px 26px;
 		font-family: var(--font-body);
 		font-size: 14px;
-		color: var(--bo-muted);
+		color: var(--text-muted);
 		line-height: 1.85;
 	}
 </style>
