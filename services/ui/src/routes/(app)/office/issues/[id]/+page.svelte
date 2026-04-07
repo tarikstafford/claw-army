@@ -1,6 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import Accordion from '$lib/components/Accordion.svelte';
+  import Markdown from '$lib/components/Markdown.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -101,7 +102,7 @@
                 <span class="comment-author">{comment.senderType ?? 'User'}</span>
                 <span class="comment-time">{formatDate(comment.createdAt)}</span>
               </div>
-              <p class="comment-body">{comment.body}</p>
+              <div class="comment-body"><Markdown content={comment.body} /></div>
             </div>
           {/each}
         </div>
@@ -118,7 +119,7 @@
               <span class="comment-author">{comment.senderType ?? 'User'}</span>
               <span class="comment-time">{formatDate(comment.createdAt)}</span>
             </div>
-            <p class="comment-body">{comment.body}</p>
+            <div class="comment-body"><Markdown content={comment.body} /></div>
           </div>
         {/each}
       </div>

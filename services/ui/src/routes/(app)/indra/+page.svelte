@@ -63,9 +63,45 @@
     return parts.length > 0 ? parts.join(' — ') : null;
   }
 
+  function activityLabel(event: Record<string, unknown>): string {
+    if (event.description && String(event.description).length > 2) return String(event.description);
+    const type = String(event.type ?? '');
+    const payload = (event.payload ?? {}) as Record<string, unknown>;
+    const agent = payload.agentName ?? event.agentName ?? null;
+    const prefix = agent ? `${agent}: ` : '';
+
+    const labels: Record<string, string> = {
+      'agent.created': `${prefix}Agent created`,
+      'agent.updated': `${prefix}Agent updated`,
+      'agent.status.changed': `${prefix}Status changed`,
+      'agent.terminated': `${prefix}Agent terminated`,
+      'issue.created': `${prefix}Issue opened`,
+      'issue.updated': `${prefix}Issue updated`,
+      'issue.closed': `${prefix}Issue closed`,
+      'approval.created': `${prefix}Approval requested`,
+      'approval.resolved': `${prefix}Approval resolved`,
+      'comment.created': `${prefix}Comment added`,
+      'company.created': 'Company created',
+      'company.updated': 'Company updated',
+      'goal.created': `${prefix}Goal created`,
+      'project.created': `${prefix}Project created`,
+      'execution.started': `${prefix}Execution started`,
+      'execution.completed': `${prefix}Execution completed`,
+    };
+
+    return labels[type] ?? type.replace(/[._]/g, ' ');
+  }
+
   function formatTimestamp(iso: string): string {
     const d = new Date(iso);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHrs = Math.floor(diffMin / 60);
+    if (diffHrs < 24) return `${diffHrs}h ago`;
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
 
   async function handleApprove(id: string) {
@@ -203,10 +239,7 @@
             <time class="activity-time" datetime={String(event.createdAt)}>
               {formatTimestamp(String(event.createdAt))}
             </time>
-            <span class="activity-desc">{event.description ?? event.type}</span>
-            {#if event.agentId}
-              <span class="activity-agent">· {String(event.agentId).slice(0, 8)}</span>
-            {/if}
+            <span class="activity-desc">{activityLabel(event)}</span>
           </li>
         {/each}
       </ul>
