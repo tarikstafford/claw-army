@@ -86,14 +86,10 @@ jobs:
               body: `🤖 **Agent picked up this issue.**\n\nBranch: \`${{ steps.branch.outputs.branch }}\`\nModel: MiniMax M2.7\n\nI'll open a PR when implementation is ready.`
             });
 
-      - name: Configure OpenCode auth
-        run: |
-          mkdir -p ~/.local/share/opencode
-          echo '{"minimax-coding-plan":{"type":"api","key":"${{ secrets.MINIMAX_API_KEY }}"}}' > ~/.local/share/opencode/auth.json
-
       - name: Implement with OpenCode
         uses: anomalyco/opencode/github@latest
         env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
