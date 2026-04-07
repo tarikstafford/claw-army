@@ -327,9 +327,12 @@ Plans:
   2. Fleet org map renders an interactive hierarchy using d3-hierarchy with nodes showing agent name, class, status, and composite score — color-coded by class
   3. Council verdict detail is expandable on each verdict in the evolution timeline — showing Performance Judge, Soul Analyst, and Devil's Advocate reasoning from stored JSONB
   4. Agent runtime status displays current session, token consumption (input/output/cached), total cost, budget utilization, last heartbeat, and last error — pulled from Paperclip's runtime state API
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
-- (none yet)
+- [ ] 13-01-PLAN.md — Backend endpoints (profile, org, timeline extension, runtime proxy)
+- [ ] 13-02-PLAN.md — Bot detail page (identity card, profile tab, verdict expansion, runtime status)
+- [ ] 13-03-PLAN.md — Fleet org map page and OrgMap component
+
 **UI hint**: yes
 
 ---
@@ -350,4 +353,4 @@ Plans:
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
 | 11. Tool Nexus Integration Fixes | v6.0 | 2/2 | Complete    | 2026-03-31 |
 | 12. Evolution Routes Verification | v6.0 | 1/1 | Complete    | 2026-03-31 |
-| 13. Agent Intelligence Views | v6.0 | 0/0 | Not Started | - |
+| 13. Agent Intelligence Views | v6.0 | 0/3 | In Progress | - |
