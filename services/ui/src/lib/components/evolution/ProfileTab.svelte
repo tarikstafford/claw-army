@@ -22,7 +22,7 @@
     body: string;
   }
 
-  const soulSections = $derived<SoulSection[]>((): SoulSection[] => {
+  const soulSections = $derived.by((): SoulSection[] => {
     if (!soulContent) return [];
     const parts = soulContent.split(/^## /m);
     return parts

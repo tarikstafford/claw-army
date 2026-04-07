@@ -6,10 +6,11 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
   if (!session) throw error(401, 'Not authenticated');
   const { botId } = params;
 
-  const [timelineRes, lineageRes, ledgerRes] = await Promise.allSettled([
+  const [timelineRes, lineageRes, ledgerRes, profileRes] = await Promise.allSettled([
     fetch(`/api/akasa/evolution/bots/${botId}/timeline`),
     fetch(`/api/akasa/evolution/bots/${botId}/lineage`),
     fetch(`/api/akasa/evolution/bots/${botId}/ledger`),
+    fetch(`/api/akasa/evolution/bots/${botId}/profile`),
   ]);
 
   const timeline = timelineRes.status === 'fulfilled' && timelineRes.value.ok
@@ -18,6 +19,8 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
     ? await lineageRes.value.json() : [];
   const ledger = ledgerRes.status === 'fulfilled' && ledgerRes.value.ok
     ? await ledgerRes.value.json() : [];
+  const profile = profileRes.status === 'fulfilled' && profileRes.value.ok
+    ? await profileRes.value.json() : null;
 
-  return { botId, timeline, lineage, ledger };
+  return { botId, timeline, lineage, ledger, profile };
 };
