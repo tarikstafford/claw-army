@@ -3,10 +3,14 @@ name: Implement Issue
 on:
   issues:
     types: [labeled]
+  issue_comment:
+    types: [created]
 
 jobs:
   implement:
-    if: github.event.label.name == 'agent:implement'
+    if: >-
+      (github.event_name == 'issues' && github.event.label.name == 'agent:implement') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request == null && contains(github.event.comment.body, '/implement'))
     runs-on: ubuntu-latest
     permissions:
       id-token: write
