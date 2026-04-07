@@ -329,8 +329,8 @@ Plans:
   4. Agent runtime status displays current session, token consumption (input/output/cached), total cost, budget utilization, last heartbeat, and last error — pulled from Paperclip's runtime state API
 **Plans**: 3 plans
 Plans:
-- [ ] 13-01-PLAN.md — Backend endpoints (profile, org, timeline extension, runtime proxy)
-- [ ] 13-02-PLAN.md — Bot detail page (identity card, profile tab, verdict expansion, runtime status)
+- [x] 13-01-PLAN.md — Backend endpoints (profile, org, timeline extension, runtime proxy)
+- [x] 13-02-PLAN.md — Bot detail page (identity card, profile tab, verdict expansion, runtime status)
 - [ ] 13-03-PLAN.md — Fleet org map page and OrgMap component
 
 **UI hint**: yes
@@ -353,4 +353,4 @@ Plans:
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
 | 11. Tool Nexus Integration Fixes | v6.0 | 2/2 | Complete    | 2026-03-31 |
 | 12. Evolution Routes Verification | v6.0 | 1/1 | Complete    | 2026-03-31 |
-| 13. Agent Intelligence Views | v6.0 | 0/3 | In Progress | - |
+| 13. Agent Intelligence Views | v6.0 | 2/3 | In Progress|  |

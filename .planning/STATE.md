@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Paperclip Foundation
-status: Milestone complete
-stopped_at: Phase 13 context gathered
-last_updated: "2026-04-07T08:04:52.322Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 13-agent-intelligence-views-02-PLAN.md
+last_updated: "2026-04-07T08:49:45.743Z"
 progress:
   total_phases: 9
   completed_phases: 8
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Users deploy a crew of AI bots that gets measurably smarter with every run — behavioral constitutions evolve through council-evaluated mutation, and the DNA library is the compounding moat no competitor can replicate without the run history.
-**Current focus:** Phase 12 — evolution-routes-verification
+**Current focus:** Phase 13 — agent-intelligence-views
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
+Phase: 13 (agent-intelligence-views) — EXECUTING
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -73,6 +73,9 @@ Plan: Not started
 | Phase 11-tool-nexus-integration-fixes P01 | 15 | 3 tasks | 7 files |
 | Phase 11 P02 | 15 | 2 tasks | 7 files |
 | Phase 12 P01 | 5 | 1 tasks | 1 files |
+| Phase 13-agent-intelligence-views P01 | 197s | 2 tasks | 1 files |
+| Phase 13-agent-intelligence-views P03 | 3m | 2 tasks | 4 files |
+| Phase 13-agent-intelligence-views P02 | 484s | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -158,6 +161,12 @@ v6.0 key architectural decisions:
 - [Phase 11]: invocation-logger refactored to HTTP (POST /akasa/internal/log-invocation) — no @claw/db in plugin bundle; @claw/db removed from esbuild external list
 - [Phase 11]: postPluginConfig called in all install paths using pluginDbId (UUID id field, not pluginKey) for Paperclip config endpoint
 - [Phase 12]: EVO-06 uses 60s DB polling of heartbeat_runs not Paperclip push events — documented as SATISFIED MEDIUM confidence with architectural note
+- [Phase 13-agent-intelligence-views]: Single fleet root returned by /org endpoint (not array) — d3-hierarchy requires single root node per RESEARCH.md Pitfall 6
+- [Phase 13-agent-intelligence-views]: Lazy getPaperclipDb() helper in evolution-dashboard.ts for Paperclip DB initialization — avoids circular initialization, consistent with evolution-trigger.ts pattern
+- [Phase 13-agent-intelligence-views]: Runtime endpoint returns res.json(null) with 200 when paperclipAgentId is null — graceful degradation per AGENT-04 D-21
+- [Phase 13-agent-intelligence-views]: Horizontal LTR tree layout for OrgMap — height-first size() arg gives natural left-to-right org chart
+- [Phase 13-agent-intelligence-views]: Accordion token override via wrapper div with --card: var(--bo-card) for Back Office world compatibility in BotTimeline verdict detail
+- [Phase 13-agent-intelligence-views]: Text-length/500 heuristic for SoulRadar dimension scoring — maps SOUL.md section character count to [0,1] radar coverage
 
 ### Pending Todos
 
@@ -171,6 +180,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-07T08:04:52.315Z
-Stopped at: Phase 13 context gathered
-Resume file: .planning/phases/13-agent-intelligence-views/13-CONTEXT.md
+Last session: 2026-04-07T08:49:45.740Z
+Stopped at: Completed 13-agent-intelligence-views-02-PLAN.md
+Resume file: None

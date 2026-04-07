@@ -75,10 +75,10 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 
 ### Agent Intelligence Views
 
-- [ ] **AGENT-01**: Agent profile page — identity card (name, class, archetype origin, task category, pioneer status, composite score), 7-axis soul dimension visualization, formatted SOUL.md viewer, constitution directives list, class progression timeline
-- [ ] **AGENT-02**: Fleet org map — interactive d3-hierarchy tree showing agent relationships and hierarchy, nodes display name/class/status/score, color-coded by agent class, click-through to agent profile
-- [ ] **AGENT-03**: Council verdict detail — expandable verdict entries in evolution timeline showing Performance Judge output, Soul Analyst output, and Devil's Advocate output from stored JSONB council verdict data
-- [ ] **AGENT-04**: Agent runtime status — current session info, token consumption (input/output/cached), total cost, budget utilization percentage, last heartbeat timestamp, last error message — sourced from Paperclip runtime state API
+- [x] **AGENT-01**: Agent profile page — identity card (name, class, archetype origin, task category, pioneer status, composite score), 7-axis soul dimension visualization, formatted SOUL.md viewer, constitution directives list, class progression timeline
+- [x] **AGENT-02**: Fleet org map — interactive d3-hierarchy tree showing agent relationships and hierarchy, nodes display name/class/status/score, color-coded by agent class, click-through to agent profile
+- [x] **AGENT-03**: Council verdict detail — expandable verdict entries in evolution timeline showing Performance Judge output, Soul Analyst output, and Devil's Advocate output from stored JSONB council verdict data
+- [x] **AGENT-04**: Agent runtime status — current session info, token consumption (input/output/cached), total cost, budget utilization percentage, last heartbeat timestamp, last error message — sourced from Paperclip runtime state API
 
 ## Future Requirements
 
