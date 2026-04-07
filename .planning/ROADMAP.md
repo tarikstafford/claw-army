@@ -318,6 +318,20 @@ Plans:
 Plans:
 - [x] 12-01-PLAN.md — Audit evolution source files, run tests, write VERIFICATION.md
 
+### Phase 13: Agent Intelligence Views
+**Goal**: Users can see comprehensive agent profiles (soul dimensions, class history, council reasoning), a fleet org map showing agent hierarchy and relationships, and live runtime status — surfacing the rich data already in the DB and Paperclip API that is currently hidden
+**Depends on**: Phase 4, Phase 8
+**Requirements**: AGENT-01, AGENT-02, AGENT-03, AGENT-04
+**Success Criteria** (what must be TRUE):
+  1. Agent profile page shows identity card (name, class, archetype, category, pioneer status, composite score), soul dimensions radar visualization, formatted SOUL.md, and constitution directives
+  2. Fleet org map renders an interactive hierarchy using d3-hierarchy with nodes showing agent name, class, status, and composite score — color-coded by class
+  3. Council verdict detail is expandable on each verdict in the evolution timeline — showing Performance Judge, Soul Analyst, and Devil's Advocate reasoning from stored JSONB
+  4. Agent runtime status displays current session, token consumption (input/output/cached), total cost, budget utilization, last heartbeat, and last error — pulled from Paperclip's runtime state API
+**Plans**: 0 plans
+Plans:
+- (none yet)
+**UI hint**: yes
+
 ---
 
 ## Progress
@@ -336,3 +350,4 @@ Plans:
 | 10. v6.0 Tech Debt Cleanup | v6.0 | 1/1 | Complete    | 2026-03-30 |
 | 11. Tool Nexus Integration Fixes | v6.0 | 2/2 | Complete    | 2026-03-31 |
 | 12. Evolution Routes Verification | v6.0 | 1/1 | Complete    | 2026-03-31 |
+| 13. Agent Intelligence Views | v6.0 | 0/0 | Not Started | - |

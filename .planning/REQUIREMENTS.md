@@ -73,6 +73,13 @@ Requirements for v6.0 milestone. Each maps to roadmap phases.
 - [x] **TOOL-09**: Webhook event log — all received webhooks with payload, routing decision, resulting action
 - [x] **TOOL-10**: Invocation logging — per-invocation audit trail: toolId, action, agentId, timestamp, latency, success/failure
 
+### Agent Intelligence Views
+
+- [ ] **AGENT-01**: Agent profile page — identity card (name, class, archetype origin, task category, pioneer status, composite score), 7-axis soul dimension visualization, formatted SOUL.md viewer, constitution directives list, class progression timeline
+- [ ] **AGENT-02**: Fleet org map — interactive d3-hierarchy tree showing agent relationships and hierarchy, nodes display name/class/status/score, color-coded by agent class, click-through to agent profile
+- [ ] **AGENT-03**: Council verdict detail — expandable verdict entries in evolution timeline showing Performance Judge output, Soul Analyst output, and Devil's Advocate output from stored JSONB council verdict data
+- [ ] **AGENT-04**: Agent runtime status — current session info, token consumption (input/output/cached), total cost, budget utilization percentage, last heartbeat timestamp, last error message — sourced from Paperclip runtime state API
+
 ## Future Requirements
 
 Deferred to v6.1+ milestones.
