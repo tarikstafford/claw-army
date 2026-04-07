@@ -63,7 +63,7 @@
 			{/if}
 			<span
 				class="success-dot"
-				style="background: {log.success ? 'var(--bo-teal)' : 'var(--error)'}"
+				style="background: {log.success ? 'var(--success, #2DD4BF)' : 'var(--error)'}"
 				title={log.success ? 'Success' : 'Failed'}
 			></span>
 			{#if hasDetails}
@@ -101,8 +101,8 @@
 
 <style>
 	.log-entry {
-		background: var(--bo-card);
-		border: 1px solid var(--bo-border);
+		background: var(--card);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		overflow: hidden;
 	}
@@ -135,19 +135,19 @@
 	.log-tool {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-text);
+		color: var(--text);
 	}
 
 	.log-meta {
 		font-family: var(--font-body);
 		font-size: 11px;
-		color: var(--bo-caption);
+		color: var(--text-muted);
 	}
 
 	.log-latency {
 		font-family: var(--font-body);
 		font-size: 11px;
-		color: var(--bo-caption);
+		color: var(--text-muted);
 	}
 
 	.success-dot {
@@ -160,7 +160,7 @@
 
 	.expand-arrow {
 		font-size: 10px;
-		color: var(--bo-caption);
+		color: var(--text-muted);
 		transition: transform 0.2s;
 		display: inline-block;
 	}
@@ -171,7 +171,7 @@
 
 	.log-details {
 		padding: var(--space-md) var(--space-lg) var(--space-lg);
-		border-top: 1px solid var(--bo-border);
+		border-top: 1px solid var(--border);
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-md);
@@ -186,7 +186,7 @@
 	.detail-label {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-muted);
+		color: var(--text-muted);
 	}
 
 	.error-label {
@@ -196,9 +196,9 @@
 	.detail-pre {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-text);
+		color: var(--text);
 		overflow-x: auto;
-		background: var(--bo-bg);
+		background: var(--bg);
 		padding: var(--space-sm);
 		border-radius: var(--radius-sm);
 		max-height: 200px;
@@ -215,6 +215,6 @@
 	.routed-to {
 		font-family: var(--font-body);
 		font-size: 11px;
-		color: var(--bo-caption);
+		color: var(--text-muted);
 	}
 </style>

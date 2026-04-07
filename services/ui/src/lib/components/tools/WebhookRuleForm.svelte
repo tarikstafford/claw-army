@@ -135,13 +135,13 @@
 	label {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-text);
+		color: var(--text);
 		margin-bottom: var(--space-xs);
 		display: block;
 	}
 
 	.optional-label {
-		color: var(--bo-caption);
+		color: var(--text-muted);
 		font-size: 11px;
 	}
 
@@ -149,9 +149,9 @@
 	input {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-text);
-		background: var(--bo-bg);
-		border: 1px solid var(--bo-border);
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		padding: var(--space-sm) var(--space-md);
 		min-height: 44px;
@@ -161,7 +161,7 @@
 
 	select:focus,
 	input:focus {
-		border-color: var(--bo-rose);
+		border-color: var(--rose, #F472B6);
 		outline: none;
 	}
 
@@ -179,8 +179,8 @@
 
 	.cancel-btn {
 		min-height: 44px;
-		border: 1px solid var(--bo-border);
-		color: var(--bo-muted);
+		border: 1px solid var(--border);
+		color: var(--text-muted);
 		background: transparent;
 		border-radius: var(--radius-md);
 		font-family: var(--font-body);
@@ -196,8 +196,8 @@
 
 	.submit-btn {
 		min-height: 44px;
-		border: 1px solid var(--bo-rose);
-		color: var(--bo-rose);
+		border: 1px solid var(--rose, #F472B6);
+		color: var(--rose, #F472B6);
 		background: transparent;
 		border-radius: var(--radius-md);
 		font-family: var(--font-body);

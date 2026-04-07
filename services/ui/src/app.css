@@ -85,6 +85,8 @@
   --accent-m:   var(--fo-plum-m);
   --accent-dim: var(--fo-plum-p);
   --karma:      var(--fo-gold);
+  --success:    #059669;
+  --rose:       #DB2777;
 }
 
 /* ── BACK OFFICE OVERRIDE ──────────────────────── */
@@ -101,6 +103,8 @@ body.back-office {
   --accent-m:   var(--bo-vb);
   --accent-dim: rgba(124, 58, 237, 0.10);
   --karma:      var(--bo-amber);
+  --success:    var(--bo-teal);
+  --rose:       var(--bo-rose);
 }
 
 /* ── BASE ELEMENT STYLES ──────────────────────── */

@@ -77,7 +77,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm) 0;
   }
 
@@ -85,7 +85,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.5;
   }
@@ -100,8 +100,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
     gap: var(--space-md);
@@ -118,21 +118,21 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .tool-label {
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .tool-last-used {
     font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .belt-right {
@@ -159,8 +159,8 @@
   }
 
   .btn-reauth {
-    border: 1px solid var(--bo-rose);
-    color: var(--bo-rose);
+    border: 1px solid var(--rose, #F472B6);
+    color: var(--rose, #F472B6);
   }
 
   .btn-reauth:hover {

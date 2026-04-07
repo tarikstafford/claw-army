@@ -89,13 +89,13 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    background: var(--bo-card);
+    background: var(--card);
     line-height: 1.5;
   }
 
   .banner-success {
-    border: 1px solid var(--bo-teal);
-    color: var(--bo-teal);
+    border: 1px solid var(--success, #2DD4BF);
+    color: var(--success, #2DD4BF);
   }
 
   .banner-error {

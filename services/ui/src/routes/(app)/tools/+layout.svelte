@@ -47,8 +47,8 @@
     display: flex;
     align-items: center;
     gap: 0;
-    background: var(--bo-bg);
-    border-bottom: 1px solid var(--bo-border);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
     padding: 0 var(--space-xl);
   }
 
@@ -56,7 +56,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--text-muted);
     text-decoration: none;
     padding: 0 var(--space-xl);
     height: 44px;
@@ -67,12 +67,12 @@
   }
 
   .tools-tab:hover {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .tools-tab.active {
-    border-bottom-color: var(--bo-rose);
-    color: var(--bo-text);
+    border-bottom-color: var(--rose, #F472B6);
+    color: var(--text);
   }
 
   .tools-content {

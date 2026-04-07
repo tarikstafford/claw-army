@@ -2,14 +2,14 @@
   let { status }: { status: string } = $props();
 
   const colorMap: Record<string, string> = {
-    connected: 'var(--bo-teal)',
-    expired: 'var(--bo-amber)',
-    rate_limited: 'var(--bo-amber)',
+    connected: 'var(--success, #2DD4BF)',
+    expired: 'var(--karma)',
+    rate_limited: 'var(--karma)',
     errored: 'var(--error)',
-    disconnected: 'var(--bo-faint)',
+    disconnected: 'var(--text-muted)',
   };
 
-  const color = $derived(colorMap[status] ?? 'var(--bo-faint)');
+  const color = $derived(colorMap[status] ?? 'var(--text-muted)');
   const label = $derived(status.toUpperCase().replace(/_/g, ' '));
 </script>
 

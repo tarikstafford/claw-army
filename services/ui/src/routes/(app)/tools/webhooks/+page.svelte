@@ -162,7 +162,7 @@
 <!-- Delete confirmation Modal -->
 {#if deleteTarget}
 	<Modal open={true} title="Delete this rule?" onclose={() => { deleteTarget = null; }}>
-		<p style="font-family: var(--font-body); font-size: 13px; color: var(--bo-muted); margin: var(--space-md) 0;">
+		<p style="font-family: var(--font-body); font-size: 13px; color: var(--text-muted); margin: var(--space-md) 0;">
 			This routing rule will stop processing new webhook events immediately.
 		</p>
 		<button class="delete-confirm-btn" onclick={handleDeleteRule}>Delete Rule</button>
@@ -186,13 +186,13 @@
 		font-family: var(--font-display);
 		font-size: 18px;
 		font-weight: 600;
-		color: var(--bo-text);
+		color: var(--text);
 	}
 
 	.add-rule-btn {
 		min-height: 44px;
-		border: 1px solid var(--bo-rose);
-		color: var(--bo-rose);
+		border: 1px solid var(--rose, #F472B6);
+		color: var(--rose, #F472B6);
 		background: transparent;
 		border-radius: var(--radius-md);
 		font-family: var(--font-body);
@@ -221,8 +221,8 @@
 	}
 
 	.rule-row {
-		background: var(--bo-card);
-		border: 1px solid var(--bo-border);
+		background: var(--card);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		padding: var(--space-md) var(--space-lg);
 		display: flex;
@@ -241,13 +241,13 @@
 	.rule-description {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-text);
+		color: var(--text);
 	}
 
 	.rule-condition {
 		font-family: var(--font-body);
 		font-size: 11px;
-		color: var(--bo-caption);
+		color: var(--text-muted);
 	}
 
 	.rule-middle {
@@ -257,7 +257,7 @@
 	.rule-agent {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-muted);
+		color: var(--text-muted);
 	}
 
 	.rule-actions {
@@ -287,14 +287,14 @@
 	.empty-heading {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-text);
+		color: var(--text);
 		margin-bottom: var(--space-xs);
 	}
 
 	.empty-body {
 		font-family: var(--font-body);
 		font-size: 13px;
-		color: var(--bo-muted);
+		color: var(--text-muted);
 	}
 
 	.event-log-section {

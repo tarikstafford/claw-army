@@ -40,7 +40,7 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-md) 0;
     line-height: 1.2;
   }

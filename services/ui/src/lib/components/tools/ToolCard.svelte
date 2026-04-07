@@ -56,8 +56,8 @@
 
 <style>
   .tool-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-lg);
     position: relative;
@@ -68,7 +68,7 @@
   }
 
   .tool-card:hover {
-    border-color: var(--bo-bhi);
+    border-color: var(--accent);
     transform: translateY(-2px);
   }
 
@@ -81,7 +81,7 @@
   .tool-category {
     font-family: var(--font-label);
     font-size: 7px;
-    color: var(--bo-faint);
+    color: var(--text-muted);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-bottom: var(--space-sm);
@@ -92,7 +92,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
@@ -100,7 +100,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.5;
     margin-top: var(--space-xs);
@@ -126,8 +126,8 @@
   }
 
   .btn-connect {
-    border: 1px solid var(--bo-rose);
-    color: var(--bo-rose);
+    border: 1px solid var(--rose, #F472B6);
+    color: var(--rose, #F472B6);
   }
 
   .btn-connect:hover {
