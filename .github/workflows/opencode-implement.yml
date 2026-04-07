@@ -39,12 +39,27 @@ jobs:
               ref: 'heads/main'
             });
 
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/heads/${branch}`,
-              sha: ref.object.sha
-            });
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${branch}`,
+                sha: ref.object.sha
+              });
+            } catch (e) {
+              if (e.status === 422) {
+                // Branch already exists — reset it to latest main
+                await github.rest.git.updateRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${branch}`,
+                  sha: ref.object.sha,
+                  force: true
+                });
+              } else {
+                throw e;
+              }
+            }
 
             core.setOutput('branch', branch);
             core.setOutput('issue_number', issue.number);
@@ -76,7 +91,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: minimax/MiniMax-M2.7
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          use_github_token: true
           prompt: |
             You are an AI agent implementing a GitHub issue for the Akasa platform.
 

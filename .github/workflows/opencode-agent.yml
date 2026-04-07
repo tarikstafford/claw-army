@@ -31,4 +31,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: minimax/chat-4-7b-highspeed
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          use_github_token: true
