@@ -33,32 +33,30 @@ jobs:
               .slice(0, 50);
             const branch = `agent/${issue.number}-${slug}`;
 
-            const { data: ref } = await github.rest.git.getRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'heads/main'
-            });
-
+            let branchExists = false;
             try {
+              await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/${branch}`
+              });
+              branchExists = true;
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+
+            if (!branchExists) {
+              const { data: main } = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'heads/main'
+              });
               await github.rest.git.createRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 ref: `refs/heads/${branch}`,
-                sha: ref.object.sha
+                sha: main.object.sha
               });
-            } catch (e) {
-              if (e.status === 422) {
-                // Branch already exists — reset it to latest main
-                await github.rest.git.updateRef({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  ref: `heads/${branch}`,
-                  sha: ref.object.sha,
-                  force: true
-                });
-              } else {
-                throw e;
-              }
             }
 
             core.setOutput('branch', branch);
