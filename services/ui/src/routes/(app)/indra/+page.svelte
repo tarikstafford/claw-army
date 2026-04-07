@@ -63,33 +63,31 @@
     return parts.length > 0 ? parts.join(' — ') : null;
   }
 
+  const MAX_ACTIVITY = 5;
+
+  let recentActivity = $derived(activity.slice(0, MAX_ACTIVITY));
+  let hasMoreActivity = $derived(activity.length > MAX_ACTIVITY);
+
   function activityLabel(event: Record<string, unknown>): string {
-    if (event.description && String(event.description).length > 2) return String(event.description);
-    const type = String(event.type ?? '');
-    const payload = (event.payload ?? {}) as Record<string, unknown>;
-    const agent = payload.agentName ?? event.agentName ?? null;
-    const prefix = agent ? `${agent}: ` : '';
+    // Paperclip activity_log fields: action, entityType, entityId, details, actorType, actorId
+    const action = String(event.action ?? event.type ?? '');
+    const entity = String(event.entityType ?? '');
+    const details = (event.details ?? event.payload ?? {}) as Record<string, unknown>;
+    const name = details.name ?? details.agentName ?? details.title ?? null;
 
-    const labels: Record<string, string> = {
-      'agent.created': `${prefix}Agent created`,
-      'agent.updated': `${prefix}Agent updated`,
-      'agent.status.changed': `${prefix}Status changed`,
-      'agent.terminated': `${prefix}Agent terminated`,
-      'issue.created': `${prefix}Issue opened`,
-      'issue.updated': `${prefix}Issue updated`,
-      'issue.closed': `${prefix}Issue closed`,
-      'approval.created': `${prefix}Approval requested`,
-      'approval.resolved': `${prefix}Approval resolved`,
-      'comment.created': `${prefix}Comment added`,
-      'company.created': 'Company created',
-      'company.updated': 'Company updated',
-      'goal.created': `${prefix}Goal created`,
-      'project.created': `${prefix}Project created`,
-      'execution.started': `${prefix}Execution started`,
-      'execution.completed': `${prefix}Execution completed`,
-    };
+    // Try description first
+    if (event.description && String(event.description).length > 5) return String(event.description);
+    if (details.description && String(details.description).length > 5) return String(details.description);
 
-    return labels[type] ?? type.replace(/[._]/g, ' ');
+    // Build from action + entity
+    const actionLabel = action.charAt(0).toUpperCase() + action.slice(1);
+    const entityLabel = entity.replace(/_/g, ' ');
+    const suffix = name ? `: ${name}` : '';
+
+    if (entity && action) return `${actionLabel} ${entityLabel}${suffix}`;
+    if (action) return `${actionLabel}${suffix}`;
+
+    return String(event.type ?? 'Activity');
   }
 
   function formatTimestamp(iso: string): string {
@@ -229,20 +227,23 @@
 
   <!-- Activity -->
   <section class="section" aria-label="Recent activity">
-    <h2 class="section-label">ACTIVITY</h2>
+    <h2 class="section-label">RECENT ACTIVITY</h2>
     {#if activity.length === 0}
       <p class="empty-state">No activity yet. Your crew's work will appear here as they execute tasks.</p>
     {:else}
       <ul class="activity-list">
-        {#each activity as event (event.id)}
+        {#each recentActivity as event (event.id)}
           <li class="activity-item">
+            <span class="activity-desc">{activityLabel(event)}</span>
             <time class="activity-time" datetime={String(event.createdAt)}>
               {formatTimestamp(String(event.createdAt))}
             </time>
-            <span class="activity-desc">{activityLabel(event)}</span>
           </li>
         {/each}
       </ul>
+      {#if hasMoreActivity}
+        <a href="/office/issues" class="view-all">View all activity &#8594;</a>
+      {/if}
     {/if}
   </section>
 </div>
@@ -498,28 +499,46 @@
 
   .activity-item {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-
-  .activity-time {
-    font-family: var(--font-body);
-    font-size: 11px;
-    color: var(--text-muted);
-    font-style: italic;
-    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
   }
 
   .activity-desc {
     font-family: var(--font-body);
     font-size: 13px;
     color: var(--text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .activity-agent {
+  .activity-time {
     font-family: var(--font-body);
     font-size: 11px;
     color: var(--text-muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .view-all {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: 10px;
+    transition: opacity 0.15s;
+  }
+
+  .view-all:hover {
+    opacity: 0.7;
   }
 
   .empty-state {
