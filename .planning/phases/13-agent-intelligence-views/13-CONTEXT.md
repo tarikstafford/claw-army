@@ -46,8 +46,8 @@ All data already exists — this is a pure UI/API-extension phase. No new DB tab
 
 ### Runtime Status
 - **D-17:** Runtime status displayed as a compact status bar below the identity card on the bot detail page
-- **D-18:** Data sourced from Paperclip API: GET `/agents/:id/runtime-state` via existing API proxy
-- **D-19:** Shows: current session status, token consumption (input/output/cached), total cost, last heartbeat timestamp, last error (if any)
+- **D-18:** ~~Data sourced from Paperclip API~~ Reclassified to Claude's Discretion — direct DB query preferred since Akasa and Paperclip share the same process/DB
+- **D-19:** Shows: current session status, token consumption (input/output/cached), total cost, budget utilization (from agents.budgetMonthlyCents), last heartbeat timestamp, last error (if any)
 - **D-20:** Auto-refreshes on 30s polling interval (client-side setInterval with cleanup)
 - **D-21:** Graceful degradation — if Paperclip runtime-state returns null/404, show "No runtime data" placeholder
 
