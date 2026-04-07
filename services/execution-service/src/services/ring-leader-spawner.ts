@@ -11,6 +11,7 @@ export interface SpawnRingLeaderParams {
   budgetCapCents: number;
   runtimeLimitSeconds: number;
   campaignType: CampaignType;
+  projectId?: string | null;
 }
 
 export interface SpawnRingLeaderResult {
@@ -40,6 +41,7 @@ export async function spawnRingLeader(
     budgetCapCents,
     runtimeLimitSeconds,
     campaignType,
+    projectId,
   } = params;
 
   // Insert the ring_leader_runs row and get the generated ID.
@@ -71,6 +73,7 @@ export async function spawnRingLeader(
     runtimeLimitSeconds,
     campaignType,
     runId: ringLeaderRunId,
+    projectId: projectId ?? null,
   };
 
   // Persist the fully-constructed mission brief back to the row.

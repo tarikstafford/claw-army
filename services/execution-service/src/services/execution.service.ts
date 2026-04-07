@@ -21,6 +21,7 @@ export interface CreateExecutionInput {
   allowedDomains?: string[];
   objectiveId?: string;
   campaignType?: string;
+  projectId?: string;
 }
 
 export async function createExecution(
@@ -53,6 +54,7 @@ export async function createExecution(
       allowedDomains: input.allowedDomains ?? null,
       objectiveId: input.objectiveId ?? null,
       campaignType: input.campaignType ?? null,
+      projectId: input.projectId ?? null,
       status: 'pre_flight',
     })
     .returning({ id: executions.id });
