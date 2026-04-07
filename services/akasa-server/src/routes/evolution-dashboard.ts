@@ -2,15 +2,28 @@ import { Router } from 'express';
 import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore } from '@claw/db';
 import { eq, and, desc, asc, count, isNotNull, sql, avg } from 'drizzle-orm';
 
+// Lazy Paperclip DB instance to avoid circular initialization
+let paperclipDb: ReturnType<typeof import('@paperclipai/db')['createDb']> | null = null;
+async function getPaperclipDb() {
+  if (!paperclipDb) {
+    const { createDb } = await import('@paperclipai/db');
+    paperclipDb = createDb(process.env['DATABASE_URL']!);
+  }
+  return paperclipDb;
+}
+
 /**
  * Evolution Dashboard API routes.
  * Mounts at /api/akasa/evolution
  *
  * GET /fleet         — Fleet overview with classCounts, scoreHistory, averageCompositeScore, pendingVerdictCount
  * GET /agents        — Agent list with currentClass, compositeScore, isPioneer, lastVerdictAt
+ * GET /bots/:botId/profile  — Full bot profile with soul dimensions, class, pioneer status, archetype
  * GET /bots/:botId/timeline — Merged timeline of verdict, class_transition, dna_capture events
  * GET /bots/:botId/lineage  — Soul ancestry chain (root-first, max depth 10)
  * GET /bots/:botId/ledger   — Run-by-run experiment ledger with scoreDelta and keepDiscard
+ * GET /bots/:botId/runtime  — Token consumption, cost, budget utilization from Paperclip shared DB
+ * GET /org           — Hierarchical fleet tree (fleet -> category -> class_tier -> agent)
  * GET /benchmarks    — All category benchmarks with thinDataFlag and benchmarkMature
  * GET /pending       — Only verdicts where requiresHumanConfirmation=true AND status=pending
  */
@@ -131,6 +144,9 @@ export function evolutionDashboardRouter(): Router {
           status: councilVerdicts.status,
           weightedConfidenceScore: councilVerdicts.weightedConfidenceScore,
           verdictSummary: councilVerdicts.verdictSummary,
+          performanceJudgeOutput: councilVerdicts.performanceJudgeOutput,
+          soulAnalystOutput: councilVerdicts.soulAnalystOutput,
+          devilsAdvocateOutput: councilVerdicts.devilsAdvocateOutput,
           createdAt: councilVerdicts.createdAt,
         })
         .from(councilVerdicts)
@@ -144,6 +160,9 @@ export function evolutionDashboardRouter(): Router {
         verdictType: r.verdictType,
         status: r.status,
         compositeScore: r.weightedConfidenceScore,
+        performanceJudgeOutput: r.performanceJudgeOutput,
+        soulAnalystOutput: r.soulAnalystOutput,
+        devilsAdvocateOutput: r.devilsAdvocateOutput,
       }));
 
       // 2. Class transition events
@@ -337,6 +356,241 @@ export function evolutionDashboardRouter(): Router {
     try {
       const benchmarkRows = await db.select().from(categoryBenchmarks);
       res.json(benchmarkRows);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── GET /bots/:botId/profile ─────────────────────────────────────────────────
+
+  router.get('/bots/:botId/profile', async (req, res, next) => {
+    try {
+      const { botId } = req.params;
+
+      // Query bots LEFT JOIN agentClasses LEFT JOIN botSouls
+      const profileRows = await db
+        .select({
+          id: bots.id,
+          compositeScore: bots.compositeScore,
+          soulId: bots.soulId,
+          status: bots.status,
+          currentClass: agentClasses.currentClass,
+          isPioneer: agentClasses.isPioneer,
+          taskCategory: agentClasses.taskCategory,
+          lastTransitionAt: agentClasses.lastTransitionAt,
+          artisanGraduationAt: agentClasses.artisanGraduationAt,
+          classCreatedAt: agentClasses.createdAt,
+          soulContent: botSouls.soulContent,
+          dimensions: botSouls.dimensions,
+          constitutionDirectives: botSouls.constitutionDirectives,
+          generation: botSouls.generation,
+          archetypeName: botSouls.archetypeName,
+          isArchetype: botSouls.isArchetype,
+        })
+        .from(bots)
+        .leftJoin(agentClasses, eq(agentClasses.botId, bots.id))
+        .leftJoin(botSouls, eq(botSouls.id, bots.soulId))
+        .where(eq(bots.id, botId))
+        .limit(1);
+
+      const row = profileRows[0];
+      if (!row) {
+        res.status(404).json({ error: 'Bot not found' });
+        return;
+      }
+
+      // Build simplified classHistory from the single agentClasses row
+      const classHistory: Array<{ class: string; transitionAt: string | Date; category: string | null }> = [];
+      if (row.classCreatedAt) {
+        classHistory.push({
+          class: 'Novice',
+          transitionAt: row.classCreatedAt,
+          category: row.taskCategory ?? null,
+        });
+      }
+      if (row.lastTransitionAt && row.currentClass && row.currentClass !== 'Novice') {
+        classHistory.push({
+          class: row.currentClass,
+          transitionAt: row.lastTransitionAt,
+          category: row.taskCategory ?? null,
+        });
+      }
+
+      res.json({
+        botId: row.id,
+        compositeScore: row.compositeScore,
+        status: row.status,
+        currentClass: row.currentClass ?? null,
+        isPioneer: row.isPioneer ?? false,
+        taskCategory: row.taskCategory ?? null,
+        archetypeName: row.archetypeName ?? null,
+        soulId: row.soulId ?? null,
+        soulContent: row.soulContent ?? null,
+        dimensions: row.dimensions ?? null,
+        constitutionDirectives: row.constitutionDirectives ?? null,
+        generation: row.generation ?? null,
+        classHistory,
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── GET /org ─────────────────────────────────────────────────────────────────
+
+  router.get('/org', async (_req, res, next) => {
+    try {
+      // Query agentClasses LEFT JOIN bots to get all agents with category, class, and bot metadata
+      const orgRows = await db
+        .select({
+          botId: agentClasses.botId,
+          currentClass: agentClasses.currentClass,
+          isPioneer: agentClasses.isPioneer,
+          taskCategory: agentClasses.taskCategory,
+          compositeScore: bots.compositeScore,
+          status: bots.status,
+        })
+        .from(agentClasses)
+        .leftJoin(bots, eq(bots.id, agentClasses.botId));
+
+      // Build hierarchy in application code: fleet -> category -> class_tier -> agent
+      // categoryMap: taskCategory -> (currentClass -> agents[])
+      const categoryMap = new Map<string, Map<string, Array<{
+        id: string;
+        label: string;
+        type: 'agent';
+        botId: string;
+        currentClass: string;
+        compositeScore: string | null;
+        status: string | null;
+      }>>>();
+
+      for (const row of orgRows) {
+        const category = row.taskCategory ?? 'uncategorized';
+        const currentClass = row.currentClass;
+
+        if (!categoryMap.has(category)) {
+          categoryMap.set(category, new Map());
+        }
+        const classMap = categoryMap.get(category)!;
+
+        if (!classMap.has(currentClass)) {
+          classMap.set(currentClass, []);
+        }
+
+        classMap.get(currentClass)!.push({
+          id: `agent:${row.botId}`,
+          label: row.botId.slice(0, 8),
+          type: 'agent',
+          botId: row.botId,
+          currentClass,
+          compositeScore: row.compositeScore ?? null,
+          status: row.status ?? null,
+        });
+      }
+
+      // Convert nested maps to the d3-hierarchy-compatible single root object
+      const children = Array.from(categoryMap.entries()).map(([category, classMap]) => ({
+        id: `category:${category}`,
+        label: category,
+        type: 'category' as const,
+        children: Array.from(classMap.entries()).map(([currentClass, agents]) => ({
+          id: `class:${category}:${currentClass}`,
+          label: currentClass,
+          type: 'class_tier' as const,
+          children: agents,
+        })),
+      }));
+
+      res.json({
+        id: 'fleet',
+        label: 'Fleet',
+        type: 'fleet',
+        children,
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── GET /bots/:botId/runtime ──────────────────────────────────────────────────
+
+  router.get('/bots/:botId/runtime', async (req, res, next) => {
+    try {
+      const { botId } = req.params;
+
+      // 1. Look up bots.paperclipAgentId from Akasa DB
+      const botRows = await db
+        .select({ paperclipAgentId: bots.paperclipAgentId })
+        .from(bots)
+        .where(eq(bots.id, botId))
+        .limit(1);
+
+      const bot = botRows[0];
+      if (!bot || !bot.paperclipAgentId) {
+        // Graceful degradation — no Paperclip agent linked
+        res.json(null);
+        return;
+      }
+
+      const { paperclipAgentId } = bot;
+
+      // 2. Query Paperclip DB for runtime state and agent budget in parallel
+      const pDb = await getPaperclipDb();
+      const { agentRuntimeState, agents: paperclipAgents } = await import('@paperclipai/db');
+
+      const [runtimeRows, agentRows] = await Promise.all([
+        pDb
+          .select({
+            sessionId: agentRuntimeState.sessionId,
+            lastRunStatus: agentRuntimeState.lastRunStatus,
+            totalInputTokens: agentRuntimeState.totalInputTokens,
+            totalOutputTokens: agentRuntimeState.totalOutputTokens,
+            totalCachedInputTokens: agentRuntimeState.totalCachedInputTokens,
+            totalCostCents: agentRuntimeState.totalCostCents,
+            lastError: agentRuntimeState.lastError,
+            updatedAt: agentRuntimeState.updatedAt,
+          })
+          .from(agentRuntimeState)
+          .where(eq(agentRuntimeState.agentId, paperclipAgentId))
+          .limit(1),
+        pDb
+          .select({
+            budgetMonthlyCents: paperclipAgents.budgetMonthlyCents,
+            spentMonthlyCents: paperclipAgents.spentMonthlyCents,
+          })
+          .from(paperclipAgents)
+          .where(eq(paperclipAgents.id, paperclipAgentId))
+          .limit(1),
+      ]);
+
+      const runtime = runtimeRows[0];
+      if (!runtime) {
+        res.json(null);
+        return;
+      }
+
+      const agentBudget = agentRows[0];
+      const budgetMonthlyCents = agentBudget?.budgetMonthlyCents ?? 0;
+      const spentMonthlyCents = agentBudget?.spentMonthlyCents ?? 0;
+      const budgetUtilization =
+        budgetMonthlyCents > 0
+          ? Math.round((spentMonthlyCents / budgetMonthlyCents) * 100)
+          : null;
+
+      res.json({
+        sessionId: runtime.sessionId ?? null,
+        lastRunStatus: runtime.lastRunStatus ?? null,
+        totalInputTokens: runtime.totalInputTokens,
+        totalOutputTokens: runtime.totalOutputTokens,
+        totalCachedInputTokens: runtime.totalCachedInputTokens,
+        totalCostCents: runtime.totalCostCents,
+        budgetMonthlyCents,
+        spentMonthlyCents,
+        budgetUtilization,
+        lastError: runtime.lastError ?? null,
+        updatedAt: runtime.updatedAt,
+      });
     } catch (err) {
       next(err);
     }
