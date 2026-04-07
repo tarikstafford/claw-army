@@ -27,10 +27,19 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Configure OpenCode auth
+        run: |
+          mkdir -p ~/.local/share/opencode
+          echo '{"minimax-coding-plan":{"type":"api","key":"'"$MINIMAX_API_KEY"'"}}' > ~/.local/share/opencode/auth.json
+
       - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          model: minimax-coding-plan/MiniMax-M2.7
-          use_github_token: true
+          MODEL: minimax-coding-plan/MiniMax-M2.7
+          USE_GITHUB_TOKEN: "true"
+        run: opencode github run

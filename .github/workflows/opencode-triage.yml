@@ -22,11 +22,20 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Configure OpenCode auth
+        run: |
+          mkdir -p ~/.local/share/opencode
+          echo '{"minimax-coding-plan":{"type":"api","key":"'"$MINIMAX_API_KEY"'"}}' > ~/.local/share/opencode/auth.json
+
       - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
-        with:
-          model: minimax-coding-plan/MiniMax-M2.7
-          prompt: |
+        env:
+          MODEL: minimax-coding-plan/MiniMax-M2.7
+          PROMPT: |
             You are an AI agent helping triage a new GitHub issue for the Akasa platform (claw-army).
 
             Akasa is a D2C platform for deploying and evolving AI agent fleets. The codebase includes:
@@ -55,3 +64,4 @@ jobs:
 
             ## Analysis Notes
             [Any additional context]
+        run: opencode github run

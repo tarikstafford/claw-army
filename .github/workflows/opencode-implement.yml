@@ -89,14 +89,22 @@ jobs:
               body: `🤖 **Agent picked up this issue.**\n\nBranch: \`${{ steps.branch.outputs.branch }}\`\nModel: MiniMax M2.7\n\nI'll open a PR when implementation is ready.`
             });
 
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Configure OpenCode auth
+        run: |
+          mkdir -p ~/.local/share/opencode
+          echo '{"minimax-coding-plan":{"type":"api","key":"'"$MINIMAX_API_KEY"'"}}' > ~/.local/share/opencode/auth.json
+
       - name: Implement with OpenCode
-        uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          model: minimax-coding-plan/MiniMax-M2.7
-          use_github_token: true
-          prompt: |
+          MODEL: minimax-coding-plan/MiniMax-M2.7
+          USE_GITHUB_TOKEN: "true"
+          PROMPT: |
             You are an AI agent implementing a GitHub issue for the Akasa platform.
 
             ## Issue #${{ steps.branch.outputs.issue_number }}: ${{ steps.branch.outputs.issue_title }}
@@ -128,6 +136,7 @@ jobs:
             4. Commit your changes to the current branch
 
             Do NOT create a PR — the workflow handles that after you finish.
+        run: opencode github run
 
       - name: Create Pull Request
         uses: actions/github-script@v7
