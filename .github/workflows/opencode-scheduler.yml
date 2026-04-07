@@ -14,7 +14,7 @@ on:
 jobs:
   process-issues:
     runs-on: ubuntu-latest
-    environment: production
+    environment: Production
     env:
       MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
