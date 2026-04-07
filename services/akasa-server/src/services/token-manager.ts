@@ -273,3 +273,53 @@ export function refreshSlackToken(
     };
   };
 }
+
+/**
+ * Returns a refreshFn for GitHub OAuth tokens.
+ * GitHub OAuth tokens don't expire by default, so this is a no-op that returns
+ * the current access token as-is. The token is re-encrypted (triggers key rotation check).
+ * Reads GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET from env.
+ */
+export function refreshGitHubToken(
+  clientId?: string,
+  clientSecret?: string,
+): RefreshFn {
+  const id = clientId ?? process.env['GITHUB_CLIENT_ID'] ?? '';
+  const secret = clientSecret ?? process.env['GITHUB_CLIENT_SECRET'] ?? '';
+
+  return async (accessToken: string): Promise<RefreshResult> => {
+    const params = new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: id,
+      client_secret: secret,
+      refresh_token: accessToken,
+    });
+
+    const response = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: params.toString(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub token refresh failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json() as {
+      access_token: string;
+      refresh_token?: string;
+      expires_in?: number;
+    };
+
+    return {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      expiresAt: data.expires_in
+        ? new Date(Date.now() + data.expires_in * 1000)
+        : undefined,
+    };
+  };
+}
