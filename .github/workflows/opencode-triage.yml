@@ -19,10 +19,13 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Configure OpenCode auth
+        run: |
+          mkdir -p ~/.local/share/opencode
+          echo '{"minimax-coding-plan":{"type":"api","key":"${{ secrets.MINIMAX_API_KEY }}"}}' > ~/.local/share/opencode/auth.json
+
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
-        env:
-          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         with:
           model: minimax-coding-plan/MiniMax-M2.7
           prompt: |
