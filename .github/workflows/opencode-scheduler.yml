@@ -31,7 +31,7 @@ jobs:
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         with:
-          model: minimax/m2.7-highspeed
+          model: MiniMax/MiniMax-M2.7
           prompt: |
             You are an AI agent helping process GitHub issues for the Akasa platform.
 

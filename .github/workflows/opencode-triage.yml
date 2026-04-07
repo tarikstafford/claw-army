@@ -24,7 +24,7 @@ jobs:
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         with:
-          model: minimax/chat-4-7b-highspeed
+          model: MiniMax/MiniMax-M2.7
           prompt: |
             You are an AI agent helping triage a new GitHub issue for the Akasa platform (claw-army).
 
