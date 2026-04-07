@@ -1,0 +1,16 @@
+# Default owner for everything
+* @tarikstafford
+
+# Database schema changes require explicit review
+packages/db/src/schema/ @tarikstafford
+packages/db/migrations/ @tarikstafford
+
+# Infrastructure
+infra/ @tarikstafford
+
+# Auth and security
+services/akasa-server/src/services/credential-encryption.ts @tarikstafford
+services/akasa-server/src/services/token-manager.ts @tarikstafford
+
+# Design system tokens
+services/ui/src/app.css @tarikstafford

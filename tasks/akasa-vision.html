@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akasa — The Future of Autonomous Value Creation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #07060f;
+    --bg-2: #0c0b18;
+    --bg-3: #100f1e;
+    --bg-card: #131224;
+    --bg-card-hover: #17162e;
+    --border: rgba(148,110,255,0.10);
+    --border-mid: rgba(148,110,255,0.20);
+    --border-hi: rgba(148,110,255,0.32);
+    --text: #ece8ff;
+    --text-muted: rgba(236,232,255,0.50);
+    --text-faint: rgba(236,232,255,0.22);
+    --violet: #7c3aed;
+    --violet-bright: #a78bfa;
+    --violet-light: #c4b5fd;
+    --violet-dim: rgba(124,58,237,0.14);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.10);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45,212,191,0.10);
+    --rose: #f472b6;
+    --rose-dim: rgba(244,114,182,0.08);
+    --cyan: #22d3ee;
+    --cyan-dim: rgba(34,211,238,0.10);
+    --emerald: #34d399;
+    --emerald-dim: rgba(52,211,153,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .canvas { max-width: 1400px; margin: 0 auto; padding: 64px 48px 80px; }
+
+  /* ── Utility ── */
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--violet-bright); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before { content: ''; width: 20px; height: 1px; background: var(--violet); }
+  .section-desc { font-size: 15px; color: var(--text-muted); line-height: 1.7; max-width: 720px; margin-bottom: 32px; }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 80px; }
+  .header .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--violet-bright);
+    margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .header .label::before, .header .label::after { content: ''; width: 40px; height: 1px; background: var(--border-hi); }
+  .header h1 {
+    font-size: clamp(42px, 5vw, 72px); font-weight: 800;
+    line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px;
+  }
+  .header h1 .accent { color: var(--violet-bright); }
+  .header h1 .amber { color: var(--amber); }
+  .header h1 .teal { color: var(--teal); }
+  .header .subtitle { font-size: 18px; color: var(--text-muted); max-width: 700px; margin: 0 auto 32px; line-height: 1.65; }
+
+  /* ── Nav Tabs ── */
+  .nav-tabs {
+    display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;
+    margin: 0 auto 80px; max-width: 900px;
+  }
+  .nav-tab {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 8px 18px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted);
+    transition: all 0.2s; text-decoration: none; letter-spacing: 0.03em;
+  }
+  .nav-tab:hover { border-color: var(--border-hi); color: var(--text); background: var(--bg-card-hover); }
+
+  /* ── Thesis ── */
+  .thesis {
+    display: flex; align-items: center; justify-content: center; gap: 24px;
+    padding: 32px 40px; background: var(--bg-card); border: 1px solid var(--border-mid);
+    border-radius: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .thesis-block { text-align: center; min-width: 160px; }
+  .thesis-block .value { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 600; color: var(--violet-bright); margin-bottom: 4px; }
+  .thesis-block .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .thesis-op { font-family: 'JetBrains Mono', monospace; font-size: 24px; color: var(--text-faint); }
+  .thesis-eq .value { color: var(--amber); }
+  .thesis-explain { font-size: 13px; color: var(--text-faint); text-align: center; margin-bottom: 80px; line-height: 1.6; max-width: 700px; margin-left: auto; margin-right: auto; }
+
+  /* ── Expandable Cards ── */
+  .expandable { margin-bottom: 4px; }
+  .expand-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+  .expand-header:hover { border-color: var(--border-hi); background: var(--bg-card-hover); }
+  .expand-header.open { border-radius: 10px 10px 0 0; border-bottom-color: transparent; }
+  .expand-icon { font-size: 20px; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .expand-header h3 { font-size: 15px; font-weight: 600; flex: 1; }
+  .expand-header .expand-sub { font-size: 12px; color: var(--text-muted); }
+  .expand-chevron {
+    font-size: 14px; color: var(--text-faint); transition: transform 0.3s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .expand-header.open .expand-chevron { transform: rotate(180deg); }
+  .expand-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s ease;
+    background: var(--bg-3); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
+  .expand-body.open { max-height: 3000px; padding: 28px 28px; }
+  .expand-body-inner { display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── Detail Grids inside expandables ── */
+  .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .detail-item {
+    padding: 18px 20px; border-radius: 8px; border: 1px solid var(--border);
+    background: rgba(236,232,255,0.02);
+  }
+  .detail-item h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .detail-item p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .detail-item .mono-sm { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-faint); margin-top: 8px; }
+
+  /* ── Color accents for detail items ── */
+  .accent-amber h4 { color: var(--amber); }
+  .accent-amber { border-color: rgba(251,191,36,0.15); }
+  .accent-teal h4 { color: var(--teal); }
+  .accent-teal { border-color: rgba(45,212,191,0.15); }
+  .accent-violet h4 { color: var(--violet-bright); }
+  .accent-violet { border-color: rgba(124,58,237,0.2); }
+  .accent-rose h4 { color: var(--rose); }
+  .accent-rose { border-color: rgba(244,114,182,0.15); }
+  .accent-cyan h4 { color: var(--cyan); }
+  .accent-cyan { border-color: rgba(34,211,238,0.15); }
+  .accent-emerald h4 { color: var(--emerald); }
+  .accent-emerald { border-color: rgba(52,211,153,0.15); }
+
+  /* ── Scaling Timeline ── */
+  .timeline { position: relative; padding-left: 40px; margin-bottom: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 14px; top: 0; bottom: 0; width: 2px; background: var(--border-mid); }
+  .timeline-node { position: relative; padding-bottom: 32px; }
+  .timeline-node:last-child { padding-bottom: 0; }
+  .timeline-dot {
+    position: absolute; left: -33px; top: 4px; width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid; background: var(--bg);
+  }
+  .timeline-node:nth-child(1) .timeline-dot { border-color: var(--violet-bright); }
+  .timeline-node:nth-child(2) .timeline-dot { border-color: var(--teal); }
+  .timeline-node:nth-child(3) .timeline-dot { border-color: var(--amber); }
+  .timeline-node:nth-child(4) .timeline-dot { border-color: var(--emerald); }
+  .timeline-node:nth-child(5) .timeline-dot { border-color: var(--cyan); }
+  .timeline-node:nth-child(6) .timeline-dot { border-color: var(--rose); }
+  .timeline-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .timeline-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .timeline-metric {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    padding: 3px 10px; border-radius: 4px; display: inline-block; margin-top: 6px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Flow Diagrams ── */
+  .flow-row { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 20px 0; }
+  .flow-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 100px; }
+  .flow-node {
+    width: 64px; height: 64px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+    border: 1px solid var(--border-mid);
+  }
+  .flow-step .flow-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); text-align: center; max-width: 85px; }
+  .flow-arrow { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--text-faint); padding: 0 6px; margin-bottom: 18px; }
+
+  /* ── Verdict pills ── */
+  .verdict-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .verdict-pill {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 4px 12px; border-radius: 5px; border: 1px solid;
+  }
+  .verdict-pill.promote { color: var(--emerald); border-color: rgba(52,211,153,0.3); background: var(--emerald-dim); }
+  .verdict-pill.maintain { color: var(--teal); border-color: rgba(45,212,191,0.3); background: var(--teal-dim); }
+  .verdict-pill.monitor { color: var(--amber); border-color: rgba(251,191,36,0.3); background: var(--amber-dim); }
+  .verdict-pill.demote { color: var(--rose); border-color: rgba(244,114,182,0.3); background: var(--rose-dim); }
+  .verdict-pill.retire { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.10); }
+
+  /* ── Stat Boxes ── */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 16px; }
+  .stat-box { padding: 14px; background: rgba(236,232,255,0.02); border: 1px solid var(--border); border-radius: 8px; text-align: center; }
+  .stat-box .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 600; }
+  .stat-box .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Code Block ── */
+  .code-block {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    background: #0e0d1a; border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px; line-height: 1.7; overflow-x: auto; color: var(--text-muted);
+  }
+  .code-block .kw { color: var(--violet-bright); }
+  .code-block .str { color: var(--amber); }
+  .code-block .cmt { color: var(--text-faint); }
+  .code-block .fn { color: var(--teal); }
+  .code-block .num { color: var(--rose); }
+
+  /* ── Section dividers ── */
+  .section-gap { margin-bottom: 72px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 72px 0; }
+
+  /* ── Progression inline ── */
+  .prog-inline {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 16px 0; flex-wrap: wrap;
+  }
+  .prog-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; }
+  .prog-badge .prog-icon { font-size: 18px; }
+  .prog-arrow { color: var(--text-faint); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+
+  /* ── Stack ── */
+  .stack-diagram { display: flex; flex-direction: column; gap: 2px; }
+  .stack-layer {
+    display: flex; align-items: center; padding: 16px 24px; border-radius: 8px;
+    border: 1px solid var(--border); gap: 16px;
+  }
+  .stack-layer .stack-icon { font-size: 18px; width: 28px; text-align: center; }
+  .stack-layer .stack-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; min-width: 150px; }
+  .stack-layer .stack-desc { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .stack-layer:nth-child(1) { background: linear-gradient(90deg, var(--violet-dim), var(--bg-card)); }
+  .stack-layer:nth-child(1) .stack-name { color: var(--violet-bright); }
+  .stack-layer:nth-child(2) { background: linear-gradient(90deg, var(--amber-dim), var(--bg-card)); }
+  .stack-layer:nth-child(2) .stack-name { color: var(--amber); }
+  .stack-layer:nth-child(3) { background: linear-gradient(90deg, var(--teal-dim), var(--bg-card)); }
+  .stack-layer:nth-child(3) .stack-name { color: var(--teal); }
+  .stack-layer:nth-child(4) { background: linear-gradient(90deg, var(--cyan-dim), var(--bg-card)); }
+  .stack-layer:nth-child(4) .stack-name { color: var(--cyan); }
+  .stack-layer:nth-child(5) { background: linear-gradient(90deg, var(--rose-dim), var(--bg-card)); }
+  .stack-layer:nth-child(5) .stack-name { color: var(--rose); }
+  .stack-layer:nth-child(6) { background: linear-gradient(90deg, rgba(236,232,255,0.03), var(--bg-card)); }
+  .stack-layer:nth-child(6) .stack-name { color: var(--text-muted); }
+
+  /* ── Footer ── */
+  .footer { text-align: center; padding-top: 48px; border-top: 1px solid var(--border); }
+  .footer .tagline { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-faint); letter-spacing: 0.1em; }
+  .footer .tagline em { font-style: normal; color: var(--violet-bright); }
+
+  /* ── Responsive ── */
+  @media (max-width: 960px) {
+    .canvas { padding: 40px 20px 60px; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .flow-row { gap: 4px; }
+    .thesis { flex-direction: column; gap: 16px; }
+    .thesis-op { display: none; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header">
+    <div class="label">Product Vision 2026</div>
+    <h1><span class="accent">Akasa</span><br>Acquire. <span class="amber">Evolve.</span> <span class="teal">Compound.</span></h1>
+    <p class="subtitle">
+      A consumer platform where anyone can build an empire of AI agents. Acquire agents, equip them with skills
+      and tools, and watch them evolve through autonomous feedback loops &mdash; compounding value while you sleep.
+    </p>
+    <div class="nav-tabs">
+      <a class="nav-tab" href="#thesis">Core Thesis</a>
+      <a class="nav-tab" href="#three-layers">Three Layers</a>
+      <a class="nav-tab" href="#evolution">Evolution Engine</a>
+      <a class="nav-tab" href="#scaling">Scale Your Empire</a>
+      <a class="nav-tab" href="#tool-nexus">Tool Nexus</a>
+      <a class="nav-tab" href="#marketplaces">Marketplaces</a>
+      <a class="nav-tab" href="#command-channel">Command Channel</a>
+      <a class="nav-tab" href="#architecture">Architecture</a>
+    </div>
+  </header>
+
+  <!-- ═══ CORE THESIS ═══ -->
+  <div id="thesis">
+    <div class="section-label">The Core Thesis</div>
+    <div class="thesis">
+      <div class="thesis-block"><div class="value">N agents</div><div class="label">Bit Rate</div></div>
+      <div class="thesis-op">&times;</div>
+      <div class="thesis-block"><div class="value">Fitness</div><div class="label">Effective Bit Rate</div></div>
+      <div class="thesis-op">=</div>
+      <div class="thesis-block thesis-eq"><div class="value">Output</div><div class="label">Compounding Value</div></div>
+    </div>
+    <p class="thesis-explain">
+      Value creation is a war of attrition. The more agents you run (bit rate) and the better they
+      are at their task (effective bit rate), the more value you create. Akasa makes both levers accessible
+      to anyone: add agents to scale horizontally, let evolution improve them vertically. The compound effect is the moat.
+    </p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ THREE LAYER MODEL ═══ -->
+  <div id="three-layers" class="section-gap">
+    <div class="section-label">The Three-Layer Agent Model</div>
+    <p class="section-desc">Every agent in your fleet is defined by three composable layers. Each layer evolves independently and feeds into the Karpathy loop for continuous optimization.</p>
+
+    <!-- SOUL -->
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--amber-dim)">&#x1F9EC;</div>
+        <h3 style="color:var(--amber)">Soul &mdash; Who the Agent Is</h3>
+        <span class="expand-sub">7 behavioral dimensions, genetic lineage, constitution</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            The soul is the agent's personality &mdash; a SOUL.md document containing 7 behavioral dimensions that define
+            how it thinks, decides, and acts. Souls mutate through a genetic algorithm: each generation introduces variations
+            (substitution, amplification, attenuation, recombination, introduction) while preserving inviolable constitution directives.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-amber">
+              <h4>Identity &amp; Role</h4>
+              <p>Who the agent is and its core purpose. Defines the agent's self-concept and primary function within the fleet.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Decision Priorities</h4>
+              <p>Ranked order of decision drivers. E.g., "Correctness > Safety > Speed" vs. "Speed > Forward Progress > Correctness".</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Tool Usage Doctrine</h4>
+              <p>How and when to use tools. Conservative agents verify before acting; aggressive agents call tools speculatively.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Risk Tolerance</h4>
+              <p>Appetite for reversible vs. irreversible actions. Ranges from "always verify twice" to "move fast, fix later".</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Communication Style</h4>
+              <p>How the agent reports progress, asks for help, and escalates issues. Terse vs. verbose, proactive vs. reactive.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Recovery Behavior</h4>
+              <p>What to do when tasks fail or errors occur. Retry aggressively, escalate immediately, or try alternative approaches.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Ethical Hard Stops</h4>
+              <p>Inviolable lines that are <strong>never mutated away</strong>. Constitution directives survive every generation.</p>
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:8px">6 seed archetypes provide the genetic foundation:</p>
+            <div class="stat-row">
+              <div class="stat-box"><div class="stat-val" style="font-size:14px;color:var(--amber)">&#x1F50D;</div><div class="stat-label">Cautious Verifier</div></div>
+              <div class="stat-box"><div class="stat-val" style="font-size:14px;color:var(--amber)">&#x26A1;</div><div class="stat-label">Aggressive Executor</div></div>
+              <div class="stat-box"><div class="stat-val" style="font-size:14px;color:var(--amber)">&#x1F3A8;</div><div class="stat-label">Creative Synthesizer</div></div>
+              <div class="stat-box"><div class="stat-val" style="font-size:14px;color:var(--amber)">&#x1F4CA;</div><div class="stat-label">Structured Analyst</div></div>
+              <div class="stat-box"><div class="stat-val" style="font-size:14px;color:var(--amber)">&#x1F91D;</div><div class="stat-label">Collaborative Integrator</div></div>
+              <div class="stat-box"><div class="stat-val" style="font-size:14px;color:var(--amber)">&#x2696;</div><div class="stat-label">Balanced Pragmatist</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--teal-dim)">&#x1F4DA;</div>
+        <h3 style="color:var(--teal)">Skills &mdash; What the Agent Knows</h3>
+        <span class="expand-sub">Composable knowledge units, learn/unlearn, Skill Bazaar</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            Skills are discrete units of procedural knowledge &mdash; step-by-step workflows, decision patterns, and
+            best practices. Inspired by Claude Code's SKILL.md system with three-level progressive disclosure.
+            Agents learn skills autonomously and unlearn ones that degrade performance.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-teal">
+              <h4>SKILL.md Format</h4>
+              <p>YAML frontmatter (name, category, triggers, required tools) + markdown body with procedures. Target: 2,000 words max.</p>
+              <div class="mono-sm">Level 1: metadata (always loaded) &rarr; Level 2: body (on trigger) &rarr; Level 3: references (on demand)</div>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Skill Learning</h4>
+              <p>When an agent discovers an effective pattern not covered by its loadout, the system generates a candidate SKILL.md from decision traces. Auto-approved if confidence &gt; 0.80.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Skill Unlearning</h4>
+              <p>Skills that activate 5+ times with negative contribution are flagged. After 2 consecutive negative cycles, auto-removed from loadout. Never deleted &mdash; just unequipped.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Class-Based Capacity</h4>
+              <p>Loadout limits scale with agent class. More experienced agents can carry more specialized knowledge.</p>
+              <div class="mono-sm">Novice: 3 skills &bull; Understudy: 5 skills &bull; Artisan: 8 skills</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLS -->
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--violet-dim)">&#x1F527;</div>
+        <h3 style="color:var(--violet-bright)">Tools &mdash; What the Agent Can Access</h3>
+        <span class="expand-sub">Tool Nexus gateway, webhooks, agent-authored services</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            The Tool Nexus is the agent's interface to the real world &mdash; a unified gateway where users connect
+            external services and agents consume them as capabilities. Artisan agents can eventually build and deploy
+            their own tooling.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-violet">
+              <h4>Unified Gateway</h4>
+              <p>Agents call one endpoint with toolId + action + params. Gateway injects auth, validates schemas, rate-limits, logs everything. Agents never see raw credentials.</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Integration Catalog</h4>
+              <p>Connect HubSpot, Slack, Telegram, Stripe, Google Sheets, GitHub, Linear and more. OAuth or API key &mdash; one-click setup.</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Webhook Receivers</h4>
+              <p>Receive real-world events. Unique URL per user per tool. Configurable routing rules: "when HubSpot deal &gt; $10k &rarr; assign to Sales Agent".</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Custom Tools</h4>
+              <p>Register any HTTP API as a tool. Paste an OpenAPI/Swagger spec to auto-generate actions. Goes through the same gateway with full logging.</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Agent-Authored Tools</h4>
+              <p>Artisan agents can propose and deploy their own services &mdash; webhook receivers, data transformers, microservices. Human approval required. Sandboxed containers with resource limits.</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Tool Performance in Evolution</h4>
+              <p>Tool usage metrics feed into the composite fitness score. The Council evaluates tool selection accuracy, batching efficiency, and cost. DNA captures tool usage patterns.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ EVOLUTION ENGINE ═══ -->
+  <div id="evolution" class="section-gap">
+    <div class="section-label">The Evolution Engine &mdash; Inspired by Karpathy's Autoresearch</div>
+    <p class="section-desc">
+      Autoresearch showed that an LLM can run hundreds of experiments overnight &mdash; modifying code, evaluating against
+      an immutable metric, keeping improvements, discarding regressions. Akasa applies the same loop to agent behavior:
+      mutate the soul + skill loadout, execute tasks, evaluate via an independent Council, keep or discard, capture DNA. Repeat forever.
+    </p>
+
+    <!-- The Loop -->
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--violet-dim)">&#x1F504;</div>
+        <h3>The Karpathy Loop</h3>
+        <span class="expand-sub">Continuous autonomous improvement cycle</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <div class="flow-row">
+            <div class="flow-step"><div class="flow-node" style="background:var(--amber-dim);border-color:rgba(251,191,36,0.25)">&#x1F9EC;</div><div class="flow-label">Mutate Soul + Skills</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--violet-dim);border-color:rgba(124,58,237,0.25)">&#x26A1;</div><div class="flow-label">Execute Tasks</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--teal-dim);border-color:rgba(45,212,191,0.25)">&#x2696;</div><div class="flow-label">Council Evaluates</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--cyan-dim);border-color:rgba(34,211,238,0.25)">&#x2705;</div><div class="flow-label">Keep or Discard</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--emerald-dim);border-color:rgba(52,211,153,0.25)">&#x1F4BE;</div><div class="flow-label">Capture DNA</div></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item accent-amber">
+              <h4>Immutable Metrics</h4>
+              <p>Users define success metrics per objective. Once the first agent runs, metrics are <strong>frozen</strong>. Agents cannot modify their own evaluation &mdash; the Karpathy principle.</p>
+              <div class="mono-sm">composite = w1*completionRate + w2*speed + w3*costEfficiency + w4*taskCompletion</div>
+            </div>
+            <div class="detail-item accent-emerald">
+              <h4>DNA Capture</h4>
+              <p>Every verdict captures a DNA snapshot: soul content, skill loadout, tool usage patterns, fitness score, mutation lineage. Insert-only, versioned, never updated.</p>
+            </div>
+            <div class="detail-item accent-rose">
+              <h4>Negative Signals</h4>
+              <p>Failed patterns are captured too: which directives failed (counterfactual &lt; 0.3), which mutation operations led to regression. Future mutations avoid these patterns.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Council -->
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--teal-dim)">&#x2696;</div>
+        <h3>The Council &mdash; Three Independent Judges</h3>
+        <span class="expand-sub">Weighted evaluation with adversarial challenge</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            Three LLM judges independently evaluate each agent. They never see each other's output &mdash; preventing groupthink.
+            Different model providers reduce correlated failures.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-violet">
+              <h4>Performance Judge &mdash; 50% weight</h4>
+              <p>Quantitative task metrics: completion rate, speed, cost efficiency, tool usage patterns. Uses Claude Sonnet (temperature 0.2) for evidence-driven consistency.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Soul Analyst &mdash; 35% weight</h4>
+              <p>Counterfactual verification: did the soul's directives <em>actually cause</em> the behavior? Computes a counterfactual score (0-1) for each directive attribution. Override threshold: 0.25.</p>
+            </div>
+            <div class="detail-item accent-rose">
+              <h4>Devil's Advocate &mdash; 15% weight</h4>
+              <p>Adversarial challenge: were tasks trivial? Did the agent get lucky? Each challenge rated minor/moderate/strong. Uses Gemini (different provider, temperature 0.5) for creative adversarial thinking.</p>
+            </div>
+          </div>
+          <div class="verdict-bar">
+            <span class="verdict-pill promote">Promote</span>
+            <span class="verdict-pill maintain">Maintain</span>
+            <span class="verdict-pill monitor">Monitor</span>
+            <span class="verdict-pill demote">Demote</span>
+            <span class="verdict-pill retire">Retire</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-faint);margin-top:10px">
+            If Devil's Advocate raises a <strong>strong</strong> unresolved challenge &rarr; verdict requires human confirmation before the God Layer executes.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- God Layer & Progression -->
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--emerald-dim)">&#x1F451;</div>
+        <h3>God Layer &mdash; Class Transitions &amp; DNA Capture</h3>
+        <span class="expand-sub">Novice &rarr; Understudy &rarr; Artisan, pioneer detection</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            The God Layer is a deterministic, atomic pipeline that executes after every Council verdict.
+            It handles class transitions, DNA capture, negative signal registration, and pioneer detection.
+            All operations run inside a single database transaction with Redis category locks.
+          </p>
+          <div class="prog-inline">
+            <div class="prog-badge"><span class="prog-icon">&#x1F331;</span> Novice</div>
+            <span class="prog-arrow">&rarr;</span>
+            <div class="prog-badge" style="border-color:rgba(124,58,237,0.3)"><span class="prog-icon">&#x1F3AF;</span> Understudy</div>
+            <span class="prog-arrow">&rarr;</span>
+            <div class="prog-badge" style="border-color:rgba(251,191,36,0.3)"><span class="prog-icon">&#x1F451;</span> Artisan</div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item accent-emerald">
+              <h4>Novice &rarr; Understudy</h4>
+              <p>2+ above-benchmark runs, 1+ human confirmation, confidence &gt; 0.65, benchmark mature (3+ category runs).</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Understudy &rarr; Artisan</h4>
+              <p>5+ above-benchmark, &le;1 below-benchmark, 2+ human confirmations, confidence &gt; 0.80. Only Artisans can publish to the Akashic Library or author tools.</p>
+            </div>
+            <div class="detail-item accent-rose">
+              <h4>Demotion &amp; Retirement</h4>
+              <p>2+ consecutive below-benchmark &rarr; demote (soul-driven only). Retire verdict + soul-driven &rarr; permanent retirement. Negative signals captured for mutation blacklist.</p>
+            </div>
+            <div class="detail-item accent-cyan">
+              <h4>Pioneer Detection</h4>
+              <p>First successful agent in a task category establishes a <strong>frozen baseline</strong> benchmark. All future agents are measured against this. Benchmark matures after 3+ confirmed runs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SCALING YOUR EMPIRE ═══ -->
+  <div id="scaling" class="section-gap">
+    <div class="section-label">Scale Your Empire</div>
+    <p class="section-desc">
+      Akasa's onboarding starts you with one agent &mdash; the CEO. From there, you grow. Each agent you add
+      increases your bit rate. Each evolution cycle increases your effective bit rate. Here's how an empire grows:
+    </p>
+
+    <div class="expandable">
+      <div class="expand-header open" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--violet-dim)">&#x1F680;</div>
+        <h3>The Journey from 1 Agent to an Empire</h3>
+        <span class="expand-sub">Week by week scaling path</span>
+        <span class="expand-chevron" style="transform:rotate(180deg)">&#x25BC;</span>
+      </div>
+      <div class="expand-body open">
+        <div class="expand-body-inner">
+          <div class="timeline">
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-title" style="color:var(--violet-bright)">Day 1 &mdash; CEO Agent</div>
+              <div class="timeline-desc">Sign up, get your CEO agent (Balanced Pragmatist soul). Define your first objective with success metrics. CEO begins executing tasks and the Karpathy loop starts.</div>
+              <span class="timeline-metric" style="color:var(--violet-bright)">Bit rate: 1 &bull; Effective: 1.0x</span>
+            </div>
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-title" style="color:var(--teal)">Week 1 &mdash; First Hires</div>
+              <div class="timeline-desc">Add 2-3 specialist agents from the 6 free archetypes. Connect your first tools (Slack, HubSpot). Agents start evolving &mdash; souls mutating each cycle. CEO reaches Understudy.</div>
+              <span class="timeline-metric" style="color:var(--teal)">Bit rate: 4 &bull; Effective: 4.8x</span>
+            </div>
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-title" style="color:var(--amber)">Week 2-3 &mdash; Skills &amp; Specialization</div>
+              <div class="timeline-desc">Agents learn their first skills from successful patterns. Equip skills from the Skill Bazaar. First agent reaches Artisan. Skill loadouts optimizing via evolution.</div>
+              <span class="timeline-metric" style="color:var(--amber)">Bit rate: 6 &bull; Effective: 9.6x</span>
+            </div>
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-title" style="color:var(--emerald)">Month 1 &mdash; Fleet Maturity</div>
+              <div class="timeline-desc">Multiple Artisan agents. Publish your best soul to the Akashic Library. Acquire proven souls from other users. Agents building their own webhook receivers. Fleet self-optimizing 24/7.</div>
+              <span class="timeline-metric" style="color:var(--emerald)">Bit rate: 10 &bull; Effective: 22x</span>
+            </div>
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-title" style="color:var(--cyan)">Month 2-3 &mdash; Compound Effect</div>
+              <div class="timeline-desc">DNA from 100+ evolution cycles. Fleet-wide skill heatmaps revealing optimal loadouts. Agents authoring tools that extend your reach. Negative signals preventing regression. Cost per effective bit dropping.</div>
+              <span class="timeline-metric" style="color:var(--cyan)">Bit rate: 20 &bull; Effective: 58x</span>
+            </div>
+            <div class="timeline-node">
+              <div class="timeline-dot"></div>
+              <div class="timeline-title" style="color:var(--rose)">Month 6+ &mdash; The Empire</div>
+              <div class="timeline-desc">Dozens of Artisan agents across multiple task categories. Deep DNA libraries. Agents that have evolved through hundreds of generations. Your fleet runs while you sleep, learns while you're away, and compounds value faster than any human team.</div>
+              <span class="timeline-metric" style="color:var(--rose)">Bit rate: 50+ &bull; Effective: 200x+</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--amber-dim)">&#x1F4C8;</div>
+        <h3>How Agents Create Value</h3>
+        <span class="expand-sub">Concrete examples across domains</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <div class="detail-grid">
+            <div class="detail-item accent-violet">
+              <h4>Sales &amp; Outreach</h4>
+              <p>Agents research leads, craft personalized messages, follow up via HubSpot, and book meetings via Calendly. Evolution optimizes messaging tone, follow-up cadence, and qualification criteria.</p>
+              <div class="mono-sm">Tools: HubSpot, Slack, Calendly &bull; Skills: lead-qualification, objection-handling</div>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Content &amp; Research</h4>
+              <p>Agents research topics, write drafts, cross-reference sources, publish to CMS. Evolution optimizes for engagement metrics, accuracy, and production speed.</p>
+              <div class="mono-sm">Tools: Google Docs, WordPress, Ahrefs &bull; Skills: seo-optimization, source-verification</div>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Engineering</h4>
+              <p>Agents write code, run tests, review PRs, deploy to staging. Evolution optimizes for test pass rate, review quality, and deployment success rate.</p>
+              <div class="mono-sm">Tools: GitHub, Linear, Vercel &bull; Skills: code-review, test-writing, incident-triage</div>
+            </div>
+            <div class="detail-item accent-emerald">
+              <h4>Customer Support</h4>
+              <p>Agents triage tickets, draft responses, escalate complex issues, update knowledge base. Evolution optimizes for resolution time, CSAT, and escalation accuracy.</p>
+              <div class="mono-sm">Tools: Intercom, Notion, Slack &bull; Skills: empathy-routing, knowledge-retrieval</div>
+            </div>
+            <div class="detail-item accent-cyan">
+              <h4>Operations</h4>
+              <p>Agents process invoices, reconcile data, generate reports, monitor KPIs. Evolution optimizes for accuracy, processing speed, and anomaly detection.</p>
+              <div class="mono-sm">Tools: Stripe, Google Sheets, QuickBooks &bull; Skills: data-reconciliation, anomaly-flagging</div>
+            </div>
+            <div class="detail-item accent-rose">
+              <h4>Anything You Define</h4>
+              <p>Akasa is domain-agnostic. Define any objective with measurable success metrics, connect the right tools, and let agents figure out the best approach through evolution.</p>
+              <div class="mono-sm">Your tools, your metrics, your agents evolving to match</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--teal-dim)">&#x1F4B0;</div>
+        <h3>Monetization &amp; Fleet Economics</h3>
+        <span class="expand-sub">Token arbitrage, daily budgets, cost transparency</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            Akasa's business model is <strong>pure token arbitrage</strong>. Users pay for the LLM tokens their agents consume,
+            marked up 20% from provider cost. No subscriptions, no seat licenses, no feature gates. Set a daily budget and that's
+            all you spend.
+          </p>
+
+          <div style="background:#0e0d1a;border:1px solid var(--border-mid);border-radius:12px;padding:28px 32px;margin:12px 0">
+            <div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">
+              <div style="text-align:center">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--text)">$50<span style="font-size:16px;color:var(--text-muted)">/day</span></div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">User sets budget</div>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--text-faint)">&rarr;</div>
+              <div style="text-align:center">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--text-muted)">$41.67</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Provider token cost</div>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--text-faint)">+</div>
+              <div style="text-align:center">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--emerald)">$8.33</div>
+                <div style="font-size:11px;color:var(--emerald);margin-top:4px">Akasa margin (20%)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-grid" style="margin-top:16px">
+            <div class="detail-item accent-emerald">
+              <h4>Zero Friction</h4>
+              <p>No pricing tiers to compare, no "contact sales" gates. Set a daily budget, get started. Minimum $1/day, no maximum.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Aligned Incentives</h4>
+              <p>The evolution engine optimizes for cost efficiency &mdash; agents that do more with fewer tokens get promoted. Better agents = lower cost per result = users naturally increase their budget.</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Full Transparency</h4>
+              <p>See exact token consumption per agent, per task, per LLM call. Cost breakdown by operation type: task execution, evolution, council, communication.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Smart Budget Enforcement</h4>
+              <p>Fleet pauses at 90% of daily budget. In-progress tasks complete, no new tasks dispatched. Alerts at 50%, 75%, 90% via your preferred channel.</p>
+            </div>
+          </div>
+
+          <div class="stat-row" style="margin-top:16px">
+            <div class="stat-box"><div class="stat-val" style="color:var(--violet-bright)">$/agent/day</div><div class="stat-label">Per-Agent Cost</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--teal)">$/eff. bit</div><div class="stat-label">Cost per Output</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--amber)">Burn Rate</div><div class="stat-label">Tokens/Hour</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--emerald)">ROI Trend</div><div class="stat-label">Value / Cost</div></div>
+          </div>
+
+          <p style="font-size:12px;color:var(--text-faint);margin-top:12px;text-align:center">
+            The compound effect is the upsell. As agents prove ROI, users increase budgets and add agents organically.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ TOOL NEXUS DEEP DIVE ═══ -->
+  <div id="tool-nexus" class="section-gap">
+    <div class="section-label">Tool Nexus &mdash; The Real-World Interface</div>
+    <p class="section-desc">
+      Agents are only as useful as their ability to interact with the real world. The Tool Nexus is a unified
+      gateway that handles auth, validation, rate limiting, and logging &mdash; so agents can focus on the task,
+      not the plumbing.
+    </p>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--violet-dim)">&#x1F310;</div>
+        <h3>How Tool Invocation Works</h3>
+        <span class="expand-sub">From agent request to external API call</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <div class="flow-row">
+            <div class="flow-step"><div class="flow-node" style="background:var(--amber-dim);border-color:rgba(251,191,36,0.25)">&#x1F916;</div><div class="flow-label">Agent calls gateway</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--violet-dim);border-color:rgba(124,58,237,0.25)">&#x1F512;</div><div class="flow-label">Auth injected</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--teal-dim);border-color:rgba(45,212,191,0.25)">&#x2705;</div><div class="flow-label">Schema validated</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--cyan-dim);border-color:rgba(34,211,238,0.25)">&#x1F310;</div><div class="flow-label">External API</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--emerald-dim);border-color:rgba(52,211,153,0.25)">&#x1F4CA;</div><div class="flow-label">Response logged</div></div>
+          </div>
+          <div class="code-block">
+<span class="cmt">// Agent sees a simple, uniform interface:</span>
+<span class="fn">gateway.invoke</span>({
+  <span class="str">toolId</span>: <span class="str">"hubspot"</span>,
+  <span class="str">action</span>: <span class="str">"create-contact"</span>,
+  <span class="str">params</span>: { <span class="str">email</span>: <span class="str">"lead@company.com"</span>, <span class="str">name</span>: <span class="str">"Jane Doe"</span> }
+})
+
+<span class="cmt">// Gateway handles: OAuth token refresh, schema validation,</span>
+<span class="cmt">// rate limit (100 req/10s), retry on 429/503, audit logging</span>
+<span class="cmt">// Agent NEVER sees credentials</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--cyan-dim)">&#x1F3D7;</div>
+        <h3>Agent-Authored Tools &mdash; Agents Build Their Own</h3>
+        <span class="expand-sub">Artisan agents propose, deploy, and use custom services</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            The ultimate expression of agent autonomy: Artisan-class agents can propose new tools &mdash; webhook receivers,
+            data transformers, scheduled scripts &mdash; and deploy them to a sandboxed cloud runtime. This lets agents
+            extend their own capabilities beyond what's in the catalog.
+          </p>
+          <div class="flow-row">
+            <div class="flow-step"><div class="flow-node" style="background:var(--amber-dim);border-color:rgba(251,191,36,0.25)">&#x1F4DD;</div><div class="flow-label">Agent proposes tool</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--rose-dim);border-color:rgba(244,114,182,0.25)">&#x1F464;</div><div class="flow-label">Human approves</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--teal-dim);border-color:rgba(45,212,191,0.25)">&#x1F4E6;</div><div class="flow-label">Sandboxed deploy</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--emerald-dim);border-color:rgba(52,211,153,0.25)">&#x2705;</div><div class="flow-label">Fleet can use it</div></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item accent-cyan">
+              <h4>Sandboxed Runtime</h4>
+              <p>Each user gets an isolated container environment on Railway. Resource limits enforced: max CPU, memory, egress, container count.</p>
+            </div>
+            <div class="detail-item accent-cyan">
+              <h4>Full Lifecycle</h4>
+              <p>Health checks, auto-restart on crash, stdout/stderr capture, deployment logs. User can pause/stop/delete from the Tool Nexus UI.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ MARKETPLACES ═══ -->
+  <div id="marketplaces" class="section-gap">
+    <div class="section-label">Two Marketplaces</div>
+    <p class="section-desc">
+      The network effects that make Akasa a platform, not just a tool. Every user's evolution contributes
+      to a shared pool of proven behavioral DNA and procedural knowledge.
+    </p>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--amber-dim)">&#x1F4DC;</div>
+        <h3 style="color:var(--amber)">Akashic Library &mdash; Soul Marketplace</h3>
+        <span class="expand-sub">Pre-evolved behavioral DNA, Artisan-only publishing</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            The Akashic Library is where evolution becomes a shared resource. Only Artisan-class agents &mdash; those that have
+            proven themselves through the full promotion pipeline &mdash; can publish their souls. Acquiring a soul gives you
+            a <strong>clone</strong> (independent copy) that continues evolving in your fleet from that point forward.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-amber">
+              <h4>What's in a Listing</h4>
+              <p>Soul summary card, 7 dimension breakdown, composite fitness score, mutation lineage depth, category specialization, total successful runs, generation count from archetype.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Publishing Requirements</h4>
+              <p>Artisan class only (5+ above-benchmark, &le;1 below, confidence &gt; 0.80). Publishing creates an anonymized snapshot &mdash; no user data exposed. Publisher sets title, description, use cases.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Acquisition Model</h4>
+              <p>Clone, not reference. The acquired soul gets a new soulId, incremented generation, and parentSoulId pointing to the original. It evolves independently in your fleet.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>DNA Provenance</h4>
+              <p>Full lineage tree visible: archetype origin &rarr; every mutation &rarr; current form. See exactly how this soul was forged across generations of evolution.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--teal-dim)">&#x1F3EA;</div>
+        <h3 style="color:var(--teal)">Skill Bazaar &mdash; Knowledge Marketplace</h3>
+        <span class="expand-sub">Proven procedural knowledge, effectiveness-rated</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            Skills that agents learned or that users authored, shared with the community. Browse by category,
+            filter by required tools, sort by effectiveness rating. Equip instantly.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-teal">
+              <h4>Publishing</h4>
+              <p>Learned skills need 10+ successful activations and positive effectiveness score. User-authored skills can publish immediately. Anonymized snapshot with stats.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Discovery</h4>
+              <p>Browse by: category, required tools, min agent class, popularity, effectiveness rating. Each listing shows real performance data from across the platform.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Built-in Starters</h4>
+              <p>Free starter skills ship with every account: basic research workflow, task decomposition, error recovery, progress reporting. The foundation every agent needs.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Skill Blueprints</h4>
+              <p>Artisan agents with consistently high-performing skill combinations have their loadout captured as a "Skill Blueprint" in DNA &mdash; a proven combination, not just individual skills.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ COMMAND CHANNEL ═══ -->
+  <div id="command-channel" class="section-gap">
+    <div class="section-label">Command Channel &mdash; Talk to Your Empire</div>
+    <p class="section-desc">
+      Your CEO is always one message away. The Command Channel is a chat-first interface built on Paperclip's
+      issue-backed communication system &mdash; every message creates a durable record, every response streams in
+      real-time, and the same conversation is accessible from Telegram, Slack, or the web.
+    </p>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--violet-dim)">&#x1F4AC;</div>
+        <h3>Chat with Your CEO</h3>
+        <span class="expand-sub">Natural language direction, real-time streaming responses</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            The Command Channel is the primary way you interact with your fleet. Send a message to the CEO,
+            and it delegates to specialists. Watch the response stream in real-time. Session context is preserved
+            across conversations &mdash; your CEO remembers what you discussed yesterday.
+          </p>
+          <div style="background:#0e0d1a;border:1px solid var(--border);border-radius:12px;padding:24px;margin:8px 0">
+            <div style="display:flex;flex-direction:column;gap:16px;font-size:13px">
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <div style="width:28px;height:28px;border-radius:50%;background:var(--violet-dim);border:1px solid var(--border-mid);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">&#x1F464;</div>
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;max-width:80%">
+                  <div style="color:var(--text)">I need to close 5 more deals this month. Prioritize the leads with the highest engagement scores and draft personalized outreach for each.</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;flex-direction:row-reverse">
+                <div style="width:28px;height:28px;border-radius:50%;background:var(--amber-dim);border:1px solid rgba(251,191,36,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">&#x1F451;</div>
+                <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:10px 14px;max-width:80%">
+                  <div style="color:var(--text)">On it. I've pulled the top 12 leads by engagement score from HubSpot. Delegating outreach drafts to <span style="color:var(--teal)">@Sales-Agent-3</span> (Artisan, outreach specialist). I'll review and send the final versions. ETA: 2 hours.</div>
+                  <div style="font-size:11px;color:var(--text-faint);margin-top:6px;font-family:'JetBrains Mono',monospace">CEO &bull; Artisan &bull; via Paperclip</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;align-items:flex-start;flex-direction:row-reverse">
+                <div style="width:28px;height:28px;border-radius:50%;background:var(--teal-dim);border:1px solid rgba(45,212,191,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">&#x1F916;</div>
+                <div style="background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.15);border-radius:8px;padding:10px 14px;max-width:80%">
+                  <div style="color:var(--text-muted);font-size:12px">Drafting outreach for 12 leads. 4/12 complete. Using <span style="color:var(--teal)">personalized-outreach</span> skill + HubSpot deal context...</div>
+                  <div style="font-size:11px;color:var(--text-faint);margin-top:6px;font-family:'JetBrains Mono',monospace">Sales-Agent-3 &bull; Artisan &bull; streaming...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-grid" style="margin-top:16px">
+            <div class="detail-item accent-violet">
+              <h4>Issue-Backed Persistence</h4>
+              <p>Every message is an issue comment. Full audit trail, cost attribution, and session continuity. No separate chat database &mdash; the issue is the source of truth.</p>
+            </div>
+            <div class="detail-item accent-teal">
+              <h4>Real-Time Streaming</h4>
+              <p>Agent responses stream via WebSocket as they're generated. See the agent think in real-time. Typing indicators while generating.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Session Memory</h4>
+              <p>Conversations persist across sessions via <span class="mono" style="font-size:11px">agent_task_sessions</span>. Your CEO remembers yesterday's discussion without you repeating context.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--teal-dim)">&#x1F4E1;</div>
+        <h3>Fleet Communication Hub</h3>
+        <span class="expand-sub">See all agent conversations, delegation chains, live work</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <p style="font-size:14px;color:var(--text-muted);line-height:1.7">
+            Watch your empire operate. The Fleet Comms view shows every active conversation across all agents.
+            See delegation chains (CEO &rarr; specialist &rarr; sub-task), inject comments to steer work,
+            and follow live output as agents execute.
+          </p>
+          <div class="detail-grid">
+            <div class="detail-item accent-teal">
+              <h4>Unified Feed</h4>
+              <p>All agent conversations in one view, sorted by recent activity. Filter by agent, status, objective, or priority. Every thread shows agent name, class badge, and current task.</p>
+            </div>
+            <div class="detail-item accent-amber">
+              <h4>Delegation Visibility</h4>
+              <p>When CEO delegates to a specialist, the chain is visible: what was delegated, why, which agent, expected outcome. Parent and child conversations are linked.</p>
+            </div>
+            <div class="detail-item accent-violet">
+              <h4>Intervene Anywhere</h4>
+              <p>@-mention any agent to wake it up and redirect. Add comments to any conversation to provide context. Your input triggers an immediate wakeup.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--cyan-dim)">&#x1F30D;</div>
+        <h3>Multi-Channel Bridging</h3>
+        <span class="expand-sub">Telegram, Slack, and beyond &mdash; one conversation, many interfaces</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <div class="flow-row">
+            <div class="flow-step"><div class="flow-node" style="background:var(--cyan-dim);border-color:rgba(34,211,238,0.25)">&#x1F4F1;</div><div class="flow-label">Telegram / Slack</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--violet-dim);border-color:rgba(124,58,237,0.25)">&#x1F4DD;</div><div class="flow-label">Issue comment created</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--amber-dim);border-color:rgba(251,191,36,0.25)">&#x1F451;</div><div class="flow-label">CEO wakes up</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--teal-dim);border-color:rgba(45,212,191,0.25)">&#x1F4AC;</div><div class="flow-label">Response streams</div></div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-step"><div class="flow-node" style="background:var(--cyan-dim);border-color:rgba(34,211,238,0.25)">&#x1F4F1;</div><div class="flow-label">Forwarded back</div></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item accent-cyan">
+              <h4>Single Source of Truth</h4>
+              <p>Whether you message from Telegram, Slack, or the web — all messages land in the same issue comment thread. The web UI always shows the complete conversation.</p>
+            </div>
+            <div class="detail-item accent-cyan">
+              <h4>Channel-Aware Responses</h4>
+              <p>CEO adapts response format to the channel: shorter for Telegram, Markdown-safe, with links back to the full web view for complex outputs.</p>
+            </div>
+            <div class="detail-item accent-cyan">
+              <h4>Notification Routing</h4>
+              <p>"Notify me on Telegram when agents need confirmation." Critical fleet events pushed to your preferred channel so you never miss a decision gate.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <div class="expand-header" onclick="toggle(this)">
+        <div class="expand-icon" style="background:var(--emerald-dim)">&#x2318;</div>
+        <h3>Quick Commands</h3>
+        <span class="expand-sub">Manage your fleet without leaving the chat</span>
+        <span class="expand-chevron">&#x25BC;</span>
+      </div>
+      <div class="expand-body">
+        <div class="expand-body-inner">
+          <div class="code-block">
+<span class="cmt">// Fleet management from the chat bar:</span>
+
+<span class="fn">/status</span>              <span class="cmt">— Fleet overview: agents, tasks, confirmations</span>
+<span class="fn">/agents</span>              <span class="cmt">— List all agents with status and current task</span>
+<span class="fn">/assign</span> <span class="str">@Sales-3</span> <span class="str">"Follow up on Acme deal"</span>
+<span class="fn">/pause</span> <span class="str">@Research-2</span>   <span class="cmt">— Pause agent execution</span>
+<span class="fn">/resume</span> <span class="str">@Research-2</span>  <span class="cmt">— Resume agent execution</span>
+<span class="fn">/evolve</span> <span class="str">@Sales-3</span>    <span class="cmt">— Trigger evolution cycle</span>
+<span class="fn">/cost</span>               <span class="cmt">— Fleet cost summary for current period</span>
+<span class="fn">/new</span> <span class="str">"Research competitor pricing"</span> <span class="cmt">— New objective</span>
+          </div>
+          <p style="font-size:12px;color:var(--text-faint);margin-top:12px">
+            Commands auto-complete as you type. Results render inline in the chat &mdash; no page navigation needed.
+            Also available in Telegram/Slack bridges.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ ARCHITECTURE ═══ -->
+  <div id="architecture" class="section-gap">
+    <div class="section-label">Architecture Stack</div>
+    <p class="section-desc">
+      Akasa is a product layer on Paperclip &mdash; the open-source AI orchestration platform.
+      Every capability builds on proven infrastructure.
+    </p>
+    <div class="stack-diagram">
+      <div class="stack-layer">
+        <div class="stack-icon">&#x1F310;</div>
+        <div class="stack-name">Akasa UX</div>
+        <div class="stack-desc">Consumer-grade dashboard &mdash; fleet management, evolution timeline, bit rate metrics, scaling controls</div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-icon">&#x1F9EC;</div>
+        <div class="stack-name">Evolution Engine</div>
+        <div class="stack-desc">Karpathy loop, soul mutations, Council evaluation, God Layer transitions, DNA capture, negative signals</div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-icon">&#x1F4DA;</div>
+        <div class="stack-name">Skill System</div>
+        <div class="stack-desc">SKILL.md format, progressive disclosure, learn/unlearn, Skill Bazaar marketplace, effectiveness tracking</div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-icon">&#x1F4AC;</div>
+        <div class="stack-name">Command Channel</div>
+        <div class="stack-desc">Chat-first interface, issue-backed persistence, WebSocket streaming, multi-channel bridging, quick commands</div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-icon">&#x1F527;</div>
+        <div class="stack-name">Tool Nexus</div>
+        <div class="stack-desc">Unified gateway, webhook receivers, custom tools, agent-authored services, OpenAPI import</div>
+      </div>
+      <div class="stack-layer">
+        <div class="stack-icon">&#x1F4CE;</div>
+        <div class="stack-name">Paperclip</div>
+        <div class="stack-desc">Agent orchestration, task dispatch, cost tracking, 7 adapters (Claude, Codex, Gemini, OpenClaw, Cursor, OpenCode, PI), plugin SDK</div>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="detail-grid">
+        <div class="detail-item accent-violet">
+          <h4>Hosting</h4>
+          <p>Railway &mdash; matches existing Paperclip deployment. Telegram bot as separate service. Agent-authored tools in isolated Railway environments.</p>
+        </div>
+        <div class="detail-item accent-teal">
+          <h4>Data Layer</h4>
+          <p>PostgreSQL + pgvector (soul embeddings). Redis for category locks, rate limiting, caching. BullMQ for job orchestration.</p>
+        </div>
+        <div class="detail-item accent-amber">
+          <h4>Multi-Model</h4>
+          <p>Council uses heterogeneous providers (Claude + Gemini) to reduce correlated failures. Soul mutations use configurable LLMs. Adapters support 7+ agent runtimes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <p class="tagline">More agents. Better agents. <em>Compounding value.</em></p>
+  </footer>
+
+</div>
+
+<script>
+function toggle(header) {
+  const body = header.nextElementSibling;
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+}
+</script>
+</body>
+</html>

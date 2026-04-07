@@ -4,6 +4,16 @@ dist/
 .env.local
 *.tsbuildinfo
 
+# Compiled TypeScript output in source dirs
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map
+services/*/src/**/*.js
+services/*/src/**/*.js.map
+services/*/src/**/*.d.ts
+services/*/src/**/*.d.ts.map
+
 # SvelteKit build outputs
 .svelte-kit/
 build/
