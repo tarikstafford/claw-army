@@ -30,6 +30,39 @@
     return String(meta?.tier ?? 'sonnet');
   }
 
+  function approvalTitle(approval: Record<string, unknown>): string {
+    const type = String(approval.type ?? '');
+    const payload = (approval.payload ?? {}) as Record<string, unknown>;
+    const agentName = payload.name ?? payload.agentName ?? '';
+    const budgetCents = typeof payload.budgetMonthlyCents === 'number' ? payload.budgetMonthlyCents : null;
+
+    switch (type) {
+      case 'hire_agent':
+        return agentName ? `Hire new agent: ${agentName}` : 'Hire a new agent';
+      case 'budget_override':
+      case 'budget_override_required':
+        return budgetCents != null
+          ? `Budget override — $${(budgetCents / 100).toFixed(0)}/mo requested`
+          : 'Budget override requested';
+      case 'tool_access':
+        return payload.toolName ? `Grant tool access: ${payload.toolName}` : 'Tool access request';
+      case 'execution_approval':
+        return payload.objectiveName ? `Run: ${payload.objectiveName}` : 'Execution approval';
+      default:
+        return (payload.description as string) ?? type.replace(/_/g, ' ');
+    }
+  }
+
+  function approvalSubtitle(approval: Record<string, unknown>): string | null {
+    const payload = (approval.payload ?? {}) as Record<string, unknown>;
+    const requestedBy = payload.requestedByAgentName ?? payload.agentName ?? null;
+    const reason = payload.reason ?? payload.description ?? null;
+    const parts: string[] = [];
+    if (requestedBy) parts.push(`Requested by ${requestedBy}`);
+    if (reason && reason !== approvalTitle(approval)) parts.push(String(reason));
+    return parts.length > 0 ? parts.join(' — ') : null;
+  }
+
   function formatTimestamp(iso: string): string {
     const d = new Date(iso);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -122,11 +155,9 @@
         {#each approvals as approval (approval.id)}
           <div class="approval-card">
             <div class="approval-info">
-              <p class="approval-desc">
-                {(approval.payload as Record<string, unknown>)?.description ?? approval.type}
-              </p>
-              {#if (approval.payload as Record<string, unknown>)?.agentName}
-                <span class="approval-agent">{String((approval.payload as Record<string, unknown>).agentName)}</span>
+              <p class="approval-desc">{approvalTitle(approval)}</p>
+              {#if approvalSubtitle(approval)}
+                <span class="approval-agent">{approvalSubtitle(approval)}</span>
               {/if}
             </div>
             <div class="approval-actions">
