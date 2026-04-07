@@ -40,6 +40,7 @@ export interface RingLeaderMissionBrief {
   runtimeLimitSeconds: number;
   campaignType: CampaignType;
   runId: UUID;
+  projectId: UUID | null;
 }
 
 /** Soul source in population manifest (PRD 5.2) */

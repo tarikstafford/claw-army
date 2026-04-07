@@ -1,6 +1,6 @@
 import { PubSub, type Message } from '@google-cloud/pubsub';
 import IORedis from 'ioredis';
-import { db, billingEvents, telemetry, bots } from '@claw/db';
+import { db, billingEvents, telemetry, bots, executions } from '@claw/db';
 import { eq } from 'drizzle-orm';
 import { publishBudgetExceeded, publishBillingEvent } from './publisher';
 import { stopBot } from '../orchestrator/bot-orchestrator';
@@ -176,9 +176,22 @@ async function writeBillingEvent(params: {
   tokenCount?: number;
   metadata?: Record<string, unknown>;
 }): Promise<void> {
+  // Look up projectId from parent execution
+  let projectId: string | null = null;
+  try {
+    const [exec] = await db
+      .select({ projectId: executions.projectId })
+      .from(executions)
+      .where(eq(executions.id, params.executionId));
+    projectId = exec?.projectId ?? null;
+  } catch {
+    // Non-fatal: billing events can still be written without projectId
+  }
+
   await db.insert(billingEvents).values({
     executionId: params.executionId,
     botId: params.botId,
+    projectId,
     eventType: params.eventType,
     amountCents: params.amountCents,
     tokenCount: params.tokenCount,

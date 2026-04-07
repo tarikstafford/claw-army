@@ -25,6 +25,7 @@ export const billingEvents = pgTable(
       .notNull()
       .references(() => executions.id, { onDelete: 'cascade' }),
     botId: uuid('bot_id'),
+    projectId: uuid('project_id'), // nullable; logical FK to Paperclip's projects table; set from parent execution
     eventType: billingEventTypeEnum('event_type').notNull(),
     amountCents: integer('amount_cents'),
     tokenCount: integer('token_count'),

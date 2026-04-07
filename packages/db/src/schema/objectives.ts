@@ -30,6 +30,7 @@ export const objectives = pgTable(
     defaultRuntimeLimitSeconds: integer('default_runtime_limit_seconds'),
     defaultAllowedTools: text('default_allowed_tools').array().notNull().default([]),
     isArchived: boolean('is_archived').notNull().default(false),
+    projectId: uuid('project_id'), // nullable; logical FK to Paperclip's projects table
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
   },
