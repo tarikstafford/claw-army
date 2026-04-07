@@ -94,6 +94,7 @@ jobs:
       - name: Implement with OpenCode
         uses: anomalyco/opencode/github@latest
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: minimax-coding-plan/MiniMax-M2.7
