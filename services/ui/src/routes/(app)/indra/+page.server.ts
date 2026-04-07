@@ -1,21 +1,20 @@
 import type { PageServerLoad } from './$types';
-import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ fetch, parent }) => {
-  const { companyId } = await parent();
+  const { companyId, session } = await parent();
   if (!companyId) {
-    return { dashboard: null, activity: [], approvals: [] };
+    return { agents: [], activity: [], approvals: [], userName: session?.user?.name ?? 'there' };
   }
 
-  const [dashboardRes, activityRes, approvalsRes] = await Promise.allSettled([
-    fetch(`/api/companies/${companyId}/dashboard`),
+  const [agentsRes, activityRes, approvalsRes] = await Promise.allSettled([
+    fetch(`/api/companies/${companyId}/agents`),
     fetch(`/api/companies/${companyId}/activity`),
     fetch(`/api/companies/${companyId}/approvals`),
   ]);
 
-  const dashboard = dashboardRes.status === 'fulfilled' && dashboardRes.value.ok
-    ? await dashboardRes.value.json()
-    : null;
+  const agents = agentsRes.status === 'fulfilled' && agentsRes.value.ok
+    ? await agentsRes.value.json()
+    : [];
   const activity = activityRes.status === 'fulfilled' && activityRes.value.ok
     ? await activityRes.value.json()
     : [];
@@ -23,5 +22,10 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
     ? await approvalsRes.value.json()
     : [];
 
-  return { dashboard, activity, approvals };
+  return {
+    agents: Array.isArray(agents) ? agents : [],
+    activity: Array.isArray(activity) ? activity : [],
+    approvals: Array.isArray(approvals) ? approvals : [],
+    userName: session?.user?.name ?? 'there',
+  };
 };
