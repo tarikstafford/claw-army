@@ -1,0 +1,180 @@
+name: Implement Issue
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  implement:
+    if: github.event.label.name == 'agent:implement'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create branch
+        id: branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const slug = issue.title
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-|-$/g, '')
+              .slice(0, 50);
+            const branch = `agent/${issue.number}-${slug}`;
+
+            const { data: ref } = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'heads/main'
+            });
+
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branch}`,
+              sha: ref.object.sha
+            });
+
+            core.setOutput('branch', branch);
+            core.setOutput('issue_number', issue.number);
+            core.setOutput('issue_title', issue.title);
+            core.setOutput('issue_body', issue.body || '');
+
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.branch.outputs.branch }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Acknowledge issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.branch.outputs.issue_number }},
+              body: `🤖 **Agent picked up this issue.**\n\nBranch: \`${{ steps.branch.outputs.branch }}\`\nModel: MiniMax M2.7\n\nI'll open a PR when implementation is ready.`
+            });
+
+      - name: Implement with OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          model: minimax/MiniMax-M2.7
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            You are an AI agent implementing a GitHub issue for the Akasa platform.
+
+            ## Issue #${{ steps.branch.outputs.issue_number }}: ${{ steps.branch.outputs.issue_title }}
+
+            ${{ steps.branch.outputs.issue_body }}
+
+            ## Instructions
+
+            Read AGENTS.md first — it is the project entry point. Follow all conventions and boundaries described there.
+
+            Key rules:
+            - ESM everywhere, `node:` prefix for builtins, named exports only
+            - Svelte 5 runes ($props, $state, $derived), pure CSS with --fo-*/--bo-* tokens
+            - Drizzle ORM for DB queries, TypeBox for route schemas
+            - Conventional commits: feat(scope):, fix(scope):, docs(scope):
+            - Do NOT touch schema, migrations, infra, credential encryption, or token manager without explicit approval in the issue
+
+            ## Repo structure
+            - packages/db/ — Drizzle schema + migrations
+            - services/akasa-server/ — Express backend (evolution, tools, OAuth)
+            - services/ui/ — SvelteKit frontend
+            - services/execution-service/ — Fastify (bot lifecycle, council, god layer)
+            - paperclip/ — Git submodule (do not modify)
+
+            ## Workflow
+            1. Read the relevant source files before making changes
+            2. Implement the changes described in the issue
+            3. Write conventional commit messages
+            4. Commit your changes to the current branch
+
+            Do NOT create a PR — the workflow handles that after you finish.
+
+      - name: Create Pull Request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const branch = '${{ steps.branch.outputs.branch }}';
+
+            // Check if branch has commits ahead of main
+            const { data: comparison } = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: 'main',
+              head: branch
+            });
+
+            if (comparison.ahead_by === 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `⚠️ **Agent completed but made no changes.** The issue may need more context or manual implementation.\n\nBranch \`${branch}\` has no commits ahead of main.`
+              });
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `${issue.title}`,
+              head: branch,
+              base: 'main',
+              body: [
+                `## Summary`,
+                ``,
+                `Closes #${issue.number}`,
+                ``,
+                `## Changes`,
+                ``,
+                `Implemented by OpenCode agent (MiniMax M2.7).`,
+                ``,
+                `**${comparison.ahead_by} commit(s)** | **${comparison.files?.length || 0} file(s) changed**`,
+                ``,
+                `## Test Plan`,
+                ``,
+                `- [ ] Review agent's changes for correctness`,
+                `- [ ] Verify no architectural boundaries were violated`,
+                `- [ ] Test affected functionality locally`,
+                ``,
+                `---`,
+                `🤖 Auto-generated from issue #${issue.number} by OpenCode + MiniMax M2.7`
+              ].join('\n')
+            });
+
+            // Label the PR
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['agent:authored']
+            });
+
+            // Comment on the original issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `✅ **PR created:** #${pr.number}\n\n${comparison.ahead_by} commit(s), ${comparison.files?.length || 0} file(s) changed.\n\nPlease review before merging.`
+            });
