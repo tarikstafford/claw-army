@@ -1,0 +1,59 @@
+name: Scheduled Issue Processor
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"  # Every Monday at 9am UTC
+
+  workflow_dispatch:
+    inputs:
+      issue_limit:
+        description: 'Number of issues to process'
+        required: false
+        default: '3'
+
+jobs:
+  process-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run OpenCode on issues
+        uses: anomalyco/opencode/github@latest
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+        with:
+          model: minimax/m2.7-highspeed
+          prompt: |
+            You are an AI agent helping process GitHub issues for the Akasa platform.
+
+            Your task is to work on open issues in the "v1.0 - Baseline" milestone. Pick up to 3 issues that:
+            1. Have clear acceptance criteria
+            2. Are not already being worked on
+            3. Match your capabilities (docs, techdebt, type:feature fixes)
+
+            For each issue you pick:
+            1. Assign yourself to the issue
+            2. Create a branch for the work
+            3. Implement the solution
+            4. Create a PR referencing the issue
+
+            Priority order:
+            1. type:docs issues (these are straightforward)
+            2. type:techdebt issues (code quality improvements)
+            3. type:feature issues with clear scope
+
+            Do NOT pick:
+            - Issues requiring env vars or secrets you don't have
+            - Issues requiring live service access
+            - Very large issues (>3 days effort)
+
+            After completing work on an issue, update the issue with your progress and link the PR.
