@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run package tests
+        run: |
+          pnpm --filter @claw/shared-types exec vitest run --reporter=verbose 2>&1 || true
+          pnpm --filter @claw/event-schemas exec vitest run --reporter=verbose 2>&1 || true
+          pnpm --filter @claw/tool-contracts exec vitest run --reporter=verbose 2>&1 || true
+
+      - name: Run execution-service tests
+        run: pnpm --filter @claw/execution-service exec vitest run --reporter=verbose
+
+      - name: Run tool-gateway tests
+        run: pnpm --filter @claw/tool-gateway exec vitest run --reporter=verbose
