@@ -52,7 +52,7 @@ describe('fetchUrlRequestSchema', () => {
   it('parses request with optional headers omitted', () => {
     const result = fetchUrlRequestSchema.parse({
       ...VALID_REQUEST,
-      args: { url: 'https://example.com' },
+      args: { url: 'https://example.com', method: 'GET' },
     });
     expect(result.args.headers).toBeUndefined();
   });

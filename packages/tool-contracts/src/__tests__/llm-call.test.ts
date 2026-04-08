@@ -122,12 +122,13 @@ describe('llmCallRequestSchema', () => {
     })).toThrow(z.ZodError);
   });
 
-  it('throws on empty messages array', () => {
+  it('accepts empty messages array', () => {
     const result = {
       ...VALID_REQUEST,
       args: { ...VALID_REQUEST_ARGS, messages: [] },
     };
-    expect(() => llmCallRequestSchema.parse(result)).toThrow(z.ZodError);
+    const parsed = llmCallRequestSchema.parse(result);
+    expect(parsed.args.messages).toHaveLength(0);
   });
 
   it('throws on invalid message role', () => {

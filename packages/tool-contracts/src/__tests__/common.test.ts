@@ -185,6 +185,7 @@ describe('TOOL_NAMES', () => {
   });
 
   it('is a readonly array', () => {
-    expect(Object.isFrozen(TOOL_NAMES)).toBe(true);
+    // as const makes it readonly at type level, not runtime-frozen
+    expect(Array.isArray(TOOL_NAMES)).toBe(true);
   });
 });

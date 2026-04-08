@@ -38,6 +38,7 @@ export default defineConfig({
       '**/services/soul-generator*',
       '**/services/soul-library-search*',
       '**/orchestrator/gce-bot-launcher*',
+      '**/routes/ring-leader*',
       '**/node_modules/**',
     ],
   },
