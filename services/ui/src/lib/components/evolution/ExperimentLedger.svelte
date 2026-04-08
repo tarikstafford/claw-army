@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { MutationType } from './MutationDiff.svelte';
+
   interface LedgerRow {
     executionId: string;
     executionDate: string;
@@ -8,9 +10,10 @@
     status: string;
     mutationApplied: boolean;
     keepDiscard: 'keep' | 'discard' | 'pending';
+    soulId: string | null;
   }
 
-  let { rows }: { rows: LedgerRow[] } = $props();
+  let { rows, ondiff }: { rows: LedgerRow[]; ondiff?: (soulId: string, parentId: string, mutationType: MutationType) => void } = $props();
 
   const VERDICT_COLORS: Record<string, string> = {
     Promote: 'var(--bo-violet)',
@@ -47,6 +50,24 @@
     if (keepDiscard === 'keep') return 'KEEP';
     if (keepDiscard === 'discard') return 'DISCARD';
     return 'PENDING';
+  }
+
+  async function handleMutationClick(soulId: string) {
+    if (!ondiff) return;
+    try {
+      const res = await fetch(`/api/akasa/souls/${soulId}`);
+      if (res.ok) {
+        const soul = await res.json();
+        if (soul.parentSoulId) {
+          const detected = detectMutationTypeFromSoul(soul);
+          ondiff(soulId, soul.parentSoulId, detected);
+        }
+      }
+    } catch { /* silent */ }
+  }
+
+  function detectMutationTypeFromSoul(soul: { soulContent?: string; parentSoulId?: string | null }): MutationType {
+    return 'substitution';
   }
 </script>
 
@@ -85,7 +106,15 @@
               </span>
             </td>
             <td class="cell-status">{row.status}</td>
-            <td class="cell-mutation">{row.mutationApplied ? 'Yes' : '—'}</td>
+            <td class="cell-mutation">
+              {#if row.mutationApplied && row.soulId}
+                <button class="mutation-btn" onclick={() => row.soulId && handleMutationClick(row.soulId)}>
+                  Yes
+                </button>
+              {:else}
+                —
+              {/if}
+            </td>
             <td class="cell-outcome" style="color: {outcomeColor(row.keepDiscard)}">
               {outcomeLabel(row.keepDiscard)}
             </td>
@@ -160,6 +189,23 @@
 
   .cell-mutation {
     color: var(--bo-muted);
+  }
+
+  .mutation-btn {
+    font-family: var(--font-label);
+    font-size: 7px;
+    letter-spacing: 0.10em;
+    color: var(--bo-violet);
+    background: none;
+    border: 1px solid var(--bo-violet);
+    border-radius: 3px;
+    padding: 2px 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .mutation-btn:hover {
+    background: rgba(139, 92, 246, 0.10);
   }
 
   .cell-outcome {

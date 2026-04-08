@@ -250,6 +250,7 @@ export function evolutionDashboardRouter(): Router {
         generation: number;
         isArchetype: boolean;
         isPioneer: boolean;
+        parentSoulId: string | null;
       }> = [];
 
       let currentSoulId: string | null = startingSoulId;
@@ -277,7 +278,8 @@ export function evolutionDashboardRouter(): Router {
           label: soul.archetypeName ?? soul.contentHash.slice(0, 8),
           generation: soul.generation,
           isArchetype: soul.isArchetype,
-          isPioneer: false, // Pioneer status is per bot-category, not per soul
+          isPioneer: false,
+          parentSoulId: soul.parentSoulId,
         });
 
         currentSoulId = soul.parentSoulId;
@@ -341,6 +343,7 @@ export function evolutionDashboardRouter(): Router {
           status: row.status,
           keepDiscard,
           mutationApplied: row.soulId !== null,
+          soulId: row.soulId,
         };
       });
 
