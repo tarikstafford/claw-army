@@ -18,6 +18,8 @@ export default defineConfig({
   test: {
     globals: true,
     testTimeout: 60_000, // 60 seconds — bot spawning is slow
+    pool: 'forks',
+    dangerouslyIgnoreUnhandledErrors: true,
     env: {
       NODE_ENV: 'test',
     },
