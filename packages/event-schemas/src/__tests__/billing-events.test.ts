@@ -113,8 +113,8 @@ describe('budgetExceededEventSchema', () => {
     const result = budgetExceededEventSchema.parse(VALID_BUDGET_EXCEEDED_EVENT);
     expect(result.type).toBe('budget_exceeded');
     expect(result.executionId).toBe(VALID_BUDGET_EXCEEDED_EVENT.executionId);
-    expect(result.budgetCapCents).toBe(10500);
-    expect(result.totalSpentCents).toBe(10000);
+    expect(result.budgetCapCents).toBe(10000);
+    expect(result.totalSpentCents).toBe(10500);
     expect(result.timestamp).toBe(VALID_BUDGET_EXCEEDED_EVENT.timestamp);
   });
 
