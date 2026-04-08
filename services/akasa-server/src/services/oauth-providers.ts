@@ -50,6 +50,52 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
     clientIdEnv: 'GITHUB_CLIENT_ID',
     clientSecretEnv: 'GITHUB_CLIENT_SECRET',
   },
+  stripe: {
+    authorizeUrl: 'https://connect.stripe.com/oauth/authorize',
+    tokenUrl: 'https://connect.stripe.com/oauth/token',
+    scopes: ['read_only'],
+    clientIdEnv: 'STRIPE_CLIENT_ID',
+    clientSecretEnv: 'STRIPE_CLIENT_SECRET',
+  },
+  linear: {
+    authorizeUrl: 'https://linear.app/oauth/authorize',
+    tokenUrl: 'https://linear.app/oauth/token',
+    scopes: ['read', 'write'],
+    clientIdEnv: 'LINEAR_CLIENT_ID',
+    clientSecretEnv: 'LINEAR_CLIENT_SECRET',
+  },
+  notion: {
+    authorizeUrl: 'https://api.notion.com/v1/oauth/authorize',
+    tokenUrl: 'https://api.notion.com/v1/oauth/token',
+    scopes: ['read', 'write'],
+    clientIdEnv: 'NOTION_CLIENT_ID',
+    clientSecretEnv: 'NOTION_CLIENT_SECRET',
+    extraAuthorizeParams: {
+      owner: 'user',
+    },
+  },
+  gmail: {
+    authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+    tokenUrl: 'https://oauth2.googleapis.com/token',
+    scopes: ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.send'],
+    clientIdEnv: 'GOOGLE_CLIENT_ID',
+    clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
+    extraAuthorizeParams: {
+      access_type: 'offline',
+      prompt: 'consent',
+    },
+  },
+  'google-calendar': {
+    authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+    tokenUrl: 'https://oauth2.googleapis.com/token',
+    scopes: ['https://www.googleapis.com/auth/calendar'],
+    clientIdEnv: 'GOOGLE_CLIENT_ID',
+    clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
+    extraAuthorizeParams: {
+      access_type: 'offline',
+      prompt: 'consent',
+    },
+  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
