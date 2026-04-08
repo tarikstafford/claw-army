@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { generateText } from 'ai';
-import { runSoulAnalyst, COUNTERFACTUAL_OVERRIDE_THRESHOLD, type SoulAnalystOutput } from '../council/soul-analyst';
-import type { CouncilContext } from '../queue/council-queue';
+import { runSoulAnalyst, COUNTERFACTUAL_OVERRIDE_THRESHOLD, type SoulAnalystOutput } from '../../council/soul-analyst';
+import type { CouncilContext } from '../../queue/council-queue';
 
 vi.mock('ai', async (importOriginal) => {
   const actual = await importOriginal<typeof import('ai')>();

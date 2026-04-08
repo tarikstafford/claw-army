@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { detectAndTrackPioneer } from '../god-layer/pioneer-tracker';
+import { detectAndTrackPioneer } from '../../god-layer/pioneer-tracker';
 
 vi.mock('drizzle-orm', () => ({
   eq: vi.fn(),

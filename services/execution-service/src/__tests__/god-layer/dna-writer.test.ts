@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { writeVersionedDnaEntry, GODL_CONFIDENCE_THRESHOLD } from '../god-layer/dna-writer';
+import { writeVersionedDnaEntry, GODL_CONFIDENCE_THRESHOLD } from '../../god-layer/dna-writer';
 
 vi.mock('drizzle-orm', () => ({
   max: vi.fn(),

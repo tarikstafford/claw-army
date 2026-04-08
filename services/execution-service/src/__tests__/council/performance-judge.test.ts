@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { generateText, Output } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
-import { runPerformanceJudge, type PerformanceJudgeOutput } from '../council/performance-judge';
-import type { CouncilContext } from '../queue/council-queue';
+import { runPerformanceJudge, type PerformanceJudgeOutput } from '../../council/performance-judge';
+import type { CouncilContext } from '../../queue/council-queue';
 
 vi.mock('ai', async (importOriginal) => {
   const actual = await importOriginal<typeof import('ai')>();

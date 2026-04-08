@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 import { anthropic } from '@ai-sdk/anthropic';
-import { runDevilsAdvocate, type DevilsAdvocateOutput } from '../council/devils-advocate';
-import type { CouncilContext } from '../queue/council-queue';
+import { runDevilsAdvocate, type DevilsAdvocateOutput } from '../../council/devils-advocate';
+import type { CouncilContext } from '../../queue/council-queue';
 
 vi.mock('ai', async (importOriginal) => {
   const actual = await importOriginal<typeof import('ai')>();

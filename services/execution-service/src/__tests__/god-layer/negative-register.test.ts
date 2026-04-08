@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { writeNegativeSignal } from '../god-layer/negative-register';
+import { writeNegativeSignal } from '../../god-layer/negative-register';
 
 vi.mock('@claw/db', () => ({
   db: {

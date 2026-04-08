@@ -12,8 +12,12 @@ vi.mock('ai', () => ({
 }));
 
 vi.mock('@ai-sdk/openai', () => ({
-  openai: vi.fn(),
-  embeddingModel: vi.fn(() => 'embedding-model-mock'),
+  openai: Object.assign(
+    vi.fn((modelId: string) => ({ modelId })),
+    {
+      embeddingModel: vi.fn(() => 'embedding-model-mock'),
+    },
+  ),
 }));
 
 vi.mock('@claw/db', () => ({

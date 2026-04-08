@@ -16,10 +16,11 @@ vi.mock('@google-cloud/compute', () => {
       yield { done: false, value: {} };
     }),
   });
+  class MockInstancesClient {
+    listAsync = mockListAsync;
+  }
   return {
-    InstancesClient: vi.fn().mockImplementation(() => ({
-      listAsync: mockListAsync,
-    })),
+    InstancesClient: MockInstancesClient,
   };
 });
 

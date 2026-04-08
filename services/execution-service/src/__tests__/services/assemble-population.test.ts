@@ -1,16 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { assemblePopulation, BudgetShortfallError } from '../../services/assemble-population';
+import { assemblePopulation, BudgetShortfallError } from '../../services/assemble-population.js';
 import type { RingLeaderMissionBrief, PopulationManifest } from '@claw/shared-types';
 import * as ai from 'ai';
 import * as dbModule from '@claw/db';
+import { searchSoulLibrary } from '../../services/soul-library-search.js';
+import { selectFromPool, applyPreDeploymentMutation } from '../../services/population-assembler.js';
+import { generatePioneerPopulation } from '../../services/pioneer-generator.js';
+import { validateBudget } from '../../services/budget-validator.js';
 
 vi.mock('ai', () => ({
   generateText: vi.fn(),
 }));
 
 vi.mock('@ai-sdk/openai', () => ({
-  openai: vi.fn(),
-  embeddingModel: vi.fn(() => 'embedding-model-mock'),
+  openai: Object.assign(
+    vi.fn((modelId: string) => ({ modelId })),
+    {
+      embeddingModel: vi.fn(() => 'embedding-model-mock'),
+    },
+  ),
 }));
 
 vi.mock('@claw/db', () => ({
@@ -20,29 +28,29 @@ vi.mock('@claw/db', () => ({
   ringLeaderRuns: {},
 }));
 
-vi.mock('../../services/soul-library-search', () => ({
+vi.mock('../../services/soul-library-search.js', () => ({
   searchSoulLibrary: vi.fn(),
 }));
 
-vi.mock('../../services/population-assembler', () => ({
+vi.mock('../../services/population-assembler.js', () => ({
   selectFromPool: vi.fn(),
   applyPreDeploymentMutation: vi.fn(),
 }));
 
-vi.mock('../../services/pioneer-generator', () => ({
+vi.mock('../../services/pioneer-generator.js', () => ({
   generatePioneerPopulation: vi.fn(),
 }));
 
-vi.mock('../../services/budget-validator', () => ({
+vi.mock('../../services/budget-validator.js', () => ({
   validateBudget: vi.fn(),
 }));
 
 const mockGenerateText = vi.mocked(ai.generateText);
-const mockSearchSoulLibrary = vi.mocked(require('../../services/soul-library-search').searchSoulLibrary);
-const mockSelectFromPool = vi.mocked(require('../../services/population-assembler').selectFromPool);
-const mockGeneratePioneerPopulation = vi.mocked(require('../../services/pioneer-generator').generatePioneerPopulation);
-const mockValidateBudget = vi.mocked(require('../../services/budget-validator').validateBudget);
-const mockApplyPreDeploymentMutation = vi.mocked(require('../../services/population-assembler').applyPreDeploymentMutation);
+const mockSearchSoulLibrary = vi.mocked(searchSoulLibrary);
+const mockSelectFromPool = vi.mocked(selectFromPool);
+const mockGeneratePioneerPopulation = vi.mocked(generatePioneerPopulation);
+const mockValidateBudget = vi.mocked(validateBudget);
+const mockApplyPreDeploymentMutation = vi.mocked(applyPreDeploymentMutation);
 
 function createMockMissionBrief(overrides: Partial<RingLeaderMissionBrief> = {}): RingLeaderMissionBrief {
   return {

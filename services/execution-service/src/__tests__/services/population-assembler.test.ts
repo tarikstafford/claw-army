@@ -10,8 +10,12 @@ vi.mock('ai', () => ({
 }));
 
 vi.mock('@ai-sdk/openai', () => ({
-  openai: vi.fn(),
-  embeddingModel: vi.fn(() => 'embedding-model-mock'),
+  openai: Object.assign(
+    vi.fn((modelId: string) => ({ modelId })),
+    {
+      embeddingModel: vi.fn(() => 'embedding-model-mock'),
+    },
+  ),
 }));
 
 const mockGenerateText = vi.mocked(ai.generateText);
