@@ -7,7 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  package-tests:
+    name: Package Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,20 +30,57 @@ jobs:
 
       - name: Run shared-types tests
         run: pnpm --filter @claw/shared-types exec vitest run --reporter=verbose
-        continue-on-error: true
 
       - name: Run event-schemas tests
-        working-directory: packages/event-schemas
-        run: npx vitest run --reporter=verbose
-        continue-on-error: true
+        run: pnpm --filter @claw/event-schemas exec vitest run --reporter=verbose
 
       - name: Run tool-contracts tests
-        working-directory: packages/tool-contracts
-        run: npx vitest run --reporter=verbose
-        continue-on-error: true
+        run: pnpm --filter @claw/tool-contracts exec vitest run --reporter=verbose
 
-      - name: Run execution-service unit tests
+  execution-service-tests:
+    name: Execution Service Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run unit tests
         run: pnpm --filter @claw/execution-service exec vitest run --reporter=verbose --exclude='**/e2e*' --exclude='**/phase*'
 
-      - name: Run tool-gateway tests
+  tool-gateway-tests:
+    name: Tool Gateway Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run unit tests
         run: pnpm --filter @claw/tool-gateway exec vitest run --reporter=verbose
