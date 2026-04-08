@@ -23,6 +23,12 @@ function buildStartupScript(opts: {
   gatewayToken: string;
   /** Full SOUL.md markdown to write to the VM workspace before OpenClaw starts */
   soulContent: string;
+  /** GitHub OAuth token for repo access (decrypted at spawn time). */
+  githubToken?: string;
+  /** GitHub repo clone URL with token embedded for authenticated git operations. */
+  githubCloneUrl?: string;
+  /** Default branch to checkout after clone (e.g. main, master). */
+  githubDefaultBranch?: string;
 }): string {
   const {
     botId,
@@ -33,6 +39,9 @@ function buildStartupScript(opts: {
     executionServiceUrl,
     gatewayToken,
     soulContent,
+    githubToken,
+    githubCloneUrl,
+    githubDefaultBranch,
   } = opts;
 
   const soulContentB64 = Buffer.from(soulContent).toString('base64');
@@ -49,6 +58,9 @@ EXECUTION_SERVICE_URL="${executionServiceUrl}"
 GATEWAY_TOKEN="${gatewayToken}"
 GATEWAY_PORT="18789"
 SOUL_CONTENT_B64="${soulContentB64}"
+GITHUB_TOKEN="${githubToken ?? ''}"
+GITHUB_CLONE_URL="${githubCloneUrl ?? ''}"
+GITHUB_DEFAULT_BRANCH="${githubDefaultBranch ?? ''}"
 
 exec > >(tee /var/log/bot-startup.log | logger -t bot-startup) 2>&1
 
@@ -88,7 +100,37 @@ else
   echo "[startup] Node.js already installed: $(node --version)"
 fi
 
-# ── 2b. Write SOUL.md to OpenClaw workspace ──────────────────────────────────
+# ── 2c. Configure GitHub credentials if provided ──────────────────────────────
+if [[ -n "${githubToken}" ]]; then
+  echo "[startup] Configuring GitHub credentials..."
+  # Store token in git credential helper so git operations authenticate automatically
+  git config --global credential.helper store
+  # Write credentials to git's credential store (format: https://x-access-token:<token>@github.com)
+  echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
+  chmod 600 ~/.git-credentials
+  echo "[startup] GitHub credentials configured"
+else
+  echo "[startup] No GitHub token provided — GitHub operations will use unauthenticated access"
+fi
+
+# ── 2d. Clone target repo if GITHUB_CLONE_URL is provided ──────────────────────
+if [[ -n "${GITHUB_CLONE_URL}" ]]; then
+  echo "[startup] Cloning repo: ${GITHUB_CLONE_URL}"
+  mkdir -p /root/workspace
+  git clone "${GITHUB_CLONE_URL}" /root/workspace/repo || {
+    echo "[startup] Warning: git clone failed — continuing without repo clone"
+  }
+  if [[ -n "${GITHUB_DEFAULT_BRANCH}" ]]; then
+    cd /root/workspace/repo && git checkout "${GITHUB_DEFAULT_BRANCH}" || {
+      echo "[startup] Warning: failed to checkout branch ${GITHUB_DEFAULT_BRANCH}"
+    }
+  fi
+  echo "[startup] Repo cloned to /root/workspace/repo"
+else
+  echo "[startup] No GITHUB_CLONE_URL provided — skipping repo clone"
+fi
+
+# ── 3. Write SOUL.md to OpenClaw workspace ───────────────────────────────────
 mkdir -p /root/.openclaw/workspace
 echo "$SOUL_CONTENT_B64" | base64 --decode > /root/.openclaw/workspace/SOUL.md
 echo "[startup] SOUL.md written ($(wc -c < /root/.openclaw/workspace/SOUL.md) bytes)"
@@ -232,6 +274,12 @@ export interface LaunchBotVMOptions {
   gatewayToken: string;
   /** Full SOUL.md markdown content for this bot's behavioral constitution */
   soulContent: string;
+  /** GitHub OAuth token for repo access (decrypted at spawn time). */
+  githubToken?: string;
+  /** GitHub repo clone URL with token embedded for authenticated git operations. */
+  githubCloneUrl?: string;
+  /** Default branch to checkout after clone (e.g. main, master). */
+  githubDefaultBranch?: string;
 }
 
 /**
@@ -260,6 +308,9 @@ export async function launchBotVM(opts: LaunchBotVMOptions): Promise<{ instanceN
     executionServiceUrl: opts.executionServiceUrl,
     gatewayToken: opts.gatewayToken,
     soulContent: opts.soulContent,
+    githubToken: opts.githubToken,
+    githubCloneUrl: opts.githubCloneUrl,
+    githubDefaultBranch: opts.githubDefaultBranch,
   });
 
   console.log('[gce-bot-launcher] Submitting GCE insert:', {

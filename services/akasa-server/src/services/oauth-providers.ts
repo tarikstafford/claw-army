@@ -43,6 +43,13 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
       prompt: 'consent',
     },
   },
+  github: {
+    authorizeUrl: 'https://github.com/login/oauth/authorize',
+    tokenUrl: 'https://github.com/login/oauth/access_token',
+    scopes: ['repo', 'read:user', 'read:org'],
+    clientIdEnv: 'GITHUB_CLIENT_ID',
+    clientSecretEnv: 'GITHUB_CLIENT_SECRET',
+  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ import { oauthFlowRouter } from './oauth-flow.js';
 import { webhookRoutingRulesRouter } from './webhook-routing-rules.js';
 import { webhookLogsRouter } from './webhook-logs.js';
 import { internalRouter } from './internal.js';
+import { githubRouter } from './github.js';
 
 const akasaRouter = Router();
 
@@ -38,6 +39,9 @@ akasaRouter.use('/akasa/tool-connections', toolConnectionsRouter());
 
 // OAuth authorization code flow: start + callback
 akasaRouter.use('/akasa/tool-connections', oauthFlowRouter());
+
+// GitHub API routes (authenticated via GitHub OAuth connection)
+akasaRouter.use('/akasa', githubRouter());
 
 // Webhook receiver routes: unique URL tokens + signature verification
 akasaRouter.use('/akasa/webhooks', webhooksRouter());
