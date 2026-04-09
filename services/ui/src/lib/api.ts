@@ -354,3 +354,64 @@ export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]>
 export async function getBudgetOverview(companyId: string): Promise<BudgetOverview> {
   return apiFetch(`${BASE}/companies/${companyId}/budgets/overview`);
 }
+
+// ── User Preferences ─────────────────────────────────────────────
+
+export interface UserPreferences {
+  userId: string;
+  displayName: string | null;
+  evolutionEvents: string;
+  budgetAlerts: string;
+  skillEvents: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getUserPreferences(userId: string): Promise<UserPreferences> {
+  return apiFetch(`${BASE}/akasa/user-preferences/${encodeURIComponent(userId)}`);
+}
+
+export async function saveUserPreferences(body: {
+  userId: string;
+  displayName?: string;
+  evolutionEvents?: boolean;
+  budgetAlerts?: boolean;
+  skillEvents?: boolean;
+}): Promise<UserPreferences> {
+  return apiFetch(`${BASE}/akasa/user-preferences`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+// ── API Keys ─────────────────────────────────────────────────────
+
+export interface ApiKey {
+  id: string;
+  userId: string;
+  name: string;
+  keyPrefix: string;
+  lastUsedAt: string | null;
+  createdAt: string;
+}
+
+export interface CreatedApiKey extends ApiKey {
+  raw: string;
+}
+
+export async function getApiKeys(userId: string): Promise<ApiKey[]> {
+  return apiFetch(`${BASE}/akasa/api-keys/${encodeURIComponent(userId)}`);
+}
+
+export async function createApiKey(userId: string, name: string): Promise<CreatedApiKey> {
+  return apiFetch(`${BASE}/akasa/api-keys`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, name }),
+  });
+}
+
+export async function revokeApiKey(id: string): Promise<void> {
+  await apiFetch(`${BASE}/akasa/api-keys/${id}`, { method: 'DELETE' });
+}

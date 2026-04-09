@@ -11,6 +11,8 @@ import { webhookRoutingRulesRouter } from './webhook-routing-rules.js';
 import { webhookLogsRouter } from './webhook-logs.js';
 import { internalRouter } from './internal.js';
 import { githubRouter } from './github.js';
+import { userPreferencesRouter } from './user-preferences.js';
+import { apiKeysRouter } from './api-keys.js';
 
 const akasaRouter = Router();
 
@@ -55,5 +57,11 @@ akasaRouter.use('/akasa/webhooks', webhookLogsRouter());
 // Internal endpoints for cross-service lookups (plugin worker → akasa-server)
 // WARNING: No auth — relies on local_trusted mode (localhost-only access)
 akasaRouter.use('/akasa/internal', internalRouter());
+
+// User preferences CRUD (GET /:userId, POST /, PATCH /:userId)
+akasaRouter.use('/akasa/user-preferences', userPreferencesRouter());
+
+// API keys CRUD + verify (GET /:userId, POST /, POST /verify, DELETE /:id)
+akasaRouter.use('/akasa/api-keys', apiKeysRouter());
 
 export { akasaRouter };
