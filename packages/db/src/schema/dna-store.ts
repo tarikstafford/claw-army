@@ -55,6 +55,11 @@ export const dnaStore = pgTable(
     soulId: uuid('soul_id'), // nullable; links DNA capture to source soul (Phase 9)
     parentSoulIds: uuid('parent_soul_ids').array(), // nullable; mutation lineage parent IDs (Phase 13)
     mutationLineage: jsonb('mutation_lineage'), // nullable; operations applied from parent (Phase 13)
+    isPublished: boolean('is_published').notNull().default(false),
+    publishedAt: timestamp('published_at', { withTimezone: true, precision: 3 }),
+    publishTitle: text('publish_title'),
+    publishDescription: text('publish_description'),
+    acquiredCount: integer('acquired_count').notNull().default(0),
   },
   (t) => [
     index('dna_store_execution_id_idx').on(t.executionId),

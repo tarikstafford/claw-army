@@ -1,3 +1,4 @@
+import { akashicRouter } from './akashic.js';
 import { Router } from 'express';
 import { soulsRouter } from './souls.js';
 import { councilRouter } from './council.js';
@@ -19,8 +20,8 @@ akasaRouter.get('/akasa/health', (_req, res) => {
   res.json({ status: 'ok', service: 'akasa', timestamp: new Date().toISOString() });
 });
 
-// Soul CRUD + generation + mutation + injection
-akasaRouter.use('/akasa/souls', soulsRouter());
+// Akashic Library marketplace routes
+akasaRouter.use('/akasa/akashic', akashicRouter());
 
 // Council verdict CRUD routes (GET / and GET /:id)
 akasaRouter.use('/akasa/verdicts', councilRouter());
