@@ -6,3 +6,4 @@ export * from './billing';
 export * from './soul';
 export * from './objective';
 export * from './ring-leader';
+export * from './skill';
