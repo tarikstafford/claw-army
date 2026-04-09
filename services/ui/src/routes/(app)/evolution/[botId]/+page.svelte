@@ -5,11 +5,18 @@
   import IdentityCard from '$lib/components/evolution/IdentityCard.svelte';
   import ProfileTab from '$lib/components/evolution/ProfileTab.svelte';
   import RuntimeStatus from '$lib/components/evolution/RuntimeStatus.svelte';
+  import MutationDiff from '$lib/components/evolution/MutationDiff.svelte';
   import type { PageData } from './$types';
+  import type { MutationType } from '$lib/components/evolution/MutationDiff.svelte';
 
   let { data }: { data: PageData } = $props();
 
   let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger'>('profile');
+  let diffState = $state<{
+    childId: string;
+    parentId: string;
+    mutationType: MutationType;
+  } | null>(null);
 
   const TABS = [
     { id: 'profile' as const, label: 'PROFILE' },
@@ -17,6 +24,72 @@
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
   ];
+
+  function detectMutationType(parentContent: string, childContent: string): MutationType {
+    const parentSections = parseSoulSections(parentContent);
+    const childSections = parseSoulSections(childContent);
+
+    const parentKeys = Object.keys(parentSections);
+    const childKeys = Object.keys(childSections);
+    const allKeys = new Set([...parentKeys, ...childKeys]);
+
+    let sectionsChanged = 0;
+    let linesAdded = 0;
+    let linesRemoved = 0;
+    let newSections = 0;
+
+    for (const key of allKeys) {
+      const pLines = parentSections[key] ?? [];
+      const cLines = childSections[key] ?? [];
+
+      if (pLines.length === 0 && cLines.length > 0) newSections++;
+      if (pLines.join('\n') !== cLines.join('\n')) sectionsChanged++;
+      linesRemoved += pLines.filter(l => !cLines.includes(l)).length;
+      linesAdded += cLines.filter(l => !pLines.includes(l)).length;
+    }
+
+    if (newSections > 0 && sectionsChanged <= 2) return 'introduction';
+    if (linesRemoved > linesAdded * 2) return 'attenuation';
+    if (linesAdded > linesRemoved * 2) return 'amplification';
+    if (sectionsChanged > 2) return 'recombination';
+    return 'substitution';
+  }
+
+  function parseSoulSections(content: string): Record<string, string[]> {
+    const sections: Record<string, string[]> = {};
+    const parts = content.split(/^## /m);
+    for (const part of parts) {
+      if (!part.trim()) continue;
+      const newlineIdx = part.indexOf('\n');
+      if (newlineIdx === -1) continue;
+      const header = part.slice(0, newlineIdx).trim();
+      const body = part.slice(newlineIdx + 1).trim();
+      sections[header] = body.split('\n').filter(l => l.trim());
+    }
+    return sections;
+  }
+
+  async function handleDiffRequest(childId: string, parentId: string) {
+    try {
+      const [parentRes, childRes] = await Promise.all([
+        fetch(`/api/akasa/souls/${parentId}`),
+        fetch(`/api/akasa/souls/${childId}`),
+      ]);
+      if (parentRes.ok && childRes.ok) {
+        const [parentData, childData] = await Promise.all([parentRes.json(), childRes.json()]);
+        const detected = detectMutationType(parentData.soulContent, childData.soulContent);
+        diffState = { childId, parentId, mutationType: detected };
+      }
+    } catch { /* silent */ }
+  }
+
+  function closeDiff() {
+    diffState = null;
+  }
+
+  async function handleLedgerDiffRequest(soulId: string, parentId: string, mutationType: MutationType) {
+    diffState = { childId: soulId, parentId, mutationType };
+  }
 </script>
 
 <div class="bot-detail-page">
@@ -72,15 +145,24 @@
     {:else if activeTab === 'lineage'}
       {#if data.lineage.length > 0}
         <div class="lineage-container">
-          <LineageTree nodes={data.lineage} />
+          <LineageTree nodes={data.lineage} ondiffnode={handleDiffRequest} />
         </div>
       {:else}
         <p class="no-data-text">No lineage data available</p>
       {/if}
     {:else if activeTab === 'ledger'}
-      <ExperimentLedger rows={data.ledger} />
+      <ExperimentLedger rows={data.ledger} ondiff={handleLedgerDiffRequest} />
     {/if}
   </div>
+
+  {#if diffState}
+    <MutationDiff
+      childSoulId={diffState.childId}
+      parentSoulId={diffState.parentId}
+      mutationType={diffState.mutationType}
+      onClose={closeDiff}
+    />
+  {/if}
 </div>
 
 <style>

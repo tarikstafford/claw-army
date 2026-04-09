@@ -7,20 +7,20 @@
     generation: number;
     isArchetype: boolean;
     isPioneer: boolean;
+    parentSoulId: string | null;
     children?: SoulNode[];
   }
 
-  let { nodes }: { nodes: SoulNode[] } = $props();
+  let { nodes, ondiffnode }: { nodes: SoulNode[]; ondiffnode?: (childId: string, parentId: string) => void } = $props();
   let selectedNode: SoulNode | null = $state(null);
 
   const WIDTH = 480;
   const HEIGHT = 240;
   const NODE_R = 10;
 
-  // Convert flat chain to nested tree structure
   function buildTree(chain: SoulNode[]): SoulNode {
     if (chain.length === 0) {
-      return { id: 'empty', label: '—', generation: 0, isArchetype: false, isPioneer: false };
+      return { id: 'empty', label: '—', generation: 0, isArchetype: false, isPioneer: false, parentSoulId: null };
     }
     const root: SoulNode = { ...chain[0], children: [] };
     let current = root;
@@ -47,13 +47,24 @@
   const links = $derived(layout.links());
 
   function handleNodeClick(node: SoulNode) {
-    selectedNode = selectedNode?.id === node.id ? null : node;
+    if (node.data.parentSoulId && ondiffnode) {
+      ondiffnode(node.data.id, node.data.parentSoulId);
+    } else {
+      selectedNode = selectedNode?.id === node.data.id ? null : node;
+    }
   }
 
   function handleNodeKeydown(event: KeyboardEvent, node: SoulNode) {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       handleNodeClick(node);
+    }
+  }
+
+  function handleViewDiffClick(node: SoulNode, e: MouseEvent) {
+    e.stopPropagation();
+    if (node.parentSoulId && ondiffnode) {
+      ondiffnode(node.id, node.parentSoulId);
     }
   }
 
@@ -112,6 +123,13 @@
         {/if}
         {#if selectedNode.isPioneer}
           <span class="tooltip-tag pioneer-tag">Pioneer</span>
+        {/if}
+        {#if selectedNode !== null}
+          {#if selectedNode.parentSoulId && ondiffnode}
+            <button class="view-diff-btn" onclick={(e) => handleViewDiffClick(selectedNode, e)}>
+              View Diff
+            </button>
+          {/if}
         {/if}
       </div>
     {/if}
@@ -214,5 +232,23 @@
     color: var(--bo-amber);
     border: 1px solid rgba(251, 191, 36, 0.32);
     background: rgba(251, 191, 36, 0.10);
+  }
+
+  .view-diff-btn {
+    font-family: var(--font-label);
+    font-size: 6px;
+    letter-spacing: 0.10em;
+    color: var(--bo-violet);
+    background: none;
+    border: 1px solid var(--bo-violet);
+    border-radius: 3px;
+    padding: 3px 8px;
+    cursor: pointer;
+    margin-top: var(--space-sm);
+    transition: background 0.15s;
+  }
+
+  .view-diff-btn:hover {
+    background: rgba(139, 92, 246, 0.10);
   }
 </style>
