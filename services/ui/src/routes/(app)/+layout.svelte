@@ -41,6 +41,15 @@
       if (event.type === 'chat.message.created') {
         addToast('New message received', 'chat');
       }
+
+      // Budget event handlers
+      if (event.type === 'budget.exceeded') {
+        addToast('Budget exceeded — execution halted', 'danger');
+      }
+      if (event.type === 'budget.threshold.50' || event.type === 'budget.threshold.75' || event.type === 'budget.threshold.90') {
+        const threshold = event.type.split('.')[2];
+        addToast(`Budget at ${threshold}% — consider adjusting your cap`, 'warning');
+      }
       // Add more event type handlers as needed
     });
 

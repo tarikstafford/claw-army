@@ -163,6 +163,30 @@ export interface BudgetOverview {
   monthlyTotalCents: number;
 }
 
+export interface BudgetUpdateInput {
+  dailyBudgetCents?: number;
+  monthlyBudgetCents?: number;
+}
+
+export interface SpendTrendDay {
+  date: string;
+  totalCents: number;
+}
+
+export interface SpendTrendAgent {
+  date: string;
+  agentId: string;
+  agentName: string;
+  totalCents: number;
+}
+
+export interface SpendTrendOperation {
+  date: string;
+  llmCallsCents: number;
+  botHoursCents: number;
+  toolInvocationsCents: number;
+}
+
 // ── Companies ─────────────────────────────────────────────────────
 
 export async function getCompanies(): Promise<Company[]> {
@@ -353,4 +377,24 @@ export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]>
 
 export async function getBudgetOverview(companyId: string): Promise<BudgetOverview> {
   return apiFetch(`${BASE}/companies/${companyId}/budgets/overview`);
+}
+
+export async function updateBudget(companyId: string, input: BudgetUpdateInput): Promise<BudgetOverview> {
+  return apiFetch(`${BASE}/companies/${companyId}/budgets`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getSpendTrend(companyId: string): Promise<SpendTrendDay[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/trend`);
+}
+
+export async function getSpendTrendByAgent(companyId: string): Promise<SpendTrendAgent[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/trend/by-agent`);
+}
+
+export async function getSpendTrendByOperation(companyId: string): Promise<SpendTrendOperation[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/trend/by-operation`);
 }
