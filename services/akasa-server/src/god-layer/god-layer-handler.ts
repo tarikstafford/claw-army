@@ -9,7 +9,7 @@
  */
 
 import { eq, desc } from 'drizzle-orm';
-import { db, councilVerdicts, bots, botSouls, agentClasses } from '@claw/db';
+import { db, councilVerdicts, bots, botSouls, agentClasses, type DnaPayload } from '@claw/db';
 import { computeClassTransition, type AgentClass, type VerdictType } from './class-machine.js';
 import { captureDna } from './dna-writer.js';
 import { recordNegativeSignal } from './negative-register.js';
@@ -23,6 +23,22 @@ export interface GodLayerResult {
   processed: boolean;
   reason?: string;
 }
+
+type SoulAnalystOutputWithSkills = {
+  skillEvaluations?: Array<{
+    skillId: string;
+    skillName: string;
+    activationCount: number;
+    effectivenessScore: number;
+    alignmentWithSoul: number;
+    conflictsWithDirectives: Array<{
+      directive: string;
+      conflictDescription: string;
+      severity: string;
+    }>;
+  }>;
+  skillSoulConflictSummary?: string;
+};
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -64,6 +80,7 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     godLayerProcessedAt: Date | null;
     verdictSummary: string;
     weightedConfidenceScore: string;
+    soulAnalystOutput: SoulAnalystOutputWithSkills | null;
   } | undefined;
 
   try {
@@ -177,6 +194,7 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
 
   if (shouldCaptureDna) {
     try {
+      const skillLoadout = extractSkillLoadoutFromSoulAnalyst(verdict.soulAnalystOutput);
       await captureDna(
         verdict.botId,
         verdict.executionId,
@@ -184,6 +202,7 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
         taskCategory,
         (soul?.dimensions as Record<string, unknown>) ?? {},
         compositeScore,
+        skillLoadout,
       );
     } catch (err) {
       console.error('[god-layer] DNA capture failed:', { botId: verdict.botId, error: (err as Error).message });
@@ -240,4 +259,33 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
   }
 
   return { processed: true };
+}
+
+function extractSkillLoadoutFromSoulAnalyst(
+  soulAnalystOutput: SoulAnalystOutputWithSkills | null,
+): DnaPayload['skillLoadout'] | undefined {
+  if (!soulAnalystOutput?.skillEvaluations?.length) {
+    return undefined;
+  }
+
+  const equippedSkills = soulAnalystOutput.skillEvaluations.map((s) => ({
+    skillId: s.skillId,
+    skillName: s.skillName,
+    activationCount: s.activationCount,
+    avgEffectiveness: s.effectivenessScore,
+  }));
+
+  const conflictsDetected = soulAnalystOutput.skillEvaluations
+    .flatMap((s) =>
+      (s.conflictsWithDirectives ?? []).map((c) => ({
+        skillId: s.skillId,
+        directiveId: c.directive,
+        conflictDescription: c.conflictDescription,
+      })),
+    );
+
+  return {
+    equippedSkills,
+    conflictsDetected,
+  };
 }

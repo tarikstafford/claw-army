@@ -5,6 +5,34 @@ import { z } from 'zod';
 // ─── CouncilContext ──────────────────────────────────────────────────────────────
 
 /**
+ * Skill activation record extracted from decision trace metadata.
+ */
+export interface SkillActivation {
+  skillId: string;
+  skillName: string;
+  timesActivated: number;
+  effectivenessScore: number;
+  conflictsWithDirectives: string[];
+}
+
+/**
+ * Skill loadout for a bot.
+ */
+export interface SkillLoadout {
+  equippedSkills: Array<{
+    skillId: string;
+    skillName: string;
+    activationCount: number;
+    avgEffectiveness: number;
+  }>;
+  conflictsDetected: Array<{
+    skillId: string;
+    directiveId: string;
+    conflictDescription: string;
+  }>;
+}
+
+/**
  * Shared context object passed to all three council judges.
  * Defined here to avoid cross-service dependencies.
  */
@@ -34,6 +62,8 @@ export interface CouncilContext {
     metricName: string;
     metricValue: string;
   }>;
+  skillLoadout?: SkillLoadout;
+  skillActivations?: SkillActivation[];
 }
 
 // ─── Output Schema ─────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@
 import { max, eq } from 'drizzle-orm';
 import IORedis from 'ioredis';
 import { db, dnaStore } from '@claw/db';
+import type { DnaPayload } from '@claw/db';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -59,6 +60,7 @@ export async function captureDna(
   taskCategory: string,
   dimensions: Record<string, unknown>,
   compositeScore: string,
+  skillLoadout?: DnaPayload['skillLoadout'],
 ): Promise<void> {
   const lockKey = `${DNA_LOCK_KEY_PREFIX}${taskCategory}`;
   const lockValue = `${botId}:${Date.now()}`;
@@ -87,7 +89,7 @@ export async function captureDna(
     const version = currentMax !== null ? currentMax + 1 : 1;
 
     // Insert new DNA entry
-    const dnaPayload = {
+    const dnaPayload: DnaPayload = {
       systemPromptTemplate: '',
       toolCallSequence: [],
       argumentPatterns: {},
@@ -99,6 +101,7 @@ export async function captureDna(
       agentClassAtWrite: 'Novice',
       compositeFitnessScore: parseFloat(compositeScore),
       fitnessDimensionBreakdown: dimensions as Record<string, number>,
+      skillLoadout,
     };
 
     await db.insert(dnaStore).values({
