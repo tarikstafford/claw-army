@@ -283,5 +283,46 @@ export function webhooksRouter(): Router {
     },
   );
 
+  // ── POST /:toolId/simulate — dry-run routing rule evaluation ───────────────────
+  router.post(
+    '/:toolId/simulate',
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { toolId } = req.params as { toolId: string };
+        const body = req.body as { userId?: string; eventType?: string; payload?: Record<string, unknown> };
+
+        if (!body.userId || !body.eventType) {
+          res.status(400).json({ error: 'userId and eventType are required' });
+          return;
+        }
+
+        const rules = await db
+          .select()
+          .from(webhookRoutingRules)
+          .where(
+            and(
+              eq(webhookRoutingRules.userId, body.userId),
+              eq(webhookRoutingRules.toolId, toolId),
+              eq(webhookRoutingRules.isActive, true),
+            ),
+          );
+
+        const payload = body.payload ?? {};
+        const matchedRule = evaluateRoutingRules(rules, body.eventType);
+
+        res.json({
+          eventType: body.eventType,
+          matchedRule: matchedRule
+            ? { id: matchedRule.id, eventType: matchedRule.eventType, assignToAgentId: matchedRule.assignToAgentId }
+            : null,
+          allRules: rules.map((r) => ({ id: r.id, eventType: r.eventType, assignToAgentId: r.assignToAgentId })),
+          dryRun: true,
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+
   return router;
 }
