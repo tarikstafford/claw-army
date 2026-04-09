@@ -5,17 +5,19 @@
   import IdentityCard from '$lib/components/evolution/IdentityCard.svelte';
   import ProfileTab from '$lib/components/evolution/ProfileTab.svelte';
   import RuntimeStatus from '$lib/components/evolution/RuntimeStatus.svelte';
+  import SkillLoadout from '$lib/components/evolution/SkillLoadout.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'skills'>('profile');
 
   const TABS = [
     { id: 'profile' as const, label: 'PROFILE' },
     { id: 'timeline' as const, label: 'TIMELINE' },
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
+    { id: 'skills' as const, label: 'SKILLS' },
   ];
 </script>
 
@@ -79,6 +81,13 @@
       {/if}
     {:else if activeTab === 'ledger'}
       <ExperimentLedger rows={data.ledger} />
+    {:else if activeTab === 'skills'}
+      <SkillLoadout
+        botId={data.botId}
+        loadout={data.skillLoadout ?? null}
+        skills={data.skills ?? []}
+        conflicts={data.skillConflicts ?? []}
+      />
     {/if}
   </div>
 </div>

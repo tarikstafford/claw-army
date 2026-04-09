@@ -1,5 +1,6 @@
 <script lang="ts">
   import FleetOverview from '$lib/components/evolution/FleetOverview.svelte';
+  import SkillHeatmap from '$lib/components/evolution/SkillHeatmap.svelte';
   import VerdictConfirm from '$lib/components/evolution/VerdictConfirm.svelte';
 
   let { data } = $props();
@@ -15,10 +16,15 @@
     <p class="error-state">Failed to load fleet data. Refresh to retry.</p>
   {/if}
 
-  <!-- Section 1: Class Distribution Grid + Score Trend -->
   <FleetOverview fleet={data.fleet} agents={data.agents} />
 
-  <!-- Section 2: Pending Verdicts -->
+  {#if data.skillHeatmap && data.skillHeatmap.length > 0}
+    <section class="heatmap-section">
+      <h2 class="section-heading">Fleet Skill Effectiveness</h2>
+      <SkillHeatmap cells={data.skillHeatmap} />
+    </section>
+  {/if}
+
   {#if pendingVerdicts.length > 0}
     <section class="pending-section">
       <h2 class="section-heading">Awaiting Your Decision</h2>
@@ -47,7 +53,7 @@
     margin: 0;
   }
 
-  .pending-section {
+  .heatmap-section {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
@@ -59,6 +65,12 @@
     font-weight: 600;
     color: var(--bo-text);
     margin: 0;
+  }
+
+  .pending-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
   }
 
   .pending-list {

@@ -351,6 +351,172 @@ export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]>
   return apiFetch(`${BASE}/companies/${companyId}/costs/by-agent`);
 }
 
+// ── Skill types ───────────────────────────────────────────────────
+
+export type SkillSource = 'authored' | 'learned' | 'acquired';
+export type SkillEffectiveness = 'high' | 'medium' | 'low' | 'unknown';
+export type SkillConflictType = 'soul' | 'cooldown' | 'redundant';
+
+export interface Skill {
+  id: string;
+  companyId: string;
+  name: string;
+  category: string;
+  source: SkillSource;
+  triggerPatterns: string[];
+  effectivenessScore: number | null;
+  effectivenessClassification: SkillEffectiveness;
+  confidence: number;
+  content: string;
+  isApproved: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SkillEffectivenessMap {
+  botId: string;
+  skillId: string;
+  score: number | null;
+  classification: SkillEffectiveness;
+}
+
+export interface SkillConflict {
+  skillA: string;
+  skillB: string;
+  conflictType: SkillConflictType;
+  description: string;
+}
+
+export interface CreateSkillInput {
+  name: string;
+  category: string;
+  triggerPatterns: string[];
+  content: string;
+}
+
+export interface UpdateSkillInput {
+  name?: string;
+  category?: string;
+  triggerPatterns?: string[];
+  content?: string;
+  isApproved?: boolean;
+}
+
+export interface BotSkillLoadout {
+  botId: string;
+  equippedSkillIds: string[];
+  capacity: number;
+}
+
+export interface PendingSkillReview {
+  id: string;
+  botId: string;
+  skillName: string;
+  confidence: number;
+  learnedAt: string;
+}
+
+export interface SkillHeatmapCell {
+  botId: string;
+  botName: string;
+  skillId: string;
+  skillName: string;
+  classification: SkillEffectiveness;
+}
+
+// ── Costs (SANCTUM) ───────────────────────────────────────────────
+
+export async function getCostsSummary(companyId: string): Promise<CostSummary> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/summary`);
+}
+
+export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/by-agent`);
+}
+
 export async function getBudgetOverview(companyId: string): Promise<BudgetOverview> {
   return apiFetch(`${BASE}/companies/${companyId}/budgets/overview`);
+}
+
+// ── Skills ────────────────────────────────────────────────────────
+
+export async function getSkills(companyId: string, params?: {
+  category?: string;
+  source?: SkillSource;
+  effectiveness?: SkillEffectiveness;
+}): Promise<Skill[]> {
+  const query = new URLSearchParams();
+  if (params?.category) query.set('category', params.category);
+  if (params?.source) query.set('source', params.source);
+  if (params?.effectiveness) query.set('effectiveness', params.effectiveness);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/companies/${companyId}/skills${qs ? `?${qs}` : ''}`);
+}
+
+export async function getSkill(skillId: string): Promise<Skill> {
+  return apiFetch(`${BASE}/skills/${skillId}`);
+}
+
+export async function createSkill(companyId: string, body: CreateSkillInput): Promise<Skill> {
+  return apiFetch(`${BASE}/companies/${companyId}/skills`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateSkill(skillId: string, body: UpdateSkillInput): Promise<Skill> {
+  return apiFetch(`${BASE}/skills/${skillId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteSkill(skillId: string): Promise<void> {
+  await apiFetch(`${BASE}/skills/${skillId}`, { method: 'DELETE' });
+}
+
+export async function getPendingSkillReviews(companyId: string): Promise<PendingSkillReview[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/skills/pending`);
+}
+
+export async function approveSkill(skillId: string): Promise<Skill> {
+  return apiFetch(`${BASE}/skills/${skillId}/approve`, { method: 'POST' });
+}
+
+export async function getBotSkillLoadout(botId: string): Promise<BotSkillLoadout> {
+  return apiFetch(`${BASE}/evolution/bots/${botId}/skills/loadout`);
+}
+
+export async function equipSkill(botId: string, skillId: string): Promise<BotSkillLoadout> {
+  return apiFetch(`${BASE}/evolution/bots/${botId}/skills/equip`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ skillId }),
+  });
+}
+
+export async function unequipSkill(botId: string, skillId: string): Promise<BotSkillLoadout> {
+  return apiFetch(`${BASE}/evolution/bots/${botId}/skills/unequip`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ skillId }),
+  });
+}
+
+export async function reorderSkills(botId: string, skillIds: string[]): Promise<BotSkillLoadout> {
+  return apiFetch(`${BASE}/evolution/bots/${botId}/skills/reorder`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ skillIds }),
+  });
+}
+
+export async function getSkillConflicts(botId: string): Promise<SkillConflict[]> {
+  return apiFetch(`${BASE}/evolution/bots/${botId}/skills/conflicts`);
+}
+
+export async function getFleetSkillHeatmap(companyId: string): Promise<SkillHeatmapCell[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/skills/heatmap`);
 }
