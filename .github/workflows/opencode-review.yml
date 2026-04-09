@@ -1,0 +1,152 @@
+name: Review PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    if: >-
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request != null && contains(github.event.comment.body, '/review'))
+    runs-on: ubuntu-latest
+    environment: Production
+    env:
+      MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Get PR info
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let pr;
+            if (context.payload.pull_request) {
+              pr = context.payload.pull_request;
+            } else {
+              const { data } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.issue.number
+              });
+              pr = data;
+            }
+            core.setOutput('number', pr.number);
+            core.setOutput('title', pr.title);
+            core.setOutput('body', pr.body || '');
+            core.setOutput('head_ref', pr.head.ref);
+            core.setOutput('base_ref', pr.base.ref);
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.head_ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Get diff
+        id: diff
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr diff ${{ steps.pr.outputs.number }} > /tmp/pr.diff
+          echo "diff_size=$(wc -c < /tmp/pr.diff | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if empty
+        if: steps.diff.outputs.diff_size == '0'
+        run: echo "No diff, skipping review" && exit 0
+
+      - name: Install OpenCode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      - name: Configure OpenCode auth
+        run: |
+          mkdir -p ~/.local/share/opencode
+          echo '{"minimax-coding-plan":{"type":"api","key":"'"$MINIMAX_API_KEY"'"}}' > ~/.local/share/opencode/auth.json
+
+      - name: Review with OpenCode
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODEL: minimax-coding-plan/MiniMax-M2.7
+          USE_GITHUB_TOKEN: "true"
+          PROMPT: |
+            You are a senior code reviewer for the Akasa platform (claw-army repo).
+
+            ## PR #${{ steps.pr.outputs.number }}: ${{ steps.pr.outputs.title }}
+
+            ${{ steps.pr.outputs.body }}
+
+            ## Your task
+
+            Review this pull request. Read AGENTS.md first for project context and conventions.
+
+            1. Run `gh pr diff ${{ steps.pr.outputs.number }}` to see the full diff
+            2. Read every changed file to understand the full context (not just the diff)
+            3. Check the linked issue (if any) to verify the implementation matches requirements
+
+            ## Review checklist
+
+            **Correctness**
+            - Does the code do what the PR/issue says it should?
+            - Are there logic bugs, off-by-one errors, missing edge cases?
+            - Are async operations handled correctly (await, error handling, race conditions)?
+
+            **Architecture & conventions**
+            - ESM with `node:` prefix for builtins
+            - Named exports only (no `export default`)
+            - String unions, not enums. `interface` for entities.
+            - Svelte 5 runes ($props, $state, $derived), pure CSS with --fo-*/--bo-* tokens
+            - Drizzle ORM for DB, TypeBox for route schemas
+            - Import order: node builtins > external > @claw/* > relative
+
+            **Boundaries (hard blocks)**
+            - Paperclip submodule must not be modified
+            - Bot isolation: zero network access except Tool Gateway
+            - Council integrity: Devil's Advocate uses different LLM provider than Performance Judge
+            - Credentials encrypted with AES-256-GCM via node:crypto only
+            - No Tailwind, no CSS modules, no component libraries
+
+            **Security**
+            - No secrets in code, logs, or CLI args
+            - No SQL injection, XSS, command injection
+            - Validate at system boundaries (user input, external APIs)
+
+            **Quality**
+            - No unnecessary abstractions or premature generalization
+            - No dead code, unused imports, commented-out blocks
+            - Conventional commit messages: feat(scope):, fix(scope):, docs(scope):
+
+            ## How to submit your review
+
+            Post your review as a PR comment using `gh pr comment ${{ steps.pr.outputs.number }}`.
+
+            Format your review as:
+
+            ```
+            ## Code Review — PR #<number>
+
+            ### Summary
+            <1-2 sentence overview of what this PR does and whether it achieves its goal>
+
+            ### Verdict: APPROVE | REQUEST_CHANGES | COMMENT
+
+            ### Issues Found
+            <numbered list, with file:line references and severity (blocker/warning/nit)>
+            <if no issues: "No issues found.">
+
+            ### Suggestions
+            <optional improvements that aren't blockers>
+            ```
+
+            If you find blockers, be specific about what needs to change and why.
+            If the code is good, say so concisely — don't invent issues.
+        run: opencode github run
