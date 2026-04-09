@@ -139,6 +139,21 @@
           updatedAt: event.createdAt,
         }];
       }
+      if (event.type === 'heartbeat.run.status') {
+        const payload = event.payload as Record<string, unknown>;
+        const status = String(payload.status ?? '');
+        const runId = String(payload.runId ?? '');
+        const description = runId
+          ? `Run ${status} (${runId.slice(0, 8)})`
+          : `Run ${status}`;
+        activity = [{
+          id: String(event.id),
+          type: event.type,
+          description,
+          createdAt: event.createdAt,
+          agentId: (payload.agentId as string | undefined) ?? null,
+        }, ...activity].slice(0, 50);
+      }
     });
     return unsub;
   });

@@ -41,6 +41,17 @@
       if (event.type === 'chat.message.created') {
         addToast('New message received', 'chat');
       }
+
+      // Heartbeat run status changes — show run status toasts
+      if (event.type === 'heartbeat.run.status') {
+        const payload = event.payload as Record<string, unknown>;
+        const status = String(payload.status ?? '');
+        const runId = String(payload.runId ?? '');
+        if (status && runId) {
+          addToast(`Run ${status}${runId ? ` (${runId.slice(0, 8)})` : ''}`, 'execution');
+        }
+      }
+
       // Add more event type handlers as needed
     });
 

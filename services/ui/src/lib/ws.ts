@@ -8,6 +8,29 @@ export interface LiveEvent {
   payload: Record<string, unknown>;
 }
 
+export type HeartbeatRunStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'timed_out';
+
+export interface HeartbeatRunPayload {
+  runId: string;
+  status: HeartbeatRunStatus;
+  agentId?: string;
+  finishedAt?: string;
+}
+
+export interface HeartbeatLogPayload {
+  runId: string;
+  chunk: string;
+  stream?: 'stdout' | 'stderr' | 'system';
+  ts?: string;
+}
+
+export interface HeartbeatEventPayload {
+  runId: string;
+  eventType?: string;
+  message?: string;
+  seq?: number;
+}
+
 type EventListener = (event: LiveEvent) => void;
 
 let ws: WebSocket | null = null;
