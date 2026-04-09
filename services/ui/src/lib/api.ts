@@ -341,6 +341,25 @@ export async function sendChatMessage(
   });
 }
 
+// ── Fleet Events ──────────────────────────────────────────────────
+
+export interface FleetEvent {
+  id: string;
+  type: 'fleet.verdict.confirmed' | 'fleet.class.transition' | 'fleet.dna.captured' | 'fleet.pioneer.detected';
+  timestamp: string;
+  botId: string;
+  summary: string;
+  executionId?: string;
+  verdictType?: string;
+  compositeScore?: string;
+  newClass?: string;
+  taskCategory?: string;
+}
+
+export async function getFleetEvents(companyId: string): Promise<FleetEvent[]> {
+  return apiFetch(`${BASE}/akasa/evolution/fleet/events`);
+}
+
 // ── Costs (SANCTUM) ───────────────────────────────────────────────
 
 export async function getCostsSummary(companyId: string): Promise<CostSummary> {

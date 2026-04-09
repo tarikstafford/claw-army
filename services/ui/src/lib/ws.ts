@@ -8,6 +8,53 @@ export interface LiveEvent {
   payload: Record<string, unknown>;
 }
 
+export interface SoulPromotedPayload {
+  type: 'soul_promoted';
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  fromClass: 'Novice' | 'Understudy';
+  toClass: 'Understudy' | 'Artisan';
+  description: string;
+  timestamp: string;
+}
+
+export interface SoulDemotedPayload {
+  type: 'soul_demoted';
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  fromClass: 'Understudy' | 'Artisan';
+  toClass: 'Novice' | 'Understudy';
+  description: string;
+  timestamp: string;
+}
+
+export interface SoulRetiredPayload {
+  type: 'soul_retired';
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  fromClass: 'Novice' | 'Understudy' | 'Artisan';
+  description: string;
+  timestamp: string;
+}
+
+export interface PioneerDetectedPayload {
+  type: 'pioneer_detected';
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  description: string;
+  timestamp: string;
+}
+
+export type FleetLifecycleEvent = SoulPromotedPayload | SoulDemotedPayload | SoulRetiredPayload | PioneerDetectedPayload;
+
+export function isFleetLifecycleEvent(event: LiveEvent): event is LiveEvent & { payload: FleetLifecycleEvent } {
+  return ['soul_promoted', 'soul_demoted', 'soul_retired', 'pioneer_detected'].includes(event.type);
+}
+
 type EventListener = (event: LiveEvent) => void;
 
 let ws: WebSocket | null = null;

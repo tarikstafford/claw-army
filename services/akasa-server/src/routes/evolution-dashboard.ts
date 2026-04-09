@@ -627,5 +627,136 @@ export function evolutionDashboardRouter(): Router {
     }
   });
 
+  // ── GET /fleet/events ───────────────────────────────────────────────────────
+  // Returns fleet-wide events: verdict outcomes, class transitions, DNA captures, pioneer achievements
+
+  router.get('/fleet/events', async (_req, res, next) => {
+    try {
+      const limit = 50;
+
+      // 1. Verdict events (Promote, Demote, Retire with confirmed status)
+      const verdictRows = await db
+        .select({
+          id: councilVerdicts.id,
+          botId: councilVerdicts.botId,
+          executionId: councilVerdicts.executionId,
+          verdictType: councilVerdicts.verdictType,
+          status: councilVerdicts.status,
+          weightedConfidenceScore: councilVerdicts.weightedConfidenceScore,
+          verdictSummary: councilVerdicts.verdictSummary,
+          createdAt: councilVerdicts.createdAt,
+        })
+        .from(councilVerdicts)
+        .where(
+          and(
+            eq(councilVerdicts.status, 'confirmed'),
+          ),
+        )
+        .orderBy(desc(councilVerdicts.createdAt))
+        .limit(limit);
+
+      const verdictEvents = verdictRows.map((r) => ({
+        id: r.id,
+        type: 'fleet.verdict.confirmed' as const,
+        timestamp: r.createdAt,
+        botId: r.botId,
+        executionId: r.executionId,
+        verdictType: r.verdictType,
+        summary: r.verdictSummary,
+        compositeScore: r.weightedConfidenceScore,
+      }));
+
+      // 2. Class transition events from agentClasses (non-null lastTransitionAt)
+      const transitionRows = await db
+        .select({
+          id: agentClasses.id,
+          botId: agentClasses.botId,
+          currentClass: agentClasses.currentClass,
+          taskCategory: agentClasses.taskCategory,
+          lastTransitionAt: agentClasses.lastTransitionAt,
+        })
+        .from(agentClasses)
+        .where(isNotNull(agentClasses.lastTransitionAt))
+        .orderBy(desc(agentClasses.lastTransitionAt))
+        .limit(limit);
+
+      const transitionEvents = transitionRows.map((r) => ({
+        id: r.id,
+        type: 'fleet.class.transition' as const,
+        timestamp: r.lastTransitionAt!,
+        botId: r.botId,
+        newClass: r.currentClass,
+        taskCategory: r.taskCategory,
+        summary: `Class transition to ${r.currentClass} in ${r.taskCategory}`,
+      }));
+
+      // 3. DNA capture events from dnaStore
+      const dnaRows = await db
+        .select({
+          id: dnaStore.id,
+          botId: dnaStore.botId,
+          executionId: dnaStore.executionId,
+          objectiveCategory: dnaStore.objectiveCategory,
+          compositeScore: dnaStore.compositeScore,
+          capturedAt: dnaStore.capturedAt,
+        })
+        .from(dnaStore)
+        .orderBy(desc(dnaStore.capturedAt))
+        .limit(limit);
+
+      const dnaEvents = dnaRows.map((r) => ({
+        id: r.id,
+        type: 'fleet.dna.captured' as const,
+        timestamp: r.capturedAt,
+        botId: r.botId,
+        executionId: r.executionId,
+        taskCategory: r.objectiveCategory,
+        summary: `DNA captured for ${r.objectiveCategory}`,
+        compositeScore: r.compositeScore,
+      }));
+
+      // 4. Pioneer events (first agents to achieve benchmark in a category)
+      const pioneerRows = await db
+        .select({
+          id: agentClasses.id,
+          botId: agentClasses.botId,
+          taskCategory: agentClasses.taskCategory,
+          isPioneer: agentClasses.isPioneer,
+          createdAt: agentClasses.createdAt,
+        })
+        .from(agentClasses)
+        .where(eq(agentClasses.isPioneer, true))
+        .orderBy(desc(agentClasses.createdAt))
+        .limit(limit);
+
+      const pioneerEvents = pioneerRows.map((r) => ({
+        id: r.id,
+        type: 'fleet.pioneer.detected' as const,
+        timestamp: r.createdAt,
+        botId: r.botId,
+        taskCategory: r.taskCategory,
+        summary: `Pioneer achievement in ${r.taskCategory}`,
+      }));
+
+      // Merge all events and sort by timestamp DESC
+      const allEvents = [
+        ...verdictEvents,
+        ...transitionEvents,
+        ...dnaEvents,
+        ...pioneerEvents,
+      ];
+
+      allEvents.sort((a, b) => {
+        const ta = new Date(a.timestamp).getTime();
+        const tb = new Date(b.timestamp).getTime();
+        return tb - ta;
+      });
+
+      res.json(allEvents.slice(0, limit));
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 }
