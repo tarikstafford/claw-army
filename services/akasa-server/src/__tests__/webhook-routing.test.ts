@@ -5,31 +5,31 @@ describe('extractEventType', () => {
   it('Test 1: extracts subscriptionType from HubSpot events array', () => {
     const result = extractEventType('hubspot', {
       events: [{ subscriptionType: 'contact.creation' }],
-    });
+    }, {});
     expect(result).toBe('contact.creation');
   });
 
   it('Test 2: extracts event.type from Slack payload', () => {
     const result = extractEventType('slack', {
       event: { type: 'message' },
-    });
+    }, {});
     expect(result).toBe('message');
   });
 
   it('Test 3: extracts top-level type from Slack url_verification payload', () => {
     const result = extractEventType('slack', {
       type: 'url_verification',
-    });
+    }, {});
     expect(result).toBe('url_verification');
   });
 
   it('Test 4: extracts top-level type for unknown tools', () => {
-    const result = extractEventType('unknown-tool', { type: 'some_event' });
+    const result = extractEventType('unknown-tool', { type: 'some_event' }, {});
     expect(result).toBe('some_event');
   });
 
   it('Test 5: returns "unknown" when HubSpot events array is empty/missing', () => {
-    const result = extractEventType('hubspot', {});
+    const result = extractEventType('hubspot', {}, {});
     expect(result).toBe('unknown');
   });
 });

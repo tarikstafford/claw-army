@@ -2,7 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import { createHash } from 'node:crypto';
 import { db, toolConnections, toolInvocationLogs, webhookRoutingRules } from '@claw/db';
 import { eq, and } from 'drizzle-orm';
-import { verifyHubSpotSignature, verifySlackSignature } from '../services/webhook-verifier.js';
+import { verifyHubSpotSignature, verifySlackSignature, verifyStripeSignature, verifyGitHubSignature, verifyLinearSignature } from '../services/webhook-verifier.js';
 
 // ─── Routing rule helpers ─────────────────────────────────────────────────────
 
@@ -10,7 +10,11 @@ import { verifyHubSpotSignature, verifySlackSignature } from '../services/webhoo
  * Extract provider-specific event type from webhook payload.
  * HubSpot sends an array of subscription events; Slack sends a top-level type.
  */
-export function extractEventType(toolId: string, payload: Record<string, unknown>): string {
+export function extractEventType(
+  toolId: string,
+  payload: Record<string, unknown>,
+  headers: Record<string, string | undefined | string[]>,
+): string {
   if (toolId === 'hubspot') {
     const events = payload['events'] as Array<{ subscriptionType?: string }> | undefined;
     return events?.[0]?.subscriptionType ?? 'unknown';
@@ -18,6 +22,27 @@ export function extractEventType(toolId: string, payload: Record<string, unknown
   if (toolId === 'slack') {
     const event = payload['event'] as { type?: string } | undefined;
     return event?.type ?? (payload['type'] as string | undefined) ?? 'unknown';
+  }
+  if (toolId === 'github') {
+    const event = payload['action'] as string | undefined;
+    const githubEvent = (typeof headers['x-github-event'] === 'string'
+      ? headers['x-github-event']
+      : Array.isArray(headers['x-github-event'])
+        ? headers['x-github-event'][0]
+        : undefined) as string | undefined;
+    return githubEvent ?? event ?? 'unknown';
+  }
+  if (toolId === 'stripe') {
+    const event = payload['type'] as string | undefined;
+    return event ?? 'unknown';
+  }
+  if (toolId === 'linear') {
+    const event = payload['action'] as string | undefined;
+    return event ?? 'unknown';
+  }
+  if (toolId === 'notion') {
+    const event = payload['type'] as string | undefined;
+    return event ?? 'unknown';
   }
   return (payload['type'] as string | undefined) ?? 'unknown';
 }
@@ -167,6 +192,33 @@ export function webhooksRouter(): Router {
             timestamp,
             signingSecret,
           });
+        } else if (toolId === 'stripe') {
+          const signature = req.get('Stripe-Signature') ?? '';
+          const webhookSecret = process.env['STRIPE_WEBHOOK_SECRET'] ?? '';
+
+          signatureValid = verifyStripeSignature({
+            rawBody,
+            signature,
+            webhookSecret,
+          });
+        } else if (toolId === 'github') {
+          const signature = req.get('X-Hub-Signature-256') ?? '';
+          const webhookSecret = process.env['GITHUB_WEBHOOK_SECRET'] ?? '';
+
+          signatureValid = verifyGitHubSignature({
+            rawBody,
+            signature,
+            webhookSecret,
+          });
+        } else if (toolId === 'linear') {
+          const signature = req.get('X-Linear-Signature') ?? '';
+          const webhookSecret = process.env['LINEAR_WEBHOOK_SECRET'] ?? '';
+
+          signatureValid = verifyLinearSignature({
+            rawBody,
+            signature,
+            webhookSecret,
+          });
         } else {
           // Unknown tool — skip signature verification but log a warning
           console.warn(
@@ -211,7 +263,7 @@ export function webhooksRouter(): Router {
         let parsedPayload: Record<string, unknown> = {};
         try { parsedPayload = JSON.parse(rawBody) as Record<string, unknown>; } catch { /* not JSON */ }
 
-        const eventType = extractEventType(toolId, parsedPayload);
+        const eventType = extractEventType(toolId, parsedPayload, req.headers as Record<string, string | string[] | undefined>);
 
         void (async () => {
           try {

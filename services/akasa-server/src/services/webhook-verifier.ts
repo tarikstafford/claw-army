@@ -78,3 +78,108 @@ export function verifySlackSignature(params: {
     return false;
   }
 }
+
+/**
+ * Verify Stripe webhook signature (HMAC-SHA256).
+ * Stripe sends Stripe-Signature header containing timestamp=t+scheme=version+signature
+ *
+ * @param rawBody - Raw request body as string
+ * @param signature - Value of Stripe-Signature header
+ * @param webhookSecret - Stripe webhook secret (from env: STRIPE_WEBHOOK_SECRET)
+ * @returns true if signature is valid
+ */
+export function verifyStripeSignature(params: {
+  rawBody: string;
+  signature: string;
+  webhookSecret: string;
+}): boolean {
+  if (!params.signature || !params.webhookSecret) return false;
+
+  const parts = params.signature.split(',');
+  const timestampPart = parts.find((p) => p.startsWith('t='));
+  const signaturePart = parts.find((p) => p.startsWith('v1='));
+
+  if (!timestampPart || !signaturePart) return false;
+
+  const timestamp = timestampPart.slice(2);
+  const signature = signaturePart.slice(3);
+
+  // Reject timestamps older than 5 minutes to prevent replay attacks
+  const timestampSec = parseInt(timestamp, 10);
+  const nowSec = Math.floor(Date.now() / 1000);
+  if (Math.abs(nowSec - timestampSec) > 300) return false;
+
+  const sigBasestring = `${timestamp}.${params.rawBody}`;
+  const expectedSignature = createHmac('sha256', params.webhookSecret)
+    .update(sigBasestring)
+    .digest('hex');
+
+  try {
+    return timingSafeEqual(
+      Buffer.from(signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex'),
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Verify GitHub webhook signature (HMAC-SHA256).
+ * GitHub sends X-Hub-Signature-256 header containing sha256=HMAC-SHA256(secret, rawBody)
+ *
+ * @param rawBody - Raw request body as string
+ * @param signature - Value of X-Hub-Signature-256 header (sha256=hex)
+ * @param webhookSecret - GitHub webhook secret (from env: GITHUB_WEBHOOK_SECRET)
+ * @returns true if signature is valid
+ */
+export function verifyGitHubSignature(params: {
+  rawBody: string;
+  signature: string;
+  webhookSecret: string;
+}): boolean {
+  if (!params.signature || !params.webhookSecret) return false;
+
+  const expectedSignature =
+    'sha256=' +
+    createHmac('sha256', params.webhookSecret).update(params.rawBody).digest('hex');
+
+  try {
+    return timingSafeEqual(
+      Buffer.from(params.signature),
+      Buffer.from(expectedSignature),
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Verify Linear webhook signature (HMAC-SHA256).
+ * Linear sends X-Linear-Signature header containing HMAC-SHA256(secret, rawBody)
+ *
+ * @param rawBody - Raw request body as string
+ * @param signature - Value of X-Linear-Signature header (hex)
+ * @param webhookSecret - Linear webhook secret (from env: LINEAR_WEBHOOK_SECRET)
+ * @returns true if signature is valid
+ */
+export function verifyLinearSignature(params: {
+  rawBody: string;
+  signature: string;
+  webhookSecret: string;
+}): boolean {
+  if (!params.signature || !params.webhookSecret) return false;
+
+  const expectedSignature = createHmac('sha256', params.webhookSecret)
+    .update(params.rawBody)
+    .digest('hex');
+
+  try {
+    return timingSafeEqual(
+      Buffer.from(params.signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex'),
+    );
+  } catch {
+    return false;
+  }
+}
