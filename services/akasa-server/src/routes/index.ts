@@ -11,6 +11,7 @@ import { webhookRoutingRulesRouter } from './webhook-routing-rules.js';
 import { webhookLogsRouter } from './webhook-logs.js';
 import { internalRouter } from './internal.js';
 import { githubRouter } from './github.js';
+import { skillsRouter, agentSkillsRouter } from './skills.js';
 
 const akasaRouter = Router();
 
@@ -55,5 +56,11 @@ akasaRouter.use('/akasa/webhooks', webhookLogsRouter());
 // Internal endpoints for cross-service lookups (plugin worker → akasa-server)
 // WARNING: No auth — relies on local_trusted mode (localhost-only access)
 akasaRouter.use('/akasa/internal', internalRouter());
+
+// Skill CRUD routes (GET / POST / GET /:id / PATCH /:id / DELETE /:id)
+akasaRouter.use('/akasa/skills', skillsRouter());
+
+// Agent skill loadout routes (GET / POST / DELETE)
+akasaRouter.use('/akasa/agents', agentSkillsRouter());
 
 export { akasaRouter };
