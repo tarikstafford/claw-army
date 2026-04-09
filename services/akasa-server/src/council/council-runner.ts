@@ -1,8 +1,9 @@
-import { db, bots, botSouls, councilVerdicts } from '@claw/db';
+import { db, bots, botSouls, councilVerdicts, executions } from '@claw/db';
 import { eq } from 'drizzle-orm';
 import { runPerformanceJudge, type CouncilContext, type PerformanceJudgeOutput } from './performance-judge.js';
 import { runSoulAnalyst, type SoulAnalystOutput } from './soul-analyst.js';
 import { runDevilsAdvocate, type DevilsAdvocateOutput } from './devils-advocate.js';
+import { processSkillLearning } from '../services/skill-learning.js';
 import type { CouncilVerdict } from '@claw/db';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -259,6 +260,28 @@ export async function runCouncilForBot(
     confidence: verdict.weightedConfidenceScore.toFixed(3),
     requiresHumanConfirmation: verdict.requiresHumanConfirmation,
     hasUnresolvedDevilsAdvocate: verdict.hasUnresolvedDevilsAdvocate,
+  });
+
+  // Fire-and-forget skill learning (non-critical side effect per coding conventions)
+  const executionRows = await db
+    .select({ objective: executions.objective })
+    .from(executions)
+    .where(eq(executions.id, executionId))
+    .limit(1);
+
+  const taskContext = executionRows.length > 0 ? executionRows[0]!.objective : 'Unknown objective';
+
+  processSkillLearning(
+    executionId,
+    botId,
+    soulId,
+    taskContext,
+    verdict.verdictType,
+  ).catch((err) => {
+    console.error('[council-runner] Skill learning failed:', {
+      botId,
+      error: (err as Error).message,
+    });
   });
 
   return insertedVerdict;

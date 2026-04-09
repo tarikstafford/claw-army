@@ -71,6 +71,13 @@ vi.mock('@claw/db', () => ({
   bots: { id: 'id', tasksClaimed: 'tasks_claimed', tasksCompleted: 'tasks_completed', tasksFailed: 'tasks_failed', compositeScore: 'composite_score', tier: 'tier' },
   botSouls: { id: 'id', soulContent: 'soul_content', constitutionDirectives: 'constitution_directives', taskCategory: 'task_category' },
   councilVerdicts: { executionId: 'execution_id', botId: 'bot_id' },
+  executions: { id: 'id', objective: 'objective' },
+  decisionTraces: { id: 'id', executionId: 'execution_id' },
+  skills: { id: 'id' },
+}));
+
+vi.mock('../services/skill-learning.js', () => ({
+  processSkillLearning: vi.fn().mockResolvedValue([]),
 }));
 
 describe('runPerformanceJudge', () => {
