@@ -45,16 +45,30 @@ export const pioneerDetectedEventSchema = z.object({
   timestamp: z.iso.datetime(),
 });
 
+/** Schema for a skill_unlearned event — emitted when a skill is auto-removed due to poor performance */
+export const skillUnlearnedEventSchema = z.object({
+  type: z.literal('skill_unlearned'),
+  botId: z.uuid(),
+  executionId: z.uuid(),
+  skillId: z.uuid(),
+  skillName: z.string(),
+  reason: z.string(),
+  consecutiveNegativeCount: z.number().int().nonnegative(),
+  timestamp: z.iso.datetime(),
+});
+
 /** Discriminated union of all soul lifecycle event types */
 export const soulLifecycleEventSchema = z.discriminatedUnion('type', [
   soulPromotedEventSchema,
   soulDemotedEventSchema,
   soulRetiredEventSchema,
   pioneerDetectedEventSchema,
+  skillUnlearnedEventSchema,
 ]);
 
 export type SoulPromotedEvent = z.infer<typeof soulPromotedEventSchema>;
 export type SoulDemotedEvent = z.infer<typeof soulDemotedEventSchema>;
 export type SoulRetiredEvent = z.infer<typeof soulRetiredEventSchema>;
 export type PioneerDetectedEvent = z.infer<typeof pioneerDetectedEventSchema>;
+export type SkillUnlearnedEvent = z.infer<typeof skillUnlearnedEventSchema>;
 export type SoulLifecycleEvent = z.infer<typeof soulLifecycleEventSchema>;

@@ -17,3 +17,5 @@ export * from './ring-leader-runs';
 export * from './tool-connections';
 export * from './tool-invocation-logs';
 export * from './webhook-routing-rules';
+export * from './skill-activations';
+export * from './skill-loadouts';

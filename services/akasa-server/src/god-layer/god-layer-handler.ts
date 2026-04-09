@@ -2,7 +2,7 @@
  * God Layer Handler
  *
  * Main orchestrator for post-verdict processing.
- * Executes class transitions, DNA capture, negative signals, and pioneer detection.
+ * Executes class transitions, DNA capture, negative signals, pioneer detection, and skill unlearning.
  *
  * Idempotency: if godLayerProcessedAt is already set on the verdict,
  * returns early without making any changes.
@@ -14,6 +14,11 @@ import { computeClassTransition, type AgentClass, type VerdictType } from './cla
 import { captureDna } from './dna-writer.js';
 import { recordNegativeSignal } from './negative-register.js';
 import { checkAndRecordPioneer } from './pioneer-tracker.js';
+import {
+  processSkillUnlearning,
+  emitSkillUnlearnedEvents,
+  type SkillUnlearningResult,
+} from '../services/skill-unlearning.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -22,6 +27,7 @@ import { checkAndRecordPioneer } from './pioneer-tracker.js';
 export interface GodLayerResult {
   processed: boolean;
   reason?: string;
+  skillUnlearningResults?: SkillUnlearningResult[];
 }
 
 // ---------------------------------------------------------------------------
@@ -47,7 +53,8 @@ const MAINTAIN_DNA_CAPTURE_THRESHOLD = 0.7;
  * 6. If Promote or Maintain with compositeScore >= 0.7: capture DNA.
  * 7. If Demote, Monitor, or Retire: record negative signal.
  * 8. If Promote: check and record pioneer.
- * 9. Mark verdict as processed (godLayerProcessedAt = now).
+ * 9. Process skill unlearning (auto-remove underperforming skills after 2 consecutive negative evaluations).
+ * 10. Mark verdict as processed (godLayerProcessedAt = now).
  *
  * All sub-calls are wrapped in individual try/catch — one failure does not
  * block the whole God Layer.
@@ -228,6 +235,22 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     }
   }
 
+  // Step 9b: Skill unlearning - auto-remove underperforming skills
+  let skillUnlearningResults: SkillUnlearningResult[] = [];
+  try {
+    skillUnlearningResults = await processSkillUnlearning({
+      botId: verdict.botId,
+      executionId: verdict.executionId,
+      compositeScore: parseFloat(compositeScore),
+      previousCompositeScore: null,
+    });
+    if (skillUnlearningResults.length > 0) {
+      await emitSkillUnlearnedEvents(skillUnlearningResults, verdict.botId, verdict.executionId);
+    }
+  } catch (err) {
+    console.error('[god-layer] Skill unlearning failed:', { botId: verdict.botId, error: (err as Error).message });
+  }
+
   // Step 10: Mark verdict as processed (idempotency stamp)
   try {
     await db
@@ -239,5 +262,5 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     throw err;
   }
 
-  return { processed: true };
+  return { processed: true, skillUnlearningResults };
 }
