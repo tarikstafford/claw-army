@@ -17,6 +17,7 @@ async function getPaperclipDb() {
  * Mounts at /api/akasa/evolution
  *
  * GET /fleet         — Fleet overview with classCounts, scoreHistory, averageCompositeScore, pendingVerdictCount
+ * GET /fleet/events  — Chronological feed of fleet events (verdicts, class transitions, DNA captures, pioneers)
  * GET /agents        — Agent list with currentClass, compositeScore, isPioneer, lastVerdictAt
  * GET /bots/:botId/profile  — Full bot profile with soul dimensions, class, pioneer status, archetype
  * GET /bots/:botId/timeline — Merged timeline of verdict, class_transition, dna_capture events
@@ -99,6 +100,172 @@ export function evolutionDashboardRouter(): Router {
         pendingVerdictCount,
         scoreHistory,
       });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ── GET /fleet/events ────────────────────────────────────────────────────────
+
+  router.get('/fleet/events', async (req, res, next) => {
+    try {
+      const limit = Math.min(parseInt(req.query['limit'] as string ?? '50', 10), 100);
+      const eventTypes = (req.query['types'] as string ?? 'verdict,class_transition,dna_capture,pioneer').split(',');
+
+      const events: Array<{
+        id: string;
+        type: string;
+        botId?: string;
+        executionId?: string;
+        soulId?: string;
+        taskCategory?: string;
+        verdictType?: string;
+        fromClass?: string;
+        toClass?: string;
+        transitionType?: string;
+        compositeScore?: string;
+        isPioneer?: boolean;
+        description: string;
+        timestamp: string;
+      }> = [];
+
+      if (eventTypes.includes('verdict')) {
+        const verdictRows = await db
+          .select({
+            id: councilVerdicts.id,
+            botId: councilVerdicts.botId,
+            executionId: councilVerdicts.executionId,
+            verdictType: councilVerdicts.verdictType,
+            status: councilVerdicts.status,
+            verdictSummary: councilVerdicts.verdictSummary,
+            createdAt: councilVerdicts.createdAt,
+          })
+          .from(councilVerdicts)
+          .where(eq(councilVerdicts.status, 'confirmed'))
+          .orderBy(desc(councilVerdicts.createdAt))
+          .limit(limit);
+
+        for (const r of verdictRows) {
+          if (r.status === 'confirmed') {
+            events.push({
+              id: r.id,
+              type: 'fleet.verdict.confirmed',
+              botId: r.botId,
+              executionId: r.executionId,
+              taskCategory: 'unknown',
+              verdictType: r.verdictType,
+              description: r.verdictSummary ?? `Verdict: ${r.verdictType}`,
+              timestamp: r.createdAt,
+            });
+          }
+        }
+      }
+
+      if (eventTypes.includes('class_transition')) {
+        const transitionRows = await db
+          .select({
+            id: agentClasses.id,
+            botId: agentClasses.botId,
+            currentClass: agentClasses.currentClass,
+            lastTransitionAt: agentClasses.lastTransitionAt,
+            taskCategory: agentClasses.taskCategory,
+            aboveBenchmarkCount: agentClasses.aboveBenchmarkCount,
+            belowBenchmarkCount: agentClasses.belowBenchmarkCount,
+          })
+          .from(agentClasses)
+          .where(isNotNull(agentClasses.lastTransitionAt))
+          .orderBy(desc(agentClasses.lastTransitionAt))
+          .limit(limit);
+
+        for (const r of transitionRows) {
+          const fromClass = 'Novice';
+          const toClass = r.currentClass;
+          let transitionType: string = 'maintain';
+
+          if (r.aboveBenchmarkCount > r.belowBenchmarkCount && r.currentClass !== 'Novice') {
+            transitionType = 'promote';
+          } else if (r.belowBenchmarkCount > r.aboveBenchmarkCount) {
+            transitionType = 'demote';
+          }
+
+          events.push({
+            id: r.id,
+            type: 'fleet.class.transition',
+            botId: r.botId,
+            taskCategory: r.taskCategory ?? 'unknown',
+            fromClass,
+            toClass,
+            transitionType,
+            description: `Agent transitioned to ${toClass} in ${r.taskCategory}`,
+            timestamp: r.lastTransitionAt!,
+          });
+        }
+      }
+
+      if (eventTypes.includes('dna_capture')) {
+        const dnaRows = await db
+          .select({
+            id: dnaStore.id,
+            botId: dnaStore.botId,
+            executionId: dnaStore.executionId,
+            soulId: dnaStore.soulId,
+            objectiveCategory: dnaStore.objectiveCategory,
+            compositeScore: dnaStore.compositeScore,
+            capturedAt: dnaStore.capturedAt,
+          })
+          .from(dnaStore)
+          .orderBy(desc(dnaStore.capturedAt))
+          .limit(limit);
+
+        for (const r of dnaRows) {
+          events.push({
+            id: r.id,
+            type: 'fleet.dna.captured',
+            botId: r.botId,
+            executionId: r.executionId,
+            soulId: r.soulId,
+            taskCategory: r.objectiveCategory ?? 'unknown',
+            compositeScore: r.compositeScore,
+            description: `New DNA pattern captured for ${r.objectiveCategory}`,
+            timestamp: r.capturedAt,
+          });
+        }
+      }
+
+      if (eventTypes.includes('pioneer')) {
+        const pioneerRows = await db
+          .select({
+            id: agentClasses.id,
+            botId: agentClasses.botId,
+            taskCategory: agentClasses.taskCategory,
+            isPioneer: agentClasses.isPioneer,
+            updatedAt: agentClasses.updatedAt,
+          })
+          .from(agentClasses)
+          .where(eq(agentClasses.isPioneer, true))
+          .orderBy(desc(agentClasses.updatedAt))
+          .limit(limit);
+
+        for (const r of pioneerRows) {
+          events.push({
+            id: r.id,
+            type: 'fleet.pioneer.detected',
+            botId: r.botId,
+            taskCategory: r.taskCategory ?? 'unknown',
+            isPioneer: true,
+            description: `Agent is a pioneer in ${r.taskCategory} — first confirmed run`,
+            timestamp: r.updatedAt,
+          });
+        }
+      }
+
+      events.sort((a, b) => {
+        const ta = new Date(a.timestamp).getTime();
+        const tb = new Date(b.timestamp).getTime();
+        return tb - ta;
+      });
+
+      res.json(events.slice(0, limit));
     } catch (err) {
       next(err);
     }

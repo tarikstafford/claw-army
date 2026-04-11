@@ -15,6 +15,34 @@ import { writeNegativeSignal } from "../god-layer/negative-register";
 import { runEvolutionCampaignHook } from "../services/evolution-campaign-hook";
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Fleet event bridge
+// ──────────────────────────────────────────────────────────────────────────────
+
+const AKASA_SERVER_URL = process.env["AKASA_SERVER_URL"] ?? "http://localhost:3002";
+
+interface FleetEventPayload {
+  type: string;
+  botId: string;
+  executionId: string;
+  [key: string]: unknown;
+}
+
+async function emitFleetEventToAkasa(event: FleetEventPayload): Promise<void> {
+  try {
+    const res = await fetch(`${AKASA_SERVER_URL}/api/akasa/internal/fleet-event`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(event),
+    });
+    if (!res.ok) {
+      console.error('[god-layer] Failed to emit fleet event to akasa:', res.status);
+    }
+  } catch (err) {
+    console.error('[god-layer] Error emitting fleet event to akasa:', (err as Error).message);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Constants
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -494,6 +522,17 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       }).catch((err) =>
         console.error("[god-layer] Failed to publish promotion event:", err),
       );
+
+      emitFleetEventToAkasa({
+        type: 'fleet.class.transition',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: 'Understudy',
+        toClass: 'Artisan',
+        transitionType: 'promote',
+        description: `Agent ${botId.slice(0, 8)} has been promoted to Artisan in ${effectiveCategory} tasks`,
+      }).catch((err) => console.error('[god-layer] Failed to emit fleet event:', err));
     }
 
     if (isPioneer) {
@@ -511,6 +550,15 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       }).catch((err) =>
         console.error("[god-layer] Failed to publish pioneer event:", err),
       );
+
+      emitFleetEventToAkasa({
+        type: 'fleet.pioneer.detected',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        isPioneer: true,
+        description: `Agent ${botId.slice(0, 8)} is a pioneer — first confirmed run in ${effectiveCategory} tasks`,
+      }).catch((err) => console.error('[god-layer] Failed to emit pioneer fleet event:', err));
     }
 
     console.log("[god-layer] Class transition complete:", {
@@ -536,6 +584,17 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       }).catch((err) =>
         console.error("[god-layer] Failed to publish promotion event:", err),
       );
+
+      emitFleetEventToAkasa({
+        type: 'fleet.class.transition',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: 'Novice',
+        toClass: 'Understudy',
+        transitionType: 'promote',
+        description: `Agent ${botId.slice(0, 8)} has been promoted to Understudy in ${effectiveCategory} tasks`,
+      }).catch((err) => console.error('[god-layer] Failed to emit fleet event:', err));
     } else if (resolvedTransition.type === "demote") {
       publishSoulLifecycleEvent({
         type: "soul_demoted",
@@ -549,6 +608,17 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       }).catch((err) =>
         console.error("[god-layer] Failed to publish demotion event:", err),
       );
+
+      emitFleetEventToAkasa({
+        type: 'fleet.class.transition',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: resolvedTransition.from,
+        toClass: resolvedTransition.to,
+        transitionType: 'demote',
+        description: `Agent ${botId.slice(0, 8)} has been demoted from ${resolvedTransition.from} to ${resolvedTransition.to} in ${effectiveCategory} tasks`,
+      }).catch((err) => console.error('[god-layer] Failed to emit fleet event:', err));
     } else if (resolvedTransition.type === "retire") {
       publishSoulLifecycleEvent({
         type: "soul_retired",
@@ -561,6 +631,17 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       }).catch((err) =>
         console.error("[god-layer] Failed to publish retirement event:", err),
       );
+
+      emitFleetEventToAkasa({
+        type: 'fleet.class.transition',
+        botId,
+        executionId,
+        taskCategory: effectiveCategory!,
+        fromClass: previousClass,
+        toClass: 'Retired',
+        transitionType: 'retire',
+        description: `Agent ${botId.slice(0, 8)} has been retired from ${effectiveCategory} tasks`,
+      }).catch((err) => console.error('[god-layer] Failed to emit fleet event:', err));
     }
 
     // Step 6.5 — Evolution campaign hook (Karpathy Loop, issue #74)

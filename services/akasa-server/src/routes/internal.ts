@@ -10,6 +10,7 @@ import {
   refreshGoogleToken,
   type RefreshFn,
 } from '../services/token-manager.js';
+import { fleetEventBus, type FleetEventPayload } from '../services/fleet-event-bus.js';
 
 // ─── Lazy Paperclip DB singleton ─────────────────────────────────────────────
 
@@ -146,6 +147,44 @@ export function internalRouter(): Router {
           ? body.responseSummary.slice(0, MAX_SUMMARY_LENGTH)
           : undefined,
       });
+      res.status(204).end();
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ─── Endpoint 4: Receive fleet events from execution-service God Layer worker ─────
+  // Used by God Layer worker in execution-service to emit fleet events via WS
+  // No auth required — localhost-only in local_trusted mode
+  router.post('/fleet-event', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const body = req.body as FleetEventPayload & { companyId?: string };
+
+      if (!body.type || !body.description) {
+        res.status(400).json({ error: 'type and description are required' });
+        return;
+      }
+
+      const event = {
+        id: `fleet-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        type: body.type,
+        botId: body.botId,
+        executionId: body.executionId,
+        soulId: body.soulId,
+        taskCategory: body.taskCategory,
+        verdictType: body.verdictType,
+        fromClass: body.fromClass,
+        toClass: body.toClass,
+        transitionType: body.transitionType,
+        compositeScore: body.compositeScore,
+        isPioneer: body.isPioneer,
+        description: body.description,
+        timestamp: new Date().toISOString(),
+      };
+
+      fleetEventBus.emitFleetEvent(event);
+
+      console.log('[internal] Fleet event emitted:', event.type, event.id);
       res.status(204).end();
     } catch (err) {
       next(err);
