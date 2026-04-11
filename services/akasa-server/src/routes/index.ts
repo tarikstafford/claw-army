@@ -16,6 +16,7 @@ import { commandsRouter } from './commands.js';
 import { settingsRouter } from './settings.js';
 import { skillsRouter } from './skills.js';
 import { agentSkillsRouter } from './agent-skills.js';
+import { toolRegistryRouter } from './tool-registry.js';
 
 const akasaRouter = Router();
 
@@ -72,5 +73,8 @@ akasaRouter.use('/akasa/skills', skillsRouter());
 
 // Agent skill loadout routes (equip/unequip/list)
 akasaRouter.use('/akasa/agents', agentSkillsRouter());
+
+// OpenAPI/Swagger import and tool registry management
+akasaRouter.use('/akasa/tool-registry', toolRegistryRouter());
 
 export { akasaRouter };
