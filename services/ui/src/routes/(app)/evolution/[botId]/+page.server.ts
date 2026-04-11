@@ -6,11 +6,15 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
   if (!session) throw error(401, 'Not authenticated');
   const { botId } = params;
 
-  const [timelineRes, lineageRes, ledgerRes, profileRes] = await Promise.allSettled([
+  const companyId = (session as { companyId?: string }).companyId ?? '';
+
+  const [timelineRes, lineageRes, ledgerRes, profileRes, loadoutRes, skillsRes] = await Promise.allSettled([
     fetch(`/api/akasa/evolution/bots/${botId}/timeline`),
     fetch(`/api/akasa/evolution/bots/${botId}/lineage`),
     fetch(`/api/akasa/evolution/bots/${botId}/ledger`),
     fetch(`/api/akasa/evolution/bots/${botId}/profile`),
+    fetch(`/api/akasa/evolution/bots/${botId}/skills`),
+    fetch(`/api/akasa/companies/${companyId}/skills`),
   ]);
 
   const timeline = timelineRes.status === 'fulfilled' && timelineRes.value.ok
@@ -21,6 +25,10 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
     ? await ledgerRes.value.json() : [];
   const profile = profileRes.status === 'fulfilled' && profileRes.value.ok
     ? await profileRes.value.json() : null;
+  const loadout = loadoutRes.status === 'fulfilled' && loadoutRes.value.ok
+    ? await loadoutRes.value.json() : null;
+  const skills = skillsRes.status === 'fulfilled' && skillsRes.value.ok
+    ? await skillsRes.value.json() : [];
 
-  return { botId, timeline, lineage, ledger, profile };
+  return { botId, timeline, lineage, ledger, profile, loadout, skills };
 };

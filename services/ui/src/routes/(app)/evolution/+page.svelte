@@ -1,5 +1,6 @@
 <script lang="ts">
   import FleetOverview from '$lib/components/evolution/FleetOverview.svelte';
+  import FleetSkillHeatmap from '$lib/components/evolution/FleetSkillHeatmap.svelte';
   import VerdictConfirm from '$lib/components/evolution/VerdictConfirm.svelte';
 
   let { data } = $props();
@@ -27,6 +28,18 @@
           <VerdictConfirm verdict={v} onaction={handleVerdictAction} />
         {/each}
       </div>
+    </section>
+  {/if}
+
+  <!-- Section 3: Fleet Skill Heatmap -->
+  {#if data.heatmap && data.heatmap.agents.length > 0 && data.heatmap.skills.length > 0}
+    <section class="heatmap-section">
+      <h2 class="section-heading">Fleet Skill Effectiveness</h2>
+      <FleetSkillHeatmap
+        agents={data.heatmap.agents}
+        skills={data.heatmap.skills}
+        matrix={data.heatmap.matrix}
+      />
     </section>
   {/if}
 </div>
@@ -65,5 +78,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+  }
+
+  .heatmap-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
   }
 </style>

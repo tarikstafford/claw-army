@@ -19,6 +19,7 @@
   const evolutionTabs = [
     { href: '/evolution',            label: 'FLEET' },
     { href: '/evolution/agents',     label: 'AGENTS' },
+    { href: '/evolution/skills',      label: 'SKILLS' },
     { href: '/evolution/benchmarks', label: 'BENCHMARKS' },
     { href: '/evolution/org',        label: 'ORG' },
   ] as const;

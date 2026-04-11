@@ -5,18 +5,40 @@
   import IdentityCard from '$lib/components/evolution/IdentityCard.svelte';
   import ProfileTab from '$lib/components/evolution/ProfileTab.svelte';
   import RuntimeStatus from '$lib/components/evolution/RuntimeStatus.svelte';
+  import SkillLoadoutEditor from '$lib/components/evolution/SkillLoadoutEditor.svelte';
   import type { PageData } from './$types';
+  import { invalidateAll } from '$app/navigation';
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'skills'>('profile');
 
   const TABS = [
     { id: 'profile' as const, label: 'PROFILE' },
     { id: 'timeline' as const, label: 'TIMELINE' },
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
+    { id: 'skills' as const, label: 'SKILLS' },
   ];
+
+  async function handleEquip(skillId: string) {
+    await fetch(`/api/akasa/evolution/bots/${data.botId}/skills/${skillId}/equip`, { method: 'POST' });
+    await invalidateAll();
+  }
+
+  async function handleUnequip(skillId: string) {
+    await fetch(`/api/akasa/evolution/bots/${data.botId}/skills/${skillId}/unequip`, { method: 'POST' });
+    await invalidateAll();
+  }
+
+  async function handleReorder(orderedSkillIds: string[]) {
+    await fetch(`/api/akasa/evolution/bots/${data.botId}/skills/reorder`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderedSkillIds }),
+    });
+    await invalidateAll();
+  }
 </script>
 
 <div class="bot-detail-page">
@@ -79,6 +101,18 @@
       {/if}
     {:else if activeTab === 'ledger'}
       <ExperimentLedger rows={data.ledger} />
+    {:else if activeTab === 'skills'}
+      {#if data.loadout === null}
+        <p class="no-data-text">Failed to load skill loadout</p>
+      {:else}
+        <SkillLoadoutEditor
+          loadout={data.loadout}
+          availableSkills={data.skills ?? []}
+          onequip={handleEquip}
+          onunequip={handleUnequip}
+          onreorder={handleReorder}
+        />
+      {/if}
     {/if}
   </div>
 </div>

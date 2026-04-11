@@ -41,7 +41,15 @@
       if (event.type === 'chat.message.created') {
         addToast('New message received', 'chat');
       }
-      // Add more event type handlers as needed
+      if (event.type === 'agent.skill.learned') {
+        addToast('Agent learned a new skill — pending review', 'info');
+      }
+      if (event.type === 'agent.skill.unlearned') {
+        addToast('A skill was auto-removed from an agent', 'info');
+      }
+      if (event.type === 'skill.pending_review') {
+        addToast('Skill pending review — action required', 'warning');
+      }
     });
 
     return () => {
