@@ -261,5 +261,23 @@ export async function runCouncilForBot(
     hasUnresolvedDevilsAdvocate: verdict.hasUnresolvedDevilsAdvocate,
   });
 
+  import('../services/skill-learning.js')
+    .then(({ processSkillLearning }) => {
+      processSkillLearning(executionId, botId).catch((err: Error) => {
+        console.error('[council-runner] Skill learning failed:', {
+          executionId,
+          botId,
+          error: err.message,
+        });
+      });
+    })
+    .catch((err: Error) => {
+      console.error('[council-runner] Failed to load skill-learning module:', {
+        executionId,
+        botId,
+        error: err.message,
+      });
+    });
+
   return insertedVerdict;
 }
