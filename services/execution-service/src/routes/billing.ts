@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { db, executions } from '@claw/db';
 import { sql } from 'drizzle-orm';
+import { constructWebhookEvent } from '../services/stripe-service';
 
 export const billingRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
   // GET /history — list all executions with rolled-up cost, bot-hours, task count
@@ -127,7 +128,41 @@ export const billingRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     return reply.code(200).send({
       monthlyBotHours: summaryRow?.monthlyBotHours ?? 0,
       monthlySpendCents: summaryRow?.monthlySpendCents ?? 0,
-      executionCount: summaryRow?.executionCount ?? 0,
+      executionCount: summaryRow?.monthlyExecutionCount ?? 0,
     });
+  });
+
+  // POST /webhook — handle Stripe webhooks
+  fastify.post('/webhook', {
+    schema: {
+      response: { 200: Type.Object({ received: Type.Boolean() }) },
+    },
+  }, async (request, reply) => {
+    const signature = request.headers['stripe-signature'] as string | undefined;
+    if (!signature) {
+      return reply.code(400).send({ error: 'Missing stripe-signature header' });
+    }
+
+    let event;
+    try {
+      event = await constructWebhookEvent(
+        JSON.stringify(request.body),
+        signature,
+      );
+    } catch {
+      return reply.code(400).send({ error: 'Invalid webhook signature' });
+    }
+
+    switch (event.type) {
+      case 'invoice.paid':
+      case 'invoice.payment_failed':
+      case 'customer.subscription.updated':
+        console.log('[billing] Stripe webhook received:', event.type);
+        break;
+      default:
+        console.log('[billing] Stripe webhook ignored:', event.type);
+    }
+
+    return reply.code(200).send({ received: true });
   });
 };

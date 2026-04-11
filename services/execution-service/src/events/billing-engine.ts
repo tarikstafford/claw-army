@@ -2,10 +2,11 @@ import { PubSub, type Message } from '@google-cloud/pubsub';
 import IORedis from 'ioredis';
 import { db, billingEvents, telemetry, bots, executions } from '@claw/db';
 import { eq } from 'drizzle-orm';
-import { publishBudgetExceeded, publishBillingEvent } from './publisher';
+import { publishBudgetExceeded, publishBillingEvent, publishBudgetAlert } from './publisher';
 import { stopBot } from '../orchestrator/bot-orchestrator';
 import { getBotsForExecution } from '../orchestrator/bot-registry';
 import { transitionExecution } from '../services/execution.service';
+import { submitUsageRecord } from '../services/stripe-service';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Cost rate constants (env-var configurable)
@@ -261,6 +262,56 @@ async function handleBudgetExceeded(executionId: string): Promise<void> {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Budget alert tracking (in-memory, per-execution)
+// ──────────────────────────────────────────────────────────────────────────────
+
+const ALERT_THRESHOLDS = [0.5, 0.75, 0.9] as const;
+const alertedThresholds = new Map<string, Set<number>>();
+
+function shouldEmitAlert(
+  executionId: string,
+  budgetCapCents: number,
+  totalSpentCents: number,
+): (0.5 | 0.75 | 0.9) | null {
+  if (budgetCapCents === 0) return null;
+  const ratio = totalSpentCents / budgetCapCents;
+  const alerted = alertedThresholds.get(executionId) ?? new Set();
+
+  for (const threshold of ALERT_THRESHOLDS) {
+    if (ratio >= threshold && !alerted.has(threshold)) {
+      alerted.add(threshold);
+      alertedThresholds.set(executionId, alerted);
+      return threshold;
+    }
+  }
+  return null;
+}
+
+async function emitBudgetAlertIfNeeded(
+  executionId: string,
+  userId: string,
+  budgetCapCents: number,
+  totalSpentCents: number,
+): Promise<void> {
+  const threshold = shouldEmitAlert(executionId, budgetCapCents, totalSpentCents);
+  if (!threshold) return;
+
+  try {
+    await publishBudgetAlert({
+      type: 'budget_alert',
+      executionId,
+      userId,
+      alertThreshold: threshold,
+      budgetCapCents,
+      totalSpentCents,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('[billing-engine] Failed to emit budget alert:', err);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Message handlers
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -283,6 +334,7 @@ async function handleBillingMessage(message: Message): Promise<void> {
     botId?: string;
     amountCents?: number;
     tokenCount?: number;
+    userId?: string;
   };
 
   if (payload.type !== 'billing_event') {
@@ -290,7 +342,7 @@ async function handleBillingMessage(message: Message): Promise<void> {
     return;
   }
 
-  const { eventType, executionId, botId, amountCents, tokenCount } = payload;
+  const { eventType, executionId, botId, amountCents, tokenCount, userId } = payload;
 
   if (!executionId) {
     console.error('[billing-engine] Missing executionId in billing message');
@@ -302,7 +354,7 @@ async function handleBillingMessage(message: Message): Promise<void> {
     const costCents = amountCents ?? 0;
 
     if (costCents > 0) {
-      const { capExceeded } = await enforceAtomicBudget(executionId, costCents);
+      const { newTotalCents, capExceeded } = await enforceAtomicBudget(executionId, costCents);
 
       await writeBillingEvent({
         executionId,
@@ -311,6 +363,26 @@ async function handleBillingMessage(message: Message): Promise<void> {
         amountCents: costCents,
         tokenCount,
       });
+
+      if (userId && tokenCount) {
+        submitUsageRecord({
+          userId,
+          dimension: 'tool_invocations',
+          quantity: 1,
+          timestamp: new Date(),
+          executionId,
+        }).catch((err) => console.error('[billing-engine] Stripe usage record failed:', err));
+      }
+
+      const [execRow] = await db
+        .select({ budgetCapCents: executions.budgetCapCents })
+        .from(executions)
+        .where(eq(executions.id, executionId));
+      const budgetCap = execRow?.budgetCapCents ?? 0;
+
+      if (userId && budgetCap > 0) {
+        await emitBudgetAlertIfNeeded(executionId, userId, budgetCap, newTotalCents);
+      }
 
       if (capExceeded) {
         await handleBudgetExceeded(executionId);
