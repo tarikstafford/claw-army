@@ -10,8 +10,86 @@
 
 import { Router } from 'express';
 import { eq } from 'drizzle-orm';
-import { db, councilVerdicts } from '@claw/db';
+import { db, councilVerdicts, bots } from '@claw/db';
 import { executeGodLayer } from '../god-layer/god-layer-handler.js';
+import { publishLiveEvent } from '../../../../paperclip/server/src/services/live-events.js';
+
+interface FleetEventPayload {
+  verdictId: string;
+  botId: string;
+  executionId: string;
+  taskCategory: string;
+  verdictType: string;
+  compositeScore?: string;
+  description: string;
+}
+
+async function emitFleetEvents(
+  paperclipDb: Awaited<ReturnType<typeof import('@paperclipai/db')['createDb']>>,
+  companyId: string,
+  payload: FleetEventPayload,
+): Promise<void> {
+  const { verdictId, botId, executionId, taskCategory, verdictType, compositeScore, description } = payload;
+
+  publishLiveEvent({
+    companyId,
+    type: 'fleet.verdict.confirmed',
+    payload: {
+      verdictId,
+      botId,
+      executionId,
+      verdictType,
+      description: `Verdict ${verdictType} confirmed for agent`,
+      timestamp: new Date().toISOString(),
+    },
+  });
+
+  if (verdictType === 'Promote' || verdictType === 'Maintain') {
+    publishLiveEvent({
+      companyId,
+      type: 'fleet.class.transition',
+      payload: {
+        verdictId,
+        botId,
+        executionId,
+        taskCategory,
+        verdictType,
+        description: `Agent transitioned: ${description}`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+
+  if (compositeScore && parseFloat(compositeScore) >= 0.7 && (verdictType === 'Promote' || verdictType === 'Maintain')) {
+    publishLiveEvent({
+      companyId,
+      type: 'fleet.dna.captured',
+      payload: {
+        verdictId,
+        botId,
+        executionId,
+        taskCategory,
+        description: `Behavioral DNA captured for agent in ${taskCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+
+  if (verdictType === 'Promote') {
+    publishLiveEvent({
+      companyId,
+      type: 'fleet.pioneer.detected',
+      payload: {
+        verdictId,
+        botId,
+        executionId,
+        taskCategory,
+        description: `Agent is a pioneer — first confirmed run in ${taskCategory} tasks`,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+}
 
 /**
  * God Layer verdict confirm/reject routes.
@@ -48,6 +126,15 @@ export function godLayerRouter(): Router {
         return;
       }
 
+      // Load bot to get paperclipAgentId
+      const botRows = await db
+        .select()
+        .from(bots)
+        .where(eq(bots.id, verdict.botId))
+        .limit(1);
+
+      const bot = botRows[0];
+
       // Update verdict status to confirmed
       await db
         .update(councilVerdicts)
@@ -62,6 +149,40 @@ export function godLayerRouter(): Router {
       // Trigger God Layer
       const godLayerResult = await executeGodLayer(id!);
       console.log('[god-layer-router] God Layer result:', { verdictId: id, ...godLayerResult });
+
+      // Emit fleet events if we have companyId
+      if (bot?.paperclipAgentId) {
+        const DATABASE_URL = process.env['DATABASE_URL'];
+        if (DATABASE_URL) {
+          try {
+            const { createDb } = await import('@paperclipai/db');
+            const { agents } = await import('@paperclipai/db');
+            const paperclipDb = createDb(DATABASE_URL);
+
+            const agentRows = await paperclipDb
+              .select({ companyId: agents.companyId })
+              .from(agents)
+              .where(eq(agents.id, bot.paperclipAgentId!))
+              .limit(1);
+
+            if (agentRows.length > 0 && agentRows[0]) {
+              const companyId = agentRows[0].companyId;
+
+              await emitFleetEvents(paperclipDb, companyId, {
+                verdictId: verdict.id,
+                botId: verdict.botId,
+                executionId: verdict.executionId,
+                taskCategory: 'general',
+                verdictType: verdict.verdictType,
+                compositeScore: bot.compositeScore ?? undefined,
+                description: verdict.verdictSummary,
+              });
+            }
+          } catch (err) {
+            console.error('[god-layer-router] Failed to emit fleet events:', err);
+          }
+        }
+      }
 
       res.json({ confirmed: true, godLayerResult });
     } catch (err) {
