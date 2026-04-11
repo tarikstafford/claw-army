@@ -161,6 +161,38 @@ export interface BudgetOverview {
   spentTodayCents: number;
   remainingTodayCents: number;
   monthlyTotalCents: number;
+  monthlyBudgetCents?: number;
+  karma?: number;
+}
+
+export interface BudgetUpdateInput {
+  dailyBudgetCents?: number;
+  monthlyBudgetCents?: number;
+}
+
+export interface SpendTrendPoint {
+  date: string;
+  totalCents: number;
+}
+
+export interface SpendByAgentPoint {
+  date: string;
+  agentId: string;
+  agentName?: string;
+  cents: number;
+}
+
+export interface SpendByOperationPoint {
+  date: string;
+  llmCallsCents: number;
+  botHoursCents: number;
+  toolInvocationsCents: number;
+}
+
+export interface EvolutionCostSummary {
+  totalEvolutionCostCents: number;
+  evolutionRunsCount: number;
+  avgCostPerRunCents: number;
 }
 
 // ── Companies ─────────────────────────────────────────────────────
@@ -373,4 +405,37 @@ export async function executeCommand(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ command, args, companyId }),
   });
+}
+
+export async function updateBudget(
+  companyId: string,
+  input: BudgetUpdateInput,
+): Promise<BudgetOverview> {
+  return apiFetch(`${BASE}/companies/${companyId}/budgets`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getSpendTrends(companyId: string): Promise<SpendTrendPoint[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/trends`);
+}
+
+export async function getSpendByAgentTrends(
+  companyId: string,
+): Promise<SpendByAgentPoint[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/trends/by-agent`);
+}
+
+export async function getSpendByOperationTrends(
+  companyId: string,
+): Promise<SpendByOperationPoint[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/trends/by-operation`);
+}
+
+export async function getEvolutionCostSummary(
+  companyId: string,
+): Promise<EvolutionCostSummary> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/evolution`);
 }

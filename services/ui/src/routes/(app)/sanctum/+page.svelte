@@ -1,13 +1,26 @@
 <script lang="ts">
   import MetricTile from '$lib/components/MetricTile.svelte';
   import KarmaCallout from '$lib/components/KarmaCallout.svelte';
+  import BudgetSetter from '$lib/components/BudgetSetter.svelte';
+  import SpendTrendChart from '$lib/components/SpendTrendChart.svelte';
+  import StackedAreaChart from '$lib/components/StackedAreaChart.svelte';
+  import OperationBreakdownChart from '$lib/components/OperationBreakdownChart.svelte';
+  import CostAlertBanner from '$lib/components/CostAlertBanner.svelte';
   import type { PageData } from './$types';
+  import { subscribeWS } from '$lib/ws.js';
+  import type { LiveEvent } from '$lib/ws.js';
+  import { invalidateAll } from '$app/navigation';
+  import { onMount } from 'svelte';
 
   let { data }: { data: PageData } = $props();
 
   let costSummary = $derived(data.costSummary);
   let costsByAgent = $derived(data.costsByAgent ?? []);
   let budget = $derived(data.budget);
+  let spendTrends = $derived(data.spendTrends ?? []);
+  let spendByAgent = $derived(data.spendByAgent ?? []);
+  let spendByOperation = $derived(data.spendByOperation ?? []);
+  let evolutionCosts = $derived(data.evolutionCosts);
 
   function formatCents(cents: number | null | undefined): string {
     if (cents == null) return '—';
@@ -46,22 +59,47 @@
         ? `${budget.karma} karma accumulated`
         : null
   );
+
+  const companyId = $derived(data.companyId);
+
+  let showBudgetSetter = $state(false);
+
+  async function handleBudgetUpdate() {
+    await invalidateAll();
+  }
+
+  onMount(() => {
+    const unsub = subscribeWS((event: LiveEvent) => {
+      if (event.type.startsWith('budget.')) {
+        window.dispatchEvent(new CustomEvent('budget-event', { detail: event }));
+      }
+    });
+    return unsub;
+  });
 </script>
 
 <div class="sanctum-page">
-  <!-- Page header -->
   <header class="page-header section">
     <h1 class="page-title">Sanctum</h1>
   </header>
 
-  <!-- Karma callout (if available) -->
   {#if karmaText}
     <div class="section karma-section">
       <KarmaCallout text={karmaText} />
     </div>
   {/if}
 
-  <!-- Metric tile grid -->
+  {#if budget}
+    <section class="section alert-section">
+      <CostAlertBanner
+        dailyBudgetCents={budget.dailyBudgetCents}
+        spentTodayCents={budget.spentTodayCents}
+        monthlyBudgetCents={budget.monthlyBudgetCents ?? 0}
+        monthlySpentCents={budget.monthlyTotalCents}
+      />
+    </section>
+  {/if}
+
   <section class="section metrics-section" aria-label="Cost metrics">
     <div class="metric-grid">
       <MetricTile label="DAILY COST" value={dailyCost} sub="today" />
@@ -71,7 +109,48 @@
     </div>
   </section>
 
-  <!-- Costs by agent -->
+  {#if budget && companyId}
+    <section class="section budget-section" aria-label="Budget controls">
+      <div class="budget-header">
+        <h2 class="section-heading">Budget</h2>
+        <button class="toggle-btn" onclick={() => showBudgetSetter = !showBudgetSetter}>
+          {showBudgetSetter ? 'Hide controls' : 'Configure'}
+        </button>
+      </div>
+      {#if showBudgetSetter}
+        <BudgetSetter
+          currentDailyBudgetCents={budget.dailyBudgetCents}
+          currentMonthlyBudgetCents={budget.monthlyBudgetCents ?? 0}
+          spentTodayCents={budget.spentTodayCents}
+          monthlySpentCents={budget.monthlyTotalCents}
+          companyId={companyId}
+          onUpdate={handleBudgetUpdate}
+        />
+      {/if}
+    </section>
+  {/if}
+
+  {#if spendTrends.length > 0}
+    <section class="section trends-section" aria-label="Spend trends">
+      <h2 class="section-heading">Spend — Last 30 Days</h2>
+      <SpendTrendChart data={spendTrends} />
+    </section>
+  {/if}
+
+  {#if spendByAgent.length > 0}
+    <section class="section agent-trends-section" aria-label="Agent spend over time">
+      <h2 class="section-heading">Spend by Agent</h2>
+      <StackedAreaChart data={spendByAgent} />
+    </section>
+  {/if}
+
+  {#if spendByOperation.length > 0}
+    <section class="section operation-trends-section" aria-label="Spend by operation type">
+      <h2 class="section-heading">Spend by Operation</h2>
+      <OperationBreakdownChart data={spendByOperation} />
+    </section>
+  {/if}
+
   <section class="section costs-section" aria-label="Costs by agent">
     <h2 class="section-heading">Costs by agent</h2>
     {#if costsByAgent.length === 0}
@@ -110,10 +189,26 @@
     {/if}
   </section>
 
-  <!-- Evolution placeholder -->
   <section class="section evolution-section" aria-label="Evolution">
     <h2 class="section-heading">Evolution</h2>
-    <p class="evolution-placeholder">Coming in Phase 5</p>
+    {#if evolutionCosts}
+      <div class="evolution-grid">
+        <div class="evolution-metric">
+          <span class="evo-label">Total evolution cost</span>
+          <span class="evo-value">{formatCents(evolutionCosts.totalEvolutionCostCents)}</span>
+        </div>
+        <div class="evolution-metric">
+          <span class="evo-label">Evolution runs</span>
+          <span class="evo-value">{formatNumber(evolutionCosts.evolutionRunsCount)}</span>
+        </div>
+        <div class="evolution-metric">
+          <span class="evo-label">Avg cost per run</span>
+          <span class="evo-value">{formatCents(evolutionCosts.avgCostPerRunCents)}</span>
+        </div>
+      </div>
+    {:else}
+      <p class="evolution-placeholder">Evolution metrics will appear here as your agents evolve.</p>
+    {/if}
   </section>
 </div>
 
@@ -122,7 +217,6 @@
     width: 100%;
   }
 
-  /* ── Page header ────────────────────────────────────── */
   .page-header {
     padding-bottom: var(--space-md);
   }
@@ -140,7 +234,6 @@
     color: var(--bo-text);
   }
 
-  /* ── Section layout ─────────────────────────────────── */
   .section {
     padding: 28px 40px;
   }
@@ -158,19 +251,53 @@
     color: var(--bo-text);
   }
 
-  /* ── Karma section ──────────────────────────────────── */
   .karma-section {
     padding-top: 0;
   }
 
-  /* ── Metric grid ─────────────────────────────────────── */
+  .alert-section {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   .metric-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: var(--space-md);
   }
 
-  /* ── Costs table ─────────────────────────────────────── */
+  .budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  .budget-header .section-heading {
+    margin-bottom: 0;
+  }
+
+  .toggle-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .toggle-btn:hover {
+    border-color: var(--fo-violet, #7C3AED);
+    color: var(--text);
+  }
+
+  :global(body.back-office) .toggle-btn:hover {
+    border-color: var(--bo-violet, #7C3AED);
+  }
+
   .table-wrap {
     overflow-x: auto;
   }
@@ -248,13 +375,42 @@
     line-height: 1.5;
   }
 
-  /* ── Evolution placeholder ──────────────────────────── */
   .evolution-section {
     border-top: 1px solid var(--fo-border);
   }
 
   :global(body.back-office) .evolution-section {
     border-top-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  .evolution-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .evolution-metric {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .evo-label {
+    font-family: var(--font-label);
+    font-size: 5px;
+    color: var(--text-muted);
+    letter-spacing: 0.10em;
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  .evo-value {
+    font-family: var(--font-label);
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1;
+    display: block;
   }
 
   .evolution-placeholder {

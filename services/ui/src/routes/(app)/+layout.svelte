@@ -52,7 +52,19 @@
         }
       }
 
-      // Add more event type handlers as needed
+      // Budget threshold alerts
+      if (event.type === 'budget.exceeded') {
+        addToast('Budget exceeded! Consider adjusting your spending limits.', 'warning');
+      }
+      if (event.type === 'budget.threshold.50') {
+        addToast('You\'ve reached 50% of your budget', 'info');
+      }
+      if (event.type === 'budget.threshold.75') {
+        addToast('You\'ve reached 75% of your budget', 'warning');
+      }
+      if (event.type === 'budget.threshold.90') {
+        addToast('You\'ve reached 90% of your budget', 'danger');
+      }
     });
 
     return () => {
