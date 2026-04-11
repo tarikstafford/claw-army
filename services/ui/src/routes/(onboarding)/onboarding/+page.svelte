@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import Button from '$lib/components/ui/Button.svelte';
   import ChipSelect from '$lib/components/onboarding/ChipSelect.svelte';
   import AgentCard from '$lib/components/onboarding/AgentCard.svelte';
 
@@ -147,13 +148,13 @@
   <div class="input-area">
     {#if step === 'welcome'}
       <div class="action-group">
-        <button class="btn-primary" type="button" onclick={startOnboarding}>
+        <Button class="btn-primary" onclick={startOnboarding}>
           Start Mode — I have an idea
-        </button>
-        <button class="btn-secondary" type="button" disabled>
+        </Button>
+        <Button class="btn-secondary" variant="secondary" disabled>
           Connect Mode — I have a live business
           <span class="coming-soon">COMING SOON</span>
-        </button>
+        </Button>
       </div>
 
     {:else if step === 'q1'}
@@ -195,9 +196,9 @@
           <p class="error-msg">{error}</p>
         {/if}
 
-        <button class="btn-summon" type="button" onclick={summonCrew}>
+        <Button class="btn-summon" onclick={summonCrew}>
           SUMMON THE CREW
-        </button>
+        </Button>
       </div>
 
     {:else if step === 'summoning'}
@@ -227,7 +228,7 @@
   }
 
   .brand-name {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-display);
     font-size: 28px;
     font-weight: 600;
     color: var(--fo-plum, #3D3560);
@@ -303,39 +304,16 @@
 
   .btn-primary {
     width: 100%;
-    padding: 14px 24px;
-    background: var(--fo-plum, #3D3560);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    letter-spacing: 0.02em;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(61, 53, 96, 0.3);
   }
 
   .btn-secondary {
     width: 100%;
-    padding: 14px 24px;
-    background: transparent;
-    color: var(--muted, #7A766D);
-    border: 1px dashed var(--fo-border, #D9CEBB);
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    cursor: not-allowed;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    border-style: dashed;
   }
 
   .coming-soon {
@@ -367,22 +345,7 @@
 
   .btn-summon {
     width: 100%;
-    padding: 16px 24px;
-    background: var(--fo-plum, #3D3560);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
     letter-spacing: 0.06em;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .btn-summon:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(61, 53, 96, 0.35);
   }
 
   .error-msg {

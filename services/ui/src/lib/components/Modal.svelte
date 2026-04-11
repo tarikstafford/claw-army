@@ -38,16 +38,12 @@
 		position: fixed;
 		inset: 0;
 		z-index: 9000;
-		background: rgba(14, 13, 11, 0.6);
+		background: color-mix(in srgb, var(--text) 35%, transparent);
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-	}
-
-	:global(body.back-office) .modal-overlay {
-		background: rgba(6, 5, 14, 0.88);
 	}
 
 	.modal-box {

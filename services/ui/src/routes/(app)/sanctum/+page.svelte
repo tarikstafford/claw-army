@@ -131,13 +131,9 @@
     font-family: var(--font-display);
     font-size: clamp(26px, 3.5vw, 38px);
     font-weight: 600;
-    color: var(--ink);
+    color: var(--text);
     line-height: 1.1;
     margin: 0;
-  }
-
-  :global(body.back-office) .page-title {
-    color: var(--bo-text);
   }
 
   /* ── Section layout ─────────────────────────────────── */
@@ -149,13 +145,9 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--ink);
+    color: var(--text);
     line-height: 1.2;
     margin: 0 0 var(--space-lg) 0;
-  }
-
-  :global(body.back-office) .section-heading {
-    color: var(--bo-text);
   }
 
   /* ── Karma section ──────────────────────────────────── */
@@ -184,47 +176,31 @@
     font-family: var(--font-label);
     font-size: 5px;
     font-weight: 400;
-    color: var(--muted);
+    color: var(--text-muted);
     letter-spacing: 0.10em;
     text-align: left;
     padding: 6px 10px 10px 0;
-    border-bottom: 1px solid var(--fo-border);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
-  }
-
-  :global(body.back-office) .costs-table th {
-    border-bottom-color: var(--bo-border, rgba(124, 58, 237, 0.15));
   }
 
   .cost-row td {
     padding: 10px 10px 10px 0;
-    border-bottom: 1px solid var(--fo-bg2, #EBE8E0);
+    border-bottom: 1px solid var(--bg2);
     vertical-align: top;
-  }
-
-  :global(body.back-office) .cost-row td {
-    border-bottom-color: rgba(124, 58, 237, 0.08);
   }
 
   .agent-name {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--ink);
+    color: var(--text);
     font-weight: 400;
-  }
-
-  :global(body.back-office) .agent-name {
-    color: var(--bo-text);
   }
 
   .cost-value {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--ink);
-  }
-
-  :global(body.back-office) .cost-value {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .token-value {
@@ -250,11 +226,7 @@
 
   /* ── Evolution placeholder ──────────────────────────── */
   .evolution-section {
-    border-top: 1px solid var(--fo-border);
-  }
-
-  :global(body.back-office) .evolution-section {
-    border-top-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+    border-top: 1px solid var(--border);
   }
 
   .evolution-placeholder {

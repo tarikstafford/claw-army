@@ -47,7 +47,7 @@
   }
 
   .agent-name {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-display);
     font-size: 20px;
     font-weight: 600;
     color: var(--ink, #0E0D0B);

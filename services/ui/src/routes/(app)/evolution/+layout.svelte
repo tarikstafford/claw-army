@@ -1,20 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { onMount } from 'svelte';
-  import { setMode, getMode, type AkasaMode } from '$lib/mode';
 
   let { children } = $props();
-  let previousMode: AkasaMode | null = $state(null);
-
-  onMount(() => {
-    previousMode = getMode();
-    setMode('back-office');
-    return () => {
-      if (previousMode && previousMode !== 'back-office') {
-        setMode(previousMode);
-      }
-    };
-  });
 
   const evolutionTabs = [
     { href: '/evolution',            label: 'FLEET' },
@@ -50,8 +37,8 @@
     display: flex;
     align-items: center;
     gap: 0;
-    background: var(--bo-bg);
-    border-bottom: 1px solid var(--bo-border);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
     padding: 0 var(--space-xl);
   }
 
@@ -59,7 +46,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--text-muted);
     text-decoration: none;
     padding: 0 var(--space-xl);
     height: 44px;
@@ -70,12 +57,12 @@
   }
 
   .evolution-tab:hover {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .evolution-tab.active {
-    border-bottom-color: var(--bo-violet);
-    color: var(--bo-text);
+    border-bottom-color: var(--accent);
+    color: var(--text);
   }
 
   .evolution-content {

@@ -178,7 +178,7 @@
   }
 
   .issue-link:hover {
-    color: var(--fo-plum);
+    color: var(--accent);
   }
 
   .meta-text {
@@ -204,7 +204,7 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--fo-plum);
+    color: var(--text);
     margin: 0;
   }
 
@@ -215,35 +215,7 @@
     margin: 0;
   }
 
-  :global(body.back-office) .page-title {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .btn-primary {
-    background: var(--bo-violet);
-  }
-
-  :global(body.back-office) .btn-primary:hover {
-    background: var(--bo-vb);
-  }
-
-  :global(body.back-office) .issues-table th {
-    border-bottom-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .issues-table td {
-    border-bottom-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .issue-row:hover {
-    background: rgba(124, 58, 237, 0.06);
-  }
-
-  :global(body.back-office) .issue-link:hover {
-    color: var(--bo-vb);
-  }
-
-  :global(body.back-office) .empty-heading {
-    color: var(--bo-text);
+  .issue-row:hover {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
   }
 </style>

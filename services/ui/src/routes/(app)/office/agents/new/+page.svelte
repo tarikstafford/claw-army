@@ -233,37 +233,33 @@
     background: var(--fo-bg2);
   }
 
-  :global(body.back-office) .back-link:hover {
-    color: var(--bo-vb);
+  .page-title {
+    color: var(--text);
   }
 
-  :global(body.back-office) .page-title {
-    color: var(--bo-vb);
+  .field-input {
+    background: var(--card);
+    border-color: var(--border);
   }
 
-  :global(body.back-office) .field-input {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
+  .field-input:focus {
+    border-color: var(--accent);
+    outline-color: var(--accent-dim);
   }
 
-  :global(body.back-office) .field-input:focus {
-    border-color: var(--bo-violet);
-    outline-color: rgba(124, 58, 237, 0.25);
+  .btn-primary {
+    background: var(--accent);
   }
 
-  :global(body.back-office) .btn-primary {
-    background: var(--bo-violet);
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-m);
   }
 
-  :global(body.back-office) .btn-primary:hover:not(:disabled) {
-    background: var(--bo-vb);
+  .btn-secondary {
+    border-color: var(--border);
   }
 
-  :global(body.back-office) .btn-secondary {
-    border-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .btn-secondary:hover {
-    background: rgba(124, 58, 237, 0.10);
+  .btn-secondary:hover {
+    background: var(--bg2);
   }
 </style>

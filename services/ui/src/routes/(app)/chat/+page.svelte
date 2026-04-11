@@ -244,13 +244,9 @@
   .thread-sidebar {
     width: 240px;
     flex-shrink: 0;
-    border-right: 1px solid var(--fo-border);
+    border-right: 1px solid var(--border);
     overflow-y: auto;
     padding: var(--space-md) 0;
-  }
-
-  :global(body.back-office) .thread-sidebar {
-    border-right-color: var(--bo-border, rgba(124, 58, 237, 0.15));
   }
 
   .thread-list {
@@ -273,24 +269,19 @@
   }
 
   .thread-item:hover {
-    background: var(--fo-bg2);
+    background: var(--bg2);
   }
 
   .thread-item.active {
-    background: var(--fo-bg2);
-  }
-
-  :global(body.back-office) .thread-item:hover,
-  :global(body.back-office) .thread-item.active {
-    background: rgba(124, 58, 237, 0.10);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
 
   .thread-avatar {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--fo-plum-p);
-    color: var(--fo-plum);
+    background: var(--accent-dim);
+    color: var(--accent);
     font-family: var(--font-body);
     font-size: 12px;
     font-weight: 600;
@@ -298,11 +289,6 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-  }
-
-  :global(body.back-office) .thread-avatar {
-    background: rgba(124, 58, 237, 0.15);
-    color: var(--bo-vb);
   }
 
   .thread-info {
@@ -316,15 +302,11 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 400;
-    color: var(--ink);
+    color: var(--text);
     line-height: 1.4;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  :global(body.back-office) .thread-title {
-    color: var(--bo-text);
   }
 
   .thread-preview {
@@ -387,7 +369,7 @@
 
   .skeleton-bubble {
     height: 40px;
-    background: var(--fo-bg2);
+    background: color-mix(in srgb, var(--accent) 8%, var(--bg2));
     border-radius: var(--radius-md);
   }
 
@@ -401,31 +383,23 @@
     align-self: flex-end;
   }
 
-  :global(body.back-office) .skeleton-bubble {
-    background: rgba(124, 58, 237, 0.08);
-  }
-
   /* ── Message input ──────────────────────────────────── */
   .message-input {
     padding: var(--space-md);
-    border-top: 1px solid var(--fo-border);
+    border-top: 1px solid var(--border);
     display: flex;
     gap: var(--space-sm);
     align-items: flex-end;
     flex-shrink: 0;
   }
 
-  :global(body.back-office) .message-input {
-    border-top-color: var(--bo-border, rgba(124, 58, 237, 0.15));
-  }
-
   .input-textarea {
     flex: 1;
     font-family: var(--font-body);
     font-size: 14px;
-    color: var(--ink);
-    background: var(--fo-card);
-    border: 1px solid var(--fo-border);
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 8px 12px;
     resize: none;
@@ -436,8 +410,8 @@
   }
 
   .input-textarea:focus {
-    border-color: var(--fo-plum-m);
-    outline: 2px solid var(--fo-plum-p);
+    border-color: var(--accent-m);
+    outline: 2px solid var(--accent-dim);
     outline-offset: 0;
   }
 
@@ -450,23 +424,12 @@
     cursor: not-allowed;
   }
 
-  :global(body.back-office) .input-textarea {
-    color: var(--bo-text);
-    background: var(--bo-card);
-    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
-  }
-
-  :global(body.back-office) .input-textarea:focus {
-    border-color: var(--bo-violet);
-    outline-color: rgba(124, 58, 237, 0.20);
-  }
-
   .btn-send {
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
     color: #fff;
-    background: var(--fo-plum);
+    background: var(--accent);
     border: none;
     border-radius: var(--radius-md);
     padding: 8px 16px;
@@ -478,7 +441,7 @@
   }
 
   .btn-send:hover:not(:disabled) {
-    background: var(--fo-plum-m);
+    background: var(--accent-m);
   }
 
   .btn-send:disabled {
@@ -486,11 +449,4 @@
     cursor: not-allowed;
   }
 
-  :global(body.back-office) .btn-send {
-    background: var(--bo-violet);
-  }
-
-  :global(body.back-office) .btn-send:hover:not(:disabled) {
-    background: var(--bo-vb);
-  }
 </style>

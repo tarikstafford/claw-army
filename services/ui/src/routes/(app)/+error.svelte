@@ -40,11 +40,7 @@
   }
 
   .error-message a {
-    color: var(--fo-plum);
+    color: var(--accent);
     text-decoration: underline;
-  }
-
-  :global(body.back-office) .error-message a {
-    color: var(--bo-violet);
   }
 </style>
