@@ -14,6 +14,7 @@ import { computeClassTransition, type AgentClass, type VerdictType } from './cla
 import { captureDna } from './dna-writer.js';
 import { recordNegativeSignal } from './negative-register.js';
 import { checkAndRecordPioneer } from './pioneer-tracker.js';
+import { checkAndRemoveUnderperformingSkills } from '../services/skill-unlearning.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -208,6 +209,26 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     } catch (err) {
       console.error('[god-layer] Negative signal recording failed:', { botId: verdict.botId, error: (err as Error).message });
     }
+  }
+
+  // Step 8b: Skill unlearning - auto-remove underperforming skills after negative verdicts
+  const previousCompositeScore = 0;
+  const currentCompositeScore = parseFloat(bot?.compositeScore ?? '0');
+  try {
+    const unlearningResult = await checkAndRemoveUnderperformingSkills(
+      verdict.botId,
+      verdict.executionId,
+      previousCompositeScore,
+      currentCompositeScore,
+    );
+    if (unlearningResult.unlearnedSkills.length > 0) {
+      console.log('[god-layer] Skills unlearned:', {
+        botId: verdict.botId,
+        unlearned: unlearningResult.unlearnedSkills,
+      });
+    }
+  } catch (err) {
+    console.error('[god-layer] Skill unlearning failed:', { botId: verdict.botId, error: (err as Error).message });
   }
 
   // Step 9: Pioneer detection for Promote verdicts
