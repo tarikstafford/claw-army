@@ -52,9 +52,9 @@ export function extractEventType(
  * Supports exact match and wildcard ('*').
  */
 export function evaluateRoutingRules(
-  rules: Array<{ eventType: string; assignToAgentId: string | null; id: string }>,
+  rules: Array<{ eventType: string; assignToAgentId: string | null; id: string; condition: string | null }>,
   eventType: string,
-): { eventType: string; assignToAgentId: string | null; id: string } | null {
+): { eventType: string; assignToAgentId: string | null; id: string; condition: string | null } | null {
   return rules.find((rule) => rule.eventType === eventType || rule.eventType === '*') ?? null;
 }
 
@@ -329,6 +329,73 @@ export function webhooksRouter(): Router {
             console.error('[webhooks] Routing evaluation error:', (err as Error).message);
           }
         })();
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+
+  // ── POST /:toolId/simulate — dry-run webhook routing rule evaluation ──────────
+  //
+  // Accepts an event type and sample payload, runs through routing rule evaluation
+  // without actually waking any agent. Returns which rules matched and which agent
+  // would receive the event.
+  router.post(
+    '/:toolId/simulate',
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { toolId } = req.params as { toolId: string };
+        const { userId, eventType, payload } = req.body as {
+          userId?: string;
+          eventType?: string;
+          payload?: Record<string, unknown>;
+        };
+
+        if (!userId || !eventType) {
+          res.status(400).json({ error: 'userId and eventType are required' });
+          return;
+        }
+
+        const rules = await db
+          .select()
+          .from(webhookRoutingRules)
+          .where(
+            and(
+              eq(webhookRoutingRules.userId, userId),
+              eq(webhookRoutingRules.toolId, toolId),
+              eq(webhookRoutingRules.isActive, true),
+            ),
+          );
+
+        const matchedRule = evaluateRoutingRules(rules, eventType);
+
+        if (!matchedRule) {
+          res.json({
+            matched: false,
+            eventType,
+            toolId,
+            matchedRule: null,
+            agentId: null,
+            agentName: null,
+            dryRun: true,
+          });
+          return;
+        }
+
+        res.json({
+          matched: true,
+          eventType,
+          toolId,
+          matchedRule: {
+            id: matchedRule.id,
+            eventType: matchedRule.eventType,
+            assignToAgentId: matchedRule.assignToAgentId,
+            condition: matchedRule.condition,
+          },
+          agentId: matchedRule.assignToAgentId,
+          agentName: null,
+          dryRun: true,
+        });
       } catch (err) {
         next(err);
       }
