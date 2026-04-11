@@ -1,14 +1,18 @@
-import { Worker, type Job } from 'bullmq';
-import IORedis from 'ioredis';
-import { db, councilVerdicts, bots, botSouls, agentClasses } from '@claw/db';
-import { eq, and, isNull } from 'drizzle-orm';
-import { workerConnection } from './task-queue';
-import { GOD_LAYER_QUEUE_NAME, type GodLayerJobData } from './god-layer-queue';
-import { computeClassTransition, type ClassTransition } from '../god-layer/class-machine';
-import { publishSoulLifecycleEvent } from '../events/publisher';
-import { writeVersionedDnaEntry } from '../god-layer/dna-writer';
-import { detectAndTrackPioneer } from '../god-layer/pioneer-tracker';
-import { writeNegativeSignal } from '../god-layer/negative-register';
+import { Worker, type Job } from "bullmq";
+import IORedis from "ioredis";
+import { db, councilVerdicts, bots, botSouls, agentClasses } from "@claw/db";
+import { eq, and, isNull } from "drizzle-orm";
+import { workerConnection } from "./task-queue";
+import { GOD_LAYER_QUEUE_NAME, type GodLayerJobData } from "./god-layer-queue";
+import {
+  computeClassTransition,
+  type ClassTransition,
+} from "../god-layer/class-machine";
+import { publishSoulLifecycleEvent } from "../events/publisher";
+import { writeVersionedDnaEntry } from "../god-layer/dna-writer";
+import { detectAndTrackPioneer } from "../god-layer/pioneer-tracker";
+import { writeNegativeSignal } from "../god-layer/negative-register";
+import { runEvolutionCampaignHook } from "../services/evolution-campaign-hook";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -39,29 +43,35 @@ const LOCK_MAX_RETRIES = 20;
 // Redis lock helpers
 // ──────────────────────────────────────────────────────────────────────────────
 
-const redis = new IORedis(process.env['REDIS_URL'] ?? 'redis://localhost:6379');
+const redis = new IORedis(process.env["REDIS_URL"] ?? "redis://localhost:6379");
 
 /**
  * Acquire Redis lock for the soul library of a given category (GODL-07).
  * Uses SET EX NX for atomic acquire-or-fail semantics.
  * IORedis argument order: key, value, 'EX', seconds, 'NX'
  */
-async function acquireCategoryLock(category: string, jobId: string): Promise<boolean> {
+async function acquireCategoryLock(
+  category: string,
+  jobId: string,
+): Promise<boolean> {
   const result = await redis.set(
     `soul-library:${category}`,
     jobId,
-    'EX',
+    "EX",
     LOCK_TTL_SECONDS,
-    'NX',
+    "NX",
   );
-  return result === 'OK';
+  return result === "OK";
 }
 
 /**
  * Release the Redis category lock using a Lua script for atomic
  * compare-and-delete — only deletes if the lock is still owned by this job.
  */
-async function releaseCategoryLock(category: string, jobId: string): Promise<void> {
+async function releaseCategoryLock(
+  category: string,
+  jobId: string,
+): Promise<void> {
   const script = `
     if redis.call("get", KEYS[1]) == ARGV[1] then
       return redis.call("del", KEYS[1])
@@ -140,7 +150,8 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
         devilsAdvocateOutput: councilVerdicts.devilsAdvocateOutput,
         verdictSummary: councilVerdicts.verdictSummary,
         confirmedAt: councilVerdicts.confirmedAt,
-        hasUnresolvedDevilsAdvocate: councilVerdicts.hasUnresolvedDevilsAdvocate,
+        hasUnresolvedDevilsAdvocate:
+          councilVerdicts.hasUnresolvedDevilsAdvocate,
         requiresHumanConfirmation: councilVerdicts.requiresHumanConfirmation,
         soulId: councilVerdicts.soulId,
       })
@@ -212,7 +223,13 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       lockRenewalInterval = setInterval(async () => {
         if (effectiveCategory !== null && lockAcquired) {
           await redis
-            .set(`soul-library:${effectiveCategory}`, job.id!, 'EX', LOCK_TTL_SECONDS, 'XX')
+            .set(
+              `soul-library:${effectiveCategory}`,
+              job.id!,
+              "EX",
+              LOCK_TTL_SECONDS,
+              "XX",
+            )
             .catch(() => {});
         }
       }, 60_000);
@@ -221,26 +238,27 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
     // Step 5 — Atomic DB transaction
     let artisanGraduated = false;
     let isPioneer = false;
-    let transitionType: string = 'none';
-    let transition: ClassTransition = { type: 'none' };
-    let previousClass: 'Novice' | 'Understudy' | 'Artisan' = 'Novice';
+    let transitionType: string = "none";
+    let transition: ClassTransition = { type: "none" };
+    let previousClass: "Novice" | "Understudy" | "Artisan" = "Novice";
 
     await db.transaction(async (tx) => {
       // 5a. Pioneer detection (GODL-06, CLAS-06)
       // Must run before class transition — needs baselineCompositeScore for isAboveBenchmark
       const pioneer = await detectAndTrackPioneer(tx, {
-        taskCategory: effectiveCategory ?? 'unknown',
+        taskCategory: effectiveCategory ?? "unknown",
         botId,
         soulId: effectiveSoulId ?? null,
         executionId,
-        compositeScore: bot.compositeScore ?? '0',
+        compositeScore: bot.compositeScore ?? "0",
       });
 
       isPioneer = pioneer.isPioneer;
 
       // 5b. Determine isAboveBenchmark
       const isAboveBenchmark =
-        Number(bot.compositeScore ?? 0) > Number(pioneer.baselineCompositeScore);
+        Number(bot.compositeScore ?? 0) >
+        Number(pioneer.baselineCompositeScore);
 
       // 5c. Determine isSoulDriven from soulAnalystOutput
       const soulAnalystOutput = verdict.soulAnalystOutput as {
@@ -264,7 +282,7 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
         .where(
           and(
             eq(agentClasses.botId, botId),
-            eq(agentClasses.taskCategory, effectiveCategory ?? 'unknown'),
+            eq(agentClasses.taskCategory, effectiveCategory ?? "unknown"),
           ),
         );
 
@@ -274,8 +292,8 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
         // Insert default Novice state
         await tx.insert(agentClasses).values({
           botId,
-          taskCategory: effectiveCategory ?? 'unknown',
-          currentClass: 'Novice',
+          taskCategory: effectiveCategory ?? "unknown",
+          currentClass: "Novice",
           aboveBenchmarkCount: 0,
           belowBenchmarkCount: 0,
           humanConfirmationCount: 0,
@@ -290,7 +308,7 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
           .where(
             and(
               eq(agentClasses.botId, botId),
-              eq(agentClasses.taskCategory, effectiveCategory ?? 'unknown'),
+              eq(agentClasses.taskCategory, effectiveCategory ?? "unknown"),
             ),
           );
 
@@ -306,10 +324,14 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       } = existingRow;
 
       // Hoist currentClass to outer scope for post-transaction retire event
-      previousClass = currentClass as 'Novice' | 'Understudy' | 'Artisan';
+      previousClass = currentClass as "Novice" | "Understudy" | "Artisan";
 
       // 5e. Compute class transition (CLAS-01 through CLAS-05)
-      const { newState, transition: transitionResult, artisanGraduated: graduated } = computeClassTransition(
+      const {
+        newState,
+        transition: transitionResult,
+        artisanGraduated: graduated,
+      } = computeClassTransition(
         {
           currentClass,
           aboveBenchmarkCount,
@@ -345,14 +367,19 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
           consecutiveBelowCount: newState.consecutiveBelowCount,
           isPioneer: pioneer.isPioneer || existingRow.isPioneer,
           lastVerdictId: verdictId,
-          lastTransitionAt: transitionResult.type !== 'none' ? new Date() : existingRow.lastTransitionAt,
-          artisanGraduationAt: artisanGraduated ? new Date() : existingRow.artisanGraduationAt,
+          lastTransitionAt:
+            transitionResult.type !== "none"
+              ? new Date()
+              : existingRow.lastTransitionAt,
+          artisanGraduationAt: artisanGraduated
+            ? new Date()
+            : existingRow.artisanGraduationAt,
           updatedAt: new Date(),
         })
         .where(
           and(
             eq(agentClasses.botId, botId),
-            eq(agentClasses.taskCategory, effectiveCategory ?? 'unknown'),
+            eq(agentClasses.taskCategory, effectiveCategory ?? "unknown"),
           ),
         );
 
@@ -377,27 +404,29 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
           executionId,
           soulId: effectiveSoulId,
           taskCategory: effectiveCategory,
-          compositeScore: bot.compositeScore ?? '0',
+          compositeScore: bot.compositeScore ?? "0",
           agentClass: newState.currentClass,
-          soulContent: soul?.soulContent ?? '',
+          soulContent: soul?.soulContent ?? "",
           parentSoulIds: soul?.parentSoulId ? [soul.parentSoulId] : null,
-          mutationLineage: (soul?.dimensions as Record<string, unknown>)?.mutationOps ?? null,
+          mutationLineage:
+            (soul?.dimensions as Record<string, unknown>)?.mutationOps ?? null,
           weightedConfidenceScore: Number(verdict.weightedConfidenceScore),
           dnaPayload: {
             // Required base fields — defaults for fields not available from verdict context
-            systemPromptTemplate: soul?.soulContent ?? '',
+            systemPromptTemplate: soul?.soulContent ?? "",
             toolCallSequence: [],
             argumentPatterns: {},
             retryStrategy: {},
             timingProfile: {},
             tokenDistribution: {},
             // GODL-02 extension fields
-            soulContent: soul?.soulContent ?? '',
+            soulContent: soul?.soulContent ?? "",
             taskCategory: effectiveCategory,
             agentClassAtWrite: newState.currentClass,
             compositeFitnessScore: Number(bot.compositeScore ?? 0),
-            fitnessDimensionBreakdown: performanceJudgeOutput?.fitnessDimensions ?? {},
-            causalAttributionSummary: soulAnalystOutput?.summary ?? '',
+            fitnessDimensionBreakdown:
+              performanceJudgeOutput?.fitnessDimensions ?? {},
+            causalAttributionSummary: soulAnalystOutput?.summary ?? "",
             councilVerdictSummary: verdict.verdictSummary,
             councilConfidenceScores: {
               performance: performanceJudgeOutput?.confidence ?? 0,
@@ -409,7 +438,8 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
               ? verdict.confirmedAt.toISOString()
               : null,
             mutationLineageOps:
-              (soul?.dimensions as Record<string, unknown>)?.mutationOps as string[] ?? [],
+              ((soul?.dimensions as Record<string, unknown>)
+                ?.mutationOps as string[]) ?? [],
             isPioneerEntry: pioneer.isPioneer,
           },
         });
@@ -419,56 +449,71 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
       // Write when retiring a soul-driven bot, or demoting a soul-driven bot
       if (
         effectiveSoulId &&
-        (transitionResult.type === 'retire' || (transitionResult.type === 'demote' && isSoulDriven))
+        (transitionResult.type === "retire" ||
+          (transitionResult.type === "demote" && isSoulDriven))
       ) {
         const failedDirectives = (
           soulAnalystOutput?.directiveAttributionVerification ?? []
         )
-          .filter((v: { counterfactualScore: number }) => v.counterfactualScore < 0.3)
+          .filter(
+            (v: { counterfactualScore: number }) => v.counterfactualScore < 0.3,
+          )
           .map((v: { directiveReferenced: string }) => v.directiveReferenced);
 
         await writeNegativeSignal(tx, {
           soulId: effectiveSoulId,
           botId,
           executionId,
-          failureType: transitionResult.type === 'retire' ? 'retirement' : 'demotion',
-          soulAnalystSummary: soulAnalystOutput?.summary ?? '',
+          failureType:
+            transitionResult.type === "retire" ? "retirement" : "demotion",
+          soulAnalystSummary: soulAnalystOutput?.summary ?? "",
           failedDirectives,
           parentSoulId: soul?.parentSoulId ?? null,
           mutationOpsApplied:
-            (soul?.dimensions as Record<string, unknown>)?.mutationOps as string[] ?? [],
+            ((soul?.dimensions as Record<string, unknown>)
+              ?.mutationOps as string[]) ?? [],
         });
       }
     });
 
     // Step 6 — Post-transaction side effects
     if (artisanGraduated) {
-      console.log('[god-layer] Artisan graduation:', { botId, category: effectiveCategory });
+      console.log("[god-layer] Artisan graduation:", {
+        botId,
+        category: effectiveCategory,
+      });
       publishSoulLifecycleEvent({
-        type: 'soul_promoted',
+        type: "soul_promoted",
         botId,
         executionId,
         taskCategory: effectiveCategory!,
-        fromClass: 'Understudy',
-        toClass: 'Artisan',
+        fromClass: "Understudy",
+        toClass: "Artisan",
         description: `Agent ${botId.slice(0, 8)} has been promoted to Artisan in ${effectiveCategory} tasks`,
         timestamp: new Date().toISOString(),
-      }).catch((err) => console.error('[god-layer] Failed to publish promotion event:', err));
+      }).catch((err) =>
+        console.error("[god-layer] Failed to publish promotion event:", err),
+      );
     }
 
     if (isPioneer) {
-      console.log('[god-layer] Pioneer event:', { botId, category: effectiveCategory });
+      console.log("[god-layer] Pioneer event:", {
+        botId,
+        category: effectiveCategory,
+      });
       publishSoulLifecycleEvent({
-        type: 'pioneer_detected',
+        type: "pioneer_detected",
         botId,
         executionId,
         taskCategory: effectiveCategory!,
         description: `Agent ${botId.slice(0, 8)} is a pioneer — first confirmed run in ${effectiveCategory} tasks`,
         timestamp: new Date().toISOString(),
-      }).catch((err) => console.error('[god-layer] Failed to publish pioneer event:', err));
+      }).catch((err) =>
+        console.error("[god-layer] Failed to publish pioneer event:", err),
+      );
     }
 
-    console.log('[god-layer] Class transition complete:', {
+    console.log("[god-layer] Class transition complete:", {
       verdictId,
       botId,
       category: effectiveCategory,
@@ -478,20 +523,22 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
     // Publish lifecycle events for all transition types
     // Cast to ClassTransition to restore discriminated union narrowing after async closure mutation
     const resolvedTransition = transition as ClassTransition;
-    if (resolvedTransition.type === 'promote' && !artisanGraduated) {
+    if (resolvedTransition.type === "promote" && !artisanGraduated) {
       publishSoulLifecycleEvent({
-        type: 'soul_promoted',
+        type: "soul_promoted",
         botId,
         executionId,
         taskCategory: effectiveCategory!,
-        fromClass: 'Novice',
-        toClass: 'Understudy',
+        fromClass: "Novice",
+        toClass: "Understudy",
         description: `Agent ${botId.slice(0, 8)} has been promoted to Understudy in ${effectiveCategory} tasks`,
         timestamp: new Date().toISOString(),
-      }).catch((err) => console.error('[god-layer] Failed to publish promotion event:', err));
-    } else if (resolvedTransition.type === 'demote') {
+      }).catch((err) =>
+        console.error("[god-layer] Failed to publish promotion event:", err),
+      );
+    } else if (resolvedTransition.type === "demote") {
       publishSoulLifecycleEvent({
-        type: 'soul_demoted',
+        type: "soul_demoted",
         botId,
         executionId,
         taskCategory: effectiveCategory!,
@@ -499,18 +546,30 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
         toClass: resolvedTransition.to,
         description: `Agent ${botId.slice(0, 8)} has been demoted from ${resolvedTransition.from} to ${resolvedTransition.to} in ${effectiveCategory} tasks`,
         timestamp: new Date().toISOString(),
-      }).catch((err) => console.error('[god-layer] Failed to publish demotion event:', err));
-    } else if (resolvedTransition.type === 'retire') {
+      }).catch((err) =>
+        console.error("[god-layer] Failed to publish demotion event:", err),
+      );
+    } else if (resolvedTransition.type === "retire") {
       publishSoulLifecycleEvent({
-        type: 'soul_retired',
+        type: "soul_retired",
         botId,
         executionId,
         taskCategory: effectiveCategory!,
         fromClass: previousClass,
         description: `Agent ${botId.slice(0, 8)} has been retired from ${effectiveCategory} tasks`,
         timestamp: new Date().toISOString(),
-      }).catch((err) => console.error('[god-layer] Failed to publish retirement event:', err));
+      }).catch((err) =>
+        console.error("[god-layer] Failed to publish retirement event:", err),
+      );
     }
+
+    // Step 6.5 — Evolution campaign hook (Karpathy Loop, issue #74)
+    // If this verdict's execution is part of an evolution campaign AND this
+    // was the last verdict to finish god-layer processing, compute the EFS,
+    // update the iteration row, evaluate halt criteria, and either enqueue
+    // the next iteration or stop the campaign. Non-throwing — any failure
+    // is logged inside the hook so god-layer job success is preserved.
+    await runEvolutionCampaignHook(executionId);
   } finally {
     // Step 7 — Cleanup: clear intervals and release Redis locks
     if (lockRenewalInterval !== null) {
@@ -520,14 +579,14 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
 
     if (lockAcquired && taskCategory !== null) {
       await releaseCategoryLock(taskCategory, job.id!).catch((err) => {
-        console.error('[god-layer] Failed to release category lock:', err);
+        console.error("[god-layer] Failed to release category lock:", err);
       });
     } else if (lockAcquired) {
       // Try to release with effective category derived from data
       const effectiveCategory = taskCategory;
       if (effectiveCategory !== null) {
         await releaseCategoryLock(effectiveCategory, job.id!).catch((err) => {
-          console.error('[god-layer] Failed to release category lock:', err);
+          console.error("[god-layer] Failed to release category lock:", err);
         });
       }
     }
@@ -550,34 +609,38 @@ async function godLayerProcessor(job: Job<GodLayerJobData>): Promise<void> {
  * - stalledInterval: 30s / maxStalledCount: 1
  */
 export function startGodLayerWorker(): Worker<GodLayerJobData> {
-  const worker = new Worker<GodLayerJobData>(GOD_LAYER_QUEUE_NAME, godLayerProcessor, {
-    connection: workerConnection,
-    concurrency: GOD_LAYER_CONCURRENCY,
-    lockDuration: GOD_LAYER_LOCK_DURATION_MS,
-    stalledInterval: 30_000,
-    maxStalledCount: 1,
-    limiter: { max: 20, duration: 60_000 },
+  const worker = new Worker<GodLayerJobData>(
+    GOD_LAYER_QUEUE_NAME,
+    godLayerProcessor,
+    {
+      connection: workerConnection,
+      concurrency: GOD_LAYER_CONCURRENCY,
+      lockDuration: GOD_LAYER_LOCK_DURATION_MS,
+      stalledInterval: 30_000,
+      maxStalledCount: 1,
+      limiter: { max: 20, duration: 60_000 },
+    },
+  );
+
+  worker.on("error", (err) => {
+    console.error("[god-layer] Error:", err);
   });
 
-  worker.on('error', (err) => {
-    console.error('[god-layer] Error:', err);
-  });
-
-  worker.on('failed', (job, err) => {
-    console.error('[god-layer] Job failed:', {
+  worker.on("failed", (job, err) => {
+    console.error("[god-layer] Job failed:", {
       jobId: job?.id,
       verdictId: job?.data?.verdictId,
       error: err.message,
     });
   });
 
-  worker.on('completed', (job) => {
-    console.log('[god-layer] Job completed:', {
+  worker.on("completed", (job) => {
+    console.log("[god-layer] Job completed:", {
       jobId: job.id,
       verdictId: job.data.verdictId,
     });
   });
 
-  console.log('[god-layer] Started (concurrency=3, rate-limit=20/min)');
+  console.log("[god-layer] Started (concurrency=3, rate-limit=20/min)");
   return worker;
 }

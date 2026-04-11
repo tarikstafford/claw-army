@@ -1,50 +1,59 @@
-import 'dotenv/config';
+import "dotenv/config";
 
 // ── Startup env var validation ───────────────────────────────────────────────
-const REQUIRED_ENV = [
-  'DATABASE_URL',
-  'REDIS_URL',
-  'AUTH_SECRET',
-] as const;
+const REQUIRED_ENV = ["DATABASE_URL", "REDIS_URL", "AUTH_SECRET"] as const;
 
 const REQUIRED_PRODUCTION_ENV = [
-  'GCP_PROJECT_ID',
-  'GCP_ZONE',
-  'GCP_NETWORK',
-  'GCP_SUBNET',
-  'BOT_JWT_SECRET',
-  'LLM_API_KEY_SECRET_NAME',
-  'GCP_BOT_SERVICE_ACCOUNT',
+  "GCP_PROJECT_ID",
+  "GCP_ZONE",
+  "GCP_NETWORK",
+  "GCP_SUBNET",
+  "BOT_JWT_SECRET",
+  "LLM_API_KEY_SECRET_NAME",
+  "GCP_BOT_SERVICE_ACCOUNT",
 ] as const;
 
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missing.length > 0) {
-  console.error(`[main] Missing required environment variables: ${missing.join(', ')}`);
+  console.error(
+    `[main] Missing required environment variables: ${missing.join(", ")}`,
+  );
   process.exit(1);
 }
 
-if (process.env.NODE_ENV === 'production') {
-  const missingProd = REQUIRED_PRODUCTION_ENV.filter((key) => !process.env[key]);
+if (process.env.NODE_ENV === "production") {
+  const missingProd = REQUIRED_PRODUCTION_ENV.filter(
+    (key) => !process.env[key],
+  );
   if (missingProd.length > 0) {
-    console.error(`[main] Missing required production environment variables: ${missingProd.join(', ')}`);
+    console.error(
+      `[main] Missing required production environment variables: ${missingProd.join(", ")}`,
+    );
     process.exit(1);
   }
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { buildApp } from './app';
-import { startGuardrailWatchdog, stopGuardrailWatchdog } from './events/guardrail-watchdog';
-import { startBillingEngine } from './events/billing-engine';
-import { startOpenClawDispatcher } from './queue/openclaw-dispatcher';
-import { startCouncilWorker } from './queue/council-worker';
-import { startGodLayerWorker } from './queue/god-layer-worker';
-import { startSpawnTimeoutChecker, stopSpawnTimeoutChecker } from './orchestrator/bot-orchestrator';
+import { buildApp } from "./app";
+import {
+  startGuardrailWatchdog,
+  stopGuardrailWatchdog,
+} from "./events/guardrail-watchdog";
+import { startBillingEngine } from "./events/billing-engine";
+import { startOpenClawDispatcher } from "./queue/openclaw-dispatcher";
+import { startCouncilWorker } from "./queue/council-worker";
+import { startGodLayerWorker } from "./queue/god-layer-worker";
+import { startEvolutionCampaignWorker } from "./queue/evolution-campaign-worker";
+import {
+  startSpawnTimeoutChecker,
+  stopSpawnTimeoutChecker,
+} from "./orchestrator/bot-orchestrator";
 
 const app = await buildApp();
-const port = Number(process.env['PORT'] ?? 3001);
+const port = Number(process.env["PORT"] ?? 3001);
 
 try {
-  await app.listen({ port, host: '0.0.0.0' });
+  await app.listen({ port, host: "0.0.0.0" });
 } catch (err) {
   app.log.error(err);
   process.exit(1);
@@ -75,24 +84,32 @@ const councilWorker = startCouncilWorker();
 // writes versioned DNA library entries, and manages the negative signal register.
 const godLayerWorker = startGodLayerWorker();
 
+// Start the Evolution Campaign worker — closes the Karpathy Loop (issue #74).
+// Picks up next-iteration jobs enqueued by god-layer-worker after the final
+// verdict of an iteration and spawns the next execution in the campaign.
+const evolutionCampaignWorker = startEvolutionCampaignWorker();
+
 // Graceful shutdown — clean up the watchdog timer, billing engine, dispatcher, and spawn checker
 function shutdown() {
   stopGuardrailWatchdog(watchdogTimer);
   stopSpawnTimeoutChecker(spawnTimer);
   billingEngine.shutdown().catch((err) => {
-    console.error('[main] Error during billing engine shutdown:', err);
+    console.error("[main] Error during billing engine shutdown:", err);
   });
   dispatcherWorker.close().catch((err: Error) => {
-    console.error('[main] Error closing dispatcher worker:', err);
+    console.error("[main] Error closing dispatcher worker:", err);
   });
   councilWorker.close().catch((err: Error) => {
-    console.error('[main] Error closing council worker:', err);
+    console.error("[main] Error closing council worker:", err);
   });
   godLayerWorker.close().catch((err: Error) => {
-    console.error('[main] Error closing god-layer worker:', err);
+    console.error("[main] Error closing god-layer worker:", err);
+  });
+  evolutionCampaignWorker.close().catch((err: Error) => {
+    console.error("[main] Error closing evolution campaign worker:", err);
   });
   process.exit(0);
 }
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
