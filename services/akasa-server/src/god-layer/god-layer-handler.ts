@@ -64,7 +64,9 @@ const MAINTAIN_DNA_CAPTURE_THRESHOLD = 0.7;
  * 6. If Promote or Maintain with compositeScore >= 0.7: capture DNA.
  * 7. If Demote, Monitor, or Retire: record negative signal.
  * 8. If Promote: check and record pioneer.
- * 9. Mark verdict as processed (godLayerProcessedAt = now).
+ * 9. If Promote or Maintain: extract learned skills from decision traces.
+ * 10. Process skill unlearning for negative verdicts.
+ * 11. Mark verdict as processed (godLayerProcessedAt = now).
  *
  * All sub-calls are wrapped in individual try/catch — one failure does not
  * block the whole God Layer.
@@ -248,7 +250,28 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     }
   }
 
-  // Step 10: Skill unlearning - track consecutiveNegativeCount and auto-remove underperforming skills
+  // Step 10: Skill learning — extract novel procedural knowledge from decision traces
+  if (verdict.verdictType === 'Promote' || verdict.verdictType === 'Maintain') {
+    try {
+      const { processSkillLearningForExecution } = await import('../services/skill-learning.js');
+      const learningResult = await processSkillLearningForExecution(
+        verdict.executionId,
+        verdict.botId,
+        verdict.soulId,
+      );
+      if (learningResult.skillsCreated > 0) {
+        console.log('[god-layer] Skills learned:', {
+          botId: verdict.botId,
+          skillsCreated: learningResult.skillsCreated,
+          skillIds: learningResult.skillIds,
+        });
+      }
+    } catch (err) {
+      console.error('[god-layer] Skill learning failed:', { botId: verdict.botId, error: (err as Error).message });
+    }
+  }
+
+  // Step 11: Skill unlearning - track consecutiveNegativeCount and auto-remove underperforming skills
   try {
     const unlearningResult = await processSkillUnlearning(
       verdict.botId,
@@ -266,7 +289,7 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     console.error('[god-layer] Skill unlearning failed:', { botId: verdict.botId, error: (err as Error).message });
   }
 
-  // Step 11: Mark verdict as processed (idempotency stamp)
+  // Step 12: Mark verdict as processed (idempotency stamp)
   try {
     await db
       .update(councilVerdicts)

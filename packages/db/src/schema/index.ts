@@ -23,3 +23,4 @@ export * from "./skill-activations";
 export * from "./evolution-campaigns";
 export * from "./user-preferences";
 export * from "./api-keys";
+export * from "./learned-skills";
