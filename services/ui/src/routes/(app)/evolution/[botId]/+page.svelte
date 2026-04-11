@@ -7,12 +7,13 @@
   import RuntimeStatus from '$lib/components/evolution/RuntimeStatus.svelte';
   import MutationDiff from '$lib/components/evolution/MutationDiff.svelte';
   import ExecutionLogs from '$lib/components/evolution/ExecutionLogs.svelte';
+  import SkillLoadout from '$lib/components/evolution/SkillLoadout.svelte';
   import type { PageData } from './$types';
   import type { MutationType } from '$lib/components/evolution/MutationDiff.svelte';
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'logs'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'logs' | 'skills'>('profile');
   let diffState = $state<{
     childId: string;
     parentId: string;
@@ -21,6 +22,7 @@
 
   const TABS = [
     { id: 'profile' as const, label: 'PROFILE' },
+    { id: 'skills' as const, label: 'SKILLS' },
     { id: 'timeline' as const, label: 'TIMELINE' },
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
@@ -154,6 +156,12 @@
       {/if}
     {:else if activeTab === 'ledger'}
       <ExperimentLedger rows={data.ledger} ondiff={handleLedgerDiffRequest} />
+    {:else if activeTab === 'skills'}
+      <SkillLoadout
+        botId={data.botId}
+        userId={data.userId}
+        agentClass={data.profile?.currentClass ?? null}
+      />
     {:else if activeTab === 'logs'}
       <ExecutionLogs botId={data.botId} />
     {/if}

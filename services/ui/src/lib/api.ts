@@ -492,3 +492,115 @@ export async function getEvolutionCostSummary(
 ): Promise<EvolutionCostSummary> {
   return apiFetch(`${BASE}/companies/${companyId}/costs/evolution`);
 }
+
+// ── Skills Library ───────────────────────────────────────────────
+
+export interface Skill {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  version: string;
+  category: string;
+  triggers: string[];
+  requiresTools: string[];
+  requiresSkills: string[];
+  minAgentClass: string;
+  content: string;
+  contentHash: string;
+  source: string;
+  isPublic: string;
+  effectivenessStats: SkillEffectivenessStats | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SkillEffectivenessStats {
+  totalActivations?: number;
+  successRate?: number;
+  avgDuration?: number;
+  lastActivatedAt?: string;
+}
+
+export interface CreateSkillInput {
+  userId: string;
+  content: string;
+  source?: 'user_created' | 'imported' | 'curated';
+  isPublic?: boolean;
+}
+
+export async function getSkills(
+  userId: string,
+  params?: { category?: string; source?: string },
+): Promise<Skill[]> {
+  const query = new URLSearchParams({ userId });
+  if (params?.category) query.set('category', params.category);
+  if (params?.source) query.set('source', params.source);
+  return apiFetch(`${BASE}/akasa/skills?${query.toString()}`);
+}
+
+export async function getSkill(skillId: string): Promise<Skill> {
+  return apiFetch(`${BASE}/akasa/skills/${skillId}`);
+}
+
+export async function createSkill(input: CreateSkillInput): Promise<Skill> {
+  return apiFetch(`${BASE}/akasa/skills`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateSkill(
+  skillId: string,
+  body: { content?: string; name?: string; description?: string },
+): Promise<Skill> {
+  return apiFetch(`${BASE}/akasa/skills/${skillId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteSkill(skillId: string): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/akasa/skills/${skillId}`, {
+    method: 'DELETE',
+  });
+}
+
+// ── Agent Skills (Loadout) ───────────────────────────────────────
+
+export interface EquippedSkill {
+  skillId: string;
+  equippedAt: string;
+  equippedBy: string;
+  skillName: string;
+  skillDescription: string;
+  skillCategory: string;
+  skillVersion: string;
+}
+
+export async function getAgentSkills(agentId: string): Promise<EquippedSkill[]> {
+  return apiFetch(`${BASE}/akasa/agents/${agentId}/skills`);
+}
+
+export async function equipSkill(
+  agentId: string,
+  skillId: string,
+  equippedBy: string,
+): Promise<unknown> {
+  return apiFetch(`${BASE}/akasa/agents/${agentId}/skills/${skillId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ equippedBy }),
+  });
+}
+
+export async function unequipSkill(
+  agentId: string,
+  skillId: string,
+): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/akasa/agents/${agentId}/skills/${skillId}`, {
+    method: 'DELETE',
+  });
+}
