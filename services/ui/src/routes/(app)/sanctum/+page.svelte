@@ -6,6 +6,7 @@
   import StackedAreaChart from '$lib/components/StackedAreaChart.svelte';
   import OperationBreakdownChart from '$lib/components/OperationBreakdownChart.svelte';
   import CostAlertBanner from '$lib/components/CostAlertBanner.svelte';
+  import CostProjectionCard from '$lib/components/CostProjectionCard.svelte';
   import type { PageData } from './$types';
   import { subscribeWS } from '$lib/ws.js';
   import type { LiveEvent } from '$lib/ws.js';
@@ -21,21 +22,22 @@
   let spendByAgent = $derived(data.spendByAgent ?? []);
   let spendByOperation = $derived(data.spendByOperation ?? []);
   let evolutionCosts = $derived(data.evolutionCosts);
+  let costProjections = $derived(data.costProjections);
 
   function formatCents(cents: number | null | undefined): string {
-    if (cents == null) return '—';
+    if (cents == null) return '\u2014';
     return `$${(cents / 100).toFixed(2)}`;
   }
 
   function formatNumber(val: number | null | undefined): string {
-    if (val == null) return '—';
+    if (val == null) return '\u2014';
     if (val >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M`;
     if (val >= 1_000) return `${(val / 1_000).toFixed(1)}K`;
     return String(val);
   }
 
   function formatDate(iso: string | null | undefined): string {
-    if (!iso) return '—';
+    if (!iso) return '\u2014';
     return new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
 
@@ -46,10 +48,10 @@
     formatNumber(costSummary?.totalTokens ?? costSummary?.breakdown?.tokens as number | undefined)
   );
   let budgetRemaining = $derived(
-    budget ? formatCents(budget.remainingTodayCents) : '—'
+    budget ? formatCents(budget.remainingTodayCents) : '\u2014'
   );
   let monthlyTotal = $derived(
-    budget ? formatCents(budget.monthlyTotalCents) : '—'
+    budget ? formatCents(budget.monthlyTotalCents) : '\u2014'
   );
 
   let karmaText = $derived(
@@ -108,6 +110,12 @@
       <MetricTile label="TOKENS" value={totalTokens} />
     </div>
   </section>
+
+  {#if costProjections}
+    <section class="section projection-section" aria-label="Cost projections">
+      <CostProjectionCard projection={costProjections} />
+    </section>
+  {/if}
 
   {#if budget && companyId}
     <section class="section budget-section" aria-label="Budget controls">
@@ -258,6 +266,10 @@
   .alert-section {
     padding-top: 0;
     padding-bottom: 0;
+  }
+
+  .projection-section {
+    padding-top: 0;
   }
 
   .metric-grid {

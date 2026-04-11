@@ -223,6 +223,31 @@ export interface EvolutionCostSummary {
   avgCostPerRunCents: number;
 }
 
+// ── Cost Projections ─────────────────────────────────────────────
+
+export type BurnTrend = 'increasing' | 'decreasing' | 'stable';
+
+export interface CostProjectionBreakdown {
+  llmInputTokensCents: number;
+  llmOutputTokensCents: number;
+  botHoursCents: number;
+  toolInvocationsCents: number;
+}
+
+export interface CostProjection {
+  dailyBurnRateCents: number;
+  projectedMonthlyCostCents: number;
+  daysUntilBudgetExhaustion: number | null;
+  trend: BurnTrend;
+  breakdown: CostProjectionBreakdown;
+  windowDays: number;
+  dataPoints: number;
+}
+
+export async function getCostProjections(companyId: string): Promise<CostProjection> {
+  return apiFetch(`${BASE}/companies/${companyId}/costs/projections`);
+}
+
 // ── Companies ─────────────────────────────────────────────────────
 
 export async function getCompanies(): Promise<Company[]> {
