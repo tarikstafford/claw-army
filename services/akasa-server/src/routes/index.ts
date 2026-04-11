@@ -13,6 +13,7 @@ import { webhookLogsRouter } from './webhook-logs.js';
 import { internalRouter } from './internal.js';
 import { githubRouter } from './github.js';
 import { commandsRouter } from './commands.js';
+import { settingsRouter } from './settings.js';
 
 const akasaRouter = Router();
 
@@ -60,5 +61,8 @@ akasaRouter.use('/akasa/internal', internalRouter());
 
 // Quick command executor (status, pause, resume, assign)
 akasaRouter.use('/akasa/commands', commandsRouter());
+
+// User settings: profile, preferences, API keys
+akasaRouter.use('/akasa/settings', settingsRouter());
 
 export { akasaRouter };
