@@ -6,12 +6,13 @@
   import ProfileTab from '$lib/components/evolution/ProfileTab.svelte';
   import RuntimeStatus from '$lib/components/evolution/RuntimeStatus.svelte';
   import MutationDiff from '$lib/components/evolution/MutationDiff.svelte';
+  import ExecutionLogs from '$lib/components/evolution/ExecutionLogs.svelte';
   import type { PageData } from './$types';
   import type { MutationType } from '$lib/components/evolution/MutationDiff.svelte';
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'logs'>('profile');
   let diffState = $state<{
     childId: string;
     parentId: string;
@@ -23,6 +24,7 @@
     { id: 'timeline' as const, label: 'TIMELINE' },
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
+    { id: 'logs' as const, label: 'LOGS' },
   ];
 
   function detectMutationType(parentContent: string, childContent: string): MutationType {
@@ -152,6 +154,8 @@
       {/if}
     {:else if activeTab === 'ledger'}
       <ExperimentLedger rows={data.ledger} ondiff={handleLedgerDiffRequest} />
+    {:else if activeTab === 'logs'}
+      <ExecutionLogs botId={data.botId} />
     {/if}
   </div>
 
