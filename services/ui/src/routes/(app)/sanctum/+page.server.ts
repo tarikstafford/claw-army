@@ -13,6 +13,7 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
     spendByAgentRes,
     spendByOpRes,
     evolutionCostRes,
+    costProjectionsRes,
   ] = await Promise.allSettled([
     fetch(`/api/companies/${companyId}/costs/summary`),
     fetch(`/api/companies/${companyId}/costs/by-agent`),
@@ -21,6 +22,7 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
     fetch(`/api/companies/${companyId}/costs/trends/by-agent`),
     fetch(`/api/companies/${companyId}/costs/trends/by-operation`),
     fetch(`/api/companies/${companyId}/costs/evolution`),
+    fetch(`/api/companies/${companyId}/costs/projections`),
   ]);
 
   const costSummary = costSummaryRes.status === 'fulfilled' && costSummaryRes.value.ok
@@ -44,6 +46,9 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
   const evolutionCosts = evolutionCostRes.status === 'fulfilled' && evolutionCostRes.value.ok
     ? await evolutionCostRes.value.json()
     : null;
+  const costProjections = costProjectionsRes.status === 'fulfilled' && costProjectionsRes.value.ok
+    ? await costProjectionsRes.value.json()
+    : null;
 
   return {
     costSummary,
@@ -53,5 +58,6 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
     spendByAgent,
     spendByOperation,
     evolutionCosts,
+    costProjections,
   };
 };
