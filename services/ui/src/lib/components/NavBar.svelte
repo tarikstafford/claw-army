@@ -5,7 +5,7 @@
   import { authClient } from '$lib/auth-client';
   import { browser } from '$app/environment';
 
-  let { activeTab }: { activeTab?: 'indra' | 'office' | 'chat' | 'sanctum' | 'tools' | 'evolution' } = $props();
+  let { activeTab }: { activeTab?: 'indra' | 'office' | 'chat' | 'sanctum' | 'tools' | 'skills' | 'evolution' } = $props();
 
   let isDark = $state(false);
 
@@ -25,6 +25,7 @@
     { href: '/chat',      label: 'CHAT',      key: 'chat' },
     { href: '/sanctum',   label: 'SANCTUM',   key: 'sanctum' },
     { href: '/tools',     label: 'TOOLS',     key: 'tools' },
+    { href: '/skills',   label: 'SKILLS',    key: 'skills' },
     { href: '/evolution', label: 'EVOLUTION', key: 'evolution' },
     { href: '/settings',  label: 'SETTINGS',  key: 'settings' },
   ] as const;

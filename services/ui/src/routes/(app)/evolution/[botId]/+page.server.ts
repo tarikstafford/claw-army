@@ -22,5 +22,7 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
   const profile = profileRes.status === 'fulfilled' && profileRes.value.ok
     ? await profileRes.value.json() : null;
 
-  return { botId, timeline, lineage, ledger, profile };
+  const userId = session.user?.id ?? '';
+
+  return { botId, timeline, lineage, ledger, profile, userId };
 };
