@@ -26,6 +26,7 @@
     { href: '/sanctum',   label: 'SANCTUM',   key: 'sanctum' },
     { href: '/tools',     label: 'TOOLS',     key: 'tools' },
     { href: '/evolution', label: 'EVOLUTION', key: 'evolution' },
+    { href: '/settings',  label: 'SETTINGS',  key: 'settings' },
   ] as const;
 
   function isActive(href: string, key: string): boolean {
