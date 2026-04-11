@@ -9,6 +9,17 @@ const billingEventTypeSchema = z.enum([
   'budget_exceeded',
 ]);
 
+/** Schema for budget_alert event — emitted at 50%, 75%, 90% of budget cap */
+export const budgetAlertEventSchema = z.object({
+  type: z.literal('budget_alert'),
+  executionId: z.uuid(),
+  userId: z.string(),
+  alertThreshold: z.union([z.literal(0.5), z.literal(0.75), z.literal(0.9)]),
+  budgetCapCents: z.number().int().nonnegative(),
+  totalSpentCents: z.number().int().nonnegative(),
+  timestamp: z.iso.datetime(),
+});
+
 /** Generic billing event schema covering all billing_event_type values */
 export const billingEventSchema = z.object({
   type: z.literal('billing_event'),
@@ -34,3 +45,4 @@ export const budgetExceededEventSchema = z.object({
 
 export type BillingEvent = z.infer<typeof billingEventSchema>;
 export type BudgetExceededEvent = z.infer<typeof budgetExceededEventSchema>;
+export type BudgetAlertEvent = z.infer<typeof budgetAlertEventSchema>;
