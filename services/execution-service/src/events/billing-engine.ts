@@ -2,10 +2,14 @@ import { PubSub, type Message } from '@google-cloud/pubsub';
 import IORedis from 'ioredis';
 import { db, billingEvents, telemetry, bots, executions } from '@claw/db';
 import { eq } from 'drizzle-orm';
-import { publishBudgetExceeded, publishBillingEvent } from './publisher';
+import { publishBudgetExceeded, publishBillingEvent, publishBudgetAlert } from './publisher';
 import { stopBot } from '../orchestrator/bot-orchestrator';
 import { getBotsForExecution } from '../orchestrator/bot-registry';
 import { transitionExecution } from '../services/execution.service';
+import {
+  submitTokenUsage,
+  submitBotHoursUsage,
+} from '../services/stripe';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Cost rate constants (env-var configurable)
@@ -71,6 +75,125 @@ if new_total > cap then
 end
 return {new_total, 0}
 `;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Budget alert tracking
+// ──────────────────────────────────────────────────────────────────────────────
+
+const BUDGET_ALERT_THRESHOLDS = [0.5, 0.75, 0.9] as const;
+
+async function checkAndEmitBudgetAlerts(
+  executionId: string,
+  totalSpentCents: number,
+  budgetCapCents: number,
+): Promise<void> {
+  if (budgetCapCents <= 0) return;
+
+  for (const threshold of BUDGET_ALERT_THRESHOLDS) {
+    const thresholdCents = Math.floor(budgetCapCents * threshold);
+    const alertedKey = `budget:alert:${executionId}:${threshold}`;
+
+    const alreadyAlerted = await redis.get(alertedKey);
+    if (alreadyAlerted) continue;
+
+    if (totalSpentCents >= thresholdCents) {
+      await redis.set(alertedKey, '1');
+      const pct = Math.round(threshold * 100);
+
+      await publishBudgetAlert({
+        type: 'budget_alert',
+        executionId,
+        threshold: String(pct) as '50' | '75' | '90',
+        budgetCapCents,
+        totalSpentCents,
+        timestamp: new Date().toISOString(),
+      });
+
+      console.log(`[billing-engine] Budget alert ${pct}% triggered:`, {
+        executionId,
+        totalSpentCents,
+        budgetCapCents,
+      });
+    }
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Stripe billing helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+interface StripeCustomerInfo {
+  stripeCustomerId: string;
+  subscriptionItemMap: Record<string, string>;
+}
+
+async function getStripeCustomerByProjectId(
+  projectId: string,
+): Promise<StripeCustomerInfo | null> {
+  try {
+    const response = await fetch(
+      `http://localhost:${process.env.AKASA_SERVER_PORT ?? '3100'}/api/akasa/internal/stripe-customer/${projectId}`,
+    );
+    if (!response.ok) return null;
+    const data = (await response.json()) as {
+      stripeCustomerId?: string;
+      subscriptionItemMap?: Record<string, string>;
+    };
+    if (!data.stripeCustomerId) return null;
+    return {
+      stripeCustomerId: data.stripeCustomerId,
+      subscriptionItemMap: data.subscriptionItemMap ?? {},
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function submitBillingToStripe(params: {
+  executionId: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  botHours?: number;
+}): Promise<void> {
+  const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+  if (!STRIPE_KEY) return;
+
+  try {
+    const [execRow] = await db
+      .select({ projectId: executions.projectId })
+      .from(executions)
+      .where(eq(executions.id, params.executionId))
+      .limit(1);
+
+    if (!execRow?.projectId) return;
+
+    const customerInfo = await getStripeCustomerByProjectId(execRow.projectId);
+    if (!customerInfo) return;
+
+    if ((params.inputTokens ?? 0) > 0 && customerInfo.subscriptionItemMap.input_tokens) {
+      await submitTokenUsage({
+        subscriptionItemId: customerInfo.subscriptionItemMap.input_tokens,
+        quantity: params.inputTokens!,
+      });
+    }
+
+    if ((params.outputTokens ?? 0) > 0 && customerInfo.subscriptionItemMap.output_tokens) {
+      await submitTokenUsage({
+        subscriptionItemId: customerInfo.subscriptionItemMap.output_tokens,
+        quantity: params.outputTokens!,
+      });
+    }
+
+    if (params.botHours !== undefined && customerInfo.subscriptionItemMap.bot_hours) {
+      await submitBotHoursUsage({
+        subscriptionItemId: customerInfo.subscriptionItemMap.bot_hours,
+        quantity: params.botHours,
+      });
+    }
+  } catch (err) {
+    console.warn('[billing-engine] Stripe submission failed (non-fatal):', (err as Error).message);
+  }
+}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Core billing functions (exported for direct testing)
@@ -139,7 +262,7 @@ export async function recordBotHours(botId: string, executionId: string): Promis
       botId,
       executionId,
     });
-    return;
+    return 0;
   }
 
   const wallClockMs = botRow.stoppedAt.getTime() - botRow.startedAt.getTime();
@@ -158,6 +281,8 @@ export async function recordBotHours(botId: string, executionId: string): Promis
     botHours: botHours.toFixed(6),
     wallClockMs,
   });
+
+  return botHours;
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -282,6 +407,8 @@ async function handleBillingMessage(message: Message): Promise<void> {
     executionId?: string;
     botId?: string;
     amountCents?: number;
+    inputTokenCount?: number;
+    outputTokenCount?: number;
     tokenCount?: number;
   };
 
@@ -302,7 +429,7 @@ async function handleBillingMessage(message: Message): Promise<void> {
     const costCents = amountCents ?? 0;
 
     if (costCents > 0) {
-      const { capExceeded } = await enforceAtomicBudget(executionId, costCents);
+      const { newTotalCents, capExceeded } = await enforceAtomicBudget(executionId, costCents);
 
       await writeBillingEvent({
         executionId,
@@ -310,6 +437,20 @@ async function handleBillingMessage(message: Message): Promise<void> {
         eventType: 'tool_invoked',
         amountCents: costCents,
         tokenCount,
+      });
+
+      // Check for budget alerts at 50%, 75%, 90% thresholds
+      const [capStr] = await Promise.all([redis.get(`budget:cap:${executionId}`)]);
+      const budgetCap = Number(capStr ?? 0);
+      if (budgetCap > 0) {
+        void checkAndEmitBudgetAlerts(executionId, newTotalCents, budgetCap);
+      }
+
+      // Submit token usage to Stripe (fire-and-forget)
+      void submitBillingToStripe({
+        executionId,
+        inputTokens: payload.inputTokenCount,
+        outputTokens: payload.outputTokenCount ?? payload.tokenCount,
       });
 
       if (capExceeded) {
@@ -376,7 +517,15 @@ async function handleBotLifecycleMessage(message: Message): Promise<void> {
     });
 
     // Calculate and record bot-hours from wall-clock runtime (METR-02)
-    await recordBotHours(botId, executionId);
+    const botHours = await recordBotHours(botId, executionId);
+
+    // Submit bot-hours usage to Stripe (fire-and-forget)
+    if (botHours > 0) {
+      void submitBillingToStripe({
+        executionId,
+        botHours,
+      });
+    }
 
     console.log('[billing-engine] Bot stopped billing event recorded:', { botId, executionId });
   }

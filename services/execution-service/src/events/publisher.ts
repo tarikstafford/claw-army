@@ -7,6 +7,7 @@ import {
   executionStatusChangedEventSchema,
   billingEventSchema,
   budgetExceededEventSchema,
+  budgetAlertEventSchema,
   guardrailTriggeredEventSchema,
   soulLifecycleEventSchema,
   ringLeaderEventSchema,
@@ -17,6 +18,7 @@ import {
   type ExecutionStatusChangedEvent,
   type BillingEvent,
   type BudgetExceededEvent,
+  type BudgetAlertEvent,
   type GuardrailTriggeredEvent,
   type SoulLifecycleEvent,
   type RingLeaderEvent,
@@ -120,6 +122,14 @@ export async function publishBillingEvent(event: BillingEvent): Promise<void> {
  */
 export async function publishBudgetExceeded(event: BudgetExceededEvent): Promise<void> {
   await publish(BILLING_EVENTS_TOPIC, budgetExceededEventSchema, event);
+}
+
+/**
+ * Publish a budget_alert event.
+ * Emitted when cumulative spend reaches 50%, 75%, or 90% of the budget cap.
+ */
+export async function publishBudgetAlert(event: BudgetAlertEvent): Promise<void> {
+  await publish(BILLING_EVENTS_TOPIC, budgetAlertEventSchema, event);
 }
 
 /**

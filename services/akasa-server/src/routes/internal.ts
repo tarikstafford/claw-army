@@ -1,8 +1,8 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { eq, and } from 'drizzle-orm';
-import { createDb, companyMemberships } from '@paperclipai/db';
+import { createDb, companyMemberships, projects } from '@paperclipai/db';
 import { db } from '@claw/db';
-import { toolConnections, toolInvocationLogs } from '@claw/db';
+import { toolConnections, toolInvocationLogs, stripeCustomers } from '@claw/db';
 import {
   getValidToken,
   refreshHubSpotToken,
@@ -147,6 +147,66 @@ export function internalRouter(): Router {
           : undefined,
       });
       res.status(204).end();
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // ─── Endpoint 4: Get stripe customer ID by projectId ─────────────────────────
+  // Used by execution-service billing engine to look up Stripe customer for usage submission
+  // Flow: projectId → companyId (via projects) → userId (via company_memberships) → stripeCustomerId
+  router.get('/stripe-customer/:projectId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { projectId } = req.params as { projectId: string };
+      const pcDb = getPaperclipDb();
+
+      const [projectRow] = await pcDb
+        .select({ companyId: projects.companyId })
+        .from(projects)
+        .where(eq(projects.id, projectId))
+        .limit(1);
+
+      if (!projectRow?.companyId) {
+        res.status(404).json({ error: `No company found for project ${projectId}` });
+        return;
+      }
+
+      const [memberRow] = await pcDb
+        .select({ userId: companyMemberships.principalId })
+        .from(companyMemberships)
+        .where(
+          and(
+            eq(companyMemberships.companyId, projectRow.companyId),
+            eq(companyMemberships.principalType, 'user'),
+            eq(companyMemberships.status, 'active'),
+          )
+        )
+        .limit(1);
+
+      const userId = memberRow?.userId;
+      if (!userId) {
+        res.status(404).json({ error: `No user found for company ${projectRow.companyId}` });
+        return;
+      }
+
+      const [customerRow] = await db
+        .select({
+          stripeCustomerId: stripeCustomers.stripeCustomerId,
+          subscriptionItemMap: stripeCustomers.subscriptionItemMap,
+        })
+        .from(stripeCustomers)
+        .where(eq(stripeCustomers.userId, userId))
+        .limit(1);
+
+      if (!customerRow?.stripeCustomerId) {
+        res.status(404).json({ error: `No Stripe customer found for user ${userId}` });
+        return;
+      }
+
+      res.json({
+        stripeCustomerId: customerRow.stripeCustomerId,
+        subscriptionItemMap: customerRow.subscriptionItemMap ?? {},
+      });
     } catch (err) {
       next(err);
     }

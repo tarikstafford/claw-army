@@ -6,6 +6,7 @@ import { evolutionDashboardRouter } from './evolution-dashboard.js';
 import { godLayerRouter } from './god-layer.js';
 import { toolConnectionsRouter } from './tool-connections.js';
 import { webhooksRouter } from './webhooks.js';
+import { stripeWebhooksRouter } from './stripe-webhooks.js';
 import { oauthFlowRouter } from './oauth-flow.js';
 import { webhookRoutingRulesRouter } from './webhook-routing-rules.js';
 import { webhookLogsRouter } from './webhook-logs.js';
@@ -55,5 +56,8 @@ akasaRouter.use('/akasa/webhooks', webhookLogsRouter());
 // Internal endpoints for cross-service lookups (plugin worker → akasa-server)
 // WARNING: No auth — relies on local_trusted mode (localhost-only access)
 akasaRouter.use('/akasa/internal', internalRouter());
+
+// Stripe webhook receiver: POST /akasa/stripe-webhooks/:signature
+akasaRouter.use('/akasa/stripe-webhooks', stripeWebhooksRouter());
 
 export { akasaRouter };
