@@ -32,9 +32,13 @@
   let {
     verdict,
     onaction,
+    selected = false,
+    onselect,
   }: {
     verdict: PendingVerdict;
     onaction: (action: 'confirmed' | 'rejected', id: string) => void;
+    selected?: boolean;
+    onselect?: (id: string) => void;
   } = $props();
 
   let loading = $state(false);
@@ -87,8 +91,16 @@
   }
 </script>
 
-<div class="verdict-row" class:fading>
+<div class="verdict-row" class:fading class:selected>
   <div class="verdict-main">
+    {#if onselect}
+      <input
+        type="checkbox"
+        class="verdict-checkbox"
+        checked={selected}
+        onchange={() => onselect?.(verdict.id)}
+      />
+    {/if}
     <div class="verdict-left">
       <div class="verdict-meta">
         <span class="bot-id">{verdict.botId.slice(0, 8)}</span>
@@ -191,6 +203,20 @@
 
   .verdict-row.fading {
     animation: fade-out 0.2s ease forwards;
+  }
+
+  .verdict-row.selected {
+    border-color: var(--bo-violet);
+    background: rgba(124, 58, 237, 0.04);
+  }
+
+  .verdict-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--bo-violet);
+    margin-top: 2px;
   }
 
   .verdict-main {
