@@ -20,6 +20,7 @@
   const toolsTabs = [
     { href: '/tools/catalog', label: 'CATALOG' },
     { href: '/tools/belt', label: 'MY TOOLS' },
+    { href: '/tools/import', label: 'IMPORT' },
     { href: '/tools/webhooks', label: 'WEBHOOKS' },
   ] as const;
 

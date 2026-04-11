@@ -120,6 +120,27 @@
       "when": 1773100000000,
       "tag": "0017_add_akashic_publish",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1773200000000,
+      "tag": "0018_evolution_campaigns",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1773300000000,
+      "tag": "0019_learned_skills",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1773400000000,
+      "tag": "0020_tool_registry",
+      "breakpoints": true
     }
   ]
 }
