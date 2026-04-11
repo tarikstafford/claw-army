@@ -283,5 +283,57 @@ export function webhooksRouter(): Router {
     },
   );
 
+  // ── POST /:toolId/simulate — dry-run webhook routing rule evaluation ───────────
+  router.post(
+    '/:toolId/simulate',
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { toolId } = req.params as { toolId: string };
+        const { userId, eventType, payload } = req.body as {
+          userId?: string;
+          eventType?: string;
+          payload?: Record<string, unknown>;
+        };
+
+        if (!userId || !eventType) {
+          res.status(400).json({ error: 'userId and eventType are required' });
+          return;
+        }
+
+        const rules = await db
+          .select()
+          .from(webhookRoutingRules)
+          .where(
+            and(
+              eq(webhookRoutingRules.userId, userId),
+              eq(webhookRoutingRules.toolId, toolId),
+              eq(webhookRoutingRules.isActive, true),
+            ),
+          );
+
+        const resolvedEventType = eventType ?? extractEventType(toolId, payload ?? {});
+        const matchedRule = evaluateRoutingRules(rules, resolvedEventType);
+
+        const allRules = rules.map((r) => ({
+          id: r.id,
+          eventType: r.eventType,
+          condition: r.condition,
+          assignToAgentId: r.assignToAgentId,
+          isMatch: matchedRule?.id === r.id,
+        }));
+
+        res.json({
+          eventType: resolvedEventType,
+          matchedRuleId: matchedRule?.id ?? null,
+          assignToAgentId: matchedRule?.assignToAgentId ?? null,
+          rules: allRules,
+          dryRun: true,
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+
   return router;
 }

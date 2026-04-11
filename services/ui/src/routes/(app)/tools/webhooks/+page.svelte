@@ -4,14 +4,28 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import WebhookRuleForm from '$lib/components/tools/WebhookRuleForm.svelte';
 	import WebhookLogEntry from '$lib/components/tools/WebhookLogEntry.svelte';
-	import { TOOL_CATALOG } from '$lib/tool-catalog';
+	import { TOOL_CATALOG, TOOL_EVENT_TYPES, SAMPLE_PAYLOADS } from '$lib/tool-catalog';
 
 	let { data } = $props();
 
 	let showRuleForm: boolean = $state(false);
+	let showSimulateForm: boolean = $state(false);
 	let deleteTarget: { id: string; eventType: string } | null = $state(null);
 	let submitting: boolean = $state(false);
 	let formError: string | null = $state(null);
+	let simulateError: string | null = $state(null);
+	let simulateResult: {
+		eventType: string;
+		matchedRuleId: string | null;
+		assignToAgentId: string | null;
+		rules: Array<{ id: string; eventType: string; condition: string | null; assignToAgentId: string | null; isMatch: boolean }>;
+		dryRun: boolean;
+	} | null = $state(null);
+
+	let simulateToolId: string = $state('');
+	let simulateEventType: string = $state('');
+	let simulatePayload: string = $state('');
+	let simulateSubmitting: boolean = $state(false);
 
 	function getToolName(toolId: string): string {
 		return TOOL_CATALOG.find((t) => t.id === toolId)?.name ?? toolId;
@@ -21,6 +35,26 @@
 		if (!agentId) return '--';
 		return (data.agents as Array<{ id: string; name: string }>).find((a) => a.id === agentId)?.name ?? agentId;
 	}
+
+	const availableSimulateEventTypes = $derived(
+		simulateToolId ? (TOOL_EVENT_TYPES[simulateToolId] ?? []) : []
+	);
+
+	$effect(() => {
+		if (simulateToolId && simulateEventType) {
+			const toolSamples = SAMPLE_PAYLOADS[simulateToolId];
+			const sample = toolSamples?.[simulateEventType];
+			simulatePayload = sample ? JSON.stringify(sample, null, 2) : '{}';
+		}
+	});
+
+	$effect(() => {
+		if (simulateToolId && availableSimulateEventTypes.length > 0 && !availableSimulateEventTypes.includes(simulateEventType)) {
+			simulateEventType = availableSimulateEventTypes[0] ?? '';
+		} else if (!simulateToolId) {
+			simulateEventType = '';
+		}
+	});
 
 	async function handleCreateRule(rule: {
 		connectionId: string;
@@ -75,6 +109,44 @@
 			deleteTarget = null;
 		}
 	}
+
+	async function handleSimulate() {
+		simulateError = null;
+		simulateResult = null;
+		simulateSubmitting = true;
+		try {
+			let payload: Record<string, unknown> = {};
+			try { payload = JSON.parse(simulatePayload); } catch { /* ignore */ }
+			const res = await fetch(`/api/akasa/webhooks/${simulateToolId}/simulate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId: data.userId,
+					eventType: simulateEventType,
+					payload
+				})
+			});
+			if (res.ok) {
+				simulateResult = await res.json();
+			} else {
+				const err = await res.json().catch(() => ({ error: 'Simulation failed' }));
+				simulateError = err.error ?? 'Simulation failed';
+			}
+		} catch {
+			simulateError = 'Simulation failed. Please try again.';
+		} finally {
+			simulateSubmitting = false;
+		}
+	}
+
+	function openSimulate() {
+		simulateResult = null;
+		simulateError = null;
+		const connections = data.connections.filter((c: { status: string }) => c.status !== 'disconnected');
+		simulateToolId = connections[0]?.toolId ?? '';
+		simulateEventType = simulateToolId ? (TOOL_EVENT_TYPES[simulateToolId]?.[0] ?? '') : '';
+		showSimulateForm = true;
+	}
 </script>
 
 <div class="webhooks-page">
@@ -82,12 +154,20 @@
 	<div>
 		<div class="section-header">
 			<h2 class="section-heading">Routing Rules</h2>
-			<button
-				class="add-rule-btn"
-				onclick={() => { showRuleForm = true; }}
-			>
-				Add Rule
-			</button>
+			<div class="section-actions">
+				<button
+					class="simulate-btn"
+					onclick={openSimulate}
+				>
+					Send Test Event
+				</button>
+				<button
+					class="add-rule-btn"
+					onclick={() => { showRuleForm = true; }}
+				>
+					Add Rule
+				</button>
+			</div>
 		</div>
 
 		{#if formError}
@@ -168,6 +248,81 @@
 		<button class="delete-confirm-btn" onclick={handleDeleteRule}>Delete Rule</button>
 	</Modal>
 {/if}
+
+<!-- SlidePanel for simulating a webhook event -->
+<SlidePanel open={showSimulateForm} title="Send Test Event" onclose={() => { showSimulateForm = false; }}>
+	<div class="simulate-form">
+		{#if simulateError}
+			<p class="inline-error">{simulateError}</p>
+		{/if}
+
+		<div class="field">
+			<label for="sim-tool">Tool</label>
+			<select id="sim-tool" bind:value={simulateToolId}>
+				<option value="">Select a tool</option>
+				{#each [...new Map(data.connections.filter((c: { status: string; toolId: string }) => c.status !== 'disconnected').map((c: { toolId: string }) => [c.toolId, c])).values()] as conn}
+					<option value={conn.toolId}>{getToolName(conn.toolId)}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="field">
+			<label for="sim-event">Event Type</label>
+			<select id="sim-event" bind:value={simulateEventType} disabled={!simulateToolId}>
+				<option value="">Select an event</option>
+				{#each availableSimulateEventTypes as evt}
+					<option value={evt}>{evt}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="field">
+			<label for="sim-payload">Payload</label>
+			<textarea
+				id="sim-payload"
+				bind:value={simulatePayload}
+				rows="10"
+				disabled={!simulateToolId}
+			></textarea>
+		</div>
+
+		<div class="form-actions">
+			<button class="cancel-btn" type="button" onclick={() => { showSimulateForm = false; }}>Cancel</button>
+			<button
+				class="submit-btn"
+				type="button"
+				onclick={handleSimulate}
+				disabled={!simulateToolId || !simulateEventType || simulateSubmitting}
+			>
+				{simulateSubmitting ? 'Simulating...' : 'Simulate'}
+			</button>
+		</div>
+
+		{#if simulateResult}
+			<div class="simulate-result">
+				<div class="result-header">Simulation Result</div>
+				<div class="result-event">Event: <strong>{simulateResult.eventType}</strong></div>
+				<div class="result-match">
+					Matched Rule: <strong>{simulateResult.matchedRuleId ? 'Yes' : 'No'}</strong>
+					{#if simulateResult.assignToAgentId}
+						<span class="result-agent"> → Agent: <strong>{getAgentName(simulateResult.assignToAgentId)}</strong></span>
+					{/if}
+				</div>
+				{#if simulateResult.rules.length > 0}
+					<div class="result-rules-header">All Rules ({simulateResult.rules.length})</div>
+					{#each simulateResult.rules as rule}
+						<div class="result-rule" class:matched={rule.isMatch}>
+							<span class="rule-event">{rule.eventType}</span>
+							{#if rule.condition}<span class="rule-condition">{rule.condition}</span>{/if}
+							<span class="rule-agent">{rule.assignToAgentId ? getAgentName(rule.assignToAgentId) : '--'}</span>
+							<span class="rule-status">{rule.isMatch ? '✓ matched' : '✗'}</span>
+						</div>
+					{/each}
+				{/if}
+			</div>
+		{/if}
+	</div>
+</SlidePanel>
 
 <style>
 	.webhooks-page {
@@ -316,5 +471,195 @@
 
 	.delete-confirm-btn:hover {
 		background: rgba(248, 113, 113, 0.08);
+	}
+
+	.section-actions {
+		display: flex;
+		gap: var(--space-sm);
+	}
+
+	.simulate-btn {
+		min-height: 44px;
+		border: 1px solid var(--teal, #14B8A6);
+		color: var(--teal, #14B8A6);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 13px;
+		cursor: pointer;
+		padding: 0 var(--space-lg);
+		transition: background 0.15s ease;
+	}
+
+	.simulate-btn:hover {
+		background: rgba(20, 184, 166, 0.08);
+	}
+
+	.simulate-form {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-md);
+	}
+
+	.simulate-form .field {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.simulate-form label {
+		font-family: var(--font-body);
+		font-size: 13px;
+		color: var(--text);
+		margin-bottom: var(--space-xs);
+		display: block;
+	}
+
+	.simulate-form select,
+	.simulate-form textarea {
+		font-family: var(--font-body);
+		font-size: 13px;
+		color: var(--text);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		padding: var(--space-sm) var(--space-md);
+		min-height: 44px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.simulate-form textarea {
+		min-height: 200px;
+		resize: vertical;
+		font-family: monospace;
+	}
+
+	.simulate-form select:focus,
+	.simulate-form textarea:focus {
+		border-color: var(--teal, #14B8A6);
+		outline: none;
+	}
+
+	.simulate-form select:disabled,
+	.simulate-form textarea:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.simulate-form .form-actions {
+		display: flex;
+		gap: var(--space-sm);
+		justify-content: flex-end;
+		margin-top: var(--space-xs);
+	}
+
+	.simulate-form .cancel-btn {
+		min-height: 44px;
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 13px;
+		cursor: pointer;
+		padding: 0 var(--space-lg);
+		transition: background 0.15s ease;
+	}
+
+	.simulate-form .cancel-btn:hover {
+		background: rgba(148, 110, 255, 0.05);
+	}
+
+	.simulate-form .submit-btn {
+		min-height: 44px;
+		border: 1px solid var(--teal, #14B8A6);
+		color: var(--teal, #14B8A6);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 13px;
+		cursor: pointer;
+		padding: 0 var(--space-lg);
+		transition: background 0.15s ease;
+	}
+
+	.simulate-form .submit-btn:hover:not(:disabled) {
+		background: rgba(20, 184, 166, 0.08);
+	}
+
+	.simulate-form .submit-btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.simulate-result {
+		margin-top: var(--space-md);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		padding: var(--space-md);
+		background: var(--bg);
+	}
+
+	.result-header {
+		font-family: var(--font-display);
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--text);
+		margin-bottom: var(--space-sm);
+	}
+
+	.result-event,
+	.result-match {
+		font-family: var(--font-body);
+		font-size: 13px;
+		color: var(--text-muted);
+		margin-bottom: var(--space-xs);
+	}
+
+	.result-agent {
+		color: var(--text);
+	}
+
+	.result-rules-header {
+		font-family: var(--font-body);
+		font-size: 12px;
+		color: var(--text-muted);
+		margin-top: var(--space-md);
+		margin-bottom: var(--space-xs);
+	}
+
+	.result-rule {
+		display: flex;
+		gap: var(--space-sm);
+		align-items: center;
+		font-family: var(--font-body);
+		font-size: 12px;
+		padding: var(--space-xs) 0;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.result-rule:last-child {
+		border-bottom: none;
+	}
+
+	.result-rule.matched {
+		color: var(--teal, #14B8A6);
+	}
+
+	.rule-event {
+		font-weight: 600;
+	}
+
+	.rule-condition {
+		color: var(--text-muted);
+		flex: 1;
+	}
+
+	.rule-agent {
+		color: var(--text-muted);
+	}
+
+	.rule-status {
+		font-weight: 600;
 	}
 </style>
