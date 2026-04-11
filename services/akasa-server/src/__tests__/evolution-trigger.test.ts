@@ -16,6 +16,10 @@ vi.mock('../council/council-runner.js', () => ({
   runCouncilForBot: vi.fn(),
 }));
 
+vi.mock('../services/skill-learning.js', () => ({
+  processSkillLearningForExecution: vi.fn().mockResolvedValue({ skillsCreated: 0, skillIds: [] }),
+}));
+
 vi.mock('@paperclipai/db', () => ({
   createDb: vi.fn().mockReturnValue({
     select: vi.fn().mockReturnValue({

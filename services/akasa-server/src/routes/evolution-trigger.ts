@@ -3,6 +3,7 @@ import { heartbeatRuns } from '@paperclipai/db';
 import { bots, councilVerdicts, db as akasaDefaultDb } from '@claw/db';
 import { eq, inArray, gt, and } from 'drizzle-orm';
 import { runCouncilForBot } from '../council/council-runner.js';
+import { processSkillLearningForExecution } from '../services/skill-learning.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,14 +94,25 @@ export async function checkAndTriggerCouncilEvaluations(
         continue;
       }
 
-      // No verdict yet — trigger council evaluation (fire-and-forget per coding conventions)
+      // No verdict yet — trigger council evaluation and skill learning (fire-and-forget per coding conventions)
       triggered++;
-      runCouncilForBot(bot.executionId, bot.id, bot.soulId).catch((err) => {
-        console.error('[evolution-trigger] Council evaluation failed:', {
-          botId: bot.id,
-          error: (err as Error).message,
+      runCouncilForBot(bot.executionId, bot.id, bot.soulId)
+        .then(() => {
+          // Chain skill learning after council completes successfully
+          processSkillLearningForExecution(bot.executionId, bot.id, bot.soulId).catch((err) => {
+            console.error('[evolution-trigger] Skill learning failed:', {
+              botId: bot.id,
+              executionId: bot.executionId,
+              error: (err as Error).message,
+            });
+          });
+        })
+        .catch((err) => {
+          console.error('[evolution-trigger] Council evaluation failed:', {
+            botId: bot.id,
+            error: (err as Error).message,
+          });
         });
-      });
 
       console.log('[evolution-trigger] Triggered council for bot:', {
         botId: bot.id,
