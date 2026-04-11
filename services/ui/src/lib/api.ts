@@ -248,6 +248,48 @@ export async function getCostProjections(companyId: string): Promise<CostProject
   return apiFetch(`${BASE}/companies/${companyId}/costs/projections`);
 }
 
+// ── Delegations ──────────────────────────────────────────────────
+
+export interface DelegationEntry {
+  taskId: string;
+  description: string;
+  status: string;
+  assignedBotId: string | null;
+  botTier: string | null;
+  botCompositeScore: string | null;
+  ringLeaderTaskId: string | null;
+  createdAt: string;
+}
+
+export interface DelegationChain {
+  executionId: string;
+  objective: string;
+  delegations: DelegationEntry[];
+}
+
+export interface DelegationStats {
+  totalDelegations: number;
+  successRate: number;
+  avgDepth: number;
+  executionCount: number;
+}
+
+export interface DelegationResponse {
+  chains: DelegationChain[];
+  stats: DelegationStats;
+}
+
+export async function getDelegations(
+  params?: { executionId?: string; from?: string; to?: string },
+): Promise<DelegationResponse> {
+  const query = new URLSearchParams();
+  if (params?.executionId) query.set('executionId', params.executionId);
+  if (params?.from) query.set('from', params.from);
+  if (params?.to) query.set('to', params.to);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/akasa/evolution/delegations${qs ? `?${qs}` : ''}`)
+}
+
 // ── Companies ─────────────────────────────────────────────────────
 
 export async function getCompanies(): Promise<Company[]> {

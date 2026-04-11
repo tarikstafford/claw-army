@@ -5,10 +5,11 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
   const { session } = await parent();
   if (!session) throw error(401, 'Not authenticated');
 
-  const [fleetRes, pendingRes, agentsRes] = await Promise.allSettled([
+  const [fleetRes, pendingRes, agentsRes, delegationsRes] = await Promise.allSettled([
     fetch('/api/akasa/evolution/fleet'),
     fetch('/api/akasa/evolution/pending'),
     fetch('/api/akasa/evolution/agents'),
+    fetch('/api/akasa/evolution/delegations'),
   ]);
 
   const fleet = fleetRes.status === 'fulfilled' && fleetRes.value.ok
@@ -21,5 +22,9 @@ export const load: PageServerLoad = async ({ fetch, parent }) => {
     ? await agentsRes.value.json()
     : [];
 
-  return { fleet, pendingVerdicts, agents };
+  const delegations = delegationsRes.status === 'fulfilled' && delegationsRes.value.ok
+    ? await delegationsRes.value.json()
+    : { chains: [], stats: { totalDelegations: 0, successRate: 0, avgDepth: 0, executionCount: 0 } };
+
+  return { fleet, pendingVerdicts, agents, delegations };
 };
