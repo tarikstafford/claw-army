@@ -2,8 +2,8 @@
   import { onMount, tick } from 'svelte';
   import ChatBubble from '$lib/components/ChatBubble.svelte';
   import { subscribeWS, type LiveEvent } from '$lib/ws';
-  import { getChatMessages, sendChatMessage, executeCommand } from '$lib/api';
-  import type { ChatMessage, ChatThread } from '$lib/api';
+  import { getChatMessages, sendChatMessage, getFleetEvents, getAgents, executeCommand } from '$lib/api';
+  import type { ChatMessage, ChatThread, FleetEvent, Agent } from '$lib/api';
   import type { PageData } from './$types';
 
   interface CommandDef {
@@ -31,14 +31,21 @@
   let messageListEl: HTMLElement | undefined;
   let isTyping = $state(false);
 
-  let showAutocomplete = $state(false);
-  let autocompleteIndex = $state(0);
+  let sidebarView = $state<'threads' | 'fleet'>('threads');
+  let fleetEvents = $state<FleetEvent[]>([]);
+  let loadingFleetEvents = $state(false);
+  let agents = $state<Agent[]>([]);
+
+  let mentionQuery = $state<string | null>(null);
+  let mentionIndex = $state(0);
+  let textareaEl: HTMLTextAreaElement | undefined;
+
+  let showCommandAutocomplete = $state(false);
+  let commandAutocompleteIndex = $state(0);
   let filteredCommands = $state<CommandDef[]>([]);
   let pendingCommand = $state<{ command: string; args: string[] } | null>(null);
   let showConfirmDialog = $state(false);
   let confirmDialogMessage = $state('');
-
-  let textareaEl: HTMLTextAreaElement | undefined;
 
   function parseCommand(input: string): { command: string; args: string[] } | null {
     const trimmed = input.trim();
@@ -57,83 +64,32 @@
     return COMMANDS.filter(c => c.name.startsWith(query));
   }
 
-  function updateAutocomplete() {
-    const filtered = filterCommands(messageText);
-    filteredCommands = filtered;
-    showAutocomplete = filtered.length > 0 && messageText.startsWith('/');
-    autocompleteIndex = 0;
-  }
-
-  function selectCommand(cmd: CommandDef) {
-    if (cmd.argsHint && cmd.argsHint.startsWith('<')) {
-      messageText = `/${cmd.name} `;
-    } else if (cmd.argsHint) {
-      messageText = `/${cmd.name} `;
-    } else {
-      messageText = `/${cmd.name}`;
+  async function handleCommandExecution(command: string, args: string[]) {
+    const def = COMMANDS.find(c => c.name === command);
+    if (!def) return;
+    if (def.modifiesState) {
+      pendingCommand = { command, args };
+      confirmDialogMessage = `Run /${command} ${args.join(' ')}?`;
+      showConfirmDialog = true;
+      return;
     }
-    showAutocomplete = false;
-    textareaEl?.focus();
+    await runCommand(command, args);
   }
 
-  function handleInput() {
-    updateAutocomplete();
-  }
-
-  function handleKeydown(event: KeyboardEvent) {
-    if (showAutocomplete && filteredCommands.length > 0) {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        autocompleteIndex = (autocompleteIndex + 1) % filteredCommands.length;
-        return;
-      }
-      if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        autocompleteIndex = (autocompleteIndex - 1 + filteredCommands.length) % filteredCommands.length;
-        return;
-      }
-      if (event.key === 'Escape') {
-        showAutocomplete = false;
-        return;
-      }
-      if (event.key === 'Tab') {
-        event.preventDefault();
-        selectCommand(filteredCommands[autocompleteIndex]!);
-        return;
-      }
+  async function runCommand(command: string, args: string[]) {
+    try {
+      const result = await executeCommand(data.companyId, command, args);
+      messages = [...messages, {
+        id: crypto.randomUUID(),
+        threadId: selectedThreadId ?? '',
+        role: 'system',
+        content: result.message,
+        createdAt: new Date().toISOString(),
+      } as ChatMessage];
+      await scrollToBottom();
+    } catch (err) {
+      console.error('[chat] Command failed:', (err as Error).message);
     }
-
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-
-      const parsed = parseCommand(messageText);
-      if (parsed && parsed.command) {
-        const cmd = COMMANDS.find(c => c.name === parsed.command);
-        if (cmd?.modifiesState) {
-          pendingCommand = parsed;
-          confirmDialogMessage = `Execute /${cmd.name}?`;
-          showConfirmDialog = true;
-          return;
-        }
-        handleSend();
-      } else {
-        handleSend();
-      }
-    }
-  }
-
-  function cancelConfirm() {
-    showConfirmDialog = false;
-    pendingCommand = null;
-  }
-
-  async function confirmExecute() {
-    showConfirmDialog = false;
-    if (pendingCommand) {
-      messageText = `/${pendingCommand.command} ${pendingCommand.args.join(' ')}`.trim();
-      pendingCommand = null;
-    }
-    await handleSend();
   }
 
   async function scrollToBottom() {
@@ -145,6 +101,7 @@
 
   async function selectThread(threadId: string) {
     selectedThreadId = threadId;
+    sidebarView = 'threads';
     loadingMessages = true;
     messages = [];
     try {
@@ -158,49 +115,58 @@
     }
   }
 
+  async function loadFleetEvents() {
+    loadingFleetEvents = true;
+    try {
+      const events = await getFleetEvents(data.companyId, { limit: 50 });
+      fleetEvents = events;
+    } catch {
+      fleetEvents = [];
+    } finally {
+      loadingFleetEvents = false;
+    }
+  }
+
+  async function loadAgents() {
+    try {
+      agents = await getAgents(data.companyId);
+    } catch {
+      agents = [];
+    }
+  }
+
+  function switchToFleet() {
+    sidebarView = 'fleet';
+    selectedThreadId = null;
+    messages = [];
+    loadFleetEvents();
+  }
+
+  function switchToThreads() {
+    sidebarView = 'threads';
+    if (threads.length > 0 && threads[0]) {
+      selectThread(threads[0].id);
+    }
+  }
+
   async function handleSend() {
+    if (sidebarView === 'fleet') return;
     if (!selectedThreadId || !messageText.trim() || sending) return;
+
+    // Handle slash commands
+    const parsed = parseCommand(messageText.trim());
+    if (parsed) {
+      const def = COMMANDS.find(c => c.name === parsed.command);
+      if (def) {
+        messageText = '';
+        showCommandAutocomplete = false;
+        await handleCommandExecution(parsed.command, parsed.args);
+        return;
+      }
+    }
 
     const body = messageText.trim();
     messageText = '';
-    showAutocomplete = false;
-
-    const parsed = parseCommand(body);
-    const isCommand = parsed && parsed.command && COMMANDS.some(c => c.name === parsed.command);
-
-    if (isCommand && parsed) {
-      sending = true;
-      try {
-        const companyId = data.companyId ?? '';
-        const result = await executeCommand(companyId, parsed.command, parsed.args);
-
-        const systemMessage: ChatMessage = {
-          id: `system-${Date.now()}`,
-          threadId: selectedThreadId,
-          body: result.message,
-          senderType: 'system',
-          senderId: null,
-          createdAt: new Date().toISOString(),
-        };
-        messages = [...messages, systemMessage];
-        await scrollToBottom();
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Command execution failed';
-        const errorMsg: ChatMessage = {
-          id: `error-${Date.now()}`,
-          threadId: selectedThreadId,
-          body: `Error: ${errorMessage}`,
-          senderType: 'system',
-          senderId: null,
-          createdAt: new Date().toISOString(),
-        };
-        messages = [...messages, errorMsg];
-        await scrollToBottom();
-      } finally {
-        sending = false;
-      }
-      return;
-    }
 
     const optimisticId = `pending-${Date.now()}`;
     const optimistic: ChatMessage = {
@@ -226,6 +192,77 @@
     }
   }
 
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      if (mentionQuery !== null) {
+        event.preventDefault();
+        applyMention(agents[mentionIndex]);
+        return;
+      }
+      event.preventDefault();
+      handleSend();
+    }
+    if (event.key === 'ArrowDown' && mentionQuery !== null) {
+      event.preventDefault();
+      mentionIndex = Math.min(mentionIndex + 1, filteredAgents.length - 1);
+    }
+    if (event.key === 'ArrowUp' && mentionQuery !== null) {
+      event.preventDefault();
+      mentionIndex = Math.max(mentionIndex - 1, 0);
+    }
+    if (event.key === 'Escape' && mentionQuery !== null) {
+      event.preventDefault();
+      mentionQuery = null;
+    }
+  }
+
+  function handleInput(event: Event) {
+    const target = event.target as HTMLTextAreaElement;
+    const value = target.value;
+    const cursorPos = target.selectionStart ?? 0;
+
+    const textBeforeCursor = value.slice(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+
+    if (atIndex !== -1 && (atIndex === 0 || /\s/.test(textBeforeCursor[atIndex - 1]!))) {
+      const query = textBeforeCursor.slice(atIndex + 1);
+      if (!query.includes(' ') && query.length < 20) {
+        mentionQuery = query;
+        mentionIndex = 0;
+        return;
+      }
+    }
+    mentionQuery = null;
+  }
+
+  function applyMention(agent: Agent | undefined) {
+    if (!agent || mentionQuery === null || !textareaEl) return;
+
+    const cursorPos = textareaEl.selectionStart ?? 0;
+    const textBeforeCursor = messageText.slice(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+
+    const beforeAt = messageText.slice(0, atIndex);
+    const afterQuery = messageText.slice(cursorPos);
+
+    messageText = `${beforeAt}@${agent.name} ${afterQuery}`;
+    mentionQuery = null;
+
+    setTimeout(() => {
+      if (textareaEl) {
+        const newPos = atIndex + agent.name.length + 2;
+        textareaEl.setSelectionRange(newPos, newPos);
+        textareaEl.focus();
+      }
+    }, 0);
+  }
+
+  let filteredAgents = $derived(
+    mentionQuery !== null
+      ? agents.filter((a) => a.name.toLowerCase().includes(mentionQuery!.toLowerCase())).slice(0, 5)
+      : []
+  );
+
   function getThreadLabel(thread: ChatThread): string {
     return thread.title ?? `Thread ${thread.id.slice(0, 8)}`;
   }
@@ -234,10 +271,50 @@
     return (thread as unknown as Record<string, unknown>).lastMessagePreview as string | null ?? '';
   }
 
+  function formatEventTime(timestamp: string): string {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return date.toLocaleDateString();
+  }
+
+  function getEventIcon(type: string): string {
+    switch (type) {
+      case 'fleet.verdict.confirmed': return '✓';
+      case 'fleet.class.transition': return '→';
+      case 'fleet.dna.captured': return '◎';
+      case 'fleet.pioneer.detected': return '★';
+      case 'fleet.budget.alert': return '⚠';
+      case 'fleet.execution.completed': return '●';
+      default: return '•';
+    }
+  }
+
+  function getEventColor(type: string): string {
+    switch (type) {
+      case 'fleet.verdict.confirmed': return 'var(--fo-plum)';
+      case 'fleet.class.transition': return 'var(--bo-amber, #fbbf24)';
+      case 'fleet.dna.captured': return 'var(--bo-teal, #14b8a6)';
+      case 'fleet.pioneer.detected': return 'var(--bo-amber, #fbbf24)';
+      case 'fleet.budget.alert': return 'var(--fo-warn, #f97316)';
+      case 'fleet.execution.completed': return 'var(--bo-teal, #14b8a6)';
+      default: return 'var(--muted)';
+    }
+  }
+
   onMount(() => {
     if (threads.length > 0 && threads[0]) {
       selectThread(threads[0].id);
     }
+    loadAgents();
 
     const unsub = subscribeWS((event: LiveEvent) => {
       if (event.type === 'chat.message.created') {
@@ -273,6 +350,27 @@
           setTimeout(() => { isTyping = false; }, 3000);
         }
       }
+
+      if (event.type?.startsWith('fleet.')) {
+        const payload = event.payload as Record<string, unknown>;
+        const newEvent: FleetEvent = {
+          id: event.id?.toString() ?? Date.now().toString(),
+          type: event.type,
+          botId: payload.botId as string | undefined,
+          executionId: payload.executionId as string | undefined,
+          soulId: payload.soulId as string | undefined,
+          taskCategory: payload.taskCategory as string | undefined,
+          verdictType: payload.verdictType as string | undefined,
+          fromClass: payload.fromClass as string | undefined,
+          toClass: payload.toClass as string | undefined,
+          transitionType: payload.transitionType as string | undefined,
+          compositeScore: payload.compositeScore as string | undefined,
+          isPioneer: payload.isPioneer as boolean | undefined,
+          description: payload.description as string ?? event.type,
+          timestamp: event.createdAt,
+        };
+        fleetEvents = [newEvent, ...fleetEvents].slice(0, 100);
+      }
     });
 
     return unsub;
@@ -288,37 +386,125 @@
 <div class="chat-layout">
   <!-- Thread sidebar -->
   <aside class="thread-sidebar" aria-label="Conversation threads">
-    {#if threads.length === 0}
-      <p class="empty-threads">No threads yet. Start a conversation with Indra or a crew member.</p>
+    <!-- Sidebar tabs -->
+    <div class="sidebar-tabs">
+      <button
+        class="sidebar-tab"
+        class:active={sidebarView === 'threads'}
+        onclick={switchToThreads}
+      >Threads</button>
+      <button
+        class="sidebar-tab"
+        class:active={sidebarView === 'fleet'}
+        onclick={switchToFleet}
+      >Fleet</button>
+    </div>
+
+    {#if sidebarView === 'threads'}
+      {#if threads.length === 0}
+        <p class="empty-threads">No threads yet. Start a conversation with Indra or a crew member.</p>
+      {:else}
+        <ul class="thread-list">
+          {#each threads as thread (thread.id)}
+            <li>
+              <button
+                class="thread-item"
+                class:active={selectedThreadId === thread.id}
+                onclick={() => selectThread(thread.id)}
+                aria-current={selectedThreadId === thread.id ? 'page' : undefined}
+              >
+                <span class="thread-avatar" aria-hidden="true">
+                  {getThreadLabel(thread).slice(0, 1).toUpperCase()}
+                </span>
+                <span class="thread-info">
+                  <span class="thread-title">{getThreadLabel(thread)}</span>
+                  {#if getLastPreview(thread)}
+                    <span class="thread-preview">{getLastPreview(thread)}</span>
+                  {/if}
+                </span>
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
     {:else}
-      <ul class="thread-list">
-        {#each threads as thread (thread.id)}
-          <li>
-            <button
-              class="thread-item"
-              class:active={selectedThreadId === thread.id}
-              onclick={() => selectThread(thread.id)}
-              aria-current={selectedThreadId === thread.id ? 'page' : undefined}
-            >
-              <span class="thread-avatar" aria-hidden="true">
-                {getThreadLabel(thread).slice(0, 1).toUpperCase()}
-              </span>
-              <span class="thread-info">
-                <span class="thread-title">{getThreadLabel(thread)}</span>
-                {#if getLastPreview(thread)}
-                  <span class="thread-preview">{getLastPreview(thread)}</span>
-                {/if}
-              </span>
-            </button>
-          </li>
-        {/each}
-      </ul>
+      <!-- Fleet events feed -->
+      <div class="fleet-feed">
+        {#if loadingFleetEvents}
+          <div class="fleet-loading">Loading fleet events...</div>
+        {:else if fleetEvents.length === 0}
+          <p class="empty-fleet">No fleet events yet. Events will appear as agents work.</p>
+        {:else}
+          <ul class="fleet-list">
+            {#each fleetEvents as event (event.id)}
+              <li class="fleet-event">
+                <span
+                  class="event-icon"
+                  style="color: {getEventColor(event.type)}"
+                  aria-hidden="true"
+                >{getEventIcon(event.type)}</span>
+                <div class="event-content">
+                  <span class="event-description">{event.description}</span>
+                  <span class="event-time">{formatEventTime(event.timestamp)}</span>
+                </div>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      </div>
     {/if}
   </aside>
 
   <!-- Message panel -->
   <div class="message-panel" aria-label="Messages">
-    {#if !selectedThreadId}
+    {#if sidebarView === 'fleet'}
+      <div class="fleet-panel">
+        <div class="fleet-header">
+          <h2 class="fleet-title">Fleet Activity</h2>
+          <p class="fleet-subtitle">System events across your agent fleet</p>
+        </div>
+        <div
+          class="fleet-event-list"
+          bind:this={messageListEl}
+          aria-live="polite"
+        >
+          {#if loadingFleetEvents}
+            <div class="loading-skeleton">
+              {#each [0, 1, 2, 3, 4] as _}
+                <div class="skeleton-event"></div>
+              {/each}
+            </div>
+          {:else if fleetEvents.length === 0}
+            <p class="empty-state">No events yet. Events appear when agents are promoted, demoted, or capture DNA.</p>
+          {:else}
+            {#each fleetEvents as event (event.id)}
+              <div class="fleet-event-card">
+                <span
+                  class="event-icon-large"
+                  style="color: {getEventColor(event.type)}"
+                  aria-hidden="true"
+                >{getEventIcon(event.type)}</span>
+                <div class="event-card-content">
+                  <p class="event-card-description">{event.description}</p>
+                  <div class="event-card-meta">
+                    {#if event.taskCategory}
+                      <span class="event-tag">{event.taskCategory}</span>
+                    {/if}
+                    {#if event.verdictType}
+                      <span class="event-tag verdict-{event.verdictType.toLowerCase()}">{event.verdictType}</span>
+                    {/if}
+                    {#if event.toClass}
+                      <span class="event-tag class-{event.toClass.toLowerCase()}">{event.toClass}</span>
+                    {/if}
+                    <span class="event-card-time">{formatEventTime(event.timestamp)}</span>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          {/if}
+        </div>
+      </div>
+    {:else if !selectedThreadId}
       <div class="message-empty">
         <p class="empty-state">Select a thread to view messages.</p>
       </div>
@@ -353,58 +539,41 @@
       </div>
 
       <!-- Message input -->
-      <div class="message-input-wrapper">
-        {#if showAutocomplete && filteredCommands.length > 0}
-          <div class="command-autocomplete" role="listbox" aria-label="Commands">
-            {#each filteredCommands as cmd, i (cmd.name)}
+      <div class="message-input">
+        {#if mentionQuery !== null && filteredAgents.length > 0}
+          <div class="mention-dropdown" role="listbox">
+            {#each filteredAgents as agent, i (agent.id)}
               <button
-                class="autocomplete-item"
-                class:selected={i === autocompleteIndex}
-                onclick={() => selectCommand(cmd)}
-                onmouseenter={() => { autocompleteIndex = i; }}
+                class="mention-item"
+                class:highlighted={i === mentionIndex}
+                onclick={() => applyMention(agent)}
                 role="option"
-                aria-selected={i === autocompleteIndex}
+                aria-selected={i === mentionIndex}
               >
-                <span class="cmd-name">/{cmd.name}</span>
-                <span class="cmd-hint">{cmd.argsHint}</span>
-                <span class="cmd-desc">{cmd.description}</span>
+                <span class="mention-name">@{agent.name}</span>
+                <span class="mention-id">{agent.id.slice(0, 8)}</span>
               </button>
             {/each}
           </div>
         {/if}
-
-        <div class="message-input">
-          <textarea
-            class="input-textarea"
-            placeholder="Write a message or /command..."
-            bind:value={messageText}
-            oninput={handleInput}
-            onkeydown={handleKeydown}
-            bind:this={textareaEl}
-            rows={2}
-            disabled={sending}
-            aria-label="Message input"
-          ></textarea>
-          <button
-            class="btn-send"
-            onclick={handleSend}
-            disabled={sending || !messageText.trim()}
-            aria-label="Send message"
-          >Send message</button>
-        </div>
+        <textarea
+          class="input-textarea"
+          placeholder="Write a message... (use @ to mention an agent)"
+          bind:value={messageText}
+          bind:this={textareaEl}
+          onkeydown={handleKeydown}
+          oninput={handleInput}
+          rows={2}
+          disabled={sending}
+          aria-label="Message input"
+        ></textarea>
+        <button
+          class="btn-send"
+          onclick={handleSend}
+          disabled={sending || !messageText.trim() || sidebarView === 'fleet'}
+          aria-label="Send message"
+        >Send message</button>
       </div>
-
-      {#if showConfirmDialog}
-        <div class="confirm-overlay" onclick={cancelConfirm} role="presentation">
-          <div class="confirm-dialog" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-            <p class="confirm-message">{confirmDialogMessage}</p>
-            <div class="confirm-actions">
-              <button class="btn-cancel" onclick={cancelConfirm}>Cancel</button>
-              <button class="btn-confirm" onclick={confirmExecute}>Execute</button>
-            </div>
-          </div>
-        </div>
-      {/if}
     {/if}
   </div>
 </div>
@@ -671,12 +840,317 @@
     background: var(--bo-vb);
   }
 
-  /* ── Command autocomplete ─────────────────────────────── */
-  .message-input-wrapper {
-    position: relative;
+  /* ── Sidebar tabs ────────────────────────────────────── */
+  .sidebar-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 var(--space-sm);
+    margin-bottom: var(--space-sm);
   }
 
-  .command-autocomplete {
+  .sidebar-tab {
+    flex: 1;
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--fo-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .sidebar-tab:hover {
+    background: var(--fo-bg2);
+    color: var(--ink);
+  }
+
+  .sidebar-tab.active {
+    background: var(--fo-plum-p);
+    border-color: var(--fo-plum-m);
+    color: var(--fo-plum);
+  }
+
+  :global(body.back-office) .sidebar-tab {
+    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  :global(body.back-office) .sidebar-tab:hover {
+    background: rgba(124, 58, 237, 0.08);
+    color: var(--bo-text);
+  }
+
+  :global(body.back-office) .sidebar-tab.active {
+    background: rgba(124, 58, 237, 0.15);
+    border-color: var(--bo-violet);
+    color: var(--bo-violet);
+  }
+
+  /* ── Fleet sidebar feed ──────────────────────────────── */
+  .fleet-feed {
+    padding: 0 var(--space-sm);
+  }
+
+  .fleet-loading {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--muted);
+    padding: var(--space-lg);
+    text-align: center;
+  }
+
+  .empty-fleet {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+    padding: var(--space-md);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .fleet-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fleet-event {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--fo-border);
+  }
+
+  .fleet-event:last-child {
+    border-bottom: none;
+  }
+
+  :global(body.back-office) .fleet-event {
+    border-bottom-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  .event-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  .event-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .event-description {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  :global(body.back-office) .event-description {
+    color: var(--bo-text);
+  }
+
+  .event-time {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── Fleet panel ────────────────────────────────────── */
+  .fleet-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .fleet-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--fo-border);
+    flex-shrink: 0;
+  }
+
+  :global(body.back-office) .fleet-header {
+    border-bottom-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  .fleet-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 4px;
+  }
+
+  :global(body.back-office) .fleet-title {
+    color: var(--bo-text);
+  }
+
+  .fleet-subtitle {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .fleet-event-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .loading-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .skeleton-event {
+    height: 60px;
+    background: var(--fo-bg2);
+    border-radius: var(--radius-md);
+    animation: pulse-skeleton 1.2s ease-in-out infinite;
+  }
+
+  :global(body.back-office) .skeleton-event {
+    background: rgba(124, 58, 237, 0.08);
+  }
+
+  @keyframes pulse-skeleton {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
+  }
+
+  .fleet-event-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--fo-card);
+    border: 1px solid var(--fo-border);
+    border-radius: var(--radius-md);
+    transition: border-color 0.15s;
+  }
+
+  .fleet-event-card:hover {
+    border-color: var(--fo-plum-m);
+  }
+
+  :global(body.back-office) .fleet-event-card {
+    background: var(--bo-card);
+    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  :global(body.back-office) .fleet-event-card:hover {
+    border-color: var(--bo-violet);
+  }
+
+  .event-icon-large {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  .event-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    min-width: 0;
+  }
+
+  .event-card-description {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  :global(body.back-office) .event-card-description {
+    color: var(--bo-text);
+  }
+
+  .event-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .event-tag {
+    font-family: var(--font-label);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 3px;
+    background: var(--fo-bg2);
+    color: var(--muted);
+  }
+
+  .event-tag.verdict-promote {
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+  }
+
+  .event-tag.verdict-maintain {
+    background: rgba(59, 130, 246, 0.12);
+    color: #2563eb;
+  }
+
+  .event-tag.verdict-demote {
+    background: rgba(249, 115, 22, 0.12);
+    color: #ea580c;
+  }
+
+  .event-tag.verdict-retire {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+  }
+
+  .event-tag.class-novice {
+    background: rgba(156, 163, 175, 0.12);
+    color: #6b7280;
+  }
+
+  .event-tag.class-understudy {
+    background: rgba(124, 58, 237, 0.12);
+    color: var(--bo-violet, #7c3aed);
+  }
+
+  .event-tag.class-artisan {
+    background: rgba(251, 191, 36, 0.12);
+    color: #d97706;
+  }
+
+  :global(body.back-office) .event-tag {
+    background: rgba(124, 58, 237, 0.08);
+    color: var(--bo-muted);
+  }
+
+  .event-card-time {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  /* ── Mention autocomplete ─────────────────────────────── */
+  .mention-dropdown {
     position: absolute;
     bottom: 100%;
     left: var(--space-md);
@@ -684,23 +1158,24 @@
     background: var(--fo-card);
     border: 1px solid var(--fo-border);
     border-radius: var(--radius-md);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
     overflow: hidden;
-    z-index: 100;
     margin-bottom: 4px;
+    z-index: 100;
   }
 
-  :global(body.back-office) .command-autocomplete {
+  :global(body.back-office) .mention-dropdown {
     background: var(--bo-card);
     border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+    box-shadow: 0 -4px 12px rgba(124, 58, 237, 0.12);
   }
 
-  .autocomplete-item {
+  .mention-item {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    justify-content: space-between;
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -708,132 +1183,34 @@
     transition: background 0.1s;
   }
 
-  .autocomplete-item:hover,
-  .autocomplete-item.selected {
+  .mention-item:hover,
+  .mention-item.highlighted {
     background: var(--fo-bg2);
   }
 
-  :global(body.back-office) .autocomplete-item:hover,
-  :global(body.back-office) .autocomplete-item.selected {
-    background: rgba(124, 58, 237, 0.10);
-  }
-
-  .cmd-name {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--fo-plum);
-  }
-
-  :global(body.back-office) .cmd-name {
-    color: var(--bo-violet);
-  }
-
-  .cmd-hint {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .cmd-desc {
-    font-family: var(--font-body);
-    font-size: 12px;
-    color: var(--muted);
-    margin-left: auto;
-  }
-
-  /* ── Confirm dialog ──────────────────────────────────── */
-  .confirm-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-  }
-
-  .confirm-dialog {
-    background: var(--fo-card);
-    border: 1px solid var(--fo-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    max-width: 360px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  }
-
-  :global(body.back-office) .confirm-dialog {
-    background: var(--bo-card);
-    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
-  }
-
-  .confirm-message {
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: var(--ink);
-    margin: 0 0 var(--space-md) 0;
-    line-height: 1.5;
-  }
-
-  :global(body.back-office) .confirm-message {
-    color: var(--bo-text);
-  }
-
-  .confirm-actions {
-    display: flex;
-    gap: var(--space-sm);
-    justify-content: flex-end;
-  }
-
-  .btn-cancel {
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    background: var(--fo-bg2);
-    border: 1px solid var(--fo-border);
-    border-radius: var(--radius-md);
-    padding: 6px 14px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .btn-cancel:hover {
-    background: var(--fo-border);
-  }
-
-  :global(body.back-office) .btn-cancel {
-    color: var(--bo-text);
+  :global(body.back-office) .mention-item:hover,
+  :global(body.back-office) .mention-item.highlighted {
     background: rgba(124, 58, 237, 0.08);
-    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
   }
 
-  :global(body.back-office) .btn-cancel:hover {
-    background: rgba(124, 58, 237, 0.15);
-  }
-
-  .btn-confirm {
+  .mention-name {
     font-family: var(--font-body);
     font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    background: var(--fo-plum);
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 6px 14px;
-    cursor: pointer;
-    transition: background 0.15s;
+    color: var(--ink);
   }
 
-  .btn-confirm:hover {
-    background: var(--fo-plum-m);
+  :global(body.back-office) .mention-name {
+    color: var(--bo-text);
   }
 
-  :global(body.back-office) .btn-confirm {
-    background: var(--bo-violet);
+  .mention-id {
+    font-family: var(--font-label);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
   }
 
-  :global(body.back-office) .btn-confirm:hover {
-    background: var(--bo-vb);
+  .message-input {
+    position: relative;
   }
 </style>

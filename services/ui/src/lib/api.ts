@@ -127,6 +127,34 @@ export interface ActivityEvent {
   payload?: Record<string, unknown>;
 }
 
+export interface FleetEvent {
+  id: string;
+  type: string;
+  botId?: string;
+  executionId?: string;
+  soulId?: string;
+  taskCategory?: string;
+  verdictType?: string;
+  fromClass?: string;
+  toClass?: string;
+  transitionType?: string;
+  compositeScore?: string;
+  isPioneer?: boolean;
+  description: string;
+  timestamp: string;
+}
+
+export async function getFleetEvents(
+  companyId: string,
+  params?: { limit?: number; types?: string },
+): Promise<FleetEvent[]> {
+  const query = new URLSearchParams();
+  if (params?.limit != null) query.set('limit', String(params.limit));
+  if (params?.types) query.set('types', params.types);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/akasa/evolution/fleet/events${qs ? `?${qs}` : ''}`);
+}
+
 export interface SidebarBadges {
   pendingApprovals?: number;
   openIssues?: number;
