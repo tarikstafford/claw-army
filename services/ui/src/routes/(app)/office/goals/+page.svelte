@@ -139,7 +139,7 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--fo-plum);
+    color: var(--text);
     margin: 0;
   }
 
@@ -150,24 +150,4 @@
     margin: 0;
   }
 
-  :global(body.back-office) .page-title {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .goal-card {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .goal-card:hover {
-    border-color: var(--bo-violet);
-  }
-
-  :global(body.back-office) .goal-title {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .empty-heading {
-    color: var(--bo-text);
-  }
 </style>

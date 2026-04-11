@@ -499,69 +499,44 @@
     flex-shrink: 0;
   }
 
-  :global(body.back-office) .back-link:hover {
-    color: var(--bo-vb);
+  .project-name,
+  .section-title {
+    color: var(--text);
   }
 
-  :global(body.back-office) .project-name {
-    color: var(--bo-text);
+  .project-meta {
+    border-top-color: var(--border);
   }
 
-  :global(body.back-office) .project-meta {
-    border-top-color: var(--bo-border);
+  .manage-link,
+  .info-value {
+    color: var(--accent);
   }
 
-  :global(body.back-office) .section-title {
-    color: var(--bo-text);
+  .repo-search,
+  .branch-select,
+  .repo-item,
+  .selected-info,
+  .connect-prompt {
+    background: var(--card);
+    border-color: var(--border);
+    color: var(--text);
   }
 
-  :global(body.back-office) .status-connected .status-dot {
-    background: #22c55e;
+  .repo-item:hover {
+    background: color-mix(in srgb, var(--accent) 8%, var(--card));
   }
 
-  :global(body.back-office) .manage-link {
-    color: var(--bo-violet);
-  }
-
-  :global(body.back-office) .repo-search,
-  :global(body.back-office) .branch-select {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .repo-item {
-    background: var(--bo-card);
-  }
-
-  :global(body.back-office) .repo-item:hover {
-    background: var(--bo-border);
-  }
-
-  :global(body.back-office) .repo-item.selected {
-    background: var(--bo-violet);
+  .repo-item.selected {
+    background: var(--accent);
     color: white;
   }
 
-  :global(body.back-office) .selected-info {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
+  .connect-btn {
+    background: var(--accent);
   }
 
-  :global(body.back-office) .info-value {
-    color: var(--bo-violet);
-  }
-
-  :global(body.back-office) .connect-prompt {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .connect-btn {
-    background: var(--bo-violet);
-  }
-
-  :global(body.back-office) .connect-btn:hover {
-    background: var(--bo-violet-m);
+  .connect-btn:hover {
+    background: var(--accent-m);
   }
 </style>

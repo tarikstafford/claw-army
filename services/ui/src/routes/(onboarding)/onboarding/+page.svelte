@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto, invalidateAll } from '$app/navigation';
+  import Button from '$lib/components/ui/Button.svelte';
   import ChipSelect from '$lib/components/onboarding/ChipSelect.svelte';
   import AgentCard from '$lib/components/onboarding/AgentCard.svelte';
   import ToolCard from '$lib/components/tools/ToolCard.svelte';
@@ -359,6 +360,7 @@
   <div class="input-area">
     {#if step === 'welcome'}
       <div class="action-group">
+<<<<<<< HEAD
         <button class="btn-connect-mode" type="button" onclick={() => startOnboarding('connect')}>
           <span class="btn-label">Connect Mode — I have a live business</span>
           <span class="btn-sublabel">Faster path to value — connect your tools</span>
@@ -477,9 +479,9 @@
           <p class="error-msg">{error}</p>
         {/if}
 
-        <button class="btn-summon" type="button" onclick={summonCrew}>
+        <Button class="btn-summon" onclick={summonCrew}>
           SUMMON THE CREW
-        </button>
+        </Button>
       </div>
 
     {:else if step === 'analysing'}
@@ -512,7 +514,7 @@
   }
 
   .brand-name {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--font-display);
     font-size: 28px;
     font-weight: 600;
     color: var(--fo-plum, #3D3560);
@@ -586,6 +588,7 @@
 
   .btn-connect-mode {
     width: 100%;
+<<<<<<< HEAD
     padding: 18px 24px;
     background: var(--fo-plum, #3D3560);
     color: #fff;
@@ -802,22 +805,7 @@
 
   .btn-summon {
     width: 100%;
-    padding: 16px 24px;
-    background: var(--fo-plum, #3D3560);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
     letter-spacing: 0.06em;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .btn-summon:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(61, 53, 96, 0.35);
   }
 
   .error-msg {

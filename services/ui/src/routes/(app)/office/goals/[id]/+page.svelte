@@ -139,15 +139,11 @@
     font-size: 13px;
   }
 
-  :global(body.back-office) .back-link:hover {
-    color: var(--bo-vb);
+  .goal-name {
+    color: var(--text);
   }
 
-  :global(body.back-office) .goal-name {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .goal-meta {
-    border-top-color: var(--bo-border);
+  .goal-meta {
+    border-top-color: var(--border);
   }
 </style>

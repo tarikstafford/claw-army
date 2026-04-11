@@ -2,7 +2,6 @@
   import '../../app.css';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import NavBar from '$lib/components/NavBar.svelte';
   import { connectWebSocket, subscribeWS, type LiveEvent } from '$lib/ws';
 
   let { children, data } = $props();
@@ -74,8 +73,6 @@
   });
 </script>
 
-<NavBar />
-
 {#if wsDisconnectVisible}
   <div class="ws-banner">Connection lost - reconnecting...</div>
 {/if}
@@ -100,13 +97,13 @@
   .main-content {
     position: relative;
     z-index: 2;
-    padding-top: 44px;
+    padding-top: 104px;
   }
 
   /* ── WS disconnect banner ─────────────────────────── */
   .ws-banner {
     position: fixed;
-    top: 44px;
+    top: 92px;
     left: 0;
     right: 0;
     z-index: 500;
@@ -122,7 +119,7 @@
   /* ── Toast container ──────────────────────────────── */
   .toast-container {
     position: fixed;
-    top: 56px;
+    top: 104px;
     right: 20px;
     z-index: 600;
     max-width: 360px;
@@ -136,18 +133,13 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    background: var(--fo-card, #FFFFFF);
-    border: 1px solid var(--fo-border, #E8E4DC);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 10px);
     padding: 12px 14px;
     animation: slideIn 0.25s ease-out;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     pointer-events: all;
-  }
-
-  :global(body.back-office) .toast {
-    background: var(--card);
-    border-color: var(--border);
   }
 
   @keyframes slideIn {
