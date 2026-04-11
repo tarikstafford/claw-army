@@ -106,7 +106,7 @@ if [[ -n "${githubToken}" ]]; then
   # Store token in git credential helper so git operations authenticate automatically
   git config --global credential.helper store
   # Write credentials to git's credential store (format: https://x-access-token:<token>@github.com)
-  echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
+  echo "https://x-access-token:\${GITHUB_TOKEN}@github.com" > ~/.git-credentials
   chmod 600 ~/.git-credentials
   echo "[startup] GitHub credentials configured"
 else
@@ -114,15 +114,15 @@ else
 fi
 
 # ── 2d. Clone target repo if GITHUB_CLONE_URL is provided ──────────────────────
-if [[ -n "${GITHUB_CLONE_URL}" ]]; then
-  echo "[startup] Cloning repo: ${GITHUB_CLONE_URL}"
+if [[ -n "\${GITHUB_CLONE_URL}" ]]; then
+  echo "[startup] Cloning repo: \${GITHUB_CLONE_URL}"
   mkdir -p /root/workspace
-  git clone "${GITHUB_CLONE_URL}" /root/workspace/repo || {
+  git clone "\${GITHUB_CLONE_URL}" /root/workspace/repo || {
     echo "[startup] Warning: git clone failed — continuing without repo clone"
   }
-  if [[ -n "${GITHUB_DEFAULT_BRANCH}" ]]; then
-    cd /root/workspace/repo && git checkout "${GITHUB_DEFAULT_BRANCH}" || {
-      echo "[startup] Warning: failed to checkout branch ${GITHUB_DEFAULT_BRANCH}"
+  if [[ -n "\${GITHUB_DEFAULT_BRANCH}" ]]; then
+    cd /root/workspace/repo && git checkout "\${GITHUB_DEFAULT_BRANCH}" || {
+      echo "[startup] Warning: failed to checkout branch \${GITHUB_DEFAULT_BRANCH}"
     }
   fi
   echo "[startup] Repo cloned to /root/workspace/repo"

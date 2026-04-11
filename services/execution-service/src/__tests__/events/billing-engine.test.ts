@@ -45,6 +45,22 @@ vi.mock('../../services/execution.service.js', () => ({
   transitionExecution: mockTransitionExecution,
 }));
 
+vi.mock('stripe', () => {
+  const MockStripe = vi.fn(function (this: Record<string, unknown>) {
+    this.customers = { create: vi.fn() };
+    this.subscriptions = { list: vi.fn(), create: vi.fn(), retrieve: vi.fn() };
+    this.subscriptionItems = { createUsageRecord: vi.fn() };
+    this.webhooks = { constructEvent: vi.fn() };
+  });
+  return { default: MockStripe };
+});
+
+const mockSubmitUsageRecord = vi.fn().mockResolvedValue(undefined);
+
+vi.mock('../../services/stripe-service.js', () => ({
+  submitUsageRecord: mockSubmitUsageRecord,
+}));
+
 const mockInsertValues = vi.fn().mockResolvedValue(undefined);
 const mockDbInsert = vi.fn().mockReturnValue({ values: mockInsertValues });
 const mockDbSelect = vi.fn();
