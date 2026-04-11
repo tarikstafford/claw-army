@@ -1,8 +1,12 @@
 <script lang="ts">
   import FleetOverview from '$lib/components/evolution/FleetOverview.svelte';
   import VerdictConfirm from '$lib/components/evolution/VerdictConfirm.svelte';
+  import DelegationFlow from '$lib/components/evolution/DelegationFlow.svelte';
+
+  type TabId = 'overview' | 'delegations';
 
   let { data } = $props();
+  let activeTab = $state<TabId>('overview');
   let pendingVerdicts = $state(data.pendingVerdicts ?? []);
   let selectedIds = $state(new Set<string>());
   let batchLoading = $state(false);
@@ -105,11 +109,33 @@
     <p class="error-state">Failed to load fleet data. Refresh to retry.</p>
   {/if}
 
-  <!-- Section 1: Class Distribution Grid + Score Trend -->
-  <FleetOverview fleet={data.fleet} agents={data.agents} />
+  <!-- Tab Navigation -->
+  <nav class="tab-nav">
+    <button
+      class="tab-btn"
+      class:active={activeTab === 'overview'}
+      onclick={() => (activeTab = 'overview')}
+    >
+      Overview
+    </button>
+    <button
+      class="tab-btn"
+      class:active={activeTab === 'delegations'}
+      onclick={() => (activeTab = 'delegations')}
+    >
+      Delegations
+      {#if data.delegations?.stats?.totalDelegations > 0}
+        <span class="tab-badge">{data.delegations.stats.totalDelegations}</span>
+      {/if}
+    </button>
+  </nav>
 
-  <!-- Section 2: Pending Verdicts -->
-  {#if pendingVerdicts.length > 0}
+  {#if activeTab === 'overview'}
+    <!-- Section 1: Class Distribution Grid + Score Trend -->
+    <FleetOverview fleet={data.fleet} agents={data.agents} />
+
+    <!-- Section 2: Pending Verdicts -->
+    {#if pendingVerdicts.length > 0}
     <section class="pending-section">
       <div class="pending-header">
         <h2 class="section-heading">Awaiting Your Decision</h2>
@@ -155,6 +181,12 @@
         {/each}
       </div>
     </section>
+    {/if}
+  {:else if activeTab === 'delegations'}
+    <DelegationFlow
+      chains={data.delegations?.chains ?? []}
+      stats={data.delegations?.stats}
+    />
   {/if}
 </div>
 
@@ -172,6 +204,61 @@
     font-size: 13px;
     color: var(--bo-muted);
     margin: 0;
+  }
+
+  .tab-nav {
+    display: flex;
+    gap: var(--space-xs);
+    border-bottom: 1px solid var(--bo-border);
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: var(--space-sm) var(--space-lg) var(--space-md);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--bo-muted);
+    cursor: pointer;
+    transition: color 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    transition: background 0.15s ease;
+  }
+
+  .tab-btn:hover {
+    color: var(--bo-text);
+  }
+
+  .tab-btn.active {
+    color: var(--bo-text);
+  }
+
+  .tab-btn.active::after {
+    background: var(--bo-violet);
+  }
+
+  .tab-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--bo-vb);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
   }
 
   .pending-section {

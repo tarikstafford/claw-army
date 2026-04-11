@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore } from '@claw/db';
-import { eq, and, desc, asc, count, isNotNull, sql, avg } from 'drizzle-orm';
+import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore, tasks, executions } from '@claw/db';
+import { eq, and, desc, asc, count, isNotNull, sql, avg, gte, lte } from 'drizzle-orm';
 
 // Lazy Paperclip DB instance to avoid circular initialization
 let paperclipDb: ReturnType<typeof import('@paperclipai/db')['createDb']> | null = null;
@@ -27,6 +27,7 @@ async function getPaperclipDb() {
  * GET /org           — Hierarchical fleet tree (fleet -> category -> class_tier -> agent)
  * GET /benchmarks    — All category benchmarks with thinDataFlag and benchmarkMature
  * GET /pending       — Only verdicts where requiresHumanConfirmation=true AND status=pending
+ * GET /delegations   — Delegation chains from task assignments, grouped by execution (filterable by executionId, date range)
  */
 export function evolutionDashboardRouter(): Router {
   const router = Router();
@@ -792,6 +793,117 @@ export function evolutionDashboardRouter(): Router {
         .orderBy(desc(councilVerdicts.createdAt));
 
       res.json(pendingRows);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+
+  // ── GET /delegations ──────────────────────────────────────────────────────────
+  // Builds delegation chains from tasks table: which bot was assigned what task,
+  // grouped by execution. Supports optional executionId and date range filters.
+
+  router.get('/delegations', async (req, res, next) => {
+    try {
+      const executionId = req.query['executionId'] as string | undefined;
+      const from = req.query['from'] as string | undefined;
+      const to = req.query['to'] as string | undefined;
+
+      const conditions = [];
+      if (executionId) {
+        conditions.push(eq(tasks.executionId, executionId));
+      }
+      if (from) {
+        conditions.push(gte(tasks.createdAt, new Date(from)));
+      }
+      if (to) {
+        conditions.push(lte(tasks.createdAt, new Date(to)));
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const taskRows = await db
+        .select({
+          taskId: tasks.id,
+          taskDescription: tasks.description,
+          taskStatus: tasks.status,
+          executionId: tasks.executionId,
+          claimedByBotId: tasks.claimedByBotId,
+          ringLeaderTaskId: tasks.ringLeaderTaskId,
+          createdAt: tasks.createdAt,
+          botStatus: bots.status,
+          botCompositeScore: bots.compositeScore,
+          botTier: bots.tier,
+          executionObjective: executions.objective,
+        })
+        .from(tasks)
+        .leftJoin(bots, eq(tasks.claimedByBotId, bots.id))
+        .leftJoin(executions, eq(tasks.executionId, executions.id))
+        .where(whereClause)
+        .orderBy(desc(tasks.createdAt))
+        .limit(500);
+
+      const executionMap = new Map<string, {
+        executionId: string;
+        objective: string;
+        delegations: Array<{
+          taskId: string;
+          description: string;
+          status: string;
+          assignedBotId: string | null;
+          botTier: string | null;
+          botCompositeScore: string | null;
+          ringLeaderTaskId: string | null;
+          createdAt: string;
+        }>;
+      }>();
+
+      for (const row of taskRows) {
+        if (!executionMap.has(row.executionId)) {
+          executionMap.set(row.executionId, {
+            executionId: row.executionId,
+            objective: row.executionObjective ?? 'Unknown objective',
+            delegations: [],
+          });
+        }
+
+        executionMap.get(row.executionId)!.delegations.push({
+          taskId: row.taskId,
+          description: row.taskDescription,
+          status: row.taskStatus,
+          assignedBotId: row.claimedByBotId,
+          botTier: row.botTier,
+          botCompositeScore: row.botCompositeScore,
+          ringLeaderTaskId: row.ringLeaderTaskId,
+          createdAt: row.createdAt.toISOString(),
+        });
+      }
+
+      const allDelegations = taskRows.filter((r) => r.claimedByBotId !== null);
+      const completedDelegations = allDelegations.filter((r) => r.taskStatus === 'completed');
+      const totalDelegations = allDelegations.length;
+      const successRate = totalDelegations > 0
+        ? Math.round((completedDelegations.length / totalDelegations) * 100)
+        : 0;
+
+      let totalDepth = 0;
+      let depthCount = 0;
+      for (const [, exec] of executionMap) {
+        const depth = exec.delegations.length;
+        totalDepth += depth;
+        depthCount++;
+      }
+      const avgDepth = depthCount > 0 ? Math.round((totalDepth / depthCount) * 10) / 10 : 0;
+
+      res.json({
+        chains: Array.from(executionMap.values()),
+        stats: {
+          totalDelegations,
+          successRate,
+          avgDepth,
+          executionCount: executionMap.size,
+        },
+      });
     } catch (err) {
       next(err);
     }
