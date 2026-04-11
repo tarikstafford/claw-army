@@ -14,6 +14,7 @@ import { computeClassTransition, type AgentClass, type VerdictType } from './cla
 import { captureDna } from './dna-writer.js';
 import { recordNegativeSignal } from './negative-register.js';
 import { checkAndRecordPioneer } from './pioneer-tracker.js';
+import { processSkillUnlearning } from './skill-unlearning.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -247,7 +248,25 @@ export async function executeGodLayer(verdictId: string): Promise<GodLayerResult
     }
   }
 
-  // Step 10: Mark verdict as processed (idempotency stamp)
+  // Step 10: Skill unlearning - track consecutiveNegativeCount and auto-remove underperforming skills
+  try {
+    const unlearningResult = await processSkillUnlearning(
+      verdict.botId,
+      verdict.executionId,
+      verdict.soulId,
+      verdict.verdictType,
+    );
+    if (unlearningResult.unlearnedSkills.length > 0) {
+      console.log('[god-layer] Skills unlearned:', {
+        botId: verdict.botId,
+        skills: unlearningResult.unlearnedSkills,
+      });
+    }
+  } catch (err) {
+    console.error('[god-layer] Skill unlearning failed:', { botId: verdict.botId, error: (err as Error).message });
+  }
+
+  // Step 11: Mark verdict as processed (idempotency stamp)
   try {
     await db
       .update(councilVerdicts)
