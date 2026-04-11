@@ -70,17 +70,21 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
         firstGoal: Type.String(),
         budget: Type.String(),
         companyName: Type.String(),
+        toolConnections: Type.Optional(Type.Array(Type.Object({
+          toolId: Type.String(),
+          connectionId: Type.String(),
+        }))),
       }),
     },
   }, async (request: FastifyRequest<{
-    Body: { businessType: string; firstGoal: string; budget: string; companyName: string };
+    Body: { businessType: string; firstGoal: string; budget: string; companyName: string; toolConnections?: Array<{ toolId: string; connectionId: string }> };
   }>, reply: FastifyReply) => {
     const userId = await resolveUserId(request);
     if (!userId) {
       return reply.code(401).send({ error: 'Not authenticated' });
     }
 
-    const { businessType, firstGoal, budget, companyName } = request.body;
+    const { businessType, firstGoal, budget, companyName, toolConnections } = request.body;
     const tier = budgetToTier(budget);
     const budgetCents = budgetToCents(budget);
 
@@ -96,7 +100,7 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(500).send({ error: 'Failed to create company' });
     }
 
-    const agentsToCreate = [
+    const agentsToCreate: Array<{ name: string; role: string; title: string; archetype: string; tier: string }> = [
       ...AGENT_ROSTER.map((a) => ({ ...a, tier })),
     ];
     if (budget !== '<50') {
@@ -115,6 +119,7 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
             tier: agent.tier,
             businessType,
             firstGoal,
+            toolConnections: toolConnections ?? [],
           },
         });
         createdAgents.push({ id: created.id, name: agent.name, role: agent.role, tier: agent.tier, archetype: agent.archetype });

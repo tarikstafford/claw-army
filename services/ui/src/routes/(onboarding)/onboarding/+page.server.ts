@@ -4,5 +4,6 @@ export const load: PageServerLoad = async ({ parent }) => {
   const { session } = await parent();
   return {
     userName: session.user.name ?? 'there',
+    userId: session.user.id,
   };
 };
