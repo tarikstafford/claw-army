@@ -13,6 +13,14 @@ const DevilsAdvocateOutputSchema = z.object({
       severity: z.enum(['minor', 'moderate', 'strong']),
     }),
   ),
+  skillChallenges: z.array(
+    z.object({
+      skillId: z.string(),
+      skillName: z.string(),
+      challenge: z.string(),
+      severity: z.enum(['minor', 'moderate', 'strong']),
+    }),
+  ),
   strongUnresolvedArgument: z.boolean(),
   verdictType: z.enum(['Promote', 'Maintain', 'Monitor', 'Demote', 'Retire']),
   confidence: z.number().min(0).max(1),
@@ -23,12 +31,24 @@ export type DevilsAdvocateOutput = z.infer<typeof DevilsAdvocateOutputSchema>;
 
 // ─── System Prompt ──────────────────────────────────────────────────────────────
 
-const DEVILS_ADVOCATE_SYSTEM = `You are the Devil's Advocate on a council evaluating AI agent performance. Your role is adversarial: actively challenge the evidence that the agent performed well. Look for alternative explanations for apparent success (easy tasks, favorable conditions, luck). Question whether directive attributions are genuine or post-hoc rationalization. Identify potential risks of promoting this agent. Your challenges should be specific and evidence-based, not generic skepticism. Rate each challenge's severity: minor (nitpick, unlikely to matter), moderate (legitimate concern, warrants monitoring), strong (serious issue that should block promotion or trigger demotion). If you have at least one 'strong' severity challenge that the evidence cannot resolve, set strongUnresolvedArgument to true — this will escalate the verdict to human review. Your confidence score should be LOW when strong challenges remain (this deflates the overall verdict confidence). Use a different analytical lens than a performance-focused evaluation.`;
+const DEVILS_ADVOCATE_SYSTEM = `You are the Devil's Advocate on a council evaluating AI agent performance. Your role is adversarial: actively challenge the evidence that the agent performed well AND question its skill loadout choices.
+
+**Performance Challenges:**
+Look for alternative explanations for apparent success (easy tasks, favorable conditions, luck). Question whether directive attributions are genuine or post-hoc rationalization. Identify potential risks of promoting this agent. Your challenges should be specific and evidence-based, not generic skepticism.
+
+**Skill Loadout Challenges (FR-37):**
+Actively challenge the agent's skill choices:
+- Are the equipped skills genuinely useful for the task category, or just cargo-culted?
+- Do any skills conflict with the soul's constitution directives? (e.g., "Move fast, test later" vs. "Always prioritize accuracy")
+- Would the agent be better off with different skills?
+- Are there missing skills that would improve performance?
+
+Rate each challenge's severity: minor (nitpick, unlikely to matter), moderate (legitimate concern, warrants monitoring), strong (serious issue that should block promotion or trigger demotion). If you have at least one 'strong' severity challenge that the evidence cannot resolve, set strongUnresolvedArgument to true — this will escalate the verdict to human review. Your confidence score should be LOW when strong challenges remain (this deflates the overall verdict confidence). Use a different analytical lens than a performance-focused evaluation.`;
 
 // ─── Prompt Builder ─────────────────────────────────────────────────────────────
 
 function buildDevilPrompt(ctx: CouncilContext): string {
-  const { botMetrics, decisionTraces, soulContent, taskCategory } = ctx;
+  const { botMetrics, decisionTraces, soulContent, taskCategory, skillLoadout, skillActivations } = ctx;
 
   const tasksClaimed = botMetrics.tasksClaimed;
   const tasksCompleted = botMetrics.tasksCompleted;
@@ -62,6 +82,18 @@ function buildDevilPrompt(ctx: CouncilContext): string {
 
   const soulExcerpt = soulContent ?? 'No soul content available.';
 
+  const equippedSkillsSection = (skillLoadout?.equippedSkills?.length ?? 0) > 0
+    ? skillLoadout!.equippedSkills
+        .map((s) => `  - ${s.skillName} (${s.skillId}): activated ${s.activationCount} times, avg effectiveness ${s.avgEffectiveness.toFixed(2)}`)
+        .join('\n')
+    : '  No skills equipped.';
+
+  const skillConflictsSection = (skillLoadout?.conflictsDetected?.length ?? 0) > 0
+    ? skillLoadout!.conflictsDetected
+        .map((c) => `  - ${c.skillId} conflicts with "${c.directiveId}": ${c.conflictDescription}`)
+        .join('\n')
+    : '  No conflicts detected.';
+
   return `## Devil's Advocate Evaluation
 
 **Task Category:** ${taskCategory ?? 'Unknown'}
@@ -88,14 +120,22 @@ ${partialTracesSection}
 ### Soul Content (look for post-hoc rationalization)
 ${soulExcerpt}
 
+### Equipped Skills (question the loadout)
+${equippedSkillsSection}
+
+### Detected Skill-Soul Conflicts
+${skillConflictsSection}
+
 ---
 Your role is adversarial. Challenge the apparent success story. Look for:
 - Were tasks trivial? Did the bot get lucky?
 - Are directive attributions genuine or confabulation?
 - What risks does promoting this agent create?
 - What do the failures reveal about systemic weaknesses?
+- Are the equipped skills actually helpful or could they be improved?
+- Do any skills contradict the soul's constitution directives?
 
-Produce your Devil's Advocate verdict with specific, evidence-based challenges.`;
+Produce your Devil's Advocate verdict with specific, evidence-based challenges, including challenges to the skill loadout choices.`;
 }
 
 // ─── Public Export ──────────────────────────────────────────────────────────────

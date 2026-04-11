@@ -71,6 +71,7 @@ vi.mock('@claw/db', () => ({
   bots: { id: 'id', tasksClaimed: 'tasks_claimed', tasksCompleted: 'tasks_completed', tasksFailed: 'tasks_failed', compositeScore: 'composite_score', tier: 'tier' },
   botSouls: { id: 'id', soulContent: 'soul_content', constitutionDirectives: 'constitution_directives', taskCategory: 'task_category' },
   councilVerdicts: { executionId: 'execution_id', botId: 'bot_id' },
+  decisionTraces: { id: 'id', decisionId: 'decision_id', decisionType: 'decision_type', directiveReferenced: 'directive_referenced', attributionConfidence: 'attribution_confidence', outcome: 'outcome', metadata: 'metadata', botId: 'bot_id' },
 }));
 
 describe('runPerformanceJudge', () => {

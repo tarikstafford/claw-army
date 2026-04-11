@@ -1,6 +1,6 @@
-import { db, bots, botSouls, councilVerdicts } from '@claw/db';
+import { db, bots, botSouls, councilVerdicts, decisionTraces } from '@claw/db';
 import { eq } from 'drizzle-orm';
-import { runPerformanceJudge, type CouncilContext, type PerformanceJudgeOutput } from './performance-judge.js';
+import { runPerformanceJudge, type CouncilContext, type PerformanceJudgeOutput, type SkillActivation, type SkillLoadout } from './performance-judge.js';
 import { runSoulAnalyst, type SoulAnalystOutput } from './soul-analyst.js';
 import { runDevilsAdvocate, type DevilsAdvocateOutput } from './devils-advocate.js';
 import type { CouncilVerdict } from '@claw/db';
@@ -18,6 +18,14 @@ const VERDICT_VALUES: Record<string, number> = {
 const VERDICT_FROM_VALUE = ['Retire', 'Demote', 'Monitor', 'Maintain', 'Promote'] as const;
 
 // ─── loadCouncilContext ───────────────────────────────────────────────────────────
+
+interface DecisionTraceMetadata {
+  skillId?: string;
+  skillName?: string;
+  skillActivated?: boolean;
+  skillEffectiveness?: number;
+  conflictsWithDirectives?: string[];
+}
 
 async function loadCouncilContext(
   executionId: string,
@@ -69,6 +77,82 @@ async function loadCouncilContext(
     }
   }
 
+  // Query decision traces for skill activation patterns
+  const traceRows = await db
+    .select({
+      decisionId: decisionTraces.decisionId,
+      decisionType: decisionTraces.decisionType,
+      directiveReferenced: decisionTraces.directiveReferenced,
+      attributionConfidence: decisionTraces.attributionConfidence,
+      outcome: decisionTraces.outcome,
+      metadata: decisionTraces.metadata,
+    })
+    .from(decisionTraces)
+    .where(eq(decisionTraces.botId, botId))
+    .limit(200);
+
+  const decisionTracesData = traceRows.map((t) => ({
+    decisionId: t.decisionId,
+    decisionType: t.decisionType,
+    directiveReferenced: t.directiveReferenced ?? null,
+    attributionConfidence: t.attributionConfidence ?? null,
+    outcome: t.outcome ?? null,
+    metadata: t.metadata,
+  }));
+
+  // Extract skill activations from decision trace metadata
+  const skillMap = new Map<string, SkillActivation>();
+  const skillConflictMap = new Map<string, string[]>();
+
+  for (const trace of traceRows) {
+    const metadata = trace.metadata as DecisionTraceMetadata | null;
+    if (metadata?.skillActivated && metadata.skillId && metadata.skillName) {
+      const existing = skillMap.get(metadata.skillId);
+      if (existing) {
+        existing.timesActivated += 1;
+        existing.effectivenessScore =
+          (existing.effectivenessScore * (existing.timesActivated - 1) +
+            (metadata.skillEffectiveness ?? 0)) /
+          existing.timesActivated;
+      } else {
+        skillMap.set(metadata.skillId, {
+          skillId: metadata.skillId,
+          skillName: metadata.skillName,
+          timesActivated: 1,
+          effectivenessScore: metadata.skillEffectiveness ?? 0,
+          conflictsWithDirectives: metadata.conflictsWithDirectives ?? [],
+        });
+      }
+      if (metadata.conflictsWithDirectives?.length) {
+        const existing = skillConflictMap.get(metadata.skillId) ?? [];
+        skillConflictMap.set(
+          metadata.skillId,
+          [...new Set([...existing, ...metadata.conflictsWithDirectives])],
+        );
+      }
+    }
+  }
+
+  const skillActivations: SkillActivation[] = Array.from(skillMap.values());
+
+  const skillLoadout: SkillLoadout = {
+    equippedSkills: skillActivations.map((s) => ({
+      skillId: s.skillId,
+      skillName: s.skillName,
+      activationCount: s.timesActivated,
+      avgEffectiveness: s.effectivenessScore,
+    })),
+    conflictsDetected: skillActivations
+      .filter((s) => s.conflictsWithDirectives.length > 0)
+      .flatMap((s) =>
+        s.conflictsWithDirectives.map((d) => ({
+          skillId: s.skillId,
+          directiveId: d,
+          conflictDescription: `Skill "${s.skillName}" may conflict with directive "${d}"`,
+        })),
+      ),
+  };
+
   return {
     executionId,
     botId,
@@ -83,8 +167,10 @@ async function loadCouncilContext(
       compositeScore: botRow.compositeScore ?? null,
       tier: botRow.tier ?? null,
     },
-    decisionTraces: [],
+    decisionTraces: decisionTracesData,
     telemetryMetrics: [],
+    skillLoadout,
+    skillActivations,
   };
 }
 

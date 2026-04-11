@@ -36,6 +36,19 @@ export interface DnaPayload {
   humanConfirmationTimestamp?: string | null; // confirmedAt ISO string or null
   mutationLineageOps?: string[]; // mutation operations applied
   isPioneerEntry?: boolean; // GODL-06
+  skillLoadout?: {
+    equippedSkills: Array<{
+      skillId: string;
+      skillName: string;
+      activationCount: number;
+      avgEffectiveness: number;
+    }>;
+    conflictsDetected: Array<{
+      skillId: string;
+      directiveId: string;
+      conflictDescription: string;
+    }>;
+  };
 }
 
 export const dnaStore = pgTable(
