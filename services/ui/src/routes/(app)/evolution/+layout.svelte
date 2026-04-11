@@ -21,6 +21,7 @@
     { href: '/evolution/agents',     label: 'AGENTS' },
     { href: '/evolution/benchmarks', label: 'BENCHMARKS' },
     { href: '/evolution/org',        label: 'ORG' },
+    { href: '/evolution/skills',     label: 'SKILLS' },
   ] as const;
 
   function isTabActive(href: string): boolean {

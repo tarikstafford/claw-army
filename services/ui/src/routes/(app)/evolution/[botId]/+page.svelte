@@ -5,18 +5,47 @@
   import IdentityCard from '$lib/components/evolution/IdentityCard.svelte';
   import ProfileTab from '$lib/components/evolution/ProfileTab.svelte';
   import RuntimeStatus from '$lib/components/evolution/RuntimeStatus.svelte';
+  import SkillLoadoutTab from '$lib/components/evolution/SkillLoadoutTab.svelte';
+  import { equipSkill, unequipSkill, reorderSkills } from '$lib/api';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'skills'>('profile');
 
   const TABS = [
     { id: 'profile' as const, label: 'PROFILE' },
     { id: 'timeline' as const, label: 'TIMELINE' },
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
+    { id: 'skills' as const, label: 'SKILLS' },
   ];
+
+  async function handleEquip(skillId: string, slotIndex: number) {
+    try {
+      await equipSkill(data.botId, skillId, slotIndex);
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to equip skill:', err);
+    }
+  }
+
+  async function handleUnequip(skillId: string) {
+    try {
+      await unequipSkill(data.botId, skillId);
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to unequip skill:', err);
+    }
+  }
+
+  async function handleReorder(skillIds: string[]) {
+    try {
+      await reorderSkills(data.botId, skillIds);
+    } catch (err) {
+      console.error('Failed to reorder skills:', err);
+    }
+  }
 </script>
 
 <div class="bot-detail-page">
@@ -79,6 +108,17 @@
       {/if}
     {:else if activeTab === 'ledger'}
       <ExperimentLedger rows={data.ledger} />
+    {:else if activeTab === 'skills'}
+      <SkillLoadoutTab
+        botId={data.botId}
+        equippedSkills={data.equippedSkills ?? []}
+        availableSkills={data.availableSkills ?? []}
+        conflicts={data.skillConflicts ?? []}
+        maxCapacity={5}
+        onEquip={handleEquip}
+        onUnequip={handleUnequip}
+        onReorder={handleReorder}
+      />
     {/if}
   </div>
 </div>

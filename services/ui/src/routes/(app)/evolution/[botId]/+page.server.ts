@@ -2,15 +2,18 @@ import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ fetch, parent, params }) => {
-  const { session } = await parent();
+  const { session, companyId } = await parent();
   if (!session) throw error(401, 'Not authenticated');
   const { botId } = params;
 
-  const [timelineRes, lineageRes, ledgerRes, profileRes] = await Promise.allSettled([
+  const [timelineRes, lineageRes, ledgerRes, profileRes, botSkillsRes, skillConflictsRes, allSkillsRes] = await Promise.allSettled([
     fetch(`/api/akasa/evolution/bots/${botId}/timeline`),
     fetch(`/api/akasa/evolution/bots/${botId}/lineage`),
     fetch(`/api/akasa/evolution/bots/${botId}/ledger`),
     fetch(`/api/akasa/evolution/bots/${botId}/profile`),
+    fetch(`/api/akasa/bots/${botId}/skills`),
+    fetch(`/api/akasa/bots/${botId}/skill-conflicts`),
+    fetch(`/api/akasa/companies/${companyId}/skills`),
   ]);
 
   const timeline = timelineRes.status === 'fulfilled' && timelineRes.value.ok
@@ -21,6 +24,12 @@ export const load: PageServerLoad = async ({ fetch, parent, params }) => {
     ? await ledgerRes.value.json() : [];
   const profile = profileRes.status === 'fulfilled' && profileRes.value.ok
     ? await profileRes.value.json() : null;
+  const botSkills = botSkillsRes.status === 'fulfilled' && botSkillsRes.value.ok
+    ? await botSkillsRes.value.json() : [];
+  const skillConflicts = skillConflictsRes.status === 'fulfilled' && skillConflictsRes.value.ok
+    ? await skillConflictsRes.value.json() : [];
+  const allSkills = allSkillsRes.status === 'fulfilled' && allSkillsRes.value.ok
+    ? await allSkillsRes.value.json() : [];
 
-  return { botId, timeline, lineage, ledger, profile };
+  return { botId, timeline, lineage, ledger, profile, equippedSkills: botSkills, skillConflicts, availableSkills: allSkills };
 };

@@ -41,7 +41,12 @@
       if (event.type === 'chat.message.created') {
         addToast('New message received', 'chat');
       }
-      // Add more event type handlers as needed
+      if (event.type === 'skill.learned') {
+        addToast(`Agent learned new skill: ${event.payload?.skillName ?? 'Unknown'}`, 'skill');
+      }
+      if (event.type === 'skill.auto_unlearned') {
+        addToast(`Skill auto-removed: ${event.payload?.skillName ?? 'Unknown'}`, 'skill');
+      }
     });
 
     return () => {
