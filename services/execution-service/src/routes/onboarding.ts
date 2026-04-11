@@ -13,6 +13,35 @@ const FINANCE_AGENT = {
   name: 'Roan', role: 'finance', title: 'Finance Auditor', archetype: 'Cautious Verifier',
 } as const;
 
+const TOOL_BASED_AGENTS: Record<string, { name: string; role: string; title: string; archetype: string }> = {
+  hubspot: { name: 'Mira', role: 'marketing', title: 'Marketing Strategist', archetype: 'Creative Synthesizer' },
+  slack: { name: 'Asha', role: 'ops', title: 'Operations Analyst', archetype: 'Structured Analyst' },
+  'google-sheets': { name: 'Roan', role: 'finance', title: 'Finance Auditor', archetype: 'Cautious Verifier' },
+};
+
+interface QuickWin {
+  agent: string;
+  message: string;
+  toolId: string;
+}
+
+function getQuickWins(toolIds: string[]): QuickWin[] {
+  const wins: QuickWin[] = [];
+  const toolSet = new Set(toolIds);
+
+  if (toolSet.has('hubspot')) {
+    wins.push({ agent: 'Kael', message: 'Found 50 cold leads in HubSpot that need follow-up', toolId: 'hubspot' });
+  }
+  if (toolSet.has('slack')) {
+    wins.push({ agent: 'Asha', message: 'Detected 12 unresponded messages in Slack channels', toolId: 'slack' });
+  }
+  if (toolSet.has('google-sheets')) {
+    wins.push({ agent: 'Roan', message: 'Spotted 3 revenue entries missing categorization in Sheets', toolId: 'google-sheets' });
+  }
+
+  return wins;
+}
+
 function budgetToCents(budget: string): number {
   switch (budget) {
     case '<50': return 5000;
@@ -70,25 +99,31 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
         firstGoal: Type.String(),
         budget: Type.String(),
         companyName: Type.String(),
+        toolConnections: Type.Optional(Type.Array(Type.Object({
+          toolId: Type.String(),
+          connectionId: Type.String(),
+        }))),
       }),
     },
   }, async (request: FastifyRequest<{
-    Body: { businessType: string; firstGoal: string; budget: string; companyName: string };
+    Body: { businessType: string; firstGoal: string; budget: string; companyName: string; toolConnections?: Array<{ toolId: string; connectionId: string }> };
   }>, reply: FastifyReply) => {
     const userId = await resolveUserId(request);
     if (!userId) {
       return reply.code(401).send({ error: 'Not authenticated' });
     }
 
-    const { businessType, firstGoal, budget, companyName } = request.body;
+    const { businessType, firstGoal, budget, companyName, toolConnections } = request.body;
     const tier = budgetToTier(budget);
     const budgetCents = budgetToCents(budget);
+
+    const connectedToolIds = toolConnections?.map(t => t.toolId) ?? [];
 
     let company;
     try {
       company = await createCompanyForUser(userId, {
         name: companyName,
-        description: `${businessType} — Goal: ${firstGoal}`,
+        description: `${businessType} — Goal: ${firstGoal}${connectedToolIds.length > 0 ? ` — Tools: ${connectedToolIds.join(', ')}` : ''}`,
         budgetMonthlyCents: budgetCents,
       });
     } catch (err) {
@@ -96,11 +131,40 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(500).send({ error: 'Failed to create company' });
     }
 
-    const agentsToCreate = [
-      ...AGENT_ROSTER.map((a) => ({ ...a, tier })),
-    ];
-    if (budget !== '<50') {
-      agentsToCreate.push({ ...FINANCE_AGENT, tier: 'haiku' });
+    let agentsToCreate: Array<{ name: string; role: string; title: string; archetype: string; tier: string }>;
+
+    if (connectedToolIds.length > 0) {
+      const seen = new Set<string>();
+      agentsToCreate = [];
+
+      for (const toolId of connectedToolIds) {
+        const agentInfo = TOOL_BASED_AGENTS[toolId];
+        if (agentInfo && !seen.has(agentInfo.name)) {
+          seen.add(agentInfo.name);
+          agentsToCreate.push({ ...agentInfo, tier });
+        }
+      }
+
+      if (budget !== '<50' && !seen.has('Roan')) {
+        agentsToCreate.push({ ...FINANCE_AGENT, tier: 'haiku' });
+      }
+
+      if (agentsToCreate.length < 3) {
+        for (const a of AGENT_ROSTER) {
+          if (!seen.has(a.name)) {
+            seen.add(a.name);
+            agentsToCreate.push({ ...a, tier });
+            if (agentsToCreate.length >= 3) break;
+          }
+        }
+      }
+    } else {
+      agentsToCreate = [
+        ...AGENT_ROSTER.map((a) => ({ ...a, tier })),
+      ];
+      if (budget !== '<50') {
+        agentsToCreate.push({ ...FINANCE_AGENT, tier: 'haiku' });
+      }
     }
 
     const createdAgents = [];
@@ -115,6 +179,7 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
             tier: agent.tier,
             businessType,
             firstGoal,
+            toolConnections: toolConnections ?? [],
           },
         });
         createdAgents.push({ id: created.id, name: agent.name, role: agent.role, tier: agent.tier, archetype: agent.archetype });
@@ -123,10 +188,13 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
+    const quickWins = connectedToolIds.length > 0 ? getQuickWins(connectedToolIds) : [];
+
     return {
       companyId: company.id,
       companyName: company.name,
       agents: createdAgents,
+      quickWins,
     };
   });
 };
