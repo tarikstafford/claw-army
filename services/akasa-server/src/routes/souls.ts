@@ -1,6 +1,8 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { db, botSouls } from '@claw/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
+import { embed } from 'ai';
+import { openai } from '@ai-sdk/openai';
 import { generateSoul, generateMutatedSoul } from '../services/soul-generator.js';
 import { injectSoulIntoAgent } from '../services/soul-injector.js';
 
@@ -147,6 +149,58 @@ export function soulsRouter(): Router {
       }
 
       res.json(soul);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // GET /search — find top-N similar souls by cosine similarity
+  router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { query, limit: limitStr } = req.query;
+
+      if (!query || typeof query !== 'string') {
+        res.status(400).json({ error: 'query string is required' });
+        return;
+      }
+
+      const limit = Math.min(Number.parseInt(limitStr ?? '10', 10) || 10, 100);
+
+      const { embedding } = await embed({
+        model: openai.embeddingModel('text-embedding-3-small'),
+        value: query,
+      });
+
+      const embeddingVector = `[${Array.from(embedding).join(',')}]`;
+
+      const rows = await db.execute<{
+        id: string;
+        is_archetype: boolean;
+        archetype_name: string | null;
+        bot_id: string | null;
+        execution_id: string | null;
+        task_category: string | null;
+        soul_content: string;
+        content_hash: string;
+        generation: number;
+        parent_soul_id: string | null;
+        dimensions: unknown;
+        constitution_directives: unknown;
+        embedding: number[];
+        human_review_flag: boolean;
+        created_at: Date;
+        similarity_score: number;
+      }>(sql`
+        SELECT
+          bs.*,
+          (1 - (bs.embedding <=> ${embeddingVector}::vector)) AS similarity_score
+        FROM ${botSouls} bs
+        WHERE bs.embedding IS NOT NULL
+        ORDER BY similarity_score DESC
+        LIMIT ${limit}
+      `);
+
+      res.json(rows.rows);
     } catch (err) {
       next(err);
     }
