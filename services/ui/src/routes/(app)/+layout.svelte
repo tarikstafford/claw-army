@@ -41,7 +41,9 @@
       if (event.type === 'chat.message.created') {
         addToast('New message received', 'chat');
       }
-      // Add more event type handlers as needed
+      if (event.type === 'budget_exceeded') {
+        addToast('Budget exceeded — spending has been halted', 'warning');
+      }
     });
 
     return () => {

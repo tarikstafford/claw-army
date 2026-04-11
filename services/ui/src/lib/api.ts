@@ -161,6 +161,24 @@ export interface BudgetOverview {
   spentTodayCents: number;
   remainingTodayCents: number;
   monthlyTotalCents: number;
+  monthlyBudgetCents?: number;
+  karma?: number | null;
+}
+
+export interface BudgetUpdateInput {
+  dailyBudgetCents?: number;
+  monthlyBudgetCents?: number;
+}
+
+export interface SpendTrendPoint {
+  date: string;
+  totalCents: number;
+  byAgent?: Record<string, number>;
+  byOperation?: {
+    llmCallsCents: number;
+    botHoursCents: number;
+    toolInvocationsCents: number;
+  };
 }
 
 // ── Companies ─────────────────────────────────────────────────────
@@ -353,4 +371,12 @@ export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]>
 
 export async function getBudgetOverview(companyId: string): Promise<BudgetOverview> {
   return apiFetch(`${BASE}/companies/${companyId}/budgets/overview`);
+}
+
+export async function updateBudget(companyId: string, input: BudgetUpdateInput): Promise<BudgetOverview> {
+  return apiFetch(`${BASE}/companies/${companyId}/budgets`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
 }
