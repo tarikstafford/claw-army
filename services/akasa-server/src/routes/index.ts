@@ -14,6 +14,8 @@ import { internalRouter } from './internal.js';
 import { githubRouter } from './github.js';
 import { commandsRouter } from './commands.js';
 import { settingsRouter } from './settings.js';
+import { skillsRouter } from './skills.js';
+import { agentSkillsRouter } from './agent-skills.js';
 
 const akasaRouter = Router();
 
@@ -64,5 +66,11 @@ akasaRouter.use('/akasa/commands', commandsRouter());
 
 // User settings: profile, preferences, API keys
 akasaRouter.use('/akasa/settings', settingsRouter());
+
+// Skill CRUD and loadout management routes
+akasaRouter.use('/akasa/skills', skillsRouter());
+
+// Agent skill loadout routes (equip/unequip/list)
+akasaRouter.use('/akasa/agents', agentSkillsRouter());
 
 export { akasaRouter };
