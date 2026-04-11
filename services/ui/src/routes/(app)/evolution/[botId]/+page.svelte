@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ExecutionLogs from '$lib/components/evolution/ExecutionLogs.svelte';
   import LineageTree from '$lib/components/evolution/LineageTree.svelte';
   import BotTimeline from '$lib/components/evolution/BotTimeline.svelte';
   import ExperimentLedger from '$lib/components/evolution/ExperimentLedger.svelte';
@@ -9,13 +10,14 @@
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'logs'>('profile');
 
   const TABS = [
     { id: 'profile' as const, label: 'PROFILE' },
     { id: 'timeline' as const, label: 'TIMELINE' },
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
+    { id: 'logs' as const, label: 'LOGS' },
   ];
 </script>
 
@@ -79,6 +81,8 @@
       {/if}
     {:else if activeTab === 'ledger'}
       <ExperimentLedger rows={data.ledger} />
+    {:else if activeTab === 'logs'}
+      <ExecutionLogs botId={data.botId} />
     {/if}
   </div>
 </div>
