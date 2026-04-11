@@ -13,11 +13,21 @@ vi.mock('@claw/db', () => {
   };
   return {
     db: mockDb,
-    bots: { id: 'id', paperclipAgentId: 'paperclip_agent_id' },
-    executions: { id: 'id', status: 'status' },
+    bots: { id: 'id', paperclipAgentId: 'paperclip_agent_id', status: 'status', executionId: 'execution_id' },
+    executions: { id: 'id', status: 'status', updatedAt: 'updated_at' },
     councilVerdicts: { id: 'id', status: 'status' },
   };
 });
+
+vi.mock('drizzle-orm', () => ({
+  eq: vi.fn((...args: unknown[]) => args),
+  and: vi.fn((...args: unknown[]) => args),
+  count: vi.fn(() => 'count'),
+  sql: Object.assign(vi.fn(() => 'sql'), {
+    // Support tagged template literal usage: sql`...`
+    raw: vi.fn(() => 'sql-raw'),
+  }),
+}));
 
 vi.mock('@paperclipai/db', () => ({
   createDb: vi.fn(() => ({
@@ -64,11 +74,12 @@ describe('commandsRouter', () => {
     });
 
     it('returns status for /status command', async () => {
-      const countResult: Array<{ count: number }> = [{ count: 5 }];
-      (mockDb as unknown as { limit: ReturnType<typeof vi.fn> }).limit = vi.fn()
-        .mockResolvedValueOnce([{ count: 5 }])
-        .mockResolvedValueOnce([{ count: 2 }])
-        .mockResolvedValueOnce([{ count: 3 }]);
+      // handleStatus uses db.select({count}).from(table).where(cond) — no .limit()
+      // where() must resolve to an array since the result is destructured with const [...] = await ...
+      (mockDb as unknown as { where: ReturnType<typeof vi.fn> }).where = vi.fn()
+        .mockResolvedValueOnce([{ count: 5 }])   // active bots
+        .mockResolvedValueOnce([{ count: 2 }])   // running executions
+        .mockResolvedValueOnce([{ count: 3 }]);  // pending verdicts
 
       const res = await request(app)
         .post('/api/akasa/commands/execute')
@@ -76,9 +87,9 @@ describe('commandsRouter', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.ok).toBe(true);
-      expect(res.body.message).toContain('5 active bots');
-      expect(res.body.message).toContain('2 running executions');
-      expect(res.body.message).toContain('3 pending verdicts');
+      expect(res.body.message).toContain('5 active bot');
+      expect(res.body.message).toContain('2 running execution');
+      expect(res.body.message).toContain('3 pending verdict');
     });
 
     it('returns error for unknown command', async () => {
