@@ -354,3 +354,23 @@ export async function getCostsByAgent(companyId: string): Promise<CostByAgent[]>
 export async function getBudgetOverview(companyId: string): Promise<BudgetOverview> {
   return apiFetch(`${BASE}/companies/${companyId}/budgets/overview`);
 }
+
+// ── Commands ──────────────────────────────────────────────────────
+
+export interface CommandResult {
+  ok: boolean;
+  message: string;
+  data?: Record<string, unknown>;
+}
+
+export async function executeCommand(
+  companyId: string,
+  command: string,
+  args: string[] = [],
+): Promise<CommandResult> {
+  return apiFetch(`${BASE}/akasa/commands/execute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ command, args, companyId }),
+  });
+}
