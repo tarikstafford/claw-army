@@ -20,6 +20,7 @@ import { registerAuthRoutes } from './routes/auth';
 import { onboardingRoutes } from './routes/onboarding';
 import { costProjectionsRoutes } from './routes/cost-projections';
 import { paperclipProxyRoutes } from './routes/paperclip-proxy';
+import { registerRetentionSchedule, createRetentionWorker } from './queue/retention-queue';
 
 export async function buildApp() {
   const app = Fastify({
@@ -89,6 +90,12 @@ export async function buildApp() {
 
   // Health check
   app.get('/health', async () => ({ status: 'ok' }));
+
+  // Data retention scheduled job — register repeatable and start worker
+  registerRetentionSchedule().catch((err) => {
+    console.error('[data-retention] Failed to register retention schedule:', (err as Error).message);
+  });
+  createRetentionWorker();
 
   return app;
 }

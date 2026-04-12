@@ -6,6 +6,8 @@ import { db } from '@claw/db';
 import { sql } from 'drizzle-orm';
 import { pruneDecisionTraces } from '../performance/attribution-compiler';
 import { taskQueue } from '../queue/task-queue';
+import { runRetention, getRetentionConfig } from '../services/data-retention';
+import { retentionQueue } from '../queue/retention-queue';
 
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID ?? 'claw-local';
 const GCP_ZONE = process.env.GCP_ZONE ?? 'us-central1-a';
@@ -142,6 +144,49 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     return reply.code(allHealthy ? 200 : 503).send({
       status: allHealthy ? 'healthy' : 'degraded',
       subsystems,
+    });
+  });
+
+  /**
+   * POST /admin/retention/run
+   *
+   * Triggers an immediate data retention sweep across decision_traces,
+   * telemetry, and billing_events tables.
+   * Deletes records older than the configured retention periods.
+   *
+   * Can be called by Cloud Scheduler, an operator, or used for testing.
+   */
+  app.post('/retention/run', async (_request, reply) => {
+    const result = await runRetention();
+    return reply.status(200).send({
+      status: 'ok',
+      ...result,
+    });
+  });
+
+  /**
+   * GET /admin/retention/config
+   *
+   * Returns the active retention configuration (retention periods in days)
+   * and the next scheduled run time if a repeatable job exists.
+   */
+  app.get('/retention/config', async (_request, reply) => {
+    const config = getRetentionConfig();
+
+    let nextRun: string | null = null;
+    try {
+      const schedulers = await retentionQueue.getJobSchedulers();
+      const dailyScheduler = schedulers.find((s) => s.id === 'daily-retention');
+      if (dailyScheduler?.next) {
+        nextRun = new Date(Number(dailyScheduler.next)).toISOString();
+      }
+    } catch {
+      // Redis may be unavailable — fail open
+    }
+
+    return reply.status(200).send({
+      config,
+      nextScheduledRun: nextRun,
     });
   });
 }
