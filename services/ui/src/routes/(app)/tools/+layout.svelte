@@ -1,21 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
-  import { setMode, getMode, type AkasaMode } from '$lib/mode';
 
   let { children } = $props();
-  let previousMode: AkasaMode | null = $state(null);
-
-  onMount(() => {
-    previousMode = getMode();
-    setMode('back-office');
-    return () => {
-      if (previousMode && previousMode !== 'back-office') {
-        setMode(previousMode);
-      }
-    };
-  });
 
   const toolsTabs = [
     { href: '/tools/catalog', label: 'CATALOG' },

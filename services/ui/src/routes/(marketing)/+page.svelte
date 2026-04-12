@@ -25,12 +25,6 @@
 
 <!-- ── HERO ── -->
 <section class="hero" id="top">
-  <div class="aurora">
-    <div class="a-layer a1"></div>
-    <div class="a-layer a2"></div>
-    <div class="a-layer a3"></div>
-  </div>
-  <div class="hero-grid"></div>
   <div class="w" style="position:relative;">
     <div class="r">
       <div class="hero-eyebrow"><span class="live-dot"></span>AI Workforce Platform</div>
@@ -358,34 +352,6 @@
     display: flex; flex-direction: column; justify-content: center;
     padding: 160px 0 100px;
     position: relative; overflow: hidden; z-index: 2;
-  }
-
-  .aurora { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-
-  .a-layer { position: absolute; border-radius: 50%; filter: blur(80px); }
-  .a1 {
-    width: 900px; height: 600px; top: -150px; left: -100px;
-    background: radial-gradient(ellipse, rgba(124,58,237,0.11) 0%, transparent 65%);
-    animation: af1 24s ease-in-out infinite;
-  }
-  .a2 {
-    width: 600px; height: 600px; top: 10%; right: -120px;
-    background: radial-gradient(ellipse, rgba(167,139,250,0.07) 0%, transparent 65%);
-    animation: af2 30s ease-in-out infinite;
-  }
-  .a3 {
-    width: 500px; height: 400px; bottom: -60px; left: 35%;
-    background: radial-gradient(ellipse, rgba(251,191,36,0.055) 0%, transparent 65%);
-    animation: af3 19s ease-in-out infinite;
-  }
-
-  .hero-grid {
-    position: absolute; inset: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
-    background-size: 80px 80px;
-    mask-image: radial-gradient(ellipse 80% 60% at 45% 35%, black 5%, transparent 75%);
   }
 
   .hero-eyebrow {

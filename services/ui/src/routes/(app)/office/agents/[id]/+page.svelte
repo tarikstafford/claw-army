@@ -194,15 +194,11 @@
     font-size: 13px;
   }
 
-  :global(body.back-office) .back-link:hover {
-    color: var(--bo-vb);
+  .agent-name {
+    color: var(--text);
   }
 
-  :global(body.back-office) .agent-name {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .agent-meta {
-    border-top-color: var(--bo-border);
+  .agent-meta {
+    border-top-color: var(--border);
   }
 </style>

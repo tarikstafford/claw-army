@@ -130,19 +130,8 @@
     margin: 0;
   }
 
-  :global(body.back-office) .page-title {
-    color: var(--bo-vb);
-  }
-
-  :global(body.back-office) .btn-primary {
-    background: var(--bo-violet);
-  }
-
-  :global(body.back-office) .btn-primary:hover {
-    background: var(--bo-vb);
-  }
-
-  :global(body.back-office) .empty-heading {
-    color: var(--bo-vb);
+  .page-title,
+  .empty-heading {
+    color: var(--text);
   }
 </style>

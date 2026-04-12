@@ -369,7 +369,7 @@
     display: inline-flex;
     align-items: center;
     padding: 10px 18px;
-    background: var(--fo-plum);
+    background: var(--accent);
     color: #fff;
     font-family: var(--font-body);
     font-size: 13px;
@@ -381,7 +381,7 @@
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: var(--fo-plum-m);
+    background: var(--accent-m);
   }
 
   .btn-primary:disabled {
@@ -389,42 +389,4 @@
     cursor: not-allowed;
   }
 
-  :global(body.back-office) .back-link:hover {
-    color: var(--bo-vb);
-  }
-
-  :global(body.back-office) .issue-title {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .issue-meta {
-    border-bottom-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .comments-heading {
-    color: var(--bo-text);
-  }
-
-  :global(body.back-office) .comment {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .comment-input {
-    background: var(--bo-card);
-    border-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .comment-input:focus {
-    border-color: var(--bo-violet);
-    outline-color: rgba(124, 58, 237, 0.25);
-  }
-
-  :global(body.back-office) .btn-primary {
-    background: var(--bo-violet);
-  }
-
-  :global(body.back-office) .btn-primary:hover:not(:disabled) {
-    background: var(--bo-vb);
-  }
 </style>

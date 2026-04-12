@@ -9,7 +9,12 @@
   <body data-sveltekit-preload-data="hover">
     <script>
       try {
-        if (localStorage.getItem('akasa-mode') === 'back-office') {
+        const pathname = window.location.pathname;
+        if (
+          pathname.startsWith('/evolution') ||
+          pathname.startsWith('/tools') ||
+          pathname.startsWith('/akashic')
+        ) {
           document.body.classList.add('back-office');
         }
       } catch (_) {}

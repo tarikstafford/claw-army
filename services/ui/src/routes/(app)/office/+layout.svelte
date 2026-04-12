@@ -42,7 +42,7 @@
     top: 44px;
     height: calc(100vh - 44px);
     padding: var(--space-md) 0;
-    border-right: 1px solid var(--fo-border);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -62,12 +62,12 @@
   }
 
   .subnav-item:hover {
-    background: var(--fo-bg2);
-    color: var(--fo-plum);
+    background: var(--bg2);
+    color: var(--accent);
   }
 
   .subnav-item.active {
-    background: var(--fo-plum);
+    background: var(--accent);
     color: #fff;
   }
 
@@ -77,17 +77,4 @@
     min-width: 0;
   }
 
-  :global(body.back-office) .office-subnav {
-    border-right-color: var(--bo-border);
-  }
-
-  :global(body.back-office) .subnav-item:hover {
-    background: rgba(124, 58, 237, 0.10);
-    color: var(--bo-vb);
-  }
-
-  :global(body.back-office) .subnav-item.active {
-    background: var(--bo-violet);
-    color: #fff;
-  }
 </style>

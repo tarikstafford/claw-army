@@ -118,6 +118,7 @@ body {
   line-height: 1.65;
   font-weight: 400;
   overflow-x: hidden;
+  min-height: 100vh;
   transition: background 0.4s ease, color 0.4s ease;
 }
 
@@ -127,4 +128,24 @@ a {
 }
 a:hover {
   color: var(--accent);
+}
+
+#svelte {
+  min-height: 100vh;
+}
+
+::view-transition-old(app-logo),
+::view-transition-new(app-logo),
+::view-transition-old(app-nav),
+::view-transition-new(app-nav),
+::view-transition-old(app-aurora),
+::view-transition-new(app-aurora) {
+  animation-duration: 250ms;
+  animation-timing-function: ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

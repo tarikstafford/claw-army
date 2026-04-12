@@ -1,5 +1,6 @@
 <script lang="ts">
   import { authClient } from '$lib/auth-client';
+  import Button from '$lib/components/ui/Button.svelte';
 
   let error = $state('');
   let loading = $state(false);
@@ -34,18 +35,13 @@
 
     <p class="tagline">Where agents build your business.</p>
 
-    <button
-      class="google-btn"
-      onclick={handleGoogleSignIn}
-      disabled={loading}
-      type="button"
-    >
+    <Button class="google-btn" onclick={handleGoogleSignIn} disabled={loading}>
       {#if loading}
         Signing in...
       {:else}
         Sign in with Google
       {/if}
-    </button>
+    </Button>
 
     {#if error}
       <p class="error-msg">{error}</p>
@@ -59,8 +55,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--fo-bg, #F5F2EC);
     padding: 24px;
+    position: relative;
+    z-index: 1;
   }
 
   .auth-card {
@@ -89,7 +86,7 @@
   }
 
   .brand-name {
-    font-family: var(--font-display, 'Cormorant Garamond', serif);
+    font-family: var(--font-display);
     font-size: 24px;
     font-weight: 600;
     color: var(--fo-plum, #4A1C6F);
@@ -107,26 +104,7 @@
 
   .google-btn {
     width: 100%;
-    background: var(--fo-plum, #4A1C6F);
-    color: #ffffff;
-    border: none;
-    border-radius: var(--radius-md, 10px);
-    padding: 12px 20px;
-    font-family: var(--font-body, 'DM Sans', sans-serif);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease;
-    letter-spacing: 0.01em;
-  }
-
-  .google-btn:hover:not(:disabled) {
-    background: var(--fo-plum-m, #5D2485);
-  }
-
-  .google-btn:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
+    min-height: 46px;
   }
 
   .error-msg {
