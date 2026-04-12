@@ -308,7 +308,7 @@
 
       {#each specGroups as group}
         <div class="spec-group">
-          <button class="spec-group-header" onclick={() => toggleGroup(group.specId)}>
+          <div class="spec-group-header" role="button" tabindex="0" onclick={() => toggleGroup(group.specId)} onkeydown={(e) => { if (e.key === 'Enter') toggleGroup(group.specId); }}>
             <div class="spec-group-meta">
               <span class="spec-group-title">{group.specTitle}</span>
               {#if group.specVersion}
@@ -319,13 +319,13 @@
             <div class="spec-group-actions">
               <button
                 class="btn btn-remove"
-                onclick|stopPropagation={() => handleDeleteSpec(group.specId)}
+                onclick={(e) => { e.stopPropagation(); handleDeleteSpec(group.specId); }}
               >
                 Remove
               </button>
               <span class="expand-icon">{group.expanded ? '\u25BC' : '\u25B6'}</span>
             </div>
-          </button>
+          </div>
 
           {#if group.expanded}
             <div class="spec-group-body">

@@ -1,23 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { setMode, getMode, type AkasaMode } from '$lib/mode';
   import { getSkills, createSkill, updateSkill, deleteSkill, type Skill } from '$lib/api';
   import SkillEffectiveness from '$lib/components/evolution/SkillEffectiveness.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
-
-  let previousMode: AkasaMode | null = $state(null);
-
-  onMount(() => {
-    previousMode = getMode();
-    setMode('back-office');
-    return () => {
-      if (previousMode && previousMode !== 'back-office') {
-        setMode(previousMode);
-      }
-    };
-  });
 
   const CATEGORIES = [
     'communication', 'analysis', 'creation', 'automation',

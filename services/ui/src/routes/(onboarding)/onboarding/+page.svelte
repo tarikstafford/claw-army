@@ -360,7 +360,6 @@
   <div class="input-area">
     {#if step === 'welcome'}
       <div class="action-group">
-<<<<<<< HEAD
         <button class="btn-connect-mode" type="button" onclick={() => startOnboarding('connect')}>
           <span class="btn-label">Connect Mode — I have a live business</span>
           <span class="btn-sublabel">Faster path to value — connect your tools</span>
@@ -588,7 +587,6 @@
 
   .btn-connect-mode {
     width: 100%;
-<<<<<<< HEAD
     padding: 18px 24px;
     background: var(--fo-plum, #3D3560);
     color: #fff;
