@@ -1,0 +1,86 @@
+name: Technical Debt
+description: Track technical debt cleanup or refactoring work
+labels: ["type:techdebt"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Technical Debt
+        Describe the debt and why it matters to address it.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What
+      description: What is the technical debt? Be specific about files, patterns, or modules.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: Why should we fix this? What risk or friction does it cause?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      description: Which parts of the system are affected?
+      multiple: true
+      options:
+        - execution-service
+        - tool-gateway
+        - telegram-bot
+        - ui
+        - db (schema/migrations)
+        - shared-types
+        - event-schemas
+        - tool-contracts
+        - infra
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - domain:backend
+        - domain:frontend
+        - domain:database
+        - domain:infra
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort Estimate
+      options:
+        - effort:small
+        - effort:medium
+        - effort:large
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:medium
+        - priority:high
+        - priority:critical
+    validations:
+      required: false
+
+  - type: textarea
+    id: proposed-approach
+    attributes:
+      label: Proposed Approach
+      description: How would you tackle this? Optional but helpful for AI agents picking up the work.
+    validations:
+      required: false
