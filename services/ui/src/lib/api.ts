@@ -646,3 +646,60 @@ export async function unequipSkill(
     method: 'DELETE',
   });
 }
+
+// ── Marketplace Reviews ─────────────────────────────────────────
+
+export interface MarketplaceReview {
+  id: string;
+  userId: string;
+  targetId: string;
+  targetType: 'soul' | 'skill';
+  rating: number;
+  reviewText: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewSummary {
+  targetId: string;
+  avgRating: number;
+  count: number;
+}
+
+export interface SubmitReviewInput {
+  userId: string;
+  targetId: string;
+  targetType: 'soul' | 'skill';
+  rating: number;
+  reviewText?: string;
+}
+
+export async function submitReview(input: SubmitReviewInput): Promise<MarketplaceReview> {
+  return apiFetch(`${BASE}/akasa/reviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getReviews(
+  targetId: string,
+  targetType?: 'soul' | 'skill',
+): Promise<MarketplaceReview[]> {
+  const query = new URLSearchParams({ targetId });
+  if (targetType) query.set('targetType', targetType);
+  return apiFetch(`${BASE}/akasa/reviews?${query.toString()}`);
+}
+
+export async function getReviewSummary(targetId: string): Promise<ReviewSummary> {
+  return apiFetch(`${BASE}/akasa/reviews/summary?targetId=${targetId}`);
+}
+
+export async function deleteReview(
+  reviewId: string,
+  userId: string,
+): Promise<{ deleted: boolean }> {
+  return apiFetch(`${BASE}/akasa/reviews/${reviewId}?userId=${encodeURIComponent(userId)}`, {
+    method: 'DELETE',
+  });
+}

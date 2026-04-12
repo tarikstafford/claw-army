@@ -25,3 +25,4 @@ export * from "./user-preferences";
 export * from "./api-keys";
 export * from "./learned-skills";
 export * from "./tool-registry";
+export * from "./marketplace-reviews";

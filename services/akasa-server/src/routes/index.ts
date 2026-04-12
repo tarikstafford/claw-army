@@ -17,6 +17,7 @@ import { settingsRouter } from './settings.js';
 import { skillsRouter } from './skills.js';
 import { agentSkillsRouter } from './agent-skills.js';
 import { toolRegistryRouter } from './tool-registry.js';
+import { reviewsRouter } from './reviews.js';
 
 const akasaRouter = Router();
 
@@ -76,5 +77,8 @@ akasaRouter.use('/akasa/agents', agentSkillsRouter());
 
 // OpenAPI/Swagger import and tool registry management
 akasaRouter.use('/akasa/tool-registry', toolRegistryRouter());
+
+// Marketplace reviews and ratings (Akashic Library + Skill Bazaar)
+akasaRouter.use('/akasa/reviews', reviewsRouter());
 
 export { akasaRouter };
