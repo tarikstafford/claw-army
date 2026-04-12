@@ -1,0 +1,91 @@
+name: Feature Request
+description: Propose a new feature or capability
+labels: ["type:feature", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## New Feature Request
+        Describe the feature you'd like to add to Akasa.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should this feature do? Include context on the user problem it solves.
+      placeholder: "As a user, I want to ... so that ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What conditions must be met for this feature to be considered complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected-services
+    attributes:
+      label: Affected Services
+      description: Which parts of the system does this touch?
+      multiple: true
+      options:
+        - execution-service
+        - tool-gateway
+        - telegram-bot
+        - ui
+        - db (schema/migrations)
+        - shared-types
+        - event-schemas
+        - tool-contracts
+        - infra
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      description: Primary domain label
+      options:
+        - domain:backend
+        - domain:frontend
+        - domain:database
+        - domain:infra
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort Estimate
+      options:
+        - effort:small
+        - effort:medium
+        - effort:large
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:medium
+        - priority:high
+        - priority:critical
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any mockups, links, or references that help clarify the request.
+    validations:
+      required: false

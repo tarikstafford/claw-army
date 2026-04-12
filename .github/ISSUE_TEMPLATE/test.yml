@@ -1,0 +1,75 @@
+name: Test Addition
+description: Track missing or needed test coverage
+labels: ["type:test"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Test Addition
+        Describe the test coverage that needs to be added.
+
+  - type: textarea
+    id: modules
+    attributes:
+      label: Modules to Test
+      description: Which modules, services, or functions need test coverage?
+      placeholder: |
+        - services/execution-service/src/services/council.ts
+        - services/execution-service/src/services/god-layer.ts
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test-type
+    attributes:
+      label: Test Type
+      description: What kind of tests are needed?
+      multiple: true
+      options:
+        - Unit tests
+        - Integration tests
+        - E2E tests
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - domain:backend
+        - domain:frontend
+        - domain:database
+        - domain:infra
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:medium
+        - priority:high
+        - priority:critical
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort Estimate
+      options:
+        - effort:small
+        - effort:medium
+        - effort:large
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any context on what to assert, edge cases, or testing strategy.
+    validations:
+      required: false
