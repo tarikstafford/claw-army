@@ -1,18 +1,7 @@
 <script lang="ts">
   import Modal from '$lib/components/Modal.svelte';
   import Accordion from '$lib/components/Accordion.svelte';
-
-  interface PendingVerdict {
-    id: string;
-    botId: string;
-    verdictType: string;
-    verdictSummary: string;
-    weightedConfidenceScore: string;
-    performanceJudgeOutput: Record<string, unknown> | null;
-    soulAnalystOutput: Record<string, unknown> | null;
-    devilsAdvocateOutput: Record<string, unknown> | null;
-    createdAt: string;
-  }
+  import type { PendingVerdict } from '$lib/types.js';
 
   const VERDICT_COLORS: Record<string, string> = {
     Promote: 'var(--bo-violet)',
