@@ -20,6 +20,8 @@
     { href: '/sanctum', label: 'SANCTUM' },
     { href: '/tools', label: 'TOOLS' },
     { href: '/evolution', label: 'EVOLUTION' },
+    { href: '/akashic', label: 'AKASHIC' },
+    { href: '/skills', label: 'SKILLS' },
   ] as const;
 
   const showTabs = $derived(variant === 'app' && !!session?.user && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding'));
@@ -65,6 +67,13 @@
           <Button href="/#access" variant="nav">Request access</Button>
         {/if}
       {:else if session?.user && !pathname.startsWith('/onboarding')}
+        <a href="/guide" class="guide-link" aria-label="Guide">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </a>
         <button
           class="sign-out-btn"
           type="button"
@@ -183,6 +192,26 @@
 
   .nav-action {
     min-width: 88px;
+  }
+
+  .guide-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+
+  .guide-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--bg2);
   }
 
   .sign-out-btn {
