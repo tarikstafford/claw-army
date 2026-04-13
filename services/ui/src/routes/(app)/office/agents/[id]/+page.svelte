@@ -41,7 +41,13 @@
     { value: 'openclaw', label: 'OpenClaw' },
   ];
 
-  const CAPACITY = 3;
+  const CLASS_CAPACITY: Record<string, number> = {
+    Novice: 3,
+    Understudy: 5,
+    Artisan: 8,
+    Retired: 0,
+  };
+  const CAPACITY = $derived(CLASS_CAPACITY[data.agent?.agentClass ?? 'Novice'] ?? 3);
 
   const CATEGORY_COLORS: Record<string, string> = {
     communication: 'var(--bo-teal)',
