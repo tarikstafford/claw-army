@@ -2,19 +2,20 @@
   import FleetOverview from '$lib/components/evolution/FleetOverview.svelte';
   import VerdictConfirm from '$lib/components/evolution/VerdictConfirm.svelte';
   import DelegationFlow from '$lib/components/evolution/DelegationFlow.svelte';
+  import type { PendingVerdict, BatchVerdictResult } from '$lib/types.js';
 
   type TabId = 'overview' | 'delegations';
 
   let { data } = $props();
   let activeTab = $state<TabId>('overview');
-  let pendingVerdicts = $state(data.pendingVerdicts ?? []);
+  let pendingVerdicts = $state<PendingVerdict[]>(data.pendingVerdicts ?? []);
   let selectedIds = $state(new Set<string>());
   let batchLoading = $state(false);
   let batchProgress = $state<string | null>(null);
   let calibrationWarning = $state<string | null>(null);
 
   const allSelected = $derived(
-    pendingVerdicts.length > 0 && pendingVerdicts.every((v: any) => selectedIds.has(v.id)),
+    pendingVerdicts.length > 0 && pendingVerdicts.every((v) => selectedIds.has(v.id)),
   );
 
   async function checkCalibration(): Promise<boolean> {
@@ -58,16 +59,16 @@
       });
 
       if (res.ok) {
-        const result = await res.json();
+        const result: BatchVerdictResult = await res.json();
         const confirmedIds = result.processed
-          .filter((r: any) => r.success && r.action === 'confirmed')
-          .map((r: any) => r.id);
+          .filter((r) => r.success && r.action === 'confirmed')
+          .map((r) => r.id);
         const rejectedIds = result.processed
-          .filter((r: any) => r.success && r.action === 'rejected')
-          .map((r: any) => r.id);
+          .filter((r) => r.success && r.action === 'rejected')
+          .map((r) => r.id);
 
         pendingVerdicts = pendingVerdicts.filter(
-          (v: any) => !confirmedIds.includes(v.id) && !rejectedIds.includes(v.id),
+          (v) => !confirmedIds.includes(v.id) && !rejectedIds.includes(v.id),
         );
         selectedIds = new Set();
       }
@@ -80,7 +81,7 @@
   }
 
   function handleVerdictAction(action: 'confirmed' | 'rejected', id: string) {
-    pendingVerdicts = pendingVerdicts.filter((v: any) => v.id !== id);
+    pendingVerdicts = pendingVerdicts.filter((v) => v.id !== id);
     selectedIds.delete(id);
     selectedIds = new Set(selectedIds);
   }
@@ -89,7 +90,7 @@
     if (allSelected) {
       selectedIds = new Set();
     } else {
-      selectedIds = new Set(pendingVerdicts.map((v: any) => v.id));
+      selectedIds = new Set(pendingVerdicts.map((v) => v.id));
     }
   }
 
