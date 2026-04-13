@@ -78,4 +78,41 @@
     min-width: 0;
   }
 
+  @media (max-width: 768px) {
+    .office-layout {
+      flex-direction: column;
+    }
+
+    .office-subnav {
+      width: 100%;
+      height: auto;
+      position: relative;
+      top: 0;
+      flex-direction: row;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-sm) 0;
+      overflow-x: auto;
+    }
+
+    .subnav-item {
+      padding: 8px 14px;
+      white-space: nowrap;
+    }
+
+    .office-content {
+      padding: var(--space-lg) var(--space-md);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .office-subnav {
+      gap: 0;
+    }
+
+    .subnav-item {
+      padding: 8px 12px;
+      font-size: 5px;
+    }
+  }
 </style>

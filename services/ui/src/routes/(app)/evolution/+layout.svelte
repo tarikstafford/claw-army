@@ -68,4 +68,32 @@
   .evolution-content {
     padding: var(--space-2xl) var(--space-xl) var(--space-xl);
   }
+
+  @media (max-width: 768px) {
+    .evolution-tab-bar {
+      padding: 0 var(--space-md);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .evolution-tab-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .evolution-tab {
+      padding: 0 var(--space-lg);
+      font-size: 6px;
+    }
+
+    .evolution-content {
+      padding: var(--space-lg) var(--space-md) var(--space-lg);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .evolution-tab {
+      padding: 0 var(--space-md);
+      font-size: 5px;
+    }
+  }
 </style>

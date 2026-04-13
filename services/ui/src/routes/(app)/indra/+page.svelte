@@ -563,8 +563,93 @@
     font-style: italic;
   }
 
+  @media (max-width: 768px) {
+    .indra-page {
+      padding: 0 16px;
+    }
+
+    .greeting {
+      padding: 24px 0 20px;
+      gap: 12px;
+    }
+
+    .greeting-gem {
+      font-size: 18px;
+    }
+
+    .greeting-hello {
+      font-size: 22px;
+    }
+
+    .crew-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .crew-card {
+      padding: 12px;
+    }
+
+    .crew-name {
+      font-size: 16px;
+    }
+
+    .approval-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .approval-actions {
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn-approve,
+    .btn-dismiss {
+      flex: 1;
+    }
+
+    .actions-row {
+      grid-template-columns: 1fr;
+    }
+
+    .section {
+      padding: 16px 0;
+    }
+  }
+
   @media (max-width: 480px) {
-    .actions-row { grid-template-columns: 1fr; }
-    .crew-grid { grid-template-columns: repeat(2, 1fr); }
+    .indra-page {
+      padding: 0 12px;
+    }
+
+    .greeting {
+      padding: 20px 0 16px;
+    }
+
+    .greeting-hello {
+      font-size: 20px;
+    }
+
+    .crew-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .crew-card {
+      padding: 10px;
+    }
+
+    .crew-name {
+      font-size: 14px;
+    }
+
+    .section-label {
+      font-size: 5px;
+    }
+
+    .activity-item {
+      padding: 8px 10px;
+    }
   }
 </style>
