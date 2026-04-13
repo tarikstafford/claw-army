@@ -8,7 +8,7 @@
  */
 
 import { max, eq } from 'drizzle-orm';
-import IORedis from 'ioredis';
+import { Redis } from 'ioredis';
 import { db, dnaStore } from '@claw/db';
 import type { DnaPayload } from '@claw/db';
 
@@ -23,12 +23,12 @@ const LOCK_TTL_SECONDS = 10;
 // Redis instance (fail-open per coding conventions)
 // ---------------------------------------------------------------------------
 
-let redis: InstanceType<typeof IORedis> | null = null;
+let redis: Redis | null = null;
 
-function getRedis(): InstanceType<typeof IORedis> | null {
+function getRedis(): Redis | null {
   if (redis !== null) return redis;
   try {
-    redis = new IORedis(process.env['REDIS_URL'] ?? 'redis://localhost:6379', {
+    redis = new Redis(process.env['REDIS_URL'] ?? 'redis://localhost:6379', {
       lazyConnect: true,
       enableOfflineQueue: false,
       connectTimeout: 2000,

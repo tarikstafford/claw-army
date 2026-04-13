@@ -202,7 +202,7 @@ export function akashicRouter(): Router {
         : 0;
 
       const entries = list.map(row => {
-        const payload = row.dnaPayload as Record<string, unknown> | null;
+        const payload = row.dnaPayload as unknown as Record<string, unknown> | null;
         const lineage = row.mutationLineage as string[] | null;
         return {
           id: row.id,

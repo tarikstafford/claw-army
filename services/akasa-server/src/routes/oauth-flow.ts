@@ -29,7 +29,8 @@ export function oauthFlowRouter(): Router {
       return;
     }
 
-    const provider = getOAuthProvider(toolId ?? '');
+    const resolvedToolIdParam = Array.isArray(toolId) ? toolId[0] ?? '' : toolId ?? '';
+    const provider = getOAuthProvider(resolvedToolIdParam);
     if (!provider) {
       res.status(404).json({ error: `Unknown OAuth provider: ${toolId}` });
       return;
@@ -94,7 +95,8 @@ export function oauthFlowRouter(): Router {
     }
 
     // Prefer state's toolId (state is source of truth), but fallback to route param
-    const resolvedToolId = toolId || routeToolId || '';
+    const fallbackToolId = Array.isArray(routeToolId) ? routeToolId[0] ?? '' : routeToolId ?? '';
+    const resolvedToolId = toolId || fallbackToolId;
 
     const provider = getOAuthProvider(resolvedToolId);
     if (!provider) {

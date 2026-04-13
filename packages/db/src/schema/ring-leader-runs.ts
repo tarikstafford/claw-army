@@ -10,7 +10,7 @@ import {
   unique,
   pgEnum,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
+import { executions } from './executions.js';
 
 export const ringLeaderStatusEnum = pgEnum('ring_leader_status', [
   'assembling',   // soul library search + population assembly

@@ -2,13 +2,13 @@ import {
   pgTable,
   uuid,
   integer,
-  float,
+  real,
   timestamp,
   pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
-import { bots } from './bots';
-import { agentSkills } from './agent-skills';
+import { bots } from './bots.js';
+import { agentSkills } from './agent-skills.js';
 
 export const activationClassificationEnum = pgEnum('activation_classification', [
   'positive',
@@ -28,7 +28,7 @@ export const skillActivations = pgTable(
       .references(() => agentSkills.id, { onDelete: 'cascade' }),
     executionId: uuid('execution_id').notNull(),
     activatedAt: timestamp('activated_at', { withTimezone: true, precision: 3 }).notNull().defaultNow(),
-    compositeScoreDelta: float('composite_score_delta').notNull(),
+    compositeScoreDelta: real('composite_score_delta').notNull(),
     classification: activationClassificationEnum('classification').notNull(),
     consecutiveNegativeCount: integer('consecutive_negative_count').notNull().default(0),
   },

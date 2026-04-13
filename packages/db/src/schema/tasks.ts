@@ -8,7 +8,7 @@ import {
   pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
+import { executions } from './executions.js';
 
 export const taskStatusEnum = pgEnum('task_status', [
   'pending',

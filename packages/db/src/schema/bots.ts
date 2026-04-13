@@ -9,7 +9,7 @@ import {
   pgEnum,
   index,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
+import { executions } from './executions.js';
 
 export const botStatusEnum = pgEnum('bot_status', [
   'spawning',

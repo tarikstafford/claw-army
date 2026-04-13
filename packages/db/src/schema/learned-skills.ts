@@ -9,8 +9,8 @@ import {
   index,
   pgEnum,
 } from 'drizzle-orm/pg-core';
-import { bots } from './bots';
-import { executions } from './executions';
+import { bots } from './bots.js';
+import { executions } from './executions.js';
 
 export const skillApprovalStatusEnum = pgEnum('skill_approval_status', [
   'auto_approved',

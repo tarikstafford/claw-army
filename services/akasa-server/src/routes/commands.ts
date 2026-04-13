@@ -16,7 +16,7 @@ interface CommandResult {
   data?: Record<string, unknown>;
 }
 
-async function fetchFromExecutionService(path: string, options?: RequestInit): Promise<Response> {
+async function fetchFromExecutionService(path: string, options?: RequestInit): Promise<globalThis.Response> {
   const url = `${EXECUTION_SERVICE_URL}${path}`;
   const res = await fetch(url, options);
   return res;
@@ -295,7 +295,7 @@ export function commandsRouter(): Router {
           break;
 
         case 'assign':
-          result = await handleAssign(companyId, args[0], args[1]);
+          result = await handleAssign(companyId, args[0] ?? '', args[1] ?? '');
           break;
 
         default:

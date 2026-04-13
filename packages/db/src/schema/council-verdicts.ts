@@ -11,7 +11,7 @@ import {
   index,
   pgEnum,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
+import { executions } from './executions.js';
 
 export const verdictTypeEnum = pgEnum('verdict_type', [
   'Promote',

@@ -6,8 +6,8 @@ import {
   index,
   unique,
 } from 'drizzle-orm/pg-core';
-import { bots } from './bots';
-import { agentSkills } from './agent-skills';
+import { bots } from './bots.js';
+import { agentSkills } from './agent-skills.js';
 
 export const skillLoadouts = pgTable(
   'skill_loadouts',

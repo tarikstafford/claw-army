@@ -9,6 +9,10 @@
     ".": {
       "@claw/source": "./src/index.ts",
       "default": "./dist/index.js"
+    },
+    "./skill-events": {
+      "@claw/source": "./src/skill-events.ts",
+      "default": "./dist/skill-events.js"
     }
   },
   "dependencies": {

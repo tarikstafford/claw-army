@@ -6,8 +6,8 @@ import {
   timestamp,
   index,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
-import { bots } from './bots';
+import { executions } from './executions.js';
+import { bots } from './bots.js';
 
 export const telemetry = pgTable(
   'telemetry',

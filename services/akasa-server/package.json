@@ -26,6 +26,7 @@
     "@ai-sdk/openai": "^3.0.29",
     "@apidevtools/swagger-parser": "^12.1.0",
     "@claw/db": "workspace:*",
+    "@claw/event-schemas": "workspace:*",
     "@claw/shared-types": "workspace:*",
     "@paperclipai/db": "workspace:*",
     "ai": "^6.0.90",
