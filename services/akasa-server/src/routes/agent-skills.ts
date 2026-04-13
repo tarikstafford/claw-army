@@ -1,5 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
-import { db, skills, agentSkills, agentClasses, AGENT_CLASS_SKILL_CAPACITY } from '@claw/db';
+import { db, agentClasses } from '@claw/db';
+import { skills, agentSkills, AGENT_CLASS_SKILL_CAPACITY } from '@claw/db/skills';
 import { eq, and, desc, count } from 'drizzle-orm';
 
 interface EquipSkillBody {

@@ -157,14 +157,15 @@ export function soulsRouter(): Router {
   // GET /search — find top-N similar souls by cosine similarity
   router.get('/search', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { query, limit: limitStr } = req.query;
+      const { query, limit: limitParam } = req.query;
 
       if (!query || typeof query !== 'string') {
         res.status(400).json({ error: 'query string is required' });
         return;
       }
 
-      const limit = Math.min(Number.parseInt(limitStr ?? '10', 10) || 10, 100);
+      const limitStr = typeof limitParam === 'string' ? limitParam : '10';
+      const limit = Math.min(Number.parseInt(limitStr, 10) || 10, 100);
 
       const { embedding } = await embed({
         model: openai.embeddingModel('text-embedding-3-small'),
@@ -233,7 +234,8 @@ export function soulsRouter(): Router {
       const mutationStrength =
         typeof body.mutationStrength === 'number' ? body.mutationStrength : 0.2;
 
-      const mutatedSoul = await generateMutatedSoul(id, mutationStrength);
+      const soulId = Array.isArray(id) ? id[0] ?? '' : id ?? '';
+      const mutatedSoul = await generateMutatedSoul(soulId, mutationStrength);
 
       res.status(201).json(mutatedSoul);
     } catch (err) {

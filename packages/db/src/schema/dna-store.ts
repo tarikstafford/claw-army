@@ -7,10 +7,11 @@ import {
   boolean,
   timestamp,
   jsonb,
+  text,
   index,
   unique,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
+import { executions } from './executions.js';
 
 export interface DnaPayload {
   systemPromptTemplate: string;

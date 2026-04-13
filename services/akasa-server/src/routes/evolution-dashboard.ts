@@ -156,7 +156,7 @@ export function evolutionDashboardRouter(): Router {
               taskCategory: 'unknown',
               verdictType: r.verdictType,
               description: r.verdictSummary ?? `Verdict: ${r.verdictType}`,
-              timestamp: r.createdAt,
+              timestamp: r.createdAt.toISOString(),
             });
           }
         }
@@ -198,7 +198,7 @@ export function evolutionDashboardRouter(): Router {
             toClass,
             transitionType,
             description: `Agent transitioned to ${toClass} in ${r.taskCategory}`,
-            timestamp: r.lastTransitionAt!,
+            timestamp: r.lastTransitionAt!.toISOString(),
           });
         }
       }
@@ -224,11 +224,11 @@ export function evolutionDashboardRouter(): Router {
             type: 'fleet.dna.captured',
             botId: r.botId,
             executionId: r.executionId,
-            soulId: r.soulId,
+            soulId: r.soulId ?? undefined,
             taskCategory: r.objectiveCategory ?? 'unknown',
             compositeScore: r.compositeScore,
             description: `New DNA pattern captured for ${r.objectiveCategory}`,
-            timestamp: r.capturedAt,
+            timestamp: r.capturedAt.toISOString(),
           });
         }
       }
@@ -255,7 +255,7 @@ export function evolutionDashboardRouter(): Router {
             taskCategory: r.taskCategory ?? 'unknown',
             isPioneer: true,
             description: `Agent is a pioneer in ${r.taskCategory} — first confirmed run`,
-            timestamp: r.updatedAt,
+            timestamp: r.updatedAt.toISOString(),
           });
         }
       }
@@ -425,7 +425,14 @@ export function evolutionDashboardRouter(): Router {
       let depth = 0;
 
       while (currentSoulId && depth < MAX_DEPTH) {
-        const soulRows = await db
+        const soulRows: Array<{
+          id: string;
+          parentSoulId: string | null;
+          isArchetype: boolean;
+          archetypeName: string | null;
+          generation: number;
+          contentHash: string;
+        }> = await db
           .select({
             id: botSouls.id,
             parentSoulId: botSouls.parentSoulId,
@@ -438,7 +445,7 @@ export function evolutionDashboardRouter(): Router {
           .where(eq(botSouls.id, currentSoulId))
           .limit(1);
 
-        const soul = soulRows[0];
+        const soul: typeof soulRows[number] | undefined = soulRows[0];
         if (!soul) break;
 
         chain.push({

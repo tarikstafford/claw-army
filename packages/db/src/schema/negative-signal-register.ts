@@ -7,8 +7,8 @@ import {
   timestamp,
   index,
 } from 'drizzle-orm/pg-core';
-import { botSouls } from './bot-souls';
-import { executions } from './executions';
+import { botSouls } from './bot-souls.js';
+import { executions } from './executions.js';
 
 export const negativeSignalRegister = pgTable(
   'negative_signal_register',

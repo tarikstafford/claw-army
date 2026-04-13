@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 const MARKUP_MULTIPLIER = 1.2;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-  apiVersion: '2025-01-27.acacia',
+  apiVersion: '2026-03-25.dahlia',
 });
 
 export type MeterDimension = 'llm_input_tokens' | 'llm_output_tokens' | 'bot_hours' | 'tool_invocations';
@@ -36,12 +36,15 @@ async function getOrCreateStripeCustomer(userId: string, email?: string): Promis
     email,
   });
 
+  const now = new Date();
   await db.insert(authAccounts).values({
     id: crypto.randomUUID(),
     userId,
     providerId: 'stripe',
     accountId: customer.id,
     accessToken: customer.id,
+    createdAt: now,
+    updatedAt: now,
   });
 
   return customer.id;
@@ -104,9 +107,6 @@ export async function getOrCreateSubscription(customerId: string): Promise<strin
   const subscription = await stripe.subscriptions.create({
     customer: customerId,
     items: [],
-    billing_scheme: 'tiered',
-    usage_type: 'metered',
-    billing_cycle_anchor: 'auto',
     expand: ['items.data.price'],
   });
 
@@ -119,18 +119,13 @@ export async function submitUsageRecord(params: UsageRecordParams): Promise<void
 
   const quantityCents = Math.round(params.quantity * MARKUP_MULTIPLIER * 100);
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-  const item = subscription.items.data[0];
-  if (!item) {
-    console.warn('[stripe-service] No subscription items found, skipping usage record');
-    return;
-  }
-
-  await stripe.subscriptionItems.createUsageRecord(item.id, {
-    quantity: quantityCents,
+  await stripe.billing.meterEvents.create({
+    event_name: params.dimension,
+    payload: {
+      stripe_customer_id: customerId,
+      value: String(quantityCents),
+    },
     timestamp: Math.floor(params.timestamp.getTime() / 1000),
-    action: 'increment',
   });
 }
 

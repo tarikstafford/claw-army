@@ -128,14 +128,17 @@ export const billingRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     return reply.code(200).send({
       monthlyBotHours: summaryRow?.monthlyBotHours ?? 0,
       monthlySpendCents: summaryRow?.monthlySpendCents ?? 0,
-      executionCount: summaryRow?.monthlyExecutionCount ?? 0,
+      executionCount: summaryRow?.executionCount ?? 0,
     });
   });
 
   // POST /webhook — handle Stripe webhooks
   fastify.post('/webhook', {
     schema: {
-      response: { 200: Type.Object({ received: Type.Boolean() }) },
+      response: {
+        200: Type.Object({ received: Type.Boolean() }),
+        400: Type.Object({ error: Type.String() }),
+      },
     },
   }, async (request, reply) => {
     const signature = request.headers['stripe-signature'] as string | undefined;

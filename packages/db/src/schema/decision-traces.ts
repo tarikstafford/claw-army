@@ -9,8 +9,8 @@ import {
   index,
   unique,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
-import { botSouls } from './bot-souls';
+import { executions } from './executions.js';
+import { botSouls } from './bot-souls.js';
 
 /**
  * Stores per-agent per-execution decision attribution records.

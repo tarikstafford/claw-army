@@ -6,6 +6,7 @@ const mockStripeSubscriptionsList = vi.fn();
 const mockStripeSubscriptionsCreate = vi.fn();
 const mockStripeSubscriptionsRetrieve = vi.fn();
 const mockStripeSubscriptionItemsCreateUsageRecord = vi.fn();
+const mockStripeBillingMeterEventsCreate = vi.fn();
 const mockStripeWebhooksConstructEvent = vi.fn();
 
 vi.mock('stripe', () => {
@@ -18,6 +19,9 @@ vi.mock('stripe', () => {
     };
     this.subscriptionItems = {
       createUsageRecord: mockStripeSubscriptionItemsCreateUsageRecord,
+    };
+    this.billing = {
+      meterEvents: { create: mockStripeBillingMeterEventsCreate },
     };
     this.webhooks = { constructEvent: mockStripeWebhooksConstructEvent };
   });
@@ -177,13 +181,7 @@ describe('Stripe Service', () => {
       });
 
       mockStripeSubscriptionsList.mockResolvedValue({ data: [{ id: subscriptionId }] });
-      mockStripeSubscriptionsRetrieve.mockResolvedValue({
-        id: subscriptionId,
-        items: {
-          data: [{ id: priceId }],
-        },
-      });
-      mockStripeSubscriptionItemsCreateUsageRecord.mockResolvedValue({});
+      mockStripeBillingMeterEventsCreate.mockResolvedValue({});
 
       const { submitUsageRecord } = await import('../../services/stripe-service.js');
       await submitUsageRecord({
@@ -194,11 +192,13 @@ describe('Stripe Service', () => {
         executionId: randomUUID(),
       });
 
-      expect(mockStripeSubscriptionItemsCreateUsageRecord).toHaveBeenCalledWith(
-        priceId,
+      expect(mockStripeBillingMeterEventsCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          quantity: 1200,
-          action: 'increment',
+          event_name: 'tool_invocations',
+          payload: expect.objectContaining({
+            stripe_customer_id: customerId,
+            value: '1200',
+          }),
         }),
       );
     });

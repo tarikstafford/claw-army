@@ -104,7 +104,7 @@ async function computeAverageConfidence(
   if (traceIds.length === 0) return 0;
 
   const rows = await db
-    .select({ attributionConfidence: decisionTraces.attributionConfidence })
+    .select({ decisionId: decisionTraces.decisionId, attributionConfidence: decisionTraces.attributionConfidence })
     .from(decisionTraces)
     .where(
       and(

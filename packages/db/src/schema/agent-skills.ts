@@ -11,7 +11,7 @@ import {
   index,
   unique,
 } from 'drizzle-orm/pg-core';
-import { bots } from './bots';
+import { bots } from './bots.js';
 
 export const sourceTypeEnum = pgEnum('source_type', [
   'authored',

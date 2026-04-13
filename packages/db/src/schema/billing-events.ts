@@ -7,7 +7,7 @@ import {
   jsonb,
   index,
 } from 'drizzle-orm/pg-core';
-import { executions } from './executions';
+import { executions } from './executions.js';
 
 export const billingEventTypeEnum = pgEnum('billing_event_type', [
   'bot_started',

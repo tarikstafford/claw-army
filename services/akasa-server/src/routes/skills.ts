@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { createHash } from 'node:crypto';
-import { db, skills } from '@claw/db';
+import { db } from '@claw/db';
+import { skills } from '@claw/db/skills';
 import { eq, desc } from 'drizzle-orm';
 
 interface SkillContent {
@@ -291,13 +292,13 @@ export function skillsRouter(): Router {
           return;
         }
 
-        const updatePayload = {
+        const updatePayload: Partial<typeof skills.$inferInsert> = {
           content: body.content,
           contentHash: computeContentHash(body.content),
           name: metadata.name,
           description: metadata.description,
           version: metadata.version,
-          category: metadata.category,
+          category: metadata.category as typeof skills.$inferInsert['category'],
           triggers: metadata.triggers,
           requiresTools: metadata.requires_tools,
           requiresSkills: metadata.requires_skills,

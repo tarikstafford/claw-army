@@ -9,6 +9,10 @@
     ".": {
       "@claw/source": "./src/index.ts",
       "default": "./dist/index.js"
+    },
+    "./skills": {
+      "@claw/source": "./src/schema/skills.ts",
+      "default": "./dist/schema/skills.js"
     }
   },
   "scripts": {
