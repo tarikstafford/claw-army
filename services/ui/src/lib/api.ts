@@ -345,6 +345,12 @@ export async function updateAgent(agentId: string, body: Partial<Agent>): Promis
   });
 }
 
+export async function deleteAgent(agentId: string): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/agents/${agentId}`, {
+    method: 'DELETE',
+  });
+}
+
 // ── Issues ────────────────────────────────────────────────────────
 
 export async function getIssues(
