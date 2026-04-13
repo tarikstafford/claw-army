@@ -1,8 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { eq, and } from 'drizzle-orm';
-import { createDb, companyMemberships } from '@paperclipai/db';
-import { db } from '@claw/db';
-import { toolConnections, toolInvocationLogs } from '@claw/db';
+import { db, companyMemberships, toolConnections, toolInvocationLogs } from '@claw/db';
 import {
   getValidToken,
   refreshHubSpotToken,
@@ -11,14 +9,6 @@ import {
   type RefreshFn,
 } from '../services/token-manager.js';
 import { fleetEventBus, type FleetEventPayload } from '../services/fleet-event-bus.js';
-
-// ─── Lazy Paperclip DB singleton ─────────────────────────────────────────────
-
-let _pcDb: ReturnType<typeof createDb> | null = null;
-function getPaperclipDb() {
-  if (!_pcDb) _pcDb = createDb(process.env['DATABASE_URL']!);
-  return _pcDb;
-}
 
 // ─── Refresh function selection ──────────────────────────────────────────────
 
@@ -49,14 +39,13 @@ function getRefreshFn(toolId: string): RefreshFn {
 export function internalRouter(): Router {
   const router = Router();
 
-  // ─── Endpoint 1: Translate Paperclip companyId → BetterAuth userId ─────────
+  // ─── Endpoint 1: Translate companyId → BetterAuth userId ─────────
   // Used by Tool Nexus plugin worker to resolve credential ownership
   // No auth required — localhost-only in local_trusted mode
   router.get('/user-by-company/:companyId', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { companyId } = req.params as { companyId: string };
-      const pcDb = getPaperclipDb();
-      const rows = await pcDb
+      const rows = await db
         .select({ userId: companyMemberships.principalId })
         .from(companyMemberships)
         .where(

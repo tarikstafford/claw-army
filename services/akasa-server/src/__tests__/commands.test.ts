@@ -16,6 +16,8 @@ vi.mock('@claw/db', () => {
     bots: { id: 'id', paperclipAgentId: 'paperclip_agent_id', status: 'status', executionId: 'execution_id' },
     executions: { id: 'id', status: 'status', updatedAt: 'updated_at' },
     councilVerdicts: { id: 'id', status: 'status' },
+    paperclipAgents: { id: 'id', companyId: 'company_id', name: 'name' },
+    issues: { id: 'id', assigneeAgentId: 'assignee_agent_id', updatedAt: 'updated_at' },
   };
 });
 
@@ -27,17 +29,6 @@ vi.mock('drizzle-orm', () => ({
     // Support tagged template literal usage: sql`...`
     raw: vi.fn(() => 'sql-raw'),
   }),
-}));
-
-vi.mock('@paperclipai/db', () => ({
-  createDb: vi.fn(() => ({
-    select: vi.fn().mockReturnThis(),
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    set: vi.fn().mockReturnThis(),
-  })),
 }));
 
 describe('commandsRouter', () => {

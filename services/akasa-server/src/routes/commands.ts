@@ -1,5 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
-import { db, bots, executions, councilVerdicts } from '@claw/db';
+import { db, bots, executions, councilVerdicts, paperclipAgents, issues } from '@claw/db';
 import { eq, and, count, sql } from 'drizzle-orm';
 
 const EXECUTION_SERVICE_URL = process.env.EXECUTION_SERVICE_URL ?? 'http://localhost:3001';
@@ -76,10 +76,7 @@ async function handlePause(companyId: string, agentName?: string): Promise<Comma
     };
   }
 
-  const pDb = await getPaperclipDb();
-  const { agents: paperclipAgents } = await import('@paperclipai/db');
-
-  const agentRows = await pDb
+  const agentRows = await db
     .select({ id: paperclipAgents.id })
     .from(paperclipAgents)
     .where(and(eq(paperclipAgents.companyId, companyId), eq(paperclipAgents.name, agentName)))
@@ -152,10 +149,7 @@ async function handleResume(companyId: string, agentName?: string): Promise<Comm
     };
   }
 
-  const pDb = await getPaperclipDb();
-  const { agents: paperclipAgents } = await import('@paperclipai/db');
-
-  const agentRows = await pDb
+  const agentRows = await db
     .select({ id: paperclipAgents.id })
     .from(paperclipAgents)
     .where(and(eq(paperclipAgents.companyId, companyId), eq(paperclipAgents.name, agentName)))
@@ -209,10 +203,7 @@ async function handleAssign(companyId: string, agentName: string, issueId: strin
     return { ok: false, message: 'Usage: /assign <agentName> <issueId>' };
   }
 
-  const pDb = await getPaperclipDb();
-  const { agents: paperclipAgents, issues } = await import('@paperclipai/db');
-
-  const agentRows = await pDb
+  const agentRows = await db
     .select({ id: paperclipAgents.id })
     .from(paperclipAgents)
     .where(and(eq(paperclipAgents.companyId, companyId), eq(paperclipAgents.name, agentName)))
@@ -223,7 +214,7 @@ async function handleAssign(companyId: string, agentName: string, issueId: strin
     return { ok: false, message: `Agent "${agentName}" not found.` };
   }
 
-  const issueRows = await pDb
+  const issueRows = await db
     .select({ id: issues.id, assigneeAgentId: issues.assigneeAgentId })
     .from(issues)
     .where(eq(issues.id, issueId))
@@ -234,7 +225,7 @@ async function handleAssign(companyId: string, agentName: string, issueId: strin
     return { ok: false, message: `Issue "${issueId}" not found.` };
   }
 
-  await pDb
+  await db
     .update(issues)
     .set({ assigneeAgentId: agent.id, updatedAt: new Date() })
     .where(eq(issues.id, issueId));
@@ -249,16 +240,6 @@ async function handleAssign(companyId: string, agentName: string, issueId: strin
   }
 
   return { ok: true, message: `Assigned issue ${issueId} to agent "${agentName}".` };
-}
-
-let paperclipDb: ReturnType<typeof import('@paperclipai/db')['createDb']> | null = null;
-
-async function getPaperclipDb() {
-  if (!paperclipDb) {
-    const { createDb } = await import('@paperclipai/db');
-    paperclipDb = createDb(process.env['DATABASE_URL']!);
-  }
-  return paperclipDb;
 }
 
 export function commandsRouter(): Router {

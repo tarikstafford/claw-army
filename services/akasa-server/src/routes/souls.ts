@@ -78,7 +78,7 @@ export function soulsRouter(): Router {
     }
   });
 
-  // POST /inject — inject a soul into a Paperclip agent
+  // POST /inject — inject a soul into an agent
   router.post('/inject', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = req.body as InjectBody;
@@ -101,18 +101,7 @@ export function soulsRouter(): Router {
         return;
       }
 
-      // Import paperclipDb lazily to allow mocking in tests
-      const { createDb } = await import('@paperclipai/db');
-      const paperclipDbUrl = process.env['DATABASE_URL'];
-      if (!paperclipDbUrl) {
-        res.status(500).json({ error: 'DATABASE_URL not configured' });
-        return;
-      }
-
-      const paperclipDb = createDb(paperclipDbUrl);
-
       await injectSoulIntoAgent(
-        paperclipDb,
         body.agentId,
         body.companyId,
         soul.soulContent,

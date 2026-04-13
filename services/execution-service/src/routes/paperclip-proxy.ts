@@ -1,18 +1,21 @@
 import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
 
-const PAPERCLIP_URL = process.env['PAPERCLIP_URL'] ?? 'http://localhost:3100';
+const AKASA_SERVER_URL = process.env['AKASA_SERVER_URL'] ?? process.env['PAPERCLIP_URL'] ?? 'http://localhost:3100';
 
 /**
- * Proxies Paperclip-domain requests (companies, agents, issues, goals, projects,
- * chat, costs, approvals, activity, dashboard, sidebar-badges) to the Paperclip
- * server. Forwards the user's session cookie so Paperclip can resolve the actor.
+ * Proxies Akasa-server-domain requests (companies, agents, issues, goals, projects,
+ * chat, costs, approvals, activity, dashboard, sidebar-badges) to the Akasa server.
+ * Forwards the user's session cookie so the server can resolve the actor.
+ *
+ * TODO: These routes were previously served by embedded Paperclip. Now that Paperclip
+ * has been removed, akasa-server needs to implement these CRUD endpoints natively,
+ * or this proxy should be replaced with inline route handlers in execution-service.
  *
  * Registered at prefix `/` so paths like /companies/:id map directly to
- * Paperclip's /api/companies/:id.
+ * akasa-server's /api/companies/:id.
  */
 export const paperclipProxyRoutes: FastifyPluginAsync = async (app) => {
-  // Paperclip API paths that should be proxied
-  const PAPERCLIP_PREFIXES = [
+  const PROXY_PREFIXES = [
     '/companies',
     '/agents',
     '/issues',
@@ -27,7 +30,7 @@ export const paperclipProxyRoutes: FastifyPluginAsync = async (app) => {
     '/secrets',
   ];
 
-  for (const prefix of PAPERCLIP_PREFIXES) {
+  for (const prefix of PROXY_PREFIXES) {
     // Match the prefix itself and anything under it
     app.route({
       method: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
@@ -44,13 +47,13 @@ export const paperclipProxyRoutes: FastifyPluginAsync = async (app) => {
 
 async function proxyHandler(request: FastifyRequest, reply: FastifyReply) {
   const targetPath = `/api${request.raw.url}`;
-  const targetUrl = `${PAPERCLIP_URL}${targetPath}`;
+  const targetUrl = `${AKASA_SERVER_URL}${targetPath}`;
 
   const headers: Record<string, string> = {
     accept: 'application/json',
   };
 
-  // Forward cookie for BetterAuth session resolution
+  // Forward cookie for session resolution
   const cookie = request.headers.cookie;
   if (cookie) {
     headers['cookie'] = cookie;
@@ -79,8 +82,8 @@ async function proxyHandler(request: FastifyRequest, reply: FastifyReply) {
       redirect: 'manual',
     });
   } catch (err) {
-    console.error(`[paperclip-proxy] Failed to reach Paperclip at ${targetUrl}:`, (err as Error).message);
-    return reply.code(503).send({ error: 'Could not reach Paperclip service' });
+    console.error(`[proxy] Failed to reach Akasa server at ${targetUrl}:`, (err as Error).message);
+    return reply.code(503).send({ error: 'Could not reach Akasa server' });
   }
 
   // Forward status

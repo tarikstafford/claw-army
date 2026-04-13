@@ -14,10 +14,6 @@ export default defineConfig({
         __dirname,
         '../../packages/shared-types/src/index.ts',
       ),
-      '@paperclipai/db': path.resolve(
-        __dirname,
-        '../../paperclip/packages/db/src/index.ts',
-      ),
     },
   },
   test: {

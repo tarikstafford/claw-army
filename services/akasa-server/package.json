@@ -28,7 +28,6 @@
     "@claw/db": "workspace:*",
     "@claw/event-schemas": "workspace:*",
     "@claw/shared-types": "workspace:*",
-    "@paperclipai/db": "workspace:*",
     "ai": "^6.0.90",
     "drizzle-orm": "0.45.1",
     "express": "^5.1.0",
