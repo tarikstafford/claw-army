@@ -2,6 +2,10 @@ const BASE = '/api';
 
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options);
+  if (res.status === 401) {
+    window.location.href = '/auth';
+    throw new Error('Session expired. Please sign in again.');
+  }
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     throw new Error(`API error ${res.status}: ${body || res.statusText} — ${url}`);
