@@ -2,7 +2,8 @@
 	import { TOOL_CATALOG } from '$lib/tool-catalog';
 
 	let {
-		log
+		log,
+		onretry
 	}: {
 		log: {
 			id: string;
@@ -16,6 +17,7 @@
 			latencyMs: number | null;
 			createdAt: string;
 		};
+		onretry?: (log: typeof log) => void;
 	} = $props();
 
 	let expanded: boolean = $state(false);
@@ -94,6 +96,11 @@
 			{/if}
 			{#if log.agentId}
 				<div class="routed-to">Routed to: {log.agentId}</div>
+			{/if}
+			{#if !log.success && onretry}
+				<button class="retry-btn" onclick={() => { onretry(log); }}>
+					Retry Delivery
+				</button>
 			{/if}
 		</div>
 	{/if}
@@ -216,5 +223,24 @@
 		font-family: var(--font-body);
 		font-size: 11px;
 		color: var(--text-muted);
+	}
+
+	.retry-btn {
+		min-height: 36px;
+		border: 1px solid var(--teal, #2DD4BF);
+		color: var(--teal, #2DD4BF);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 12px;
+		cursor: pointer;
+		padding: 0 var(--space-md);
+		transition: background 0.15s ease;
+		margin-top: var(--space-sm);
+		align-self: flex-start;
+	}
+
+	.retry-btn:hover {
+		background: rgba(45, 212, 191, 0.08);
 	}
 </style>

@@ -27,6 +27,9 @@
   let showPreview = $state(false);
   let importing = $state(false);
 
+  // Imported details state
+  let importedDetails: { specTitle: string; endpoints: Array<{ method: string; path: string }> } | null = $state(null);
+
   // ── Grouped registry entries by specId ─────────────────────────────
   interface RegistryEntry {
     id: string;
@@ -156,6 +159,11 @@
       }
 
       const imported = await res.json();
+      const importedEndpoints = previewEndpoints.filter(e => e.selected);
+      importedDetails = {
+        specTitle: previewTitle,
+        endpoints: importedEndpoints.map(e => ({ method: e.method, path: e.path })),
+      };
       successMsg = `Imported ${imported.length} endpoint${imported.length === 1 ? '' : 's'} from ${previewTitle}`;
       showPreview = false;
       specUrl = '';
@@ -164,7 +172,10 @@
       // Refresh registry list
       await invalidateAll();
 
-      setTimeout(() => { successMsg = null; }, 4000);
+      setTimeout(() => {
+        successMsg = null;
+        importedDetails = null;
+      }, 6000);
     } catch (err) {
       errorMsg = `Network error: ${(err as Error).message}`;
     } finally {
@@ -225,6 +236,22 @@
 <div class="import-page">
   {#if successMsg}
     <div class="banner banner-success">{successMsg}</div>
+  {/if}
+  {#if importedDetails}
+    <div class="imported-details">
+      <div class="imported-header">
+        <span class="imported-icon">&#10003;</span>
+        <span class="imported-title">Successfully imported from {importedDetails.specTitle}</span>
+      </div>
+      <div class="imported-endpoints">
+        {#each importedDetails.endpoints as ep}
+          <span class="imported-ep">
+            <span class="imported-method" style="color: {methodColor(ep.method)}">{ep.method.toUpperCase()}</span>
+            <span class="imported-path">{ep.path}</span>
+          </span>
+        {/each}
+      </div>
+    </div>
   {/if}
   {#if errorMsg}
     <div class="banner banner-error">{errorMsg}</div>
@@ -377,6 +404,62 @@
   .banner-error {
     border: 1px solid var(--error);
     color: var(--error);
+  }
+
+  /* ── Imported details banner ─────────────────────────── */
+
+  .imported-details {
+    margin-bottom: var(--space-lg);
+    padding: var(--space-lg);
+    background: rgba(45, 212, 191, 0.08);
+    border: 1px solid var(--success);
+    border-radius: var(--radius-md);
+  }
+
+  .imported-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+  }
+
+  .imported-icon {
+    font-size: 16px;
+    color: var(--success);
+  }
+
+  .imported-title {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .imported-endpoints {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding-left: var(--space-lg);
+  }
+
+  .imported-ep {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .imported-method {
+    font-family: var(--font-label);
+    font-size: 6px;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+    width: 44px;
+  }
+
+  .imported-path {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
   }
 
   /* ── Section headings ──────────────────────────────────── */
