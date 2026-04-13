@@ -2,12 +2,15 @@ import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ fetch, params, parent }) => {
-  const { session } = await parent();
+  const { session, companyId } = await parent();
   const userId = session?.user?.id;
 
-  const [projectRes, connectionsRes] = await Promise.allSettled([
+  const [projectRes, connectionsRes, objectivesRes, executionsRes, issuesRes] = await Promise.allSettled([
     fetch(`/api/projects/${params.id}`),
     userId ? fetch(`/api/akasa/tool-connections?userId=${encodeURIComponent(userId)}`) : Promise.resolve(null),
+    fetch(`/api/objectives?projectId=${encodeURIComponent(params.id)}`),
+    fetch(`/api/executions/all?projectId=${encodeURIComponent(params.id)}`),
+    companyId ? fetch(`/api/companies/${companyId}/issues?projectId=${encodeURIComponent(params.id)}`) : Promise.resolve(null),
   ]);
 
   if (projectRes.status === 'rejected' || !projectRes.value?.ok) {
@@ -26,5 +29,40 @@ export const load: PageServerLoad = async ({ fetch, params, parent }) => {
     githubConnection = connections.find(c => c.toolId === 'github') ?? null;
   }
 
-  return { project, githubConnection };
+  let objectives: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    isArchived: boolean;
+    lastRunStatus: string | null;
+    runCount: number;
+    createdAt: string;
+    updatedAt: string;
+  }> = [];
+  if (objectivesRes.status === 'fulfilled' && objectivesRes.value?.ok) {
+    objectives = await objectivesRes.value.json();
+  }
+
+  let executions: Array<{
+    id: string;
+    status: string;
+    objective: string;
+    createdAt: string;
+    updatedAt: string;
+  }> = [];
+  if (executionsRes.status === 'fulfilled' && executionsRes.value?.ok) {
+    executions = await executionsRes.value.json();
+  }
+
+  let issues: Array<{
+    id: string;
+    title: string;
+    status: string;
+    createdAt: string;
+  }> = [];
+  if (issuesRes.status === 'fulfilled' && issuesRes.value?.ok) {
+    issues = await issuesRes.value.json();
+  }
+
+  return { project, githubConnection, objectives, executions, issues };
 };
