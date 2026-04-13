@@ -6,7 +6,7 @@
   const sections = [
     { href: '/office/agents', label: 'AGENTS' },
     { href: '/office/issues', label: 'ISSUES' },
-    { href: '/office/goals', label: 'GOALS' },
+    { href: '/office/goals', label: 'OBJECTIVES' },
     { href: '/office/projects', label: 'PROJECTS' },
   ];
 </script>

@@ -535,6 +535,108 @@ export async function getEvolutionCostSummary(
   return apiFetch(`${BASE}/companies/${companyId}/costs/evolution`);
 }
 
+// ── Objectives ────────────────────────────────────────────────────
+
+export interface Objective {
+  id: string;
+  companyId: string;
+  name: string;
+  description?: string | null;
+  status: string;
+  budgetCap?: number | null;
+  defaultConfig?: Record<string, unknown> | null;
+  lastRunAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateObjectiveInput {
+  name: string;
+  description?: string;
+  budgetCap?: number;
+  defaultConfig?: Record<string, unknown>;
+}
+
+export interface UpdateObjectiveInput {
+  name?: string;
+  description?: string;
+  budgetCap?: number;
+  defaultConfig?: Record<string, unknown>;
+  status?: string;
+}
+
+export interface Execution {
+  id: string;
+  objectiveId?: string | null;
+  companyId?: string | null;
+  status: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  result?: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ObjectiveStats {
+  totalRuns: number;
+  successRate: number;
+  totalCostCents: number;
+  avgDurationMs?: number | null;
+}
+
+export async function getObjectives(companyId: string): Promise<Objective[]> {
+  return apiFetch(`${BASE}/companies/${companyId}/objectives`);
+}
+
+export async function getObjective(id: string): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives/${id}`);
+}
+
+export async function createObjective(
+  companyId: string,
+  body: CreateObjectiveInput,
+): Promise<Objective> {
+  return apiFetch(`${BASE}/companies/${companyId}/objectives`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateObjective(
+  id: string,
+  body: UpdateObjectiveInput,
+): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteObjective(id: string): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/objectives/${id}`, { method: 'DELETE' });
+}
+
+export async function getObjectiveExecutions(id: string): Promise<Execution[]> {
+  return apiFetch(`${BASE}/objectives/${id}/executions`);
+}
+
+export async function getObjectiveStats(id: string): Promise<ObjectiveStats> {
+  return apiFetch(`${BASE}/objectives/${id}/stats`);
+}
+
+export async function triggerExecution(body: {
+  objectiveId: string;
+  config?: Record<string, unknown>;
+}): Promise<Execution> {
+  return apiFetch(`${BASE}/executions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
 // ── Skills Library ───────────────────────────────────────────────
 
 export interface Skill {
