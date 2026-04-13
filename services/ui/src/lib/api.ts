@@ -703,3 +703,156 @@ export async function deleteReview(
     method: 'DELETE',
   });
 }
+
+// ── Executions ─────────────────────────────────────────────────────
+
+export type ExecutionStatus =
+  | 'pre_flight'
+  | 'queued'
+  | 'running'
+  | 'paused'
+  | 'stopped'
+  | 'completed'
+  | 'failed';
+
+export interface Execution {
+  id: string;
+  status: ExecutionStatus;
+  objective: string;
+  maxBots: number;
+  budgetCapCents: number;
+  runtimeLimitSeconds: number;
+  allowedTools: string[];
+  llmProvider: string | null;
+  allowedDomains: string[] | null;
+  campaignType: string | null;
+  projectId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  activeBotCount?: number;
+}
+
+export interface ExecutionListItem extends Execution {
+  activeBotCount: number;
+}
+
+export interface Bot {
+  id: string;
+  executionId: string;
+  status: 'spawning' | 'idle' | 'working' | 'stopping' | 'stopped' | 'failed';
+  containerId: string | null;
+  imageTag: string;
+  tasksClaimed: number;
+  tasksCompleted: number;
+  tasksFailed: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Task {
+  id: string;
+  executionId: string;
+  status: 'pending' | 'claimed' | 'completed' | 'failed';
+  description: string;
+  result: string | null;
+  claimedByBotId: string | null;
+  attemptCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RingLeaderState {
+  runId: string;
+  executionId: string;
+  status: string;
+  runState: {
+    elapsedTimeSeconds: number;
+    budgetConsumedCents: number;
+    taskStates: Record<string, {
+      status: string;
+      activeAgents: string[];
+      completedAgents: string[];
+      failedAgents: string[];
+      outputQualitySignal: number | null;
+    }>;
+    objectiveDriftScore: number;
+    anomalies: string[];
+  } | null;
+}
+
+export interface RingLeaderSynthesis {
+  runId: string;
+  executionId: string;
+  synthesis: string | null;
+  fitnessScores: {
+    coordination: number;
+    quality: number;
+    efficiency: number;
+    overall: number;
+  } | null;
+}
+
+export interface ExecutionEvent {
+  type: string;
+  executionId?: string;
+  botId?: string;
+  taskId?: string;
+  timestamp: string;
+  payload?: Record<string, unknown>;
+}
+
+export async function getExecutions(params?: {
+  projectId?: string;
+  status?: ExecutionStatus;
+}): Promise<ExecutionListItem[]> {
+  const query = new URLSearchParams();
+  if (params?.projectId) query.set('projectId', params.projectId);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/executions/all${qs ? `?${qs}` : ''}`);
+}
+
+export async function getExecution(executionId: string): Promise<Execution> {
+  return apiFetch(`${BASE}/executions/${executionId}`);
+}
+
+export async function getExecutionBots(executionId: string): Promise<Bot[]> {
+  return apiFetch(`${BASE}/executions/${executionId}/bots`);
+}
+
+export async function getExecutionTasks(executionId: string): Promise<Task[]> {
+  return apiFetch(`${BASE}/executions/${executionId}/tasks`);
+}
+
+export async function stopExecution(executionId: string): Promise<{ success: boolean }> {
+  return apiFetch(`${BASE}/executions/${executionId}/stop`, { method: 'POST' });
+}
+
+export async function getRingLeaderState(executionId: string): Promise<RingLeaderState> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/state`);
+}
+
+export async function getRingLeaderSynthesis(executionId: string): Promise<RingLeaderSynthesis> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${executionId}/synthesis`);
+}
+
+export function createExecutionProgressStream(
+  executionId: string,
+  onEvent: (event: ExecutionEvent) => void,
+  onError: (err: Error) => void,
+): () => void {
+  const eventSource = new EventSource(`/api/executions/${executionId}/events`);
+  eventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data) as ExecutionEvent;
+      onEvent(data);
+    } catch {
+      onError(new Error('Failed to parse SSE event'));
+    }
+  };
+  eventSource.onerror = () => {
+    onError(new Error('SSE connection error'));
+  };
+  return () => {
+    eventSource.close();
+  };
+}
