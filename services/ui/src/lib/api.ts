@@ -99,6 +99,7 @@ export interface ChatThread {
   title?: string | null;
   createdAt: string;
   updatedAt: string;
+  lastMessagePreview?: string | null;
 }
 
 export interface ChatMessage {
@@ -108,6 +109,7 @@ export interface ChatMessage {
   senderType?: string | null;
   senderId?: string | null;
   createdAt: string;
+  commandData?: Record<string, unknown>;
 }
 
 export interface DashboardSummary {
