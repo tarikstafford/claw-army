@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import { handleApiError } from '$lib/handle-api-error';
+  import { success } from '$lib/toast-store';
 
   let { data }: { data: PageData } = $props();
 
@@ -51,10 +53,13 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(prefs),
       });
-      if (!res.ok) throw new Error('Failed to save');
-      prefsMsg = 'Preferences saved';
-      setTimeout(() => { prefsMsg = ''; }, 2500);
-    } catch {
+      if (!res.ok) {
+        await handleApiError(null, res, { message: 'Failed to save preferences' });
+        return;
+      }
+      success('Preferences saved');
+    } catch (err) {
+      await handleApiError(err, undefined, { suppressToast: true });
       prefsMsg = 'Failed to save preferences';
     } finally {
       prefsSaving = false;
@@ -72,11 +77,16 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newKeyName.trim() }),
       });
-      if (!res.ok) throw new Error('Failed to create key');
-      const data = await res.json();
-      newKey = data;
+      if (!res.ok) {
+        await handleApiError(null, res, { message: 'Failed to create API key' });
+        return;
+      }
+      const result = await res.json();
+      newKey = result;
       newKeyName = '';
-    } catch {
+      success('API key created');
+    } catch (err) {
+      await handleApiError(err, undefined, { suppressToast: true });
       keyError = 'Failed to create API key';
     } finally {
       keyCreating = false;
@@ -84,9 +94,17 @@
   }
 
   async function revokeKey(id: string) {
-    const res = await fetch(`/api/akasa/settings/api-keys/${id}`, { method: 'DELETE' });
-    if (!res.ok) return;
-    apiKeys = apiKeys.filter(k => k.id !== id);
+    try {
+      const res = await fetch(`/api/akasa/settings/api-keys/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        await handleApiError(null, res, { message: 'Failed to revoke API key' });
+        return;
+      }
+      apiKeys = apiKeys.filter(k => k.id !== id);
+      success('API key revoked');
+    } catch (err) {
+      await handleApiError(err);
+    }
   }
 
   async function deleteAccount() {
@@ -94,9 +112,14 @@
     deleteStep = 'deleting';
     try {
       const res = await fetch('/api/akasa/settings/account', { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) {
+        await handleApiError(null, res, { message: 'Failed to delete account' });
+        deleteStep = 'confirm';
+        return;
+      }
       window.location.href = '/auth';
-    } catch {
+    } catch (err) {
+      await handleApiError(err);
       deleteStep = 'confirm';
     }
   }

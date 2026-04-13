@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import type { ObjectiveWithAggregation, CreateObjectiveInput } from '$lib/api';
+  import { handleApiError } from '$lib/handle-api-error';
+  import { success } from '$lib/toast-store';
 
   let { data }: { data: PageData } = $props();
 
@@ -132,14 +134,17 @@
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        const err = await res.text().catch(() => '');
-        throw new Error(err || `Request failed (${res.status})`);
+        await handleApiError(null, res, { message: 'Failed to create objective' });
+        return;
       }
       const created = await res.json();
       objectives = [created, ...objectives];
+      success('Objective created');
       closeCreateModal();
     } catch (err) {
-      createError = (err as Error).message ?? 'Something went wrong.';
+      await handleApiError(err, undefined, { suppressToast: true });
+      createError = 'Failed to create objective. Please try again.';
+    } finally {
       createSubmitting = false;
     }
   }
@@ -167,14 +172,17 @@
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        const err = await res.text().catch(() => '');
-        throw new Error(err || `Request failed (${res.status})`);
+        await handleApiError(null, res, { message: 'Failed to update objective' });
+        return;
       }
       const updated = await res.json();
       objectives = objectives.map(o => o.id === updated.id ? { ...o, ...updated } : o);
+      success('Objective updated');
       closeEditModal();
     } catch (err) {
-      editError = (err as Error).message ?? 'Something went wrong.';
+      await handleApiError(err, undefined, { suppressToast: true });
+      editError = 'Failed to update objective. Please try again.';
+    } finally {
       editSubmitting = false;
     }
   }
@@ -188,13 +196,16 @@
         method: 'DELETE',
       });
       if (!res.ok) {
-        const err = await res.text().catch(() => '');
-        throw new Error(err || `Request failed (${res.status})`);
+        await handleApiError(null, res, { message: 'Failed to delete objective' });
+        return;
       }
       objectives = objectives.filter(o => o.id !== deletingObjectiveId);
+      success('Objective deleted');
       closeDeleteConfirm();
     } catch (err) {
-      deleteError = (err as Error).message ?? 'Something went wrong.';
+      await handleApiError(err, undefined, { suppressToast: true });
+      deleteError = 'Failed to delete objective. Please try again.';
+    } finally {
       deleteSubmitting = false;
     }
   }
@@ -217,13 +228,14 @@
         }),
       });
       if (!res.ok) {
-        const err = await res.text().catch(() => '');
-        throw new Error(err || `Request failed (${res.status})`);
+        await handleApiError(null, res, { message: 'Failed to trigger execution' });
+        return;
       }
       const result = await res.json();
+      success('Execution started');
       window.location.href = `/office/goals/${obj.id}`;
     } catch (err) {
-      alert((err as Error).message ?? 'Failed to trigger execution');
+      await handleApiError(err, undefined, { showRetry: true, onRetry: () => handleRun(obj, e) });
     } finally {
       runningObjectiveId = null;
     }

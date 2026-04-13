@@ -3,25 +3,14 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { connectWebSocket, subscribeWS, type LiveEvent } from '$lib/ws';
+  import { addToast, removeToast, getToasts, type Toast } from '$lib/toast-store';
 
   let { children, data } = $props();
   let session = $derived(data.session);
   let companyId = $derived(data.companyId);
 
-  // ── Toast notification system ──────────────────────────────────
-  let notifications = $state<Array<{ id: string; type: string; text: string }>>([]);
-
-  function addToast(text: string, type: string = 'info') {
-    const id = crypto.randomUUID().slice(0, 8);
-    notifications = [{ id, type, text }, ...notifications].slice(0, 5);
-    setTimeout(() => {
-      notifications = notifications.filter(n => n.id !== id);
-    }, 4000);
-  }
-
-  function dismissToast(id: string) {
-    notifications = notifications.filter(n => n.id !== id);
-  }
+  // ── Toast notifications from store ──────────────────────────────
+  let storeToasts = $derived(getToasts());
 
   // ── WebSocket connection ───────────────────────────────────────
   let wsConnected = $state(false);
@@ -77,12 +66,15 @@
   <div class="ws-banner">Connection lost - reconnecting...</div>
 {/if}
 
-{#if notifications.length > 0}
+{#if storeToasts.length > 0}
   <div class="toast-container">
-    {#each notifications as notif (notif.id)}
-      <div class="toast">
+    {#each storeToasts as notif (notif.id)}
+      <div class="toast toast-{notif.type}">
         <span class="toast-text">{notif.text}</span>
-        <button class="toast-dismiss" onclick={() => dismissToast(notif.id)} aria-label="Dismiss notification">×</button>
+        {#if notif.retry}
+          <button class="toast-retry" onclick={notif.retry} aria-label="Retry">Retry</button>
+        {/if}
+        <button class="toast-dismiss" onclick={() => removeToast(notif.id)} aria-label="Dismiss">×</button>
       </div>
     {/each}
   </div>
@@ -170,4 +162,37 @@
   }
 
   .toast-dismiss:hover { color: var(--text-muted, #6B6260); }
+
+  .toast-success { border-color: var(--bo-teal, #2DD4BF); }
+  .toast-error { border-color: var(--error, #DC2626); }
+  .toast-warning { border-color: var(--fo-gold, #B8965A); }
+  .toast-info { border-color: var(--bo-violet, #8B5CF6); }
+  .toast-chat { border-color: var(--bo-teal, #2DD4BF); }
+  .toast-execution { border-color: var(--bo-amber, #F59E0B); }
+  .toast-danger { border-color: var(--error, #DC2626); }
+
+  .toast-success .toast-text { color: var(--bo-teal, #2DD4BF); }
+  .toast-error .toast-text { color: var(--error, #DC2626); }
+  .toast-warning .toast-text { color: var(--fo-gold, #B8965A); }
+  .toast-chat .toast-text { color: var(--bo-teal, #2DD4BF); }
+  .toast-execution .toast-text { color: var(--bo-amber, #F59E0B); }
+  .toast-danger .toast-text { color: var(--error, #DC2626); }
+
+  .toast-retry {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted, #6B6260);
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+    font-size: 11px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .toast-retry:hover {
+    border-color: var(--text-muted, #6B6260);
+    color: var(--text-muted, #6B6260);
+  }
 </style>

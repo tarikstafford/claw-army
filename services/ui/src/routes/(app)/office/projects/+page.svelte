@@ -2,6 +2,8 @@
   import type { PageData } from './$types';
   import SlidePanel from '$lib/components/SlidePanel.svelte';
   import Input from '$lib/components/ui/Input.svelte';
+  import { handleApiError } from '$lib/handle-api-error';
+  import { success } from '$lib/toast-store';
 
   let { data }: { data: PageData } = $props();
 
@@ -29,14 +31,15 @@
           githubRepo: newProjectGithubRepo.trim() || undefined,
         }),
       });
-      if (res.ok) {
-        window.location.href = `/office/projects/${(await res.json()).id}`;
-      } else {
-        const body = await res.text();
-        createError = `Failed to create project: ${body}`;
+      if (!res.ok) {
+        await handleApiError(null, res, { message: 'Failed to create project' });
+        return;
       }
+      success('Project created');
+      window.location.href = `/office/projects/${(await res.json()).id}`;
     } catch (err) {
-      createError = 'Failed to create project';
+      await handleApiError(err, undefined, { suppressToast: true });
+      createError = 'Failed to create project. Please try again.';
     } finally {
       creating = false;
     }

@@ -2,6 +2,8 @@
   import { getSkills, createSkill, updateSkill, deleteSkill, type Skill } from '$lib/api';
   import SkillEffectiveness from '$lib/components/evolution/SkillEffectiveness.svelte';
   import type { PageData } from './$types';
+  import { handleApiError } from '$lib/handle-api-error';
+  import { success } from '$lib/toast-store';
 
   let { data }: { data: PageData } = $props();
 
@@ -90,6 +92,7 @@ Step-by-step instructions for the agent.
         source: 'user_created',
       });
       skills = [created, ...skills];
+      success('Skill created');
       formContent = '';
       showCreate = false;
     } catch (err) {
@@ -102,6 +105,7 @@ Step-by-step instructions for the agent.
           formErrors = [msg];
         }
       } else {
+        await handleApiError(err, undefined, { suppressToast: true });
         actionError = msg;
       }
     } finally {
@@ -121,10 +125,12 @@ Step-by-step instructions for the agent.
         content: formContent,
       });
       skills = skills.map((s) => (s.id === updated.id ? updated : s));
+      success('Skill updated');
       editingSkill = null;
       formContent = '';
     } catch (err) {
       const msg = (err as Error).message;
+      await handleApiError(err, undefined, { suppressToast: true });
       formErrors = [msg];
     } finally {
       loading = false;
@@ -138,9 +144,10 @@ Step-by-step instructions for the agent.
     try {
       await deleteSkill(skillId);
       skills = skills.filter((s) => s.id !== skillId);
+      success('Skill deleted');
       if (expandedSkillId === skillId) expandedSkillId = null;
     } catch (err) {
-      actionError = (err as Error).message;
+      await handleApiError(err);
     } finally {
       loading = false;
     }
