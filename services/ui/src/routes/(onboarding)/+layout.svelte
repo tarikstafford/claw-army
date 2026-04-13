@@ -2,9 +2,9 @@
   let { children } = $props();
 </script>
 
-<div class="onboarding-shell">
+<main id="main-content" class="onboarding-shell">
   {@render children()}
-</div>
+</main>
 
 <style>
   .onboarding-shell {

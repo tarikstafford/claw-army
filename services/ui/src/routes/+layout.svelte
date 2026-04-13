@@ -81,6 +81,4 @@
 
 <NavShell variant={navVariant} pathname={pathname} session={data.session ?? null} />
 
-<main id="main-content">
-  {@render children()}
-</main>
+{@render children()}
