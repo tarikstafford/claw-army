@@ -1,77 +1,9 @@
 /**
  * Direct DB access for Paperclip tables (companies, agents, memberships).
- * Both services share the same Supabase DB, so we write directly instead of
- * going through Paperclip's HTTP API (which requires separate auth).
+ * Both services share the same database, so we query directly.
  */
-import { db } from '@claw/db';
+import { db, companies, companyMemberships, paperclipAgents, instanceUserRoles, projects } from '@claw/db';
 import { eq, and } from 'drizzle-orm';
-import { pgTable, uuid, text, integer, timestamp, jsonb, boolean, uniqueIndex, index } from 'drizzle-orm/pg-core';
-import type { AnyPgColumn } from 'drizzle-orm/pg-core';
-
-// Re-declare Paperclip tables locally (execution-service doesn't import from Paperclip's schema)
-const companies = pgTable('companies', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
-  description: text('description'),
-  status: text('status').notNull().default('active'),
-  issuePrefix: text('issue_prefix').notNull().default('AKA'),
-  issueCounter: integer('issue_counter').notNull().default(0),
-  budgetMonthlyCents: integer('budget_monthly_cents').notNull().default(0),
-  spentMonthlyCents: integer('spent_monthly_cents').notNull().default(0),
-  requireBoardApprovalForNewAgents: boolean('require_board_approval_for_new_agents').notNull().default(false),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-const companyMemberships = pgTable('company_memberships', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  companyId: uuid('company_id').notNull(),
-  principalType: text('principal_type').notNull(),
-  principalId: text('principal_id').notNull(),
-  status: text('status').notNull().default('active'),
-  membershipRole: text('membership_role'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-const agents = pgTable('agents', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  companyId: uuid('company_id').notNull(),
-  name: text('name').notNull(),
-  role: text('role').notNull().default('general'),
-  title: text('title'),
-  status: text('status').notNull().default('idle'),
-  adapterType: text('adapter_type').notNull().default('process'),
-  adapterConfig: jsonb('adapter_config').$type<Record<string, unknown>>().notNull().default({}),
-  runtimeConfig: jsonb('runtime_config').$type<Record<string, unknown>>().notNull().default({}),
-  budgetMonthlyCents: integer('budget_monthly_cents').notNull().default(0),
-  spentMonthlyCents: integer('spent_monthly_cents').notNull().default(0),
-  permissions: jsonb('permissions').$type<Record<string, unknown>>().notNull().default({}),
-  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-const instanceUserRoles = pgTable('instance_user_roles', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: text('user_id').notNull(),
-  role: text('role').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-});
-
-const projects = pgTable('projects', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  companyId: uuid('company_id').notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  status: text('status').notNull().default('backlog'),
-  leadAgentId: uuid('lead_agent_id'),
-  targetDate: timestamp('target_date', { withTimezone: true }),
-  color: text('color'),
-  executionWorkspacePolicy: text('execution_workspace_policy'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
 
 export interface CompanyRecord {
   id: string;
@@ -148,7 +80,7 @@ export async function createCompanyForUser(
     membershipRole: 'owner',
   });
 
-  // Ensure user is instance admin (required by Paperclip for company operations)
+  // Ensure user is instance admin
   const existing = await db
     .select()
     .from(instanceUserRoles)
@@ -169,7 +101,7 @@ export async function createAgentInCompany(
   data: { name: string; role: string; title: string; metadata?: Record<string, unknown> },
 ): Promise<AgentRecord> {
   const [agent] = await db
-    .insert(agents)
+    .insert(paperclipAgents)
     .values({
       companyId,
       name: data.name,

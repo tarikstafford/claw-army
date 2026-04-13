@@ -10,20 +10,6 @@ vi.mock('@claw/db', () => ({
   },
   bots: { id: 'id', paperclipAgentId: 'paperclip_agent_id', executionId: 'execution_id', soulId: 'soul_id' },
   councilVerdicts: { botId: 'bot_id', executionId: 'execution_id' },
-}));
-
-vi.mock('../council/council-runner.js', () => ({
-  runCouncilForBot: vi.fn(),
-}));
-
-vi.mock('@paperclipai/db', () => ({
-  createDb: vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue([]),
-      }),
-    }),
-  }),
   heartbeatRuns: {
     id: 'id',
     agentId: 'agent_id',
@@ -33,6 +19,10 @@ vi.mock('@paperclipai/db', () => ({
     status: 'status',
     finishedAt: 'finished_at',
   },
+}));
+
+vi.mock('../council/council-runner.js', () => ({
+  runCouncilForBot: vi.fn(),
 }));
 
 // ─── councilRouter tests ───────────────────────────────────────────────────────
@@ -128,8 +118,7 @@ describe('checkAndTriggerCouncilEvaluations', () => {
   });
 
   it('returns { triggered: 0 } when no completed heartbeat_runs found', async () => {
-    // Mock paperclipDb and akasaDb
-    const paperclipDb = {
+    const akasaDb = {
       select: vi.fn().mockReturnValue({
         from: vi.fn().mockReturnValue({
           where: vi.fn().mockResolvedValue([]), // no completed runs
@@ -137,13 +126,8 @@ describe('checkAndTriggerCouncilEvaluations', () => {
       }),
     };
 
-    const akasaDb = {
-      select: vi.fn(),
-    };
-
     const { checkAndTriggerCouncilEvaluations } = await import('../routes/evolution-trigger.js');
     const result = await checkAndTriggerCouncilEvaluations(
-      paperclipDb as never,
       akasaDb as never,
     );
 
@@ -151,29 +135,33 @@ describe('checkAndTriggerCouncilEvaluations', () => {
   });
 
   it('skips runs with no matching Akasa bot (no paperclipAgentId match)', async () => {
-    const paperclipDb = {
-      select: vi.fn().mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([
-            { runId: 'run-1', agentId: 'agent-1', companyId: 'co-1', usageJson: null, resultJson: null },
-          ]),
-        }),
-      }),
-    };
-
+    let selectCallCount = 0;
     const akasaDb = {
-      select: vi.fn().mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockResolvedValue([]), // no Akasa bot for this agent
+      select: vi.fn().mockImplementation(() => {
+        selectCallCount++;
+        if (selectCallCount === 1) {
+          // heartbeat_runs query
+          return {
+            from: vi.fn().mockReturnValue({
+              where: vi.fn().mockResolvedValue([
+                { runId: 'run-1', agentId: 'agent-1', companyId: 'co-1', usageJson: null, resultJson: null },
+              ]),
+            }),
+          };
+        }
+        // bots query - no match
+        return {
+          from: vi.fn().mockReturnValue({
+            where: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue([]),
+            }),
           }),
-        }),
+        };
       }),
     };
 
     const { checkAndTriggerCouncilEvaluations } = await import('../routes/evolution-trigger.js');
     const result = await checkAndTriggerCouncilEvaluations(
-      paperclipDb as never,
       akasaDb as never,
     );
 
@@ -181,24 +169,21 @@ describe('checkAndTriggerCouncilEvaluations', () => {
   });
 
   it('skips runs that already have a council verdict', async () => {
-    const paperclipDb = {
-      select: vi.fn().mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([
-            { runId: 'run-1', agentId: 'agent-1', companyId: 'co-1', usageJson: null, resultJson: null },
-          ]),
-        }),
-      }),
-    };
-
-    // First akasaDb.select call → bot found
-    // Second akasaDb.select call → verdict already exists
-    let akasaSelectCallCount = 0;
+    let selectCallCount = 0;
     const akasaDb = {
       select: vi.fn().mockImplementation(() => {
-        akasaSelectCallCount++;
-        if (akasaSelectCallCount === 1) {
-          // Return bot
+        selectCallCount++;
+        if (selectCallCount === 1) {
+          // heartbeat_runs query
+          return {
+            from: vi.fn().mockReturnValue({
+              where: vi.fn().mockResolvedValue([
+                { runId: 'run-1', agentId: 'agent-1', companyId: 'co-1', usageJson: null, resultJson: null },
+              ]),
+            }),
+          };
+        } else if (selectCallCount === 2) {
+          // bots query - bot found
           return {
             from: vi.fn().mockReturnValue({
               where: vi.fn().mockReturnValue({
@@ -209,7 +194,7 @@ describe('checkAndTriggerCouncilEvaluations', () => {
             }),
           };
         } else {
-          // Return existing verdict
+          // verdict query - existing verdict
           return {
             from: vi.fn().mockReturnValue({
               where: vi.fn().mockReturnValue({
@@ -223,7 +208,6 @@ describe('checkAndTriggerCouncilEvaluations', () => {
 
     const { checkAndTriggerCouncilEvaluations } = await import('../routes/evolution-trigger.js');
     const result = await checkAndTriggerCouncilEvaluations(
-      paperclipDb as never,
       akasaDb as never,
     );
 
@@ -234,22 +218,21 @@ describe('checkAndTriggerCouncilEvaluations', () => {
     const { runCouncilForBot } = await import('../council/council-runner.js');
     vi.mocked(runCouncilForBot).mockResolvedValue({ id: 'verdict-new' } as never);
 
-    const paperclipDb = {
-      select: vi.fn().mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue([
-            { runId: 'run-1', agentId: 'agent-1', companyId: 'co-1', usageJson: null, resultJson: null },
-          ]),
-        }),
-      }),
-    };
-
-    let akasaSelectCallCount = 0;
+    let selectCallCount = 0;
     const akasaDb = {
       select: vi.fn().mockImplementation(() => {
-        akasaSelectCallCount++;
-        if (akasaSelectCallCount === 1) {
-          // Return bot
+        selectCallCount++;
+        if (selectCallCount === 1) {
+          // heartbeat_runs query
+          return {
+            from: vi.fn().mockReturnValue({
+              where: vi.fn().mockResolvedValue([
+                { runId: 'run-1', agentId: 'agent-1', companyId: 'co-1', usageJson: null, resultJson: null },
+              ]),
+            }),
+          };
+        } else if (selectCallCount === 2) {
+          // bots query - bot found
           return {
             from: vi.fn().mockReturnValue({
               where: vi.fn().mockReturnValue({
@@ -260,7 +243,7 @@ describe('checkAndTriggerCouncilEvaluations', () => {
             }),
           };
         } else {
-          // No existing verdict
+          // verdict query - no existing verdict
           return {
             from: vi.fn().mockReturnValue({
               where: vi.fn().mockReturnValue({
@@ -274,7 +257,6 @@ describe('checkAndTriggerCouncilEvaluations', () => {
 
     const { checkAndTriggerCouncilEvaluations } = await import('../routes/evolution-trigger.js');
     const result = await checkAndTriggerCouncilEvaluations(
-      paperclipDb as never,
       akasaDb as never,
     );
 
@@ -298,10 +280,15 @@ describe('evolutionTriggerRouter', () => {
 
   describe('POST /api/akasa/evolution/trigger', () => {
     it('returns 200 with { triggered: N } on manual trigger', async () => {
-      // Provide DATABASE_URL env so the route doesn't 500 on missing env var
-      process.env['DATABASE_URL'] = 'postgresql://test:test@localhost:5432/test';
+      // Set up the db mock chain so checkAndTriggerCouncilEvaluations resolves
+      const { db: mockDb } = await import('@claw/db');
+      vi.mocked(mockDb.select).mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue([]), // no completed runs
+        }),
+      } as never);
+
       const res = await request(app).post('/api/akasa/evolution/trigger').send({});
-      delete process.env['DATABASE_URL'];
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('triggered');
       expect(typeof res.body.triggered).toBe('number');

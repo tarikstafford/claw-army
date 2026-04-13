@@ -1,15 +1,4 @@
 packages:
   - 'packages/*'
-  - 'packages/plugins/*'
   - 'services/*'
   - 'scripts'
-  - 'paperclip/packages/*'
-  - 'paperclip/packages/adapters/*'
-  - 'paperclip/packages/plugins/*'
-  - 'paperclip/packages/plugins/examples/*'
-  - 'paperclip/server'
-  - 'paperclip/cli'
-
-# Paperclip uses older drizzle-orm (0.38.4) and zod v3 while better-call/better-auth
-# require newer versions. Suppressing peer dep errors for cross-repo workspace.
-strictPeerDependencies: false

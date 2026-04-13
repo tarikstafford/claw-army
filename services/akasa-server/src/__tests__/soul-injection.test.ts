@@ -8,8 +8,8 @@ vi.mock('node:fs/promises', () => ({
   writeFile: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock paperclip DB
-const mockPaperclipDb = {
+// Mock @claw/db with a chainable mock db
+const mockDb = {
   select: vi.fn().mockReturnThis(),
   from: vi.fn().mockReturnThis(),
   where: vi.fn().mockReturnThis(),
@@ -18,11 +18,20 @@ const mockPaperclipDb = {
   set: vi.fn().mockReturnThis(),
 };
 
+vi.mock('@claw/db', () => ({
+  db: mockDb,
+  paperclipAgents: {
+    id: 'id',
+    companyId: 'company_id',
+    adapterConfig: 'adapter_config',
+    updatedAt: 'updated_at',
+  },
+}));
+
 describe('injectSoulIntoAgent', () => {
   let mkdir: ReturnType<typeof vi.fn>;
   let writeFile: ReturnType<typeof vi.fn>;
   let injectSoulIntoAgent: (
-    paperclipDb: typeof mockPaperclipDb,
     agentId: string,
     companyId: string,
     soulContent: string,
@@ -32,6 +41,11 @@ describe('injectSoulIntoAgent', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+
+    // Reset the chainable mock
+    mockDb.update.mockReturnThis();
+    mockDb.set.mockReturnThis();
+    mockDb.where.mockResolvedValue({ rowCount: 1 });
 
     const fs = await import('node:fs/promises');
     mkdir = fs.mkdir as unknown as ReturnType<typeof vi.fn>;
@@ -48,12 +62,7 @@ describe('injectSoulIntoAgent', () => {
       const soulContent = '# SOUL.md\n## Identity and Role\nTest agent soul content';
       const soulId = 'soul-uuid-789';
 
-      // Mock the DB update chain to resolve successfully
-      mockPaperclipDb.set.mockReturnThis();
-      (mockPaperclipDb as typeof mockPaperclipDb & { execute?: ReturnType<typeof vi.fn> }).execute =
-        vi.fn().mockResolvedValue({ rowCount: 1 });
-
-      await injectSoulIntoAgent(mockPaperclipDb as never, agentId, companyId, soulContent, soulId);
+      await injectSoulIntoAgent(agentId, companyId, soulContent, soulId);
 
       // Verify mkdir was called for soul directory
       expect(mkdir).toHaveBeenCalledWith(
@@ -69,7 +78,7 @@ describe('injectSoulIntoAgent', () => {
       );
 
       // Verify DB update was called
-      expect(mockPaperclipDb.update).toHaveBeenCalled();
+      expect(mockDb.update).toHaveBeenCalled();
     });
   });
 
@@ -81,12 +90,7 @@ describe('injectSoulIntoAgent', () => {
       const soulId = 'soul-openai-123';
       const adapterType = 'openai_compatible';
 
-      mockPaperclipDb.set.mockReturnThis();
-      (mockPaperclipDb as typeof mockPaperclipDb & { execute?: ReturnType<typeof vi.fn> }).execute =
-        vi.fn().mockResolvedValue({ rowCount: 1 });
-
       await injectSoulIntoAgent(
-        mockPaperclipDb as never,
         agentId,
         companyId,
         soulContent,
@@ -95,8 +99,8 @@ describe('injectSoulIntoAgent', () => {
       );
 
       // For openai_compatible, systemPrompt should be set in the DB call
-      expect(mockPaperclipDb.update).toHaveBeenCalled();
-      const setCall = mockPaperclipDb.set.mock.calls[0];
+      expect(mockDb.update).toHaveBeenCalled();
+      const setCall = mockDb.set.mock.calls[0];
       expect(setCall).toBeDefined();
       // The set call should contain systemPrompt in adapterConfig
       const setArg = setCall?.[0] as Record<string, unknown> | undefined;

@@ -43,8 +43,8 @@ export const costProjectionsRoutes: FastifyPluginAsyncTypebox = async (fastify) 
     let monthlySpentCents = 0;
 
     try {
-      const paperclipUrl = process.env['PAPERCLIP_URL'] ?? 'http://localhost:3100';
-      const budgetRes = await fetch(`${paperclipUrl}/api/companies/${companyId}/budgets/overview`, {
+      const akasaServerUrl = process.env['AKASA_SERVER_URL'] ?? process.env['PAPERCLIP_URL'] ?? 'http://localhost:3100';
+      const budgetRes = await fetch(`${akasaServerUrl}/api/companies/${companyId}/budgets/overview`, {
         headers: { accept: 'application/json' },
       });
       if (budgetRes.ok) {

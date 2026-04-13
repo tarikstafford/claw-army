@@ -1,16 +1,6 @@
 import { Router } from 'express';
-import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore, tasks, executions } from '@claw/db';
+import { db, agentClasses, councilVerdicts, bots, botSouls, categoryBenchmarks, dnaStore, tasks, executions, agentRuntimeState, paperclipAgents } from '@claw/db';
 import { eq, and, desc, asc, count, isNotNull, sql, avg, gte, lte } from 'drizzle-orm';
-
-// Lazy Paperclip DB instance to avoid circular initialization
-let paperclipDb: ReturnType<typeof import('@paperclipai/db')['createDb']> | null = null;
-async function getPaperclipDb() {
-  if (!paperclipDb) {
-    const { createDb } = await import('@paperclipai/db');
-    paperclipDb = createDb(process.env['DATABASE_URL']!);
-  }
-  return paperclipDb;
-}
 
 /**
  * Evolution Dashboard API routes.
@@ -713,12 +703,9 @@ export function evolutionDashboardRouter(): Router {
 
       const { paperclipAgentId } = bot;
 
-      // 2. Query Paperclip DB for runtime state and agent budget in parallel
-      const pDb = await getPaperclipDb();
-      const { agentRuntimeState, agents: paperclipAgents } = await import('@paperclipai/db');
-
+      // 2. Query runtime state and agent budget in parallel (same DB)
       const [runtimeRows, agentRows] = await Promise.all([
-        pDb
+        db
           .select({
             sessionId: agentRuntimeState.sessionId,
             lastRunStatus: agentRuntimeState.lastRunStatus,
@@ -732,7 +719,7 @@ export function evolutionDashboardRouter(): Router {
           .from(agentRuntimeState)
           .where(eq(agentRuntimeState.agentId, paperclipAgentId))
           .limit(1),
-        pDb
+        db
           .select({
             budgetMonthlyCents: paperclipAgents.budgetMonthlyCents,
             spentMonthlyCents: paperclipAgents.spentMonthlyCents,

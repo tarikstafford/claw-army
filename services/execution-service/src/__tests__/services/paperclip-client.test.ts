@@ -10,7 +10,14 @@ vi.mock('@claw/db', () => {
     select: vi.fn(),
     insert: vi.fn(),
   };
-  return { db: mockDb };
+  return {
+    db: mockDb,
+    companies: { id: 'id', name: 'name', status: 'status', budgetMonthlyCents: 'budget_monthly_cents', description: 'description', issuePrefix: 'issue_prefix' },
+    companyMemberships: { id: 'id', companyId: 'company_id', principalType: 'principal_type', principalId: 'principal_id', status: 'status', membershipRole: 'membership_role' },
+    paperclipAgents: { id: 'id', companyId: 'company_id', name: 'name', role: 'role', title: 'title', status: 'status', metadata: 'metadata' },
+    instanceUserRoles: { id: 'id', userId: 'user_id', role: 'role' },
+    projects: { id: 'id', companyId: 'company_id', name: 'name', description: 'description', status: 'status' },
+  };
 });
 
 const mockDb = vi.mocked(await import('@claw/db')).db;

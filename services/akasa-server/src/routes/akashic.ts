@@ -269,18 +269,8 @@ export function akashicRouter(): Router {
 
       const newSoul = await generateMutatedSoul(entry.soulId, 0.1);
 
-      const { createDb } = await import('@paperclipai/db');
-      const paperclipDbUrl = process.env['DATABASE_URL'];
-      if (!paperclipDbUrl) {
-        res.status(500).json({ error: 'DATABASE_URL not configured' });
-        return;
-      }
-
-      const paperclipDb = createDb(paperclipDbUrl);
-
       const { injectSoulIntoAgent } = await import('../services/soul-injector.js');
       await injectSoulIntoAgent(
-        paperclipDb,
         body.agentId,
         body.companyId,
         newSoul.soulContent,
