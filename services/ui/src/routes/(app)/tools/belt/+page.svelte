@@ -9,6 +9,7 @@
   let disconnectTarget = $state<{ connectionId: string; toolName: string } | null>(null);
   let successBanner = $state<string | null>(null);
   let errorBanner = $state<string | null>(null);
+  let testingConnectionId = $state<string | null>(null);
 
   onMount(() => {
     if (data.connected) {
@@ -26,6 +27,29 @@
       '/api/akasa/tool-connections/oauth/' + toolId +
       '/start?userId=' + encodeURIComponent(data.userId) +
       '&redirectUri=' + encodeURIComponent(window.location.origin + '/api/akasa/tool-connections/oauth/' + toolId + '/callback');
+  }
+
+  async function handleTestConnection(connectionId: string) {
+    testingConnectionId = connectionId;
+    errorBanner = null;
+    try {
+      const res = await fetch(`/api/akasa/tool-connections/${connectionId}/test`, {
+        method: 'POST',
+      });
+      const result = await res.json();
+      if (result.success) {
+        successBanner = 'Connection test successful';
+        setTimeout(() => { successBanner = null; }, 4000);
+      } else {
+        errorBanner = `Connection test failed: ${result.error ?? 'Unknown error'}`;
+        setTimeout(() => { errorBanner = null; }, 4000);
+      }
+    } catch {
+      errorBanner = 'Failed to test connection. Please try again.';
+      setTimeout(() => { errorBanner = null; }, 4000);
+    } finally {
+      testingConnectionId = null;
+    }
   }
 
   async function handleDisconnect() {
@@ -60,8 +84,10 @@
 
   <ToolBelt
     connections={data.connections}
+    connectionStats={data.connectionStats}
     onstartOAuth={startOAuth}
     ondisconnect={(connId, name) => { disconnectTarget = { connectionId: connId, toolName: name }; }}
+    ontestConnection={handleTestConnection}
   />
 </div>
 

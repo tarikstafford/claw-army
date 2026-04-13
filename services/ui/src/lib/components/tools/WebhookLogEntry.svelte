@@ -2,7 +2,8 @@
 	import { TOOL_CATALOG } from '$lib/tool-catalog';
 
 	let {
-		log
+		log,
+		onretry
 	}: {
 		log: {
 			id: string;
@@ -16,9 +17,11 @@
 			latencyMs: number | null;
 			createdAt: string;
 		};
+		onretry?: (logId: string) => void;
 	} = $props();
 
 	let expanded: boolean = $state(false);
+	let retrying: boolean = $state(false);
 
 	function getToolName(toolId: string): string {
 		return TOOL_CATALOG.find((t) => t.id === toolId)?.name ?? toolId;
@@ -36,11 +39,24 @@
 		}).format(date);
 	}
 
+	async function handleRetry() {
+		if (!onretry || retrying) return;
+		retrying = true;
+		try {
+			await onretry(log.id);
+		} finally {
+			retrying = false;
+		}
+	}
+
 	const toolName = $derived(getToolName(log.toolId));
 	const eventAction = $derived(getEventAction(log.action));
 	const timestamp = $derived(formatTimestamp(log.createdAt));
 	const hasDetails = $derived(
 		!!log.requestSummary || !!log.responseSummary || !!log.errorMessage || !!log.agentId
+	);
+	const canRetry = $derived(
+		!log.success && onretry && !log.action.includes(':retry')
 	);
 </script>
 
@@ -60,6 +76,15 @@
 		<div class="log-right">
 			{#if log.latencyMs !== null}
 				<span class="log-latency">{log.latencyMs}ms</span>
+			{/if}
+			{#if canRetry}
+				<button
+					class="retry-btn"
+					onclick={(e) => { e.stopPropagation(); handleRetry(); }}
+					disabled={retrying}
+				>
+					{retrying ? 'Retrying...' : 'Retry'}
+				</button>
 			{/if}
 			<span
 				class="success-dot"
@@ -216,5 +241,26 @@
 		font-family: var(--font-body);
 		font-size: 11px;
 		color: var(--text-muted);
+	}
+
+	.retry-btn {
+		font-family: var(--font-body);
+		font-size: 11px;
+		color: var(--teal, #2DD4BF);
+		background: transparent;
+		border: 1px solid var(--teal, #2DD4BF);
+		border-radius: var(--radius-sm);
+		cursor: pointer;
+		padding: 2px 8px;
+		transition: background 0.15s ease;
+	}
+
+	.retry-btn:hover:not(:disabled) {
+		background: rgba(45, 212, 191, 0.08);
+	}
+
+	.retry-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 </style>

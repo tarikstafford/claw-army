@@ -2,19 +2,40 @@
   import { TOOL_CATALOG } from '$lib/tool-catalog';
   import StatusBadge from './StatusBadge.svelte';
 
+  interface InvocationStats {
+    totalCalls: number;
+    successCount: number;
+    errorCount: number;
+    avgLatencyMs: number | null;
+    lastSuccessfulCallAt: string | null;
+  }
+
   let {
     connections,
+    connectionStats = {},
     onstartOAuth,
     ondisconnect,
+    ontestConnection,
   }: {
     connections: Array<{ id: string; toolId: string; status: string; displayLabel?: string; lastUsedAt: string | null }>;
+    connectionStats?: Record<string, InvocationStats>;
     onstartOAuth: (toolId: string) => void;
     ondisconnect: (connectionId: string, toolName: string) => void;
+    ontestConnection?: (connectionId: string) => void;
   } = $props();
 
   const activeConnections = $derived(connections.filter(c => c.status !== 'disconnected'));
 
   function formatLastUsed(ts: string | null): string {
+    if (!ts) return '--';
+    try {
+      return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ts));
+    } catch {
+      return '--';
+    }
+  }
+
+  function formatTimestamp(ts: string | null): string {
     if (!ts) return '--';
     try {
       return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ts));
@@ -36,6 +57,7 @@
 {:else}
   <div class="belt-list">
     {#each activeConnections as conn (conn.id)}
+      {@const stats = connectionStats[conn.id]}
       <div class="belt-row">
         <div class="belt-left">
           <span class="tool-name">{getToolName(conn.toolId)}</span>
@@ -44,8 +66,42 @@
           {/if}
           <span class="tool-last-used">Last used: {formatLastUsed(conn.lastUsedAt)}</span>
         </div>
+        {#if stats}
+          <div class="belt-stats">
+            <span class="stat-item" title="Total calls">
+              <span class="stat-value">{stats.totalCalls}</span>
+              <span class="stat-label">calls</span>
+            </span>
+            {#if stats.avgLatencyMs !== null}
+              <span class="stat-item" title="Average latency">
+                <span class="stat-value">{stats.avgLatencyMs}ms</span>
+                <span class="stat-label">avg</span>
+              </span>
+            {/if}
+            {#if stats.errorCount > 0}
+              <span class="stat-item stat-error" title="Error count">
+                <span class="stat-value">{stats.errorCount}</span>
+                <span class="stat-label">errors</span>
+              </span>
+            {/if}
+            {#if stats.lastSuccessfulCallAt}
+              <span class="stat-item stat-success" title="Last successful call">
+                <span class="stat-value">{formatTimestamp(stats.lastSuccessfulCallAt)}</span>
+                <span class="stat-label">last success</span>
+              </span>
+            {/if}
+          </div>
+        {/if}
         <div class="belt-right">
           <StatusBadge status={conn.status} />
+          {#if conn.status === 'connected' && ontestConnection}
+            <button
+              class="btn btn-test"
+              onclick={() => ontestConnection(conn.id)}
+            >
+              Test Connection
+            </button>
+          {/if}
           {#if conn.status === 'expired'}
             <button
               class="btn btn-reauth"
@@ -135,6 +191,43 @@
     color: var(--text-muted);
   }
 
+  .belt-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex: 1;
+    justify-content: center;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-family: var(--font-label);
+    font-size: 7px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .stat-error .stat-value {
+    color: var(--error);
+  }
+
+  .stat-success .stat-value {
+    color: var(--success, #2DD4BF);
+  }
+
   .belt-right {
     display: flex;
     align-items: center;
@@ -156,6 +249,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .btn-test {
+    border: 1px solid var(--teal, #2DD4BF);
+    color: var(--teal, #2DD4BF);
+  }
+
+  .btn-test:hover {
+    background: rgba(45, 212, 191, 0.08);
   }
 
   .btn-reauth {

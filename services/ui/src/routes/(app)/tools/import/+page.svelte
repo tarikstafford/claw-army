@@ -8,6 +8,7 @@
   let loading = $state(false);
   let errorMsg = $state<string | null>(null);
   let successMsg = $state<string | null>(null);
+  let newlyImportedSpecId = $state<string | null>(null);
 
   // ── Preview state ──────────────────────────────────────────────────
   interface PreviewEndpoint {
@@ -97,7 +98,19 @@
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({ error: 'Unknown error' }));
-        errorMsg = body.error ?? `Failed to parse spec (${res.status})`;
+        const errMsg = body.error ?? `Failed to parse spec (${res.status})`;
+        // Provide more helpful error messages for common spec parsing issues
+        if (errMsg.includes('Invalid') || errMsg.includes('invalid') || errMsg.includes('JSON')) {
+          errorMsg = `Invalid OpenAPI spec: ${errMsg}. Ensure your spec is valid JSON and conforms to the OpenAPI specification.`;
+        } else if (errMsg.includes('not found') || errMsg.includes('404')) {
+          errorMsg = `Could not fetch the spec from the provided URL. Please verify the URL is publicly accessible.`;
+        } else if (errMsg.includes('timeout')) {
+          errorMsg = `The spec request timed out. Please try again or use a shorter URL.`;
+        } else if (errMsg.includes('unexpected') || errMsg.includes('parse')) {
+          errorMsg = `Failed to parse the spec. Please ensure it is a valid OpenAPI 2.0 (Swagger) or 3.0 document.`;
+        } else {
+          errorMsg = errMsg;
+        }
         return;
       }
 
@@ -111,7 +124,7 @@
       }));
       showPreview = true;
     } catch (err) {
-      errorMsg = `Network error: ${(err as Error).message}`;
+      errorMsg = `Network error: ${(err as Error).message}. Please check your connection and try again.`;
     } finally {
       loading = false;
     }
@@ -151,11 +164,25 @@
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({ error: 'Unknown error' }));
-        errorMsg = body.error ?? `Import failed (${res.status})`;
+        const errMsg = body.error ?? `Import failed (${res.status})`;
+        // Provide more helpful error messages for common issues
+        if (errMsg.includes('Invalid') || errMsg.includes('invalid')) {
+          errorMsg = `Invalid OpenAPI spec: ${errMsg}. Please check that your spec is a valid OpenAPI 2.0 or 3.0 document.`;
+        } else if (errMsg.includes('not found') || errMsg.includes('404')) {
+          errorMsg = `Could not fetch the spec from the provided URL. Please verify the URL is accessible.`;
+        } else if (errMsg.includes('timeout')) {
+          errorMsg = `The spec request timed out. Please try again or use a different URL.`;
+        } else {
+          errorMsg = errMsg;
+        }
         return;
       }
 
       const imported = await res.json();
+      const importedSpecId = imported[0]?.specId ?? null;
+      if (importedSpecId) {
+        newlyImportedSpecId = importedSpecId;
+      }
       successMsg = `Imported ${imported.length} endpoint${imported.length === 1 ? '' : 's'} from ${previewTitle}`;
       showPreview = false;
       specUrl = '';
@@ -164,9 +191,9 @@
       // Refresh registry list
       await invalidateAll();
 
-      setTimeout(() => { successMsg = null; }, 4000);
+      setTimeout(() => { successMsg = null; }, 6000);
     } catch (err) {
-      errorMsg = `Network error: ${(err as Error).message}`;
+      errorMsg = `Network error: ${(err as Error).message}. Please check your connection and try again.`;
     } finally {
       importing = false;
     }
@@ -307,7 +334,8 @@
       <h2 class="section-heading">Imported Tools</h2>
 
       {#each specGroups as group}
-        <div class="spec-group">
+        {@const isNewlyImported = group.specId === newlyImportedSpecId}
+        <div class="spec-group" class:newly-imported={isNewlyImported}>
           <div class="spec-group-header" role="button" tabindex="0" onclick={() => toggleGroup(group.specId)} onkeydown={(e) => { if (e.key === 'Enter') toggleGroup(group.specId); }}>
             <div class="spec-group-meta">
               <span class="spec-group-title">{group.specTitle}</span>
@@ -315,6 +343,9 @@
                 <span class="spec-group-version">v{group.specVersion}</span>
               {/if}
               <span class="spec-group-count">{group.endpoints.length} endpoint{group.endpoints.length === 1 ? '' : 's'}</span>
+              {#if isNewlyImported}
+                <span class="new-badge">Newly imported</span>
+              {/if}
             </div>
             <div class="spec-group-actions">
               <button
@@ -323,11 +354,11 @@
               >
                 Remove
               </button>
-              <span class="expand-icon">{group.expanded ? '\u25BC' : '\u25B6'}</span>
+              <span class="expand-icon">{group.expanded || isNewlyImported ? '\u25BC' : '\u25B6'}</span>
             </div>
           </div>
 
-          {#if group.expanded}
+          {#if group.expanded || isNewlyImported}
             <div class="spec-group-body">
               {#each group.endpoints as entry}
                 <div class="registry-row" class:disabled-row={!entry.isEnabled}>
@@ -742,5 +773,21 @@
 
   .registry-row.disabled-row {
     opacity: 0.4;
+  }
+
+  .spec-group.newly-imported {
+    border-color: var(--teal, #2DD4BF);
+    box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.2);
+  }
+
+  .new-badge {
+    font-family: var(--font-label);
+    font-size: 7px;
+    color: var(--teal, #2DD4BF);
+    background: rgba(45, 212, 191, 0.1);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 </style>

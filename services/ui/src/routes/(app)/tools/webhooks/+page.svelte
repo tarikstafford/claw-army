@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import SlidePanel from '$lib/components/SlidePanel.svelte';
 	import Modal from '$lib/components/Modal.svelte';
@@ -8,10 +9,25 @@
 
 	let { data } = $props();
 
+	onMount(() => {
+		fetchWebhookUrls();
+	});
+
 	let showRuleForm: boolean = $state(false);
 	let deleteTarget: { id: string; eventType: string } | null = $state(null);
 	let submitting: boolean = $state(false);
 	let formError: string | null = $state(null);
+	let retryingLogId: string | null = $state(null);
+
+	// Webhook URLs per connection
+	interface WebhookUrlEntry {
+		connectionId: string;
+		toolId: string;
+		toolName: string;
+		webhookUrl: string;
+	}
+	let webhookUrls = $state<WebhookUrlEntry[]>([]);
+	let fetchingUrls: boolean = $state(false);
 
 	// Simulation state
 	let showSimulator: boolean = $state(false);
@@ -43,6 +59,68 @@
 
 	function getSamplePayload(toolId: string, eventType: string): Record<string, unknown> {
 		return (SAMPLE_PAYLOADS[toolId]?.[eventType] ?? { eventType }) as Record<string, unknown>;
+	}
+
+	async function fetchWebhookUrls() {
+		fetchingUrls = true;
+		const activeConnections = (data.connections as Array<{ id: string; toolId: string; status: string }>)
+			.filter((c) => c.status !== 'disconnected');
+		const results: WebhookUrlEntry[] = [];
+		await Promise.allSettled(
+			activeConnections.map(async (conn) => {
+				const res = await fetch('/api/akasa/webhooks/generate-url', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ connectionId: conn.id }),
+				});
+				if (res.ok) {
+					const data = await res.json();
+					results.push({
+						connectionId: conn.id,
+						toolId: conn.toolId,
+						toolName: getToolName(conn.toolId),
+						webhookUrl: data.webhookUrl,
+					});
+				}
+			})
+		);
+		webhookUrls = results;
+		fetchingUrls = false;
+	}
+
+	async function copyToClipboard(text: string) {
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch {
+			// Fallback for older browsers
+			const textarea = document.createElement('textarea');
+			textarea.value = text;
+			document.body.appendChild(textarea);
+			textarea.select();
+			document.execCommand('copy');
+			document.body.removeChild(textarea);
+		}
+	}
+
+	async function handleRetryLog(logId: string) {
+		retryingLogId = logId;
+		try {
+			const res = await fetch(`/api/akasa/webhooks/logs/${logId}/retry`, {
+				method: 'POST',
+			});
+			const result = await res.json();
+			if (result.success) {
+				await invalidateAll();
+			} else {
+				formError = result.message ?? 'Retry failed';
+				setTimeout(() => { formError = null; }, 4000);
+			}
+		} catch {
+			formError = 'Failed to retry webhook delivery';
+			setTimeout(() => { formError = null; }, 4000);
+		} finally {
+			retryingLogId = null;
+		}
 	}
 
 	function openSimulator() {
@@ -153,6 +231,39 @@
 </script>
 
 <div class="webhooks-page">
+	<!-- Webhook URLs Section -->
+	{#if webhookUrls.length > 0}
+		<div class="webhook-urls-section">
+			<div class="section-header">
+				<h2 class="section-heading">Webhook URLs</h2>
+				<button
+					class="refresh-urls-btn"
+					onclick={() => { fetchWebhookUrls(); }}
+					disabled={fetchingUrls}
+				>
+					{fetchingUrls ? 'Loading...' : 'Refresh'}
+				</button>
+			</div>
+			<p class="section-desc">Configure your tool to send webhooks to the URLs below. Each URL is unique to a specific connection.</p>
+			<div class="webhook-urls-list">
+				{#each webhookUrls as entry}
+					<div class="webhook-url-row">
+						<div class="webhook-url-info">
+							<span class="webhook-url-tool">{entry.toolName}</span>
+							<code class="webhook-url-value">{entry.webhookUrl}</code>
+						</div>
+						<button
+							class="copy-btn"
+							onclick={() => { copyToClipboard(entry.webhookUrl); }}
+						>
+							Copy URL
+						</button>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
 	<!-- Routing Rules Section -->
 	<div>
 		<div class="section-header">
@@ -225,7 +336,7 @@
 		{:else}
 			<div class="logs-list">
 				{#each data.logs as log (log.id)}
-					<WebhookLogEntry {log} />
+					<WebhookLogEntry {log} onretry={handleRetryLog} />
 				{/each}
 			</div>
 		{/if}
@@ -625,5 +736,103 @@
 		color: var(--text-muted);
 		font-style: italic;
 		margin-top: var(--space-sm);
+	}
+
+	/* Webhook URLs section */
+	.webhook-urls-section {
+		margin-bottom: var(--space-2xl);
+	}
+
+	.webhook-urls-section .section-desc {
+		font-family: var(--font-body);
+		font-size: 13px;
+		color: var(--text-muted);
+		margin: 0 0 var(--space-lg) 0;
+		line-height: 1.5;
+	}
+
+	.refresh-urls-btn {
+		min-height: 36px;
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 12px;
+		cursor: pointer;
+		padding: 0 var(--space-md);
+		transition: border-color 0.15s ease, color 0.15s ease;
+	}
+
+	.refresh-urls-btn:hover:not(:disabled) {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+
+	.refresh-urls-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.webhook-urls-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	.webhook-url-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background: var(--card);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		padding: var(--space-md) var(--space-lg);
+		gap: var(--space-md);
+	}
+
+	.webhook-url-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		min-width: 0;
+		flex: 1;
+	}
+
+	.webhook-url-tool {
+		font-family: var(--font-body);
+		font-size: 13px;
+		font-weight: 500;
+		color: var(--text);
+	}
+
+	.webhook-url-value {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--text-muted);
+		background: var(--bg);
+		padding: var(--space-xs) var(--space-sm);
+		border-radius: var(--radius-sm);
+		overflow-x: auto;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	.copy-btn {
+		min-height: 36px;
+		border: 1px solid var(--teal, #2DD4BF);
+		color: var(--teal, #2DD4BF);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 12px;
+		cursor: pointer;
+		padding: 0 var(--space-md);
+		transition: background 0.15s ease;
+		flex-shrink: 0;
+	}
+
+	.copy-btn:hover {
+		background: rgba(45, 212, 191, 0.08);
 	}
 </style>
