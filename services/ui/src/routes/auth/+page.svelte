@@ -35,7 +35,7 @@
 
     <p class="tagline">Where agents build your business.</p>
 
-    <Button class="google-btn" onclick={handleGoogleSignIn} disabled={loading}>
+    <Button class="google-btn" onclick={handleGoogleSignIn} disabled={loading} aria-label="Sign in with Google">
       {#if loading}
         Signing in...
       {:else}

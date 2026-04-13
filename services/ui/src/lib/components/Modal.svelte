@@ -14,17 +14,60 @@
 		onclose: () => void;
 		children: Snippet;
 	} = $props();
+
+	let dialogEl: HTMLDivElement | undefined = $state();
+	let previousFocus: HTMLElement | null = null;
+
+	$effect(() => {
+		if (open) {
+			previousFocus = document.activeElement as HTMLElement;
+			dialogEl?.focus();
+		} else if (previousFocus) {
+			previousFocus.focus();
+			previousFocus = null;
+		}
+	});
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			onclose();
+		}
+		if (e.key === 'Tab') {
+			const focusable = dialogEl?.querySelectorAll<HTMLElement>(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			);
+			if (!focusable || focusable.length === 0) return;
+			const first = focusable[0];
+			const last = focusable[focusable.length - 1];
+			if (e.shiftKey && document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			} else if (!e.shiftKey && document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	}
 </script>
 
 {#if open}
-<div class="modal-overlay" onclick={onclose} role="dialog" aria-modal="true">
+<div
+	class="modal-overlay"
+	onclick={onclose}
+	onkeydown={handleKeydown}
+	role="dialog"
+	aria-modal="true"
+	aria-labelledby="modal-title"
+	tabindex="-1"
+	bind:this={dialogEl}
+>
 	<div class="modal-box" onclick={(e) => e.stopPropagation()}>
 		<div class="modal-header">
 			<div class="modal-header-text">
 				{#if tag}<span class="modal-tag">{tag}</span>{/if}
-				<h2 class="modal-title">{title}</h2>
+				<h2 class="modal-title" id="modal-title">{title}</h2>
 			</div>
-			<button class="modal-close" onclick={onclose} aria-label="Close">&#10005;</button>
+			<button class="modal-close" onclick={onclose} aria-label="Close modal">&#10005;</button>
 		</div>
 		<div class="modal-body">
 			{@render children()}

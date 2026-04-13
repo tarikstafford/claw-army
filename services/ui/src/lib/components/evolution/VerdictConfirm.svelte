@@ -111,6 +111,7 @@
         class="btn-approve"
         disabled={loading}
         onclick={handleApprove}
+        aria-label={`Approve verdict for bot ${verdict.botId.slice(0, 8)}`}
       >
         {loading ? '...' : 'Approve'}
       </button>
@@ -118,6 +119,7 @@
         class="btn-reject"
         disabled={loading}
         onclick={() => (rejectModalOpen = true)}
+        aria-label={`Reject verdict for bot ${verdict.botId.slice(0, 8)}`}
       >
         Reject
       </button>

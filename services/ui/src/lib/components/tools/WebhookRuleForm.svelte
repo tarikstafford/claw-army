@@ -59,12 +59,13 @@
 	}
 </script>
 
-<div class="rule-form">
+<div class="rule-form" aria-label="Webhook rule form">
 	<div class="field">
 		<label for="connection-select">Tool Connection</label>
 		<select
 			id="connection-select"
 			bind:value={selectedConnectionId}
+			aria-required="true"
 		>
 			<option value="">Select a connection</option>
 			{#each activeConnections as conn}
@@ -79,6 +80,7 @@
 			id="event-type-select"
 			bind:value={selectedEventType}
 			disabled={!selectedConnectionId}
+			aria-required="true"
 		>
 			<option value="">Select an event</option>
 			{#each availableEventTypes as eventType}
@@ -94,12 +96,14 @@
 			type="text"
 			bind:value={condition}
 			placeholder="e.g. payload.amount > 1000"
+			aria-describedby="condition-hint"
 		/>
+		<span id="condition-hint" class="field-hint">Enter a JavaScript expression to filter events</span>
 	</div>
 
 	<div class="field">
 		<label for="agent-select">Assign to Agent</label>
-		<select id="agent-select" bind:value={selectedAgentId}>
+		<select id="agent-select" bind:value={selectedAgentId} aria-required="true">
 			<option value="">Select an agent</option>
 			{#each agents as agent}
 				<option value={agent.id}>{agent.name}</option>
@@ -108,12 +112,13 @@
 	</div>
 
 	<div class="form-actions">
-		<button class="cancel-btn" type="button" onclick={oncancel}>Cancel</button>
+		<button class="cancel-btn" type="button" onclick={oncancel} aria-label="Cancel and close form">Cancel</button>
 		<button
 			class="submit-btn"
 			type="button"
 			onclick={handleSubmit}
 			disabled={isSubmitDisabled}
+			aria-label={isSubmitDisabled ? 'Fill in required fields to submit' : 'Add webhook rule'}
 		>
 			{submitting ? 'Adding...' : 'Add Rule'}
 		</button>
@@ -143,6 +148,13 @@
 	.optional-label {
 		color: var(--text-muted);
 		font-size: 11px;
+	}
+
+	.field-hint {
+		font-family: var(--font-body);
+		font-size: 11px;
+		color: var(--text-muted);
+		margin-top: 2px;
 	}
 
 	select,

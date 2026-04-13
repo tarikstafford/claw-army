@@ -61,6 +61,7 @@
         class="field-input"
         required
         aria-required="true"
+        aria-describedby={errorMsg ? 'name-error' : undefined}
       />
     </div>
 
@@ -77,7 +78,7 @@
 
     <div class="field">
       <label for="adapter" class="field-label">Model / Adapter</label>
-      <select id="adapter" bind:value={adapter} class="field-input field-select">
+      <select id="adapter" bind:value={adapter} class="field-input field-select" aria-label="Select model or adapter">
         {#each ADAPTERS as opt}
           <option value={opt.value}>{opt.label}</option>
         {/each}
@@ -85,7 +86,7 @@
     </div>
 
     {#if errorMsg}
-      <p class="field-error" role="alert" aria-live="polite">{errorMsg}</p>
+      <p class="field-error" id="name-error" role="alert" aria-live="polite">{errorMsg}</p>
     {/if}
 
     <div class="form-actions">

@@ -27,9 +27,9 @@
   }
 </script>
 
-<div class="chip-group">
+<div class="chip-group" role="group" aria-label="Select an option">
   {#each options as option}
-    <button class="chip" type="button" onclick={() => handleChip(option)}>
+    <button class="chip" type="button" onclick={() => handleChip(option)} aria-label={option}>
       {option}
     </button>
   {/each}
@@ -42,14 +42,14 @@
           bind:value={freeText}
           onkeydown={handleKeydown}
           placeholder="Type your own..."
-          autofocus
+          aria-label="Custom option input"
         />
-        <button class="send-btn" type="button" onclick={handleFreeText} disabled={!freeText.trim()}>
+        <button class="send-btn" type="button" onclick={handleFreeText} disabled={!freeText.trim()} aria-label="Submit custom option">
           &#9654;
         </button>
       </div>
     {:else}
-      <button class="chip chip-other" type="button" onclick={() => showInput = true}>
+      <button class="chip chip-other" type="button" onclick={() => showInput = true} aria-label="Enter custom option">
         Something else...
       </button>
     {/if}
