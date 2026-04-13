@@ -83,6 +83,8 @@ export interface Project {
   companyId: string;
   name: string;
   description?: string | null;
+  status?: string | null;
+  githubRepo?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -90,6 +92,13 @@ export interface Project {
 export interface CreateProjectInput {
   name: string;
   description?: string;
+  githubRepo?: string;
+}
+
+export interface UpdateProjectInput {
+  name?: string;
+  description?: string;
+  githubRepo?: string;
 }
 
 export interface ChatThread {
@@ -434,6 +443,20 @@ export async function createProject(companyId: string, body: CreateProjectInput)
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+  });
+}
+
+export async function updateProject(projectId: string, body: UpdateProjectInput): Promise<Project> {
+  return apiFetch(`${BASE}/projects/${projectId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteProject(projectId: string): Promise<{ ok: boolean }> {
+  return apiFetch(`${BASE}/projects/${projectId}`, {
+    method: 'DELETE',
   });
 }
 
