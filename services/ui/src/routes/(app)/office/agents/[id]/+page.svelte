@@ -1,7 +1,76 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import SkillLoadout from '$lib/components/evolution/SkillLoadout.svelte';
+  import { getAgentSkills, getSkills, type EquippedSkill, type Skill } from '$lib/api';
 
   let { data }: { data: PageData } = $props();
+
+  interface Toast {
+    id: string;
+    type: 'error' | 'success';
+    message: string;
+  }
+
+  let toasts = $state<Toast[]>([]);
+  let equippedSkills = $state<EquippedSkill[]>([]);
+  let allSkills = $state<Skill[]>([]);
+  let skillsLoading = $state(true);
+  let skillsError = $state<string | null>(null);
+
+  function addToast(message: string, type: 'error' | 'success' = 'error') {
+    const id = crypto.randomUUID().slice(0, 8);
+    toasts = [{ id, type, message }, ...toasts].slice(0, 5);
+    setTimeout(() => {
+      toasts = toasts.filter((t) => t.id !== id);
+    }, 4000);
+  }
+
+  function dismissToast(id: string) {
+    toasts = toasts.filter((t) => t.id !== id);
+  }
+
+  async function loadSkills() {
+    skillsLoading = true;
+    skillsError = null;
+    try {
+      const [equippedRes, skillsRes] = await Promise.allSettled([
+        getAgentSkills(data.agent.id),
+        getSkills(data.userId),
+      ]);
+      equippedSkills = equippedRes.status === 'fulfilled' ? equippedRes.value : [];
+      allSkills = skillsRes.status === 'fulfilled' ? skillsRes.value : [];
+      if (equippedRes.status === 'rejected') {
+        skillsError = 'Failed to load equipped skills';
+      }
+      if (skillsRes.status === 'rejected') {
+        skillsError = 'Failed to load skills library';
+      }
+    } catch (err) {
+      skillsError = (err as Error).message;
+    } finally {
+      skillsLoading = false;
+    }
+  }
+
+  function handleEquipSuccess(skill: Skill) {
+    addToast(`Equipped ${skill.name}`, 'success');
+  }
+
+  function handleEquipError(err: Error, skill: Skill) {
+    addToast(`Failed to equip ${skill.name}: ${err.message}`, 'error');
+  }
+
+  function handleUnequipSuccess(skillId: string) {
+    addToast('Skill unequipped', 'success');
+  }
+
+  function handleUnequipError(err: Error, skillId: string) {
+    addToast(`Failed to unequip skill: ${err.message}`, 'error');
+  }
+
+  $effect(() => {
+    loadSkills();
+  });
 
   function getStatusLabel(status: string | null | undefined): string {
     switch (status) {
@@ -79,7 +148,33 @@
       <span class="meta-value">{new Date(data.agent.updatedAt).toLocaleDateString()}</span>
     </div>
   </div>
+
+  <div class="skill-section">
+    <span class="section-eyebrow">SKILLS</span>
+    <SkillLoadout
+      botId={data.agent.id}
+      userId={data.userId}
+      agentClass={null}
+      initialEquipped={equippedSkills}
+      initialAllSkills={allSkills}
+      onEquipSuccess={handleEquipSuccess}
+      onEquipError={handleEquipError}
+      onUnequipSuccess={handleUnequipSuccess}
+      onUnequipError={handleUnequipError}
+    />
+  </div>
 </div>
+
+{#if toasts.length > 0}
+  <div class="toast-container">
+    {#each toasts as toast (toast.id)}
+      <div class="toast" class:toast-error={toast.type === 'error'} class:toast-success={toast.type === 'success'}>
+        <span class="toast-text">{toast.message}</span>
+        <button class="toast-dismiss" onclick={() => dismissToast(toast.id)} aria-label="Dismiss">×</button>
+      </div>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .agent-detail {
@@ -200,5 +295,83 @@
 
   .agent-meta {
     border-top-color: var(--border);
+  }
+
+  .skill-section {
+    margin-top: var(--space-xl);
+    border-top: 1px solid var(--fo-border);
+    padding-top: var(--space-xl);
+  }
+
+  .toast-container {
+    position: fixed;
+    top: 104px;
+    right: 20px;
+    z-index: 600;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    animation: slideIn 0.25s ease-out;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    pointer-events: all;
+  }
+
+  .toast.toast-error {
+    border-color: var(--bo-rose);
+  }
+
+  .toast.toast-success {
+    border-color: var(--bo-teal);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .toast-text {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.5;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toast.toast-error .toast-text {
+    color: var(--bo-rose);
+  }
+
+  .toast.toast-success .toast-text {
+    color: var(--bo-teal);
+  }
+
+  .toast-dismiss {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  .toast-dismiss:hover {
+    color: var(--text-muted);
   }
 </style>

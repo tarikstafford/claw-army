@@ -12,6 +12,12 @@
     botId: string;
     userId: string;
     agentClass: string | null;
+    initialEquipped?: EquippedSkill[];
+    initialAllSkills?: Skill[];
+    onEquipSuccess?: (skill: Skill) => void;
+    onEquipError?: (err: Error, skill: Skill) => void;
+    onUnequipSuccess?: (skillId: string) => void;
+    onUnequipError?: (err: Error, skillId: string) => void;
   }
 
   const CAPACITY: Record<string, number> = {
@@ -32,10 +38,20 @@
     other: 'var(--bo-faint)',
   };
 
-  let { botId, userId, agentClass }: Props = $props();
+  let {
+    botId,
+    userId,
+    agentClass,
+    initialEquipped,
+    initialAllSkills,
+    onEquipSuccess,
+    onEquipError,
+    onUnequipSuccess,
+    onUnequipError,
+  }: Props = $props();
 
-  let equipped = $state<EquippedSkill[]>([]);
-  let allSkills = $state<Skill[]>([]);
+  let equipped = $state<EquippedSkill[]>(initialEquipped ?? []);
+  let allSkills = $state<Skill[]>(initialAllSkills ?? []);
   let loading = $state(true);
   let error = $state<string | null>(null);
   let showLibrary = $state(false);
@@ -61,6 +77,12 @@
   });
 
   async function loadData() {
+    if (initialEquipped !== undefined && initialAllSkills !== undefined) {
+      equipped = initialEquipped;
+      allSkills = initialAllSkills;
+      loading = false;
+      return;
+    }
     loading = true;
     error = null;
     try {
@@ -79,24 +101,50 @@
 
   async function handleEquip(skillId: string) {
     if (slotsFree <= 0) return;
+    const skillToEquip = allSkills.find((s) => s.id === skillId);
+    if (!skillToEquip) return;
+
+    const optimisticEquipped: EquippedSkill = {
+      skillId: skillToEquip.id,
+      equippedAt: new Date().toISOString(),
+      equippedBy: userId,
+      skillName: skillToEquip.name,
+      skillDescription: skillToEquip.description,
+      skillCategory: skillToEquip.category,
+      skillVersion: skillToEquip.version,
+    };
+
+    const previousEquipped = equipped;
+    equipped = [...equipped, optimisticEquipped];
     actionLoading = skillId;
+
     try {
       await equipSkill(botId, skillId, userId);
-      await loadData();
+      onEquipSuccess?.(skillToEquip);
     } catch (err) {
+      equipped = previousEquipped;
       error = (err as Error).message;
+      onEquipError?.(err as Error, skillToEquip);
     } finally {
       actionLoading = null;
     }
   }
 
   async function handleUnequip(skillId: string) {
+    const skillToUnequip = equipped.find((s) => s.skillId === skillId);
+    if (!skillToUnequip) return;
+
+    const previousEquipped = equipped;
+    equipped = equipped.filter((s) => s.skillId !== skillId);
     actionLoading = skillId;
+
     try {
       await unequipSkill(botId, skillId);
-      await loadData();
+      onUnequipSuccess?.(skillId);
     } catch (err) {
+      equipped = previousEquipped;
       error = (err as Error).message;
+      onUnequipError?.(err as Error, skillId);
     } finally {
       actionLoading = null;
     }
