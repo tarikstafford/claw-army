@@ -18,14 +18,30 @@
 	} = $props();
 
 	let isOpen = $state(open);
+	let panelId = `accordion-panel-${Math.random().toString(36).slice(2, 9)}`;
+	let triggerId = `accordion-trigger-${Math.random().toString(36).slice(2, 9)}`;
 
 	function toggle() {
 		isOpen = !isOpen;
 	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			toggle();
+		}
+	}
 </script>
 
 <div class="accordion" style="--acc-color: {color}">
-	<button class="accordion-header" onclick={toggle} aria-expanded={isOpen}>
+	<button
+		class="accordion-header"
+		onclick={toggle}
+		onkeydown={handleKeydown}
+		aria-expanded={isOpen}
+		aria-controls={panelId}
+		id={triggerId}
+	>
 		<div class="accordion-left">
 			<span class="acc-dot" style="background: {color}"></span>
 			<div class="acc-labels">
@@ -35,10 +51,16 @@
 		</div>
 		<div class="accordion-right">
 			{#if meta}<span class="acc-meta">{meta}</span>{/if}
-			<span class="acc-arrow" class:open={isOpen}>&#9660;</span>
+			<span class="acc-arrow" class:open={isOpen} aria-hidden="true">&#9660;</span>
 		</div>
 	</button>
-	<div class="accordion-body" class:open={isOpen}>
+	<div
+		class="accordion-body"
+		class:open={isOpen}
+		id={panelId}
+		role="region"
+		aria-labelledby={triggerId}
+	>
 		<div class="accordion-inner">
 			{@render children()}
 		</div>

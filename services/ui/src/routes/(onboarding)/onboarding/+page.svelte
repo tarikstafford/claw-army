@@ -391,11 +391,11 @@
                 ondisconnect={handleDisconnect}
               />
               {#if connection && !selected}
-                <button class="select-tool-btn" type="button" onclick={() => toggleTool(tool.id)}>
+                <button class="select-tool-btn" type="button" onclick={() => toggleTool(tool.id)} aria-label={`Select ${tool.name}`}>
                   Select this tool
                 </button>
               {:else if connection && selected}
-                <button class="deselect-tool-btn" type="button" onclick={() => toggleTool(tool.id)}>
+                <button class="deselect-tool-btn" type="button" onclick={() => toggleTool(tool.id)} aria-label={`Deselect ${tool.name}`}>
                   Selected ✓
                 </button>
               {/if}

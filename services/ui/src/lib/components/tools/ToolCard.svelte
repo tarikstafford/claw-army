@@ -33,6 +33,7 @@
       <button
         class="btn btn-connect"
         onclick={() => onconnect(tool.id)}
+        aria-label={`Re-authorise ${tool.name}`}
       >
         Re-authorise
       </button>
@@ -40,6 +41,7 @@
       <button
         class="btn btn-disconnect"
         onclick={() => ondisconnect(connection!.id, tool.name)}
+        aria-label={`Disconnect ${tool.name}`}
       >
         Disconnect Tool
       </button>
@@ -47,6 +49,7 @@
       <button
         class="btn btn-connect"
         onclick={() => onconnect(tool.id)}
+        aria-label={`Connect ${tool.name}`}
       >
         Connect Tool
       </button>

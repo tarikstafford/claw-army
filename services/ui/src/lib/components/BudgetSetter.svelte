@@ -125,6 +125,7 @@
           step="1"
           value={customDailyCents / 100}
           oninput={(e) => customDailyCents = Math.round(parseFloat(e.currentTarget.value || '0') * 100)}
+          aria-label="Daily budget in dollars"
         />
       </div>
       <div class="input-group">
@@ -136,6 +137,7 @@
           step="1"
           value={customMonthlyCents / 100}
           oninput={(e) => customMonthlyCents = Math.round(parseFloat(e.currentTarget.value || '0') * 100)}
+          aria-label="Monthly budget in dollars"
         />
       </div>
     </div>

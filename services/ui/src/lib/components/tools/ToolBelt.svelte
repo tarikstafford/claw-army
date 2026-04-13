@@ -86,6 +86,7 @@
             <button
               class="btn btn-reauth"
               onclick={() => onstartOAuth(conn.toolId)}
+              aria-label={`Re-authorise ${getToolName(conn.toolId)}`}
             >
               Re-authorise
             </button>
@@ -93,6 +94,7 @@
             <button
               class="btn btn-disconnect"
               onclick={() => ondisconnect(conn.id, getToolName(conn.toolId))}
+              aria-label={`Disconnect ${getToolName(conn.toolId)}`}
             >
               Disconnect
             </button>

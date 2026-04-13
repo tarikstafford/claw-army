@@ -66,12 +66,14 @@
         <span class="hamburger-line"></span>
       </button>
 
-      <div class="nav-tabs" aria-label="Primary navigation" class:mobile-open={mobileMenuOpen}>
+      <div class="nav-tabs" role="navigation" aria-label="Primary navigation" class:mobile-open={mobileMenuOpen}>
         {#each tabs as tab}
           <a
             href={tab.href}
             class="nav-tab"
             class:active={isActive(tab.href)}
+            aria-current={isActive(tab.href) ? 'page' : undefined}
+            aria-label={tab.label}
             onclick={closeMobileMenu}
           >
             {tab.label}

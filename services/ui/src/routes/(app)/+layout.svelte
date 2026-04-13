@@ -82,13 +82,13 @@
     {#each notifications as notif (notif.id)}
       <div class="toast">
         <span class="toast-text">{notif.text}</span>
-        <button class="toast-dismiss" onclick={() => dismissToast(notif.id)} aria-label="Dismiss">×</button>
+        <button class="toast-dismiss" onclick={() => dismissToast(notif.id)} aria-label="Dismiss notification">×</button>
       </div>
     {/each}
   </div>
 {/if}
 
-<main class="main-content">
+<main class="main-content" id="main-content">
   {@render children()}
 </main>
 

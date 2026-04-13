@@ -50,7 +50,37 @@
   });
 </script>
 
+<svelte:head>
+  <style>
+    .skip-link {
+      position: fixed;
+      top: -100%;
+      left: 16px;
+      z-index: 9999;
+      padding: 12px 20px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 0 0 8px 8px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus {
+      top: 0;
+      outline: 3px solid var(--accent-m);
+      outline-offset: 2px;
+    }
+  </style>
+</svelte:head>
+
 <Aurora variant={auroraVariant} />
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
 <NavShell variant={navVariant} pathname={pathname} session={data.session ?? null} />
 
-{@render children()}
+<main id="main-content">
+  {@render children()}
+</main>

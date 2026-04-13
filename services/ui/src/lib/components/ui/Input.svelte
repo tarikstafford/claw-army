@@ -14,13 +14,24 @@
     type?: string;
     error?: string;
   } = $props();
+
+  const errorId = `${id}-error`;
 </script>
 
 <label class="field" for={id}>
-  <span class="field-label">{label}</span>
-  <input bind:value class:error={!!error} {id} {type} {placeholder} />
+  <span class="field-label" id={`${id}-label`}>{label}</span>
+  <input
+    bind:value
+    class:error={!!error}
+    {id}
+    {type}
+    {placeholder}
+    aria-required="true"
+    aria-invalid={!!error}
+    aria-describedby={error ? errorId : undefined}
+  />
   {#if error}
-    <span class="field-error">{error}</span>
+    <span class="field-error" id={errorId} role="alert">{error}</span>
   {/if}
 </label>
 

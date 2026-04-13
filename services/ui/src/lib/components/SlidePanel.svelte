@@ -14,15 +14,34 @@
 		onclose: () => void;
 		children: Snippet;
 	} = $props();
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			onclose();
+		}
+	}
+
+	function handleOverlayClick(e: MouseEvent) {
+		if (e.target === e.currentTarget) {
+			onclose();
+		}
+	}
 </script>
 
-<div class="slide-panel" class:open={open}>
+<div
+	class="slide-panel"
+	class:open={open}
+	onkeydown={handleKeydown}
+	role="dialog"
+	aria-modal="true"
+	aria-labelledby="panel-title"
+>
 	<div class="panel-header">
 		<div class="panel-header-text">
 			{#if tag}<span class="panel-tag">{tag}</span>{/if}
-			<h2 class="panel-title">{title}</h2>
+			<h2 class="panel-title" id="panel-title">{title}</h2>
 		</div>
-		<button class="panel-close" onclick={onclose} aria-label="Close">&#10005;</button>
+		<button class="panel-close" onclick={onclose} aria-label="Close panel">&#10005;</button>
 	</div>
 	<div class="panel-body">
 		{@render children()}
