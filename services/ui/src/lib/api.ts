@@ -703,3 +703,184 @@ export async function deleteReview(
     method: 'DELETE',
   });
 }
+
+// ── Executions ────────────────────────────────────────────────────
+
+export type ExecutionStatus =
+  | 'pre_flight'
+  | 'queued'
+  | 'running'
+  | 'paused'
+  | 'stopped'
+  | 'completed'
+  | 'failed';
+
+export const EXECUTION_STATUSES: readonly ExecutionStatus[] = [
+  'pre_flight',
+  'queued',
+  'running',
+  'paused',
+  'stopped',
+  'completed',
+  'failed',
+] as const;
+
+export interface Execution {
+  id: string;
+  status: ExecutionStatus;
+  objective: string;
+  maxBots: number;
+  budgetCapCents: number | null;
+  runtimeLimitSeconds: number | null;
+  allowedTools: string[];
+  llmProvider: string | null;
+  allowedDomains: string[] | null;
+  campaignType: string | null;
+  projectId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  activeBotCount?: number;
+}
+
+export interface ExecutionListItem extends Execution {
+  activeBotCount: number;
+}
+
+export interface ExecutionBot {
+  id: string;
+  executionId: string;
+  status: 'spawning' | 'idle' | 'working' | 'stopping' | 'stopped' | 'failed';
+  containerId: string | null;
+  imageTag: string;
+  tasksClaimed: number;
+  tasksCompleted: number;
+  tasksFailed: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExecutionTask {
+  id: string;
+  executionId: string;
+  status: 'pending' | 'claimed' | 'completed' | 'failed';
+  description: string;
+  result: string | null;
+  claimedByBotId: string | null;
+  attemptCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RingLeaderState {
+  runId: string;
+  executionId: string;
+  status: string;
+  runState: {
+    runId: string;
+    elapsedTimeSeconds: number;
+    budgetConsumedCents: number;
+    taskStates: Record<string, {
+      status: string;
+      activeAgents: string[];
+      completedAgents: string[];
+      failedAgents: string[];
+      outputQualitySignal: number | null;
+    }>;
+    objectiveDriftScore: number;
+    anomalies: string[];
+  } | null;
+}
+
+export interface RingLeaderSynthesis {
+  runId: string;
+  executionId: string;
+  status: string;
+  synthesis: {
+    runId: string;
+    objective: string;
+    objectiveAchieved: boolean;
+    achievementRationale: string;
+    taskSummary: Array<{
+      taskId: string;
+      completed: boolean;
+      topPerformingSoulId: string | null;
+      outputQualitySignal: number | null;
+      anomalies: string[];
+    }>;
+    intelligenceRoutingEvents: number;
+    reallocationEvents: number;
+    reanchoringEvents: number;
+    soulSelectionRetrospective: string;
+    budgetVarianceCents: number;
+    recommendedLibraryWrites: string[];
+    pioneerEvents: string[];
+    ringLeaderSelfAssessment: string;
+  } | null;
+  fitness: {
+    coordinationScore: {
+      collectiveOutcome: number;
+      driftPrevention: number;
+      reallocationEffectiveness: number;
+      budgetManagement: number;
+    };
+    soulSelectionScore: {
+      librarySearchQuality: number;
+      differentiationEffectiveness: number;
+      mutationDecisionQuality: number;
+      pioneerHandling: number;
+      selectionRetrospectiveQuality: number;
+    };
+    compositeScore: number;
+  } | null;
+}
+
+export interface ExecutionProgressEvent {
+  executionId: string;
+  type: string;
+  timestamp?: string;
+  payload?: Record<string, unknown>;
+}
+
+export async function getExecutions(params?: {
+  status?: ExecutionStatus;
+  projectId?: string;
+  sortBy?: 'date' | 'duration';
+  sortOrder?: 'asc' | 'desc';
+}): Promise<ExecutionListItem[]> {
+  const query = new URLSearchParams();
+  if (params?.status) query.set('status', params.status);
+  if (params?.projectId) query.set('projectId', params.projectId);
+  if (params?.sortBy) query.set('sortBy', params.sortBy);
+  if (params?.sortOrder) query.set('sortOrder', params.sortOrder);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/executions${qs ? `?${qs}` : ''}`);
+}
+
+export async function getExecution(id: string): Promise<Execution> {
+  return apiFetch(`${BASE}/executions/${id}`);
+}
+
+export async function getExecutionBots(id: string): Promise<ExecutionBot[]> {
+  return apiFetch(`${BASE}/executions/${id}/bots`);
+}
+
+export async function getExecutionTasks(id: string): Promise<ExecutionTask[]> {
+  return apiFetch(`${BASE}/executions/${id}/tasks`);
+}
+
+export async function updateExecution(
+  id: string,
+  action: 'pause' | 'resume' | 'cancel',
+): Promise<{ success: boolean }> {
+  return apiFetch(`${BASE}/executions/${id}/${action}`, {
+    method: 'POST',
+  });
+}
+
+export async function getExecutionRingLeader(id: string): Promise<RingLeaderState> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${id}/state`);
+}
+
+export async function getExecutionSynthesis(id: string): Promise<RingLeaderSynthesis> {
+  return apiFetch(`${BASE}/ring-leader/runs/by-execution/${id}/synthesis`);
+}

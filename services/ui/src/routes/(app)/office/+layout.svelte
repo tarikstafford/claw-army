@@ -8,6 +8,7 @@
     { href: '/office/issues', label: 'ISSUES' },
     { href: '/office/goals', label: 'GOALS' },
     { href: '/office/projects', label: 'PROJECTS' },
+    { href: '/office/executions', label: 'RUNS' },
   ];
 </script>
 
