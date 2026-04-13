@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import { goto } from '$app/navigation';
+  import { invalidateAll, goto } from '$app/navigation';
   import SlidePanel from '$lib/components/SlidePanel.svelte';
   import Input from '$lib/components/ui/Input.svelte';
 
