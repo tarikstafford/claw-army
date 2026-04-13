@@ -2,6 +2,8 @@
   import type { PageData } from './$types';
   import SlidePanel from '$lib/components/SlidePanel.svelte';
   import Input from '$lib/components/ui/Input.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import LoadingSkeleton from '$lib/components/ui/LoadingSkeleton.svelte';
 
   let { data }: { data: PageData } = $props();
 
@@ -63,15 +65,22 @@
     </button>
   </div>
 
-  {#if data.projects.length === 0}
-    <div class="empty-state" aria-busy="false">
-      <span class="empty-eyebrow">NO PROJECTS</span>
-      <p class="empty-heading">Nothing here yet.</p>
-      <p class="empty-body">No projects yet. Projects help organize your crew's work.</p>
-      <button class="btn-primary" type="button" onclick={() => { showCreateForm = true; }}>
-        Create your first project
-      </button>
+  {#if !data.projects}
+    <div class="skeleton-list">
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="card" />
     </div>
+  {:else if data.projects.length === 0}
+    <EmptyState
+      icon="◈"
+      eyebrow="NO PROJECTS"
+      title="Nothing here yet."
+      description="Projects help organize your crew's work."
+      ctaLabel="Create your first project"
+      onclick={() => { showCreateForm = true; }}
+      variant="front-office"
+    />
   {:else}
     <div class="projects-list">
       {#each data.projects as project}
@@ -283,34 +292,10 @@
     font-style: italic;
   }
 
-  .empty-state {
+  .skeleton-list {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: var(--space-md);
-    padding: var(--space-3xl) 0;
-  }
-
-  .empty-eyebrow {
-    font-family: var(--font-label);
-    font-size: 6px;
-    color: var(--text-muted);
-    letter-spacing: 0.10em;
-  }
-
-  .empty-heading {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0;
-  }
-
-  .empty-body {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .create-form {

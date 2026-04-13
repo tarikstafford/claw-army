@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import LoadingSkeleton from '$lib/components/ui/LoadingSkeleton.svelte';
 
   let { data }: { data: PageData } = $props();
 
@@ -230,18 +232,22 @@
     {/if}
   </div>
 
-  {#if data.issues.length === 0}
-    <div class="empty-state" aria-busy="false">
-      <span class="empty-eyebrow">NO ISSUES</span>
-      <p class="empty-heading">Nothing found.</p>
-      <p class="empty-body">
-        {#if searchQuery || statusFilter || assigneeFilter || projectFilter}
-          No issues match your filters. Try adjusting your search or filters.
-        {:else}
-          No issues assigned. Indra will route tasks here as your crew works.
-        {/if}
-      </p>
+  {#if !data.issues}
+    <div class="skeleton-table">
+      <LoadingSkeleton type="text" height="40px" />
+      <LoadingSkeleton type="text" height="40px" />
+      <LoadingSkeleton type="text" height="40px" />
     </div>
+  {:else if data.issues.length === 0}
+    <EmptyState
+      icon="◎"
+      eyebrow="NO ISSUES"
+      title="Nothing found."
+      description={searchQuery || statusFilter || assigneeFilter || projectFilter
+        ? 'No issues match your filters. Try adjusting your search or filters.'
+        : 'No issues assigned. Indra will route tasks here as your crew works.'}
+      variant="front-office"
+    />
   {:else}
     <div class="issues-table-wrap">
       <table class="issues-table">
@@ -658,34 +664,11 @@
     color: var(--text-muted);
   }
 
-  .empty-state {
+  .skeleton-table {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-md);
-    padding: var(--space-3xl) 0;
-  }
-
-  .empty-eyebrow {
-    font-family: var(--font-label);
-    font-size: 6px;
-    color: var(--text-muted);
-    letter-spacing: 0.10em;
-  }
-
-  .empty-heading {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text);
-    margin: 0;
-  }
-
-  .empty-body {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--text-muted);
-    margin: 0;
+    gap: var(--space-sm);
+    padding: var(--space-lg) 0;
   }
 
   .pagination {

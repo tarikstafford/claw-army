@@ -1,6 +1,8 @@
 <script lang="ts">
   import { getSkills, createSkill, updateSkill, deleteSkill, type Skill } from '$lib/api';
   import SkillEffectiveness from '$lib/components/evolution/SkillEffectiveness.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import LoadingSkeleton from '$lib/components/ui/LoadingSkeleton.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -257,20 +259,24 @@ Step-by-step instructions for the agent.
   {/if}
 
   <!-- Skills list -->
-  {#if filteredSkills.length === 0 && !showCreate}
-    <div class="empty-state">
-      <p class="empty-title">
-        {skills.length === 0 ? 'No skills yet' : 'No skills in this category'}
-      </p>
-      <p class="empty-body">
-        {skills.length === 0
-          ? 'Create your first skill to start building your agent capabilities.'
-          : 'Try a different filter or create a new skill.'}
-      </p>
-      {#if skills.length === 0}
-        <button class="create-btn small" onclick={startCreate}>+ CREATE SKILL</button>
-      {/if}
+  {#if !skills}
+    <div class="skeleton-list">
+      <LoadingSkeleton type="card" variant="back-office" />
+      <LoadingSkeleton type="card" variant="back-office" />
+      <LoadingSkeleton type="card" variant="back-office" />
     </div>
+  {:else if filteredSkills.length === 0 && !showCreate}
+    <EmptyState
+      icon="◉"
+      eyebrow="NO SKILLS"
+      title={skills.length === 0 ? 'No skills yet' : 'No skills in this category'}
+      description={skills.length === 0
+        ? 'Create your first skill to start building your agent capabilities.'
+        : 'Try a different filter or create a new skill.'}
+      ctaLabel={skills.length === 0 ? '+ CREATE SKILL' : ''}
+      onclick={skills.length === 0 ? startCreate : undefined}
+      variant="back-office"
+    />
   {:else}
     <div class="skills-list">
       {#each filteredSkills as skill (skill.id)}
@@ -590,24 +596,11 @@ Step-by-step instructions for the agent.
     cursor: not-allowed;
   }
 
-  /* Empty state */
-  .empty-state {
-    padding: var(--space-2xl);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
-    border-radius: var(--radius-md);
-    text-align: center;
+  /* Skeleton list */
+  .skeleton-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-  }
-
-  .empty-title {
-    font-family: var(--font-display);
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--bo-text);
-    margin: 0 0 var(--space-sm);
+    gap: var(--space-sm);
   }
 
   .empty-body {

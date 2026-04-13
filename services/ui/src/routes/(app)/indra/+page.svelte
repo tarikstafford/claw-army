@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { subscribeWS, type LiveEvent } from '$lib/ws';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import LoadingSkeleton from '$lib/components/ui/LoadingSkeleton.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -243,8 +245,20 @@
   <!-- Activity -->
   <section class="section" aria-label="Recent activity">
     <h2 class="section-label">RECENT ACTIVITY</h2>
-    {#if activity.length === 0}
-      <p class="empty-state">No activity yet. Your crew's work will appear here as they execute tasks.</p>
+    {#if !activity}
+      <div class="skeleton-activity">
+        <LoadingSkeleton type="text" height="48px" />
+        <LoadingSkeleton type="text" height="48px" />
+        <LoadingSkeleton type="text" height="48px" />
+      </div>
+    {:else if activity.length === 0}
+      <EmptyState
+        icon="◷"
+        eyebrow="NO ACTIVITY"
+        title="Nothing happened yet."
+        description="Your crew's work will appear here as they execute tasks."
+        variant="front-office"
+      />
     {:else}
       <ul class="activity-list">
         {#each recentActivity as event (event.id)}
@@ -556,11 +570,10 @@
     opacity: 0.7;
   }
 
-  .empty-state {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--text-muted);
-    font-style: italic;
+  .skeleton-activity {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
   }
 
   @media (max-width: 480px) {

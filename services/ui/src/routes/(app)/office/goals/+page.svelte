@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import type { ObjectiveWithAggregation, CreateObjectiveInput } from '$lib/api';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import LoadingSkeleton from '$lib/components/ui/LoadingSkeleton.svelte';
 
   let { data }: { data: PageData } = $props();
 
@@ -236,13 +238,22 @@
     <button class="btn-primary" onclick={openCreateModal}>New objective</button>
   </div>
 
-  {#if objectives.length === 0}
-    <div class="empty-state" aria-busy="false">
-      <span class="empty-eyebrow">NO OBJECTIVES</span>
-      <p class="empty-heading">Nothing here yet.</p>
-      <p class="empty-body">Create an objective to define what your agents will work on.</p>
-      <button class="btn-primary" onclick={openCreateModal}>New objective</button>
+  {#if !objectives}
+    <div class="skeleton-list">
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="card" />
     </div>
+  {:else if objectives.length === 0}
+    <EmptyState
+      icon="⬡"
+      eyebrow="NO OBJECTIVES"
+      title="Nothing here yet."
+      description="Create an objective to define what your agents will work on."
+      ctaLabel="New objective"
+      onclick={openCreateModal}
+      variant="front-office"
+    />
   {:else}
     <div class="objectives-list">
       {#each objectives as obj}
@@ -747,34 +758,10 @@
     cursor: not-allowed;
   }
 
-  .empty-state {
+  .skeleton-list {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: var(--space-md);
-    padding: var(--space-3xl) 0;
-  }
-
-  .empty-eyebrow {
-    font-family: var(--font-label);
-    font-size: 6px;
-    color: var(--text-muted);
-    letter-spacing: 0.10em;
-  }
-
-  .empty-heading {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--fo-plum);
-    margin: 0;
-  }
-
-  .empty-body {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .modal-overlay {

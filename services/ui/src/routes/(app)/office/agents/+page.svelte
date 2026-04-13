@@ -1,5 +1,7 @@
 <script lang="ts">
   import MechanicCard from '$lib/components/MechanicCard.svelte';
+  import EmptyState from '$lib/components/ui/EmptyState.svelte';
+  import LoadingSkeleton from '$lib/components/ui/LoadingSkeleton.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -25,13 +27,22 @@
     <a href="/office/agents/new" class="btn-primary">Add agent</a>
   </div>
 
-  {#if data.agents.length === 0}
-    <div class="empty-state" aria-busy="false">
-      <span class="empty-eyebrow">NO AGENTS</span>
-      <p class="empty-heading">No agents yet.</p>
-      <p class="empty-body">No agents yet. Add your first agent to start working.</p>
-      <a href="/office/agents/new" class="btn-primary">Add agent</a>
+  {#if !data.agents}
+    <div class="skeleton-grid">
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="card" />
     </div>
+  {:else if data.agents.length === 0}
+    <EmptyState
+      icon="◈"
+      eyebrow="NO AGENTS"
+      title="No agents yet."
+      description="Add your first agent to start building your crew."
+      ctaLabel="Add agent"
+      href="/office/agents/new"
+      variant="front-office"
+    />
   {:else}
     <div class="agents-grid">
       {#each data.agents as agent}
@@ -100,38 +111,9 @@
     display: block;
   }
 
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-md);
-    padding: var(--space-3xl) 0;
-  }
-
-  .empty-eyebrow {
-    font-family: var(--font-label);
-    font-size: 6px;
-    color: var(--text-muted);
-    letter-spacing: 0.10em;
-  }
-
-  .empty-heading {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--fo-plum);
-    margin: 0;
-  }
-
-  .empty-body {
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--text-muted);
-    margin: 0;
-  }
-
-  .page-title,
-  .empty-heading {
-    color: var(--text);
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-xl);
   }
 </style>
