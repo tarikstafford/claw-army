@@ -29,6 +29,10 @@
     <span class="toc-div"></span>
     <a href="#billing">Billing</a>
     <span class="toc-div"></span>
+    <a href="#skills">Skills</a>
+    <span class="toc-div"></span>
+    <a href="#tools">Tools</a>
+    <span class="toc-div"></span>
     <a href="#guardrails">Guardrails</a>
   </nav>
 
@@ -45,7 +49,7 @@
       <div class="step-card">
         <span class="step-num">01</span>
         <h3>Write your objective</h3>
-        <p>Go to <a href="/new-execution">New Mission</a> and describe the outcome you want. Be specific about the result — not the process. Run Army Builder Analysis to see what agents are available for the job.</p>
+        <p>Go to <a href="/chat">Indra</a> and describe the outcome you want in plain language. Be specific about the result — not the process. Indra will analyze your objective, decompose it into tasks, and assemble a crew from your agent library.</p>
       </div>
       <div class="step-arrow">→</div>
       <div class="step-card">
@@ -423,10 +427,117 @@
     </div>
   </section>
 
-  <!-- ── 9. GUARDRAILS ── -->
-  <section id="guardrails" class="section">
+  <!-- ── 9. SKILLS ── -->
+  <section id="skills" class="section">
     <div class="section-label">
       <span class="tag">09</span>
+      Skills
+    </div>
+    <h2>Building reusable agent capabilities</h2>
+    <p class="section-lead">Skills are reusable procedure modules that agents can call upon during execution. Think of them as specialized know-how that gets embedded in an agent's DNA and persists across missions.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-tag">Anatomy</div>
+        <h3>What a skill contains</h3>
+        <p>Each skill is defined in SKILL.md format with frontmatter metadata (name, category, version, triggers) and a procedural body describing step-by-step instructions the agent follows when the skill is invoked.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">Categories</div>
+        <h3>Eight skill families</h3>
+        <p>Skills are organized by type: <strong>communication</strong>, <strong>analysis</strong>, <strong>creation</strong>, <strong>automation</strong>, <strong>research</strong>, <strong>coordination</strong>, <strong>monitoring</strong>, and <strong>other</strong>. Filter your skills library by category to find the right capability for a given mission.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">Triggers</div>
+        <h3>When skills activate</h3>
+        <p>Skills declare trigger patterns — text or context conditions that signal the agent to invoke the skill. Well-written triggers ensure skills fire only when relevant, not on every task.</p>
+      </div>
+    </div>
+
+    <h3 class="subsection-head">Skill tier requirements</h3>
+    <p>Each skill declares a <code>min_agent_class</code> — the minimum agent tier required to use it. Novice agents can only use skills marked for Novice or below. Higher-tier skills produce better results but require more experienced agents.</p>
+
+    <div class="callout callout--amber">
+      <span class="callout-label callout-label--amber">EFFECTIVENESS TRACKING</span>
+      <p>When a skill is used during a mission, Akasa tracks whether it produced a positive outcome. Over time, the skill's <strong>effectiveness score</strong> reflects how reliably it contributes to mission success — use this to decide which skills to keep, revise, or retire.</p>
+    </div>
+
+    <h3 class="subsection-head">Creating a skill</h3>
+    <p>Go to <a href="/skills">Skills Library</a> and click <strong>NEW SKILL</strong>. Paste your SKILL.md content in the editor. The frontmatter fields are required; the body should describe the procedure in clear, numbered steps. A skill that calls other tools or skills should declare them in <code>requires_tools</code> and <code>requires_skills</code> respectively.</p>
+
+    <div class="code-block">
+<span class="code-comment"># Example frontmatter</span>
+name: "Web Research"
+description: "Find and summarize information from public URLs"
+category: research
+version: "1.0.0"
+triggers: ["research.*url", "find.*information"]
+requires_tools: ["http_request"]
+requires_skills: []
+min_agent_class: "Novice"</div>
+  </section>
+
+  <!-- ── 10. TOOLS ── -->
+  <section id="tools" class="section">
+    <div class="section-label">
+      <span class="tag">10</span>
+      Tools
+    </div>
+    <h2>Connecting external capabilities to your crew</h2>
+    <p class="section-lead">Bots have no direct internet access — all outbound requests route through the Tool Gateway. Tools are external services (APIs, webhooks, data sources) that you explicitly connect and authorize for your crew.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-tag">Catalog</div>
+        <h3>Tool Catalog</h3>
+        <p>Browse the available integrations in <a href="/tools/catalog">Tool Catalog</a>. Each tool shows its connection status, required OAuth scopes, and what agents can use it once connected.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">OAuth</div>
+        <h3>Connecting a tool</h3>
+        <p>Click <strong>Connect</strong> on any tool in the catalog to initiate OAuth. You'll be redirected to authorize Akasa access to your account. Once connected, all agents in your organization can use the tool subject to your egress allowlist.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">Belt</div>
+        <h3>Tool Belt</h3>
+        <p>View and manage all active connections in <a href="/tools/belt">Tool Belt</a>. Disconnect any tool from here — removing a connection immediately revokes access for all agents.</p>
+      </div>
+    </div>
+
+    <h3 class="subsection-head">Tool vs. skill: when to use each</h3>
+    <div class="two-col">
+      <div class="col-card col-card--good">
+        <div class="col-card-label">
+          <span class="badge badge--good">USE TOOLS FOR</span>
+        </div>
+        <ul class="check-list">
+          <li>Accessing external data (APIs, databases, file storage)</li>
+          <li>Performing actions in third-party systems (sending messages, creating records)</li>
+          <li>Long-running or stateful operations that require a live session</li>
+        </ul>
+      </div>
+      <div class="col-card col-card--bad">
+        <div class="col-card-label">
+          <span class="badge badge--avoid">USE SKILLS FOR</span>
+        </div>
+        <ul class="check-list">
+          <li>Reusable procedures or decision frameworks</li>
+          <li>Structured output patterns the agent should follow</li>
+          <li>Prompting strategies that improve agent reasoning</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout--violet">
+      <span class="callout-label">TOOL GATEWAY</span>
+      <p>Every tool call passes through the Tool Gateway proxy, which enforces rate limits, logs usage, and blocks any destination not on your configured allowlist. Bots cannot bypass this layer — tool access is fully audited.</p>
+    </div>
+  </section>
+
+  <!-- ── 11. GUARDRAILS ── -->
+  <section id="guardrails" class="section">
+    <div class="section-label">
+      <span class="tag">11</span>
       Guardrails
     </div>
     <h2>How bots are kept safe and in bounds</h2>
@@ -492,7 +603,7 @@
 
   <!-- ── FOOTER ── -->
   <div class="guide-footer">
-    <a href="/new-execution" class="btn-primary">Deploy a Crew →</a>
+    <a href="/chat" class="btn-primary">Deploy a Crew →</a>
     <a href="/verdicts" class="btn-ghost">Review Verdicts</a>
   </div>
 
