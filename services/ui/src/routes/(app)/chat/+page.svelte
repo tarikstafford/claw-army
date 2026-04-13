@@ -2,7 +2,7 @@
   import { onMount, tick } from 'svelte';
   import ChatBubble from '$lib/components/ChatBubble.svelte';
   import { subscribeWS, type LiveEvent } from '$lib/ws';
-  import { getChatMessages, sendChatMessage, getFleetEvents, getAgents, executeCommand } from '$lib/api';
+  import { getChatMessages, sendChatMessage, getFleetEvents, getAgents, executeCommand, createChatThread } from '$lib/api';
   import type { ChatMessage, ChatThread, FleetEvent, Agent } from '$lib/api';
   import type { PageData } from './$types';
 
@@ -46,6 +46,7 @@
   let pendingCommand = $state<{ command: string; args: string[] } | null>(null);
   let showConfirmDialog = $state(false);
   let confirmDialogMessage = $state('');
+  let showStartConversation = $state(false);
 
   function parseCommand(input: string): { command: string; args: string[] } | null {
     const trimmed = input.trim();
@@ -83,8 +84,9 @@
         id: crypto.randomUUID(),
         threadId: selectedThreadId ?? '',
         role: 'system',
-        content: result.message,
+        body: result.message,
         createdAt: new Date().toISOString(),
+        commandData: result.data,
       } as ChatMessage];
       await scrollToBottom();
     } catch (err) {
@@ -115,6 +117,17 @@
     }
   }
 
+  async function startConversation(agentId: string) {
+    showStartConversation = false;
+    try {
+      const thread = await createChatThread(data.companyId, { agentId });
+      threads = [thread, ...threads];
+      await selectThread(thread.id);
+    } catch {
+      console.error('[chat] Failed to start conversation');
+    }
+  }
+
   async function loadFleetEvents() {
     loadingFleetEvents = true;
     try {
@@ -139,11 +152,13 @@
     sidebarView = 'fleet';
     selectedThreadId = null;
     messages = [];
+    document.body.classList.add('back-office');
     loadFleetEvents();
   }
 
   function switchToThreads() {
     sidebarView = 'threads';
+    document.body.classList.remove('back-office');
     if (threads.length > 0 && threads[0]) {
       selectThread(threads[0].id);
     }
@@ -267,8 +282,22 @@
     return thread.title ?? `Thread ${thread.id.slice(0, 8)}`;
   }
 
+  function getAgentTier(adapter: string | null | undefined): { label: string; color: string } {
+    if (!adapter) return { label: '', color: 'var(--muted)' };
+    if (adapter.includes('haiku') || adapter.includes('junior')) {
+      return { label: 'JUNIOR', color: 'var(--tier-junior)' };
+    }
+    if (adapter.includes('sonnet') || adapter.includes('mid')) {
+      return { label: 'MID', color: 'var(--tier-mid)' };
+    }
+    if (adapter.includes('opus') || adapter.includes('senior')) {
+      return { label: 'SENIOR', color: 'var(--tier-senior)' };
+    }
+    return { label: adapter.toUpperCase(), color: 'var(--muted)' };
+  }
+
   function getLastPreview(thread: ChatThread): string {
-    return (thread as unknown as Record<string, unknown>).lastMessagePreview as string | null ?? '';
+    return thread.lastMessagePreview ?? '';
   }
 
   function formatEventTime(timestamp: string): string {
@@ -284,6 +313,14 @@
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
     return date.toLocaleDateString();
+  }
+
+  function renderCommandData(data: Record<string, unknown> | undefined): { label: string; value: string }[] {
+    if (!data) return [];
+    return Object.entries(data).map(([key, val]) => ({
+      label: key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()),
+      value: String(val ?? '—'),
+    }));
   }
 
   function getEventIcon(type: string): string {
@@ -402,7 +439,34 @@
 
     {#if sidebarView === 'threads'}
       {#if threads.length === 0}
-        <p class="empty-threads">No threads yet. Start a conversation with Indra or a crew member.</p>
+        <div class="empty-threads">
+          <p class="empty-threads-text">No threads yet.</p>
+          {#if showStartConversation}
+            <ul class="agent-pick-list">
+              {#each agents as agent (agent.id)}
+                {@const tier = getAgentTier(agent.adapter)}
+                <li>
+                  <button
+                    class="agent-pick-item"
+                    onclick={() => startConversation(agent.id)}
+                  >
+                    <span class="agent-pick-avatar">{agent.name.slice(0, 1).toUpperCase()}</span>
+                    <span class="agent-pick-info">
+                      <span class="agent-pick-name">{agent.name}</span>
+                      {#if tier.label}
+                        <span class="tier-badge" style="color: {tier.color}">{tier.label}</span>
+                      {/if}
+                    </span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            <button class="btn-start-conversation" onclick={() => showStartConversation = true}>
+              Start conversation
+            </button>
+          {/if}
+        </div>
       {:else}
         <ul class="thread-list">
           {#each threads as thread (thread.id)}
@@ -525,11 +589,31 @@
           <p class="empty-state">No messages yet. Send the first message.</p>
         {:else}
           {#each messages as message (message.id)}
-            <ChatBubble
-              variant={message.senderType === 'user' ? 'user' : 'agent'}
-              sender={message.senderType === 'agent' && message.senderId ? message.senderId.slice(0, 8) : undefined}
-              text={message.body}
-            />
+            {#if message.role === 'system' && message.commandData}
+              <div class="command-output">
+                <div class="command-output-header">
+                  <span class="command-output-icon">⚡</span>
+                  <span class="command-output-label">Command Result</span>
+                </div>
+                <p class="command-output-message">{message.body}</p>
+                {#if renderCommandData(message.commandData).length > 0}
+                  <div class="command-output-data">
+                    {#each renderCommandData(message.commandData) as item}
+                      <div class="command-data-row">
+                        <span class="command-data-label">{item.label}</span>
+                        <span class="command-data-value">{item.value}</span>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {:else}
+              <ChatBubble
+                variant={message.senderType === 'user' ? 'user' : 'agent'}
+                sender={message.senderType === 'agent' && message.senderId ? message.senderId.slice(0, 8) : undefined}
+                text={message.body}
+              />
+            {/if}
           {/each}
 
           {#if isTyping}
@@ -543,6 +627,7 @@
         {#if mentionQuery !== null && filteredAgents.length > 0}
           <div class="mention-dropdown" role="listbox">
             {#each filteredAgents as agent, i (agent.id)}
+              {@const tier = getAgentTier(agent.adapter)}
               <button
                 class="mention-item"
                 class:highlighted={i === mentionIndex}
@@ -550,7 +635,12 @@
                 role="option"
                 aria-selected={i === mentionIndex}
               >
-                <span class="mention-name">@{agent.name}</span>
+                <span class="mention-agent-info">
+                  <span class="mention-name">@{agent.name}</span>
+                  {#if tier.label}
+                    <span class="tier-badge" style="color: {tier.color}">{tier.label}</span>
+                  {/if}
+                </span>
                 <span class="mention-id">{agent.id.slice(0, 8)}</span>
               </button>
             {/each}
@@ -683,12 +773,126 @@
   }
 
   .empty-threads {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .empty-threads-text {
     font-family: var(--font-body);
     font-size: 13px;
     color: var(--muted);
-    padding: var(--space-lg) var(--space-md);
     margin: 0;
     line-height: 1.5;
+  }
+
+  :global(body.back-office) .empty-threads-text {
+    color: var(--bo-muted);
+  }
+
+  .btn-start-conversation {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--fo-plum);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: center;
+  }
+
+  .btn-start-conversation:hover {
+    background: var(--fo-plum-m);
+  }
+
+  :global(body.back-office) .btn-start-conversation {
+    background: var(--bo-violet);
+  }
+
+  :global(body.back-office) .btn-start-conversation:hover {
+    background: var(--bo-vb);
+  }
+
+  .agent-pick-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .agent-pick-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-sm);
+    background: var(--fo-bg2);
+    border: 1px solid var(--fo-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.1s, border-color 0.1s;
+    text-align: left;
+  }
+
+  .agent-pick-item:hover {
+    background: var(--fo-bg3);
+    border-color: var(--fo-plum-m);
+  }
+
+  :global(body.back-office) .agent-pick-item {
+    background: var(--bo-card);
+    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  :global(body.back-office) .agent-pick-item:hover {
+    background: rgba(124, 58, 237, 0.10);
+    border-color: var(--bo-violet);
+  }
+
+  .agent-pick-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--fo-plum-p);
+    color: var(--fo-plum);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  :global(body.back-office) .agent-pick-avatar {
+    background: rgba(124, 58, 237, 0.15);
+    color: var(--bo-vb);
+  }
+
+  .agent-pick-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 0;
+  }
+
+  .agent-pick-name {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :global(body.back-office) .agent-pick-name {
+    color: var(--bo-text);
   }
 
   /* ── Message panel ──────────────────────────────────── */
@@ -1175,12 +1379,13 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 10px 12px;
+    padding: var(--space-sm) var(--space-md);
     background: transparent;
     border: none;
     cursor: pointer;
     text-align: left;
     transition: background 0.1s;
+    gap: var(--space-sm);
   }
 
   .mention-item:hover,
@@ -1193,10 +1398,20 @@
     background: rgba(124, 58, 237, 0.08);
   }
 
+  .mention-agent-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 0;
+  }
+
   .mention-name {
     font-family: var(--font-body);
     font-size: 13px;
     color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   :global(body.back-office) .mention-name {
@@ -1208,9 +1423,124 @@
     font-size: 10px;
     color: var(--muted);
     letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  :global(body.back-office) .mention-id {
+    color: var(--bo-muted);
+  }
+
+  .tier-badge {
+    font-family: var(--font-label);
+    font-size: 6px;
+    letter-spacing: 0.06em;
+    padding: 2px 5px;
+    border-radius: 2px;
+    background: var(--fo-bg2);
+    border: 1px solid currentColor;
+    opacity: 0.85;
+    flex-shrink: 0;
+  }
+
+  :global(body.back-office) .tier-badge {
+    background: rgba(124, 58, 237, 0.10);
   }
 
   .message-input {
     position: relative;
+  }
+
+  /* ── Command output ──────────────────────────────────────── */
+  .command-output {
+    align-self: flex-start;
+    max-width: 76%;
+    background: var(--fo-card);
+    border: 1px solid var(--fo-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  :global(body.back-office) .command-output {
+    background: var(--bo-card);
+    border-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  .command-output-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .command-output-icon {
+    font-size: 14px;
+  }
+
+  .command-output-label {
+    font-family: var(--font-label);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bo-amber, var(--fo-plum));
+  }
+
+  :global(body.back-office) .command-output-label {
+    color: var(--bo-amber);
+  }
+
+  .command-output-message {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  :global(body.back-office) .command-output-message {
+    color: var(--bo-text);
+  }
+
+  .command-output-data {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--fo-border);
+  }
+
+  :global(body.back-office) .command-output-data {
+    border-top-color: var(--bo-border, rgba(124, 58, 237, 0.15));
+  }
+
+  .command-data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .command-data-label {
+    font-family: var(--font-label);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  :global(body.back-office) .command-data-label {
+    color: var(--bo-muted);
+  }
+
+  .command-data-value {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  :global(body.back-office) .command-data-value {
+    color: var(--bo-text);
   }
 </style>
