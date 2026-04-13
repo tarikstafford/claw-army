@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -75,7 +76,7 @@
         const err = await res.text().catch(() => '');
         throw new Error(err || `Request failed (${res.status})`);
       }
-      window.location.reload();
+      await invalidateAll();
     } catch (err) {
       runError = (err as Error).message ?? 'Failed to trigger execution';
       running = false;
