@@ -48,6 +48,29 @@
   let confirmDialogMessage = $state('');
   let showStartConversation = $state(false);
 
+  let mobileSidebarOpen = $state(false);
+  let isMobile = $state(false);
+
+  onMount(() => {
+    const checkMobile = () => {
+      isMobile = window.innerWidth < 768;
+      if (!isMobile) {
+        mobileSidebarOpen = false;
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  });
+
+  function openMobileSidebar() {
+    mobileSidebarOpen = true;
+  }
+
+  function closeMobileSidebar() {
+    mobileSidebarOpen = false;
+  }
+
   function parseCommand(input: string): { command: string; args: string[] } | null {
     const trimmed = input.trim();
     if (!trimmed.startsWith('/')) return null;
@@ -421,8 +444,48 @@
 </script>
 
 <div class="chat-layout">
+  <!-- Mobile header -->
+  {#if isMobile}
+    <div class="mobile-header">
+      <button class="mobile-menu-btn" onclick={openMobileSidebar} aria-label="Open threads">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <span class="mobile-header-title">
+        {#if sidebarView === 'fleet'}
+          Fleet Activity
+        {:else if selectedThreadId}
+          {threads.find(t => t.id === selectedThreadId)?.title ?? 'Chat'}
+        {:else}
+          Chat
+        {/if}
+      </span>
+      <div class="mobile-header-spacer"></div>
+    </div>
+  {/if}
+
   <!-- Thread sidebar -->
-  <aside class="thread-sidebar" aria-label="Conversation threads">
+  <aside
+    class="thread-sidebar"
+    class:mobile-drawer={isMobile}
+    class:mobile-open={mobileSidebarOpen}
+    aria-label="Conversation threads"
+  >
+    {#if isMobile}
+      <div class="mobile-drawer-header">
+        <span class="mobile-drawer-title">Threads</span>
+        <button class="mobile-drawer-close" onclick={closeMobileSidebar} aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    {/if}
+
     <!-- Sidebar tabs -->
     <div class="sidebar-tabs">
       <button
@@ -474,7 +537,7 @@
               <button
                 class="thread-item"
                 class:active={selectedThreadId === thread.id}
-                onclick={() => selectThread(thread.id)}
+                onclick={() => { selectThread(thread.id); closeMobileSidebar(); }}
                 aria-current={selectedThreadId === thread.id ? 'page' : undefined}
               >
                 <span class="thread-avatar" aria-hidden="true">
@@ -518,6 +581,10 @@
       </div>
     {/if}
   </aside>
+
+  {#if isMobile && mobileSidebarOpen}
+    <div class="mobile-overlay" onclick={closeMobileSidebar} aria-hidden="true"></div>
+  {/if}
 
   <!-- Message panel -->
   <div class="message-panel" aria-label="Messages">
@@ -1542,5 +1609,157 @@
 
   :global(body.back-office) .command-data-value {
     color: var(--bo-text);
+  }
+
+  /* ── Mobile responsive ─────────────────────────────── */
+  @media (max-width: 768px) {
+    .chat-layout {
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .mobile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--fo-border);
+      flex-shrink: 0;
+    }
+
+    :global(body.back-office) .mobile-header {
+      border-bottom-color: var(--bo-border);
+    }
+
+    .mobile-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .mobile-header-title {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mobile-header-spacer {
+      width: 36px;
+    }
+
+    .thread-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 280px;
+      max-width: 85vw;
+      background: var(--bg);
+      border-right: 1px solid var(--fo-border);
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 200;
+      padding-top: 0;
+    }
+
+    :global(body.back-office) .thread-sidebar {
+      background: var(--bo-bg);
+      border-right-color: var(--bo-border);
+    }
+
+    .thread-sidebar.mobile-drawer.mobile-open {
+      transform: translateX(0);
+    }
+
+    .mobile-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--fo-border);
+    }
+
+    :global(body.back-office) .mobile-drawer-header {
+      border-bottom-color: var(--bo-border);
+    }
+
+    .mobile-drawer-title {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .mobile-drawer-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .mobile-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 199;
+    }
+
+    .message-panel {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .message-list {
+      padding: 16px;
+    }
+
+    .message-input {
+      padding: 12px;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-header {
+      display: none;
+    }
+
+    .thread-sidebar:not(.mobile-drawer) {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .message-list {
+      padding: 12px;
+    }
+
+    .message-input {
+      padding: 10px;
+    }
+
+    .input-textarea {
+      font-size: 16px;
+    }
   }
 </style>

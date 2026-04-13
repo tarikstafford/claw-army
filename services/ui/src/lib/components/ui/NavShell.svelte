@@ -26,14 +26,20 @@
 
   const showTabs = $derived(variant === 'app' && !!session?.user && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding'));
 
+  let mobileMenuOpen = $state(false);
+
   function isActive(href: string) {
     return pathname.startsWith(href);
   }
+
+  function closeMobileMenu() {
+    mobileMenuOpen = false;
+  }
 </script>
 
-<nav class={`nav-shell ${variant}`}>
+<nav class={`nav-shell ${variant}`} class:menu-open={mobileMenuOpen}>
   <div class="nav-frame">
-    <a href={session?.user ? '/indra' : '/'} class="logo" aria-label="Akasa home">
+    <a href={session?.user ? '/indra' : '/'} class="logo" aria-label="Akasa home" onclick={closeMobileMenu}>
       <div class="logo-mark">
         <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g class="lm-outer">
@@ -49,13 +55,33 @@
     </a>
 
     {#if showTabs}
-      <div class="nav-tabs" aria-label="Primary navigation">
+      <button
+        class="hamburger"
+        aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+        aria-expanded={mobileMenuOpen}
+        onclick={() => mobileMenuOpen = !mobileMenuOpen}
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+
+      <div class="nav-tabs" aria-label="Primary navigation" class:mobile-open={mobileMenuOpen}>
         {#each tabs as tab}
-          <a href={tab.href} class="nav-tab" class:active={isActive(tab.href)}>
+          <a
+            href={tab.href}
+            class="nav-tab"
+            class:active={isActive(tab.href)}
+            onclick={closeMobileMenu}
+          >
             {tab.label}
           </a>
         {/each}
       </div>
+
+      {#if mobileMenuOpen}
+        <div class="mobile-overlay" onclick={closeMobileMenu} aria-hidden="true"></div>
+      {/if}
     {/if}
 
     <div class="nav-actions">
@@ -183,6 +209,45 @@
     color: #fff;
   }
 
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 34px;
+    height: 34px;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .hamburger-line {
+    width: 100%;
+    height: 1.5px;
+    background: var(--text-muted);
+    border-radius: 1px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .menu-open .hamburger .hamburger-line:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  .menu-open .hamburger .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-open .hamburger .hamburger-line:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  .mobile-overlay {
+    display: none;
+  }
+
   .nav-actions {
     display: flex;
     align-items: center;
@@ -277,6 +342,86 @@
       width: 100%;
       overflow-x: auto;
       padding-top: 4px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .nav-shell {
+      padding: 12px 16px;
+    }
+
+    .nav-frame {
+      gap: 12px;
+      padding: 8px 12px;
+    }
+
+    .hamburger {
+      display: flex;
+    }
+
+    .nav-tabs {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      padding: 80px 20px 20px;
+      background: var(--bg);
+      border-radius: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .nav-tabs.mobile-open {
+      display: flex;
+    }
+
+    .nav-tab {
+      min-height: 48px;
+      padding: 0 16px;
+      font-size: 10px;
+      border-radius: 10px;
+    }
+
+    .nav-tab.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .mobile-overlay {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 99;
+    }
+
+    .nav-actions {
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logo-text {
+      font-size: 18px;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+    }
+
+    .logo-mark svg {
+      width: 28px;
+      height: 28px;
     }
   }
 </style>

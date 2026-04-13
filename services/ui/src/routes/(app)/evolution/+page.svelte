@@ -362,4 +362,60 @@
     color: var(--bo-muted);
     padding: var(--space-sm) 0;
   }
+
+  @media (max-width: 768px) {
+    .fleet-page {
+      padding: var(--space-lg) var(--space-md) var(--space-lg);
+      gap: var(--space-lg);
+    }
+
+    .tab-nav {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tab-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      padding: var(--space-sm) var(--space-md);
+      white-space: nowrap;
+    }
+
+    .pending-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .batch-actions {
+      width: 100%;
+    }
+
+    .btn-batch-confirm,
+    .btn-batch-reject {
+      flex: 1;
+      min-height: 40px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .fleet-page {
+      padding: var(--space-md) var(--space-sm) var(--space-md);
+    }
+
+    .tab-btn {
+      font-size: 12px;
+      padding: var(--space-sm);
+    }
+
+    .batch-actions {
+      flex-direction: column;
+    }
+
+    .btn-batch-confirm,
+    .btn-batch-reject {
+      width: 100%;
+    }
+  }
 </style>
