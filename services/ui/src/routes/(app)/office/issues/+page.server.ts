@@ -53,6 +53,7 @@ export const load: PageServerLoad = async ({ fetch, parent, url }) => {
   const projects: { id: string; name: string }[] = projectsRes.ok ? await projectsRes.json() : [];
 
   return {
+    companyId,
     issues,
     totalCount,
     page,

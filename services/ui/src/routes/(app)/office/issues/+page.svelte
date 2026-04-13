@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
 
   let { data }: { data: PageData } = $props();
 
@@ -96,8 +95,7 @@
     createSubmitting = true;
     createError = '';
     try {
-      const companyId = data.agents.length > 0 ? '' : '';
-      const res = await fetch('/api/companies/' + (data.agents.length > 0 ? '' : '000') + '/issues', {
+      const res = await fetch(`/api/companies/${data.companyId}/issues`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
