@@ -13,6 +13,21 @@
 	let submitting: boolean = $state(false);
 	let formError: string | null = $state(null);
 
+	// Webhook URLs per connection
+	interface WebhookUrlEntry {
+		connectionId: string;
+		url: string;
+		loading: boolean;
+		copied: boolean;
+	}
+	let webhookUrls: WebhookUrlEntry[] = $state([]);
+	let fetchingUrls: boolean = $state(false);
+
+	// Retry state
+	let retryTarget: { id: string; toolId: string; eventType: string; payload: Record<string, unknown> } | null = $state(null);
+	let retrying: boolean = $state(false);
+	let retryResult: { success: boolean; message: string } | null = $state(null);
+
 	// Simulation state
 	let showSimulator: boolean = $state(false);
 	let selectedToolId: string = $state('');
@@ -43,6 +58,112 @@
 
 	function getSamplePayload(toolId: string, eventType: string): Record<string, unknown> {
 		return (SAMPLE_PAYLOADS[toolId]?.[eventType] ?? { eventType }) as Record<string, unknown>;
+	}
+
+	async function fetchWebhookUrls() {
+		const webhookConnections = data.connections.filter((c: { status: string }) => c.status !== 'disconnected');
+		if (webhookConnections.length === 0) return;
+
+		fetchingUrls = true;
+		const results: WebhookUrlEntry[] = [];
+
+		await Promise.allSettled(
+			webhookConnections.map(async (conn: { id: string; toolId: string }) => {
+				try {
+					const res = await fetch('/api/akasa/webhooks/generate-url', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ connectionId: conn.id }),
+					});
+					if (res.ok) {
+						const data = await res.json();
+						results.push({ connectionId: conn.id, url: data.webhookUrl, loading: false, copied: false });
+					}
+				} catch {
+					results.push({ connectionId: conn.id, url: '', loading: false, copied: false });
+				}
+			})
+		);
+
+		webhookUrls = results;
+		fetchingUrls = false;
+	}
+
+	async function copyWebhookUrl(connectionId: string) {
+		const entry = webhookUrls.find((u) => u.connectionId === connectionId);
+		if (!entry || !entry.url) return;
+
+		try {
+			await navigator.clipboard.writeText(entry.url);
+			entry.copied = true;
+			setTimeout(() => {
+				const e = webhookUrls.find((u) => u.connectionId === connectionId);
+				if (e) e.copied = false;
+			}, 2000);
+		} catch {
+			// Fallback: select text
+		}
+	}
+
+	function getWebhookUrl(connectionId: string): string {
+		return webhookUrls.find((u) => u.connectionId === connectionId)?.url ?? '';
+	}
+
+	function openRetry(log: {
+		id: string;
+		toolId: string;
+		action: string;
+		requestSummary: string | null;
+	}) {
+		const eventType = log.action.startsWith('webhook:') ? log.action.slice('webhook:'.length) : log.action;
+		let payload: Record<string, unknown> = {};
+		if (log.requestSummary) {
+			try {
+				payload = JSON.parse(log.requestSummary);
+			} catch {
+				payload = { eventType };
+			}
+		}
+		retryTarget = { id: log.id, toolId: log.toolId, eventType, payload };
+		retryResult = null;
+	}
+
+	function closeRetry() {
+		retryTarget = null;
+		retryResult = null;
+	}
+
+	async function handleRetry() {
+		if (!retryTarget) return;
+		retrying = true;
+		retryResult = null;
+
+		try {
+			const res = await fetch(`/api/akasa/webhooks/${retryTarget.toolId}/simulate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId: data.userId,
+					eventType: retryTarget.eventType,
+					payload: retryTarget.payload,
+				}),
+			});
+			const result = await res.json();
+			if (res.ok) {
+				retryResult = {
+					success: result.matched,
+					message: result.matched
+						? `Delivered to agent ${result.agentName ?? result.agentId ?? '--'}`
+						: 'No routing rule matched',
+				};
+			} else {
+				retryResult = { success: false, message: result.error ?? 'Retry failed' };
+			}
+		} catch {
+			retryResult = { success: false, message: 'Network error' };
+		} finally {
+			retrying = false;
+		}
 	}
 
 	function openSimulator() {
@@ -153,6 +274,51 @@
 </script>
 
 <div class="webhooks-page">
+	<!-- Webhook URLs Section -->
+	{#if data.connections.filter((c: { status: string }) => c.status !== 'disconnected').length > 0}
+		<div class="webhook-urls-section">
+			<div class="section-header">
+				<h2 class="section-heading">Webhook URLs</h2>
+				<button
+					class="fetch-urls-btn"
+					onclick={() => { fetchWebhookUrls(); }}
+					disabled={fetchingUrls}
+				>
+					{fetchingUrls ? 'Loading...' : 'Refresh URLs'}
+				</button>
+			</div>
+			<div class="webhook-urls-list">
+				{#each data.connections.filter((c: { status: string }) => c.status !== 'disconnected') as conn (conn.id)}
+					{@const webhookUrl = getWebhookUrl(conn.id)}
+					{@const urlEntry = webhookUrls.find((u) => u.connectionId === conn.id)}
+					<div class="webhook-url-row">
+						<div class="webhook-url-info">
+							<span class="webhook-url-tool">{getToolName(conn.toolId)}</span>
+							{#if webhookUrl}
+								<code class="webhook-url-code">{webhookUrl}</code>
+							{:else}
+								<span class="webhook-url-loading">
+									{urlEntry?.loading ? 'Generating...' : 'Click Refresh to generate URL'}
+								</span>
+							{/if}
+						</div>
+						<div class="webhook-url-actions">
+							{#if webhookUrl}
+								<button
+									class="copy-btn"
+									class:copied={urlEntry?.copied}
+									onclick={() => { copyWebhookUrl(conn.id); }}
+								>
+									{urlEntry?.copied ? 'Copied!' : 'Copy'}
+								</button>
+							{/if}
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
+
 	<!-- Routing Rules Section -->
 	<div>
 		<div class="section-header">
@@ -225,7 +391,7 @@
 		{:else}
 			<div class="logs-list">
 				{#each data.logs as log (log.id)}
-					<WebhookLogEntry {log} />
+					<WebhookLogEntry {log} onretry={(l) => { openRetry(l); }} />
 				{/each}
 			</div>
 		{/if}
@@ -332,10 +498,144 @@
 	</Modal>
 {/if}
 
+<!-- Retry Modal -->
+{#if retryTarget}
+	<Modal open={true} title="Retry Webhook Delivery" onclose={() => { closeRetry(); }}>
+		<div class="retry-form">
+			<p class="retry-desc">
+				Re-send this event to test routing rules.
+			</p>
+			<div class="retry-info">
+				<span class="retry-tool">{getToolName(retryTarget.toolId)}</span>
+				<span class="retry-event-type">{retryTarget.eventType}</span>
+			</div>
+			<div class="retry-payload">
+				<span class="payload-label">Payload</span>
+				<pre class="payload-preview">{JSON.stringify(retryTarget.payload, null, 2)}</pre>
+			</div>
+			{#if retryResult}
+				<div class="retry-result" class:success={retryResult.success} class:failed={!retryResult.success}>
+					<p class="retry-result-message">{retryResult.message}</p>
+				</div>
+			{/if}
+			<div class="retry-actions">
+				<button class="cancel-btn" onclick={() => { closeRetry(); }}>Cancel</button>
+				<button
+					class="retry-btn"
+					onclick={() => { handleRetry(); }}
+					disabled={retrying}
+				>
+					{retrying ? 'Retrying...' : 'Retry Delivery'}
+				</button>
+			</div>
+		</div>
+	</Modal>
+{/if}
+
 <style>
 	.webhooks-page {
 		display: flex;
 		flex-direction: column;
+	}
+
+	.webhook-urls-section {
+		margin-bottom: var(--space-2xl);
+	}
+
+	.webhook-urls-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	.webhook-url-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background: var(--card);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		padding: var(--space-md) var(--space-lg);
+		gap: var(--space-md);
+	}
+
+	.webhook-url-info {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		min-width: 0;
+	}
+
+	.webhook-url-tool {
+		font-family: var(--font-body);
+		font-size: 13px;
+		font-weight: 500;
+		color: var(--text);
+	}
+
+	.webhook-url-code {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--text-muted);
+		background: var(--bg);
+		padding: var(--space-xs) var(--space-sm);
+		border-radius: var(--radius-sm);
+		word-break: break-all;
+	}
+
+	.webhook-url-loading {
+		font-family: var(--font-body);
+		font-size: 11px;
+		color: var(--text-muted);
+	}
+
+	.webhook-url-actions {
+		flex-shrink: 0;
+	}
+
+	.fetch-urls-btn {
+		min-height: 44px;
+		border: 1px solid var(--accent);
+		color: var(--accent);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 13px;
+		cursor: pointer;
+		padding: 0 var(--space-lg);
+		transition: background 0.15s ease;
+	}
+
+	.fetch-urls-btn:hover:not(:disabled) {
+		background: var(--accent-dim);
+	}
+
+	.fetch-urls-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.copy-btn {
+		min-height: 36px;
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 12px;
+		cursor: pointer;
+		padding: 0 var(--space-md);
+		transition: all 0.15s ease;
+	}
+
+	.copy-btn:hover {
+		border-color: var(--accent);
+		color: var(--text);
+	}
+
+	.copy-btn.copied {
+		border-color: var(--success);
+		color: var(--success);
 	}
 
 	.section-header {
@@ -625,5 +925,118 @@
 		color: var(--text-muted);
 		font-style: italic;
 		margin-top: var(--space-sm);
+	}
+
+	/* Retry Modal Styles */
+	.retry-form {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-md);
+		margin: var(--space-md) 0;
+	}
+
+	.retry-desc {
+		font-family: var(--font-body);
+		font-size: 13px;
+		color: var(--text-muted);
+	}
+
+	.retry-info {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
+	.retry-tool {
+		font-family: var(--font-body);
+		font-size: 13px;
+		font-weight: 500;
+		color: var(--text);
+	}
+
+	.retry-event-type {
+		font-family: var(--font-label);
+		font-size: 6px;
+		color: var(--accent);
+		letter-spacing: 0.08em;
+	}
+
+	.retry-payload {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+	}
+
+	.payload-label {
+		font-family: var(--font-body);
+		font-size: 11px;
+		color: var(--text-muted);
+	}
+
+	.retry-result {
+		border-radius: var(--radius-md);
+		padding: var(--space-md);
+	}
+
+	.retry-result.success {
+		background: rgba(45, 212, 191, 0.08);
+		border: 1px solid var(--success);
+	}
+
+	.retry-result.failed {
+		background: rgba(248, 113, 113, 0.08);
+		border: 1px solid var(--error);
+	}
+
+	.retry-result-message {
+		font-family: var(--font-body);
+		font-size: 13px;
+		color: var(--text);
+	}
+
+	.retry-actions {
+		display: flex;
+		gap: var(--space-sm);
+		justify-content: flex-end;
+		margin-top: var(--space-xs);
+	}
+
+	.cancel-btn {
+		min-height: 44px;
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 13px;
+		cursor: pointer;
+		padding: 0 var(--space-lg);
+		transition: background 0.15s ease;
+	}
+
+	.cancel-btn:hover {
+		background: rgba(148, 110, 255, 0.05);
+	}
+
+	.retry-btn {
+		min-height: 44px;
+		border: 1px solid var(--teal, #2DD4BF);
+		color: var(--teal, #2DD4BF);
+		background: transparent;
+		border-radius: var(--radius-md);
+		font-family: var(--font-body);
+		font-size: 13px;
+		cursor: pointer;
+		padding: 0 var(--space-lg);
+		transition: background 0.15s ease;
+	}
+
+	.retry-btn:hover:not(:disabled) {
+		background: rgba(45, 212, 191, 0.08);
+	}
+
+	.retry-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 </style>

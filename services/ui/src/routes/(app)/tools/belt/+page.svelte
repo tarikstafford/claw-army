@@ -62,6 +62,7 @@
     connections={data.connections}
     onstartOAuth={startOAuth}
     ondisconnect={(connId, name) => { disconnectTarget = { connectionId: connId, toolName: name }; }}
+    analytics={data.analytics ?? {}}
   />
 </div>
 
