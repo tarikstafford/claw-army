@@ -8,12 +8,16 @@
   import MutationDiff from '$lib/components/evolution/MutationDiff.svelte';
   import ExecutionLogs from '$lib/components/evolution/ExecutionLogs.svelte';
   import SkillLoadout from '$lib/components/evolution/SkillLoadout.svelte';
+  import SoulLineagePanel from '$lib/components/evolution/SoulLineagePanel.svelte';
+  import DecisionTraceViewer from '$lib/components/evolution/DecisionTraceViewer.svelte';
+  import DnaPatterns from '$lib/components/evolution/DnaPatterns.svelte';
+  import NegativeSignals from '$lib/components/evolution/NegativeSignals.svelte';
   import type { PageData } from './$types';
   import type { MutationType } from '$lib/components/evolution/MutationDiff.svelte';
 
   let { data }: { data: PageData } = $props();
 
-  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'logs' | 'skills'>('profile');
+  let activeTab = $state<'profile' | 'timeline' | 'lineage' | 'ledger' | 'logs' | 'skills' | 'traces' | 'dna' | 'signals'>('profile');
   let diffState = $state<{
     childId: string;
     parentId: string;
@@ -27,6 +31,9 @@
     { id: 'lineage' as const, label: 'LINEAGE' },
     { id: 'ledger' as const, label: 'LEDGER' },
     { id: 'logs' as const, label: 'LOGS' },
+    { id: 'traces' as const, label: 'TRACES' },
+    { id: 'dna' as const, label: 'DNA' },
+    { id: 'signals' as const, label: 'SIGNALS' },
   ];
 
   function detectMutationType(parentContent: string, childContent: string): MutationType {
@@ -148,9 +155,7 @@
       <BotTimeline events={data.timeline} />
     {:else if activeTab === 'lineage'}
       {#if data.lineage.length > 0}
-        <div class="lineage-container">
-          <LineageTree nodes={data.lineage} ondiffnode={handleDiffRequest} />
-        </div>
+        <SoulLineagePanel nodes={data.lineage} />
       {:else}
         <p class="no-data-text">No lineage data available</p>
       {/if}
@@ -164,6 +169,12 @@
       />
     {:else if activeTab === 'logs'}
       <ExecutionLogs botId={data.botId} />
+    {:else if activeTab === 'traces'}
+      <DecisionTraceViewer botId={data.botId} />
+    {:else if activeTab === 'dna'}
+      <DnaPatterns botId={data.botId} category={data.profile?.taskCategory ?? null} />
+    {:else if activeTab === 'signals'}
+      <NegativeSignals botId={data.botId} />
     {/if}
   </div>
 
