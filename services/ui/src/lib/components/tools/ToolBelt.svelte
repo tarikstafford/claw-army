@@ -14,9 +14,6 @@
     analytics?: Record<string, { callCount: number; avgLatencyMs: number | null; errorCount: number; lastSuccessAt: string | null }>;
   } = $props();
 
-  let testingConnection: string | null = $state(null);
-  let testResults: Record<string, { success: boolean; message: string }> = $state({});
-
   const activeConnections = $derived(connections.filter(c => c.status !== 'disconnected'));
 
   function formatLastUsed(ts: string | null): string {
@@ -41,26 +38,6 @@
     return TOOL_CATALOG.find(t => t.id === toolId)?.name ?? toolId;
   }
 
-  async function handleTestConnection(connectionId: string) {
-    testingConnection = connectionId;
-    testResults[connectionId] = { success: false, message: 'Testing...' };
-
-    try {
-      const res = await fetch(`/api/akasa/tool-connections/${connectionId}/test`, {
-        method: 'POST',
-      });
-      const result = await res.json();
-      testResults[connectionId] = {
-        success: result.success,
-        message: result.success ? 'Connection OK' : (result.error ?? 'Test failed'),
-      };
-    } catch {
-      testResults[connectionId] = { success: false, message: 'Network error' };
-    } finally {
-      testingConnection = null;
-    }
-  }
-
   function getAnalytics(connId: string) {
     return analytics[connId] ?? { callCount: 0, avgLatencyMs: null, errorCount: 0, lastSuccessAt: null };
   }
@@ -75,7 +52,6 @@
   <div class="belt-list">
     {#each activeConnections as conn (conn.id)}
       {@const stats = getAnalytics(conn.id)}
-      {@const testResult = testResults[conn.id]}
       <div class="belt-row">
         <div class="belt-left">
           <span class="tool-name">{getToolName(conn.toolId)}</span>
@@ -106,20 +82,6 @@
         </div>
         <div class="belt-right">
           <StatusBadge status={conn.status} />
-          {#if testResult}
-            <span class="test-result" class:success={testResult.success} class:failed={!testResult.success}>
-              {testResult.message}
-            </span>
-          {/if}
-          {#if conn.status === 'connected'}
-            <button
-              class="btn btn-test"
-              onclick={() => { handleTestConnection(conn.id); }}
-              disabled={testingConnection === conn.id}
-            >
-              {testingConnection === conn.id ? 'Testing...' : 'Test Connection'}
-            </button>
-          {/if}
           {#if conn.status === 'expired'}
             <button
               class="btn btn-reauth"
@@ -247,23 +209,6 @@
     flex-shrink: 0;
   }
 
-  .test-result {
-    font-family: var(--font-body);
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: var(--radius-sm);
-  }
-
-  .test-result.success {
-    background: rgba(45, 212, 191, 0.10);
-    color: var(--success);
-  }
-
-  .test-result.failed {
-    background: rgba(248, 113, 113, 0.10);
-    color: var(--error);
-  }
-
   .btn {
     min-height: 36px;
     font-family: var(--font-body);
@@ -283,15 +228,6 @@
   .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  .btn-test {
-    border: 1px solid var(--teal, #2DD4BF);
-    color: var(--teal, #2DD4BF);
-  }
-
-  .btn-test:hover:not(:disabled) {
-    background: rgba(45, 212, 191, 0.08);
   }
 
   .btn-reauth {
