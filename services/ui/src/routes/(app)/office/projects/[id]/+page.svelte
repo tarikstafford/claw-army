@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import { goto } from '$app/navigation';
   import SlidePanel from '$lib/components/SlidePanel.svelte';
   import Input from '$lib/components/ui/Input.svelte';
 
@@ -113,7 +114,7 @@
   async function handleConnectGithub() {
     if (!data.session?.user?.id) return;
     const redirectUri = `${window.location.origin}/office/projects/${data.project.id}`;
-    window.location.href = `/akasa/tool-connections/oauth/github/start?userId=${encodeURIComponent(data.session.user.id)}&redirectUri=${encodeURIComponent(redirectUri)}`;
+    goto(`/akasa/tool-connections/oauth/github/start?userId=${encodeURIComponent(data.session.user.id)}&redirectUri=${encodeURIComponent(redirectUri)}`);
   }
 
   async function handleEditProject() {
@@ -138,7 +139,7 @@
         }),
       });
       if (res.ok) {
-        window.location.reload();
+        await invalidateAll();
       } else {
         const body = await res.text();
         editError = `Failed to update project: ${body}`;
@@ -157,7 +158,7 @@
         method: 'DELETE',
       });
       if (res.ok) {
-        window.location.href = '/office/projects';
+        goto('/office/projects');
       } else {
         const body = await res.text();
         editError = `Failed to delete project: ${body}`;
