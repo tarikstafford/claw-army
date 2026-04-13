@@ -78,6 +78,79 @@ export interface CreateGoalInput {
   description?: string;
 }
 
+// ── Objectives ────────────────────────────────────────────────────────────────
+
+export interface Objective {
+  id: string;
+  name: string;
+  description: string | null;
+  defaultMaxBots: number;
+  defaultBudgetCapCents: number | null;
+  defaultRuntimeLimitSeconds: number | null;
+  defaultAllowedTools: string[];
+  isArchived: boolean;
+  projectId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ObjectiveWithAggregation extends Objective {
+  lastRunStatus: string | null;
+  runCount: number;
+  totalSpendCents: number;
+  bestBotClass: string | null;
+}
+
+export interface CreateObjectiveInput {
+  name: string;
+  description?: string;
+  defaultMaxBots?: number;
+  defaultBudgetCapCents?: number | null;
+  defaultRuntimeLimitSeconds?: number | null;
+  defaultAllowedTools?: string[];
+  projectId?: string;
+}
+
+export interface ObjectiveStats {
+  totalSpendCents: number;
+  totalTasksCompleted: number;
+  totalBotHours: number;
+  runCount: number;
+  classBreakdown: {
+    novice: number;
+    understudy: number;
+    artisan: number;
+    retired: number;
+  };
+  classTrendSummary: string;
+}
+
+export interface ObjectiveExecution {
+  id: string;
+  status: 'pre_flight' | 'queued' | 'running' | 'paused' | 'stopped' | 'completed' | 'failed';
+  objective: string;
+  createdAt: string;
+  totalCostCents: number;
+  botCount: number;
+  avgCompositeScore: number | null;
+}
+
+export interface TriggerExecutionInput {
+  objective: string;
+  maxBots: number;
+  budgetCapCents?: number | null;
+  runtimeLimitSeconds?: number | null;
+  allowedTools?: string[];
+  objectiveId?: string;
+  projectId?: string;
+}
+
+export interface TriggerExecutionResult {
+  executionId: string;
+  status: 'pre_flight';
+  evolutionCampaignId?: string;
+}
+
 export interface Project {
   id: string;
   companyId: string;
@@ -422,6 +495,58 @@ export async function getGoal(goalId: string): Promise<Goal> {
 
 export async function createGoal(companyId: string, body: CreateGoalInput): Promise<Goal> {
   return apiFetch(`${BASE}/companies/${companyId}/goals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+// ── Objectives ────────────────────────────────────────────────────────────────
+
+export async function getObjectives(params?: { archived?: boolean; projectId?: string }): Promise<ObjectiveWithAggregation[]> {
+  const query = new URLSearchParams();
+  if (params?.archived) query.set('archived', 'true');
+  if (params?.projectId) query.set('projectId', params.projectId);
+  const qs = query.toString();
+  return apiFetch(`${BASE}/objectives${qs ? `?${qs}` : ''}`);
+}
+
+export async function getObjective(objectiveId: string): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives/${objectiveId}`);
+}
+
+export async function createObjective(body: CreateObjectiveInput): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateObjective(objectiveId: string, body: Partial<Objective>): Promise<Objective> {
+  return apiFetch(`${BASE}/objectives/${objectiveId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteObjective(objectiveId: string): Promise<{ success: boolean }> {
+  return apiFetch(`${BASE}/objectives/${objectiveId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getObjectiveStats(objectiveId: string): Promise<ObjectiveStats> {
+  return apiFetch(`${BASE}/objectives/${objectiveId}/stats`);
+}
+
+export async function getObjectiveExecutions(objectiveId: string): Promise<ObjectiveExecution[]> {
+  return apiFetch(`${BASE}/objectives/${objectiveId}/executions`);
+}
+
+export async function triggerExecution(body: TriggerExecutionInput): Promise<TriggerExecutionResult> {
+  return apiFetch(`${BASE}/executions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
