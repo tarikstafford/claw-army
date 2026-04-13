@@ -1,5 +1,3 @@
-import { SvelteMap } from 'svelte';
-
 export type ToastType = 'success' | 'error' | 'info' | 'warning' | 'chat' | 'execution' | 'danger';
 
 export interface Toast {
@@ -9,21 +7,23 @@ export interface Toast {
   retry?: () => void;
 }
 
-const toasts = new SvelteMap<string, Toast>();
+let toasts: Toast[] = $state([]);
+
+const MAX_TOASTS = 5;
 
 export function addToast(text: string, type: ToastType = 'info', retry?: () => void): string {
   const id = crypto.randomUUID();
-  toasts.set(id, { id, type, text, retry });
+  toasts = [{ id, type, text, retry }, ...toasts].slice(0, MAX_TOASTS);
   setTimeout(() => removeToast(id), 4000);
   return id;
 }
 
 export function removeToast(id: string): void {
-  toasts.delete(id);
+  toasts = toasts.filter(t => t.id !== id);
 }
 
-export function getToasts(): Iterable<Toast> {
-  return toasts.values();
+export function getToasts(): Toast[] {
+  return toasts;
 }
 
 export function toast(text: string, type?: ToastType): string {
