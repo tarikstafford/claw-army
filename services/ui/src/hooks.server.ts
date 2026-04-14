@@ -35,5 +35,10 @@ export const handle: Handle = async ({ event, resolve }) => {
     throw redirect(303, '/auth');
   }
 
+  // Redirect authenticated users from marketing page to dashboard
+  if (event.url.pathname === '/' && event.locals.session) {
+    throw redirect(303, '/indra');
+  }
+
   return resolve(event);
 };
