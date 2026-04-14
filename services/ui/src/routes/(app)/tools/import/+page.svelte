@@ -223,10 +223,10 @@
 
   function methodColor(method: string): string {
     switch (method.toLowerCase()) {
-      case 'get': return 'var(--bo-teal, #2DD4BF)';
-      case 'post': return 'var(--bo-amber, #FBBF24)';
-      case 'put': return 'var(--bo-vb, #A78BFA)';
-      case 'patch': return 'var(--bo-rose, #F472B6)';
+      case 'get': return 'var(--accent-teal)';
+      case 'post': return 'var(--karma)';
+      case 'put': return 'var(--accent-m)';
+      case 'patch': return 'var(--accent-rose)';
       case 'delete': return 'var(--error, #f87171)';
       default: return 'var(--text-muted)';
     }

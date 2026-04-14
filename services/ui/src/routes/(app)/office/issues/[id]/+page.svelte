@@ -48,7 +48,7 @@
       case 'open': return 'var(--fo-plum-m)';
       case 'in_progress': return 'var(--fo-gold, #B8965A)';
       case 'blocked': return 'var(--error)';
-      case 'done': return 'var(--bo-teal, #2DD4BF)';
+      case 'done': return 'var(--accent-teal)';
       default: return 'var(--text-muted)';
     }
   }
@@ -370,7 +370,7 @@
     align-items: center;
     padding: 10px 18px;
     background: var(--accent);
-    color: #fff;
+    color: white;
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;

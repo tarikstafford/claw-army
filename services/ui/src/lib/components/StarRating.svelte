@@ -93,7 +93,7 @@
 
   .star {
     display: inline-flex;
-    color: var(--bo-border);
+    color: var(--border);
     transition: color 0.15s;
     background: none;
     border: none;
@@ -103,11 +103,11 @@
   }
 
   .star--filled {
-    color: var(--bo-amber);
+    color: var(--karma);
   }
 
   .star-rating--interactive .star:hover {
-    color: var(--bo-amber);
+    color: var(--karma);
   }
 
   .star-rating--interactive .star {

@@ -17,10 +17,10 @@
   }
 
   const CLASS_COLORS: Record<string, string> = {
-    Artisan: 'var(--bo-amber)',
-    Understudy: 'var(--bo-vb)',
-    Novice: 'var(--bo-muted)',
-    Retired: 'var(--bo-faint)',
+    Artisan: 'var(--karma)',
+    Understudy: 'var(--accent-m)',
+    Novice: 'var(--text-muted)',
+    Retired: 'var(--muted)',
   };
 
   const CLASS_ORDER = ['Novice', 'Understudy', 'Artisan', 'Retired'] as const;
@@ -85,7 +85,7 @@
             {@const isLast = i === fleet.scoreHistory.length - 1}
             <div
               class="sparkline-bar"
-              style="height: {barHeight}%; background: {isLast ? 'var(--bo-amber)' : 'var(--bo-violet)'};"
+              style="height: {barHeight}%; background: {isLast ? 'var(--karma)' : 'var(--accent)'};"
             ></div>
           {/each}
         </div>
@@ -105,7 +105,7 @@
         <span class="agent-id">{agent.botId.slice(0, 8)}</span>
         <span
           class="agent-class-badge"
-          style="color: {CLASS_COLORS[agent.currentClass] ?? 'var(--bo-muted)'};"
+          style="color: {CLASS_COLORS[agent.currentClass] ?? 'var(--text-muted)'};"
         >{agent.currentClass.toUpperCase()}</span>
         <span class="agent-score">
           {agent.compositeScore ? parseFloat(agent.compositeScore).toFixed(2) : '—'}
@@ -133,8 +133,8 @@
   }
 
   .class-cell {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-lg);
     display: flex;
@@ -175,7 +175,7 @@
   }
 
   .skeleton-cell {
-    background: var(--bo-card);
+    background: var(--card);
     border-radius: var(--radius-sm);
     height: 90px;
     animation: pulse-skeleton 1.2s ease-in-out infinite;
@@ -185,8 +185,8 @@
   /* Empty state */
   .empty-state {
     padding: var(--space-2xl);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-align: center;
     margin-bottom: var(--space-xl);
@@ -196,14 +196,14 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -214,8 +214,8 @@
     gap: var(--space-xl);
     margin-bottom: var(--space-xl);
     padding: var(--space-lg);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
   }
 
@@ -229,14 +229,14 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     display: block;
   }
 
   .score-value {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     display: block;
   }
 
@@ -264,7 +264,7 @@
   .sparkline-caption {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   /* Agent list */
@@ -279,8 +279,8 @@
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-md);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-decoration: none;
     transition: background 0.15s ease;
@@ -293,7 +293,7 @@
   .agent-id {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .agent-class-badge {
@@ -305,7 +305,7 @@
   .agent-score {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin-left: auto;
   }
 
@@ -313,7 +313,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-amber);
+    color: var(--karma);
     background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251, 191, 36, 0.32);
     padding: 3px 7px;

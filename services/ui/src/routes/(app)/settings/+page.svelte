@@ -130,6 +130,19 @@
     <h1 class="page-title">Settings</h1>
   </header>
 
+  <section class="section" aria-label="Quick links">
+    <div class="quick-links">
+      <a href="/settings/tools" class="quick-link">
+        <span class="quick-link-title">Tools</span>
+        <span class="quick-link-desc">Manage connected integrations</span>
+      </a>
+      <a href="/settings/billing" class="quick-link">
+        <span class="quick-link-title">Billing</span>
+        <span class="quick-link-desc">Budget, costs, and spend analytics</span>
+      </a>
+    </div>
+  </section>
+
   <section class="section" aria-label="Profile">
     <h2 class="section-heading">Profile</h2>
     {#if profile}
@@ -313,17 +326,9 @@
     margin: 0;
   }
 
-  :global(body.back-office) .page-title {
-    color: var(--bo-text);
-  }
-
   .section {
     padding: 28px 40px;
     border-bottom: 1px solid var(--fo-border, #E8E4DC);
-  }
-
-  :global(body.back-office) .section {
-    border-bottom-color: rgba(124, 58, 237, 0.13);
   }
 
   .section-heading {
@@ -334,15 +339,48 @@
     margin: 0 0 var(--space-lg) 0;
   }
 
-  :global(body.back-office) .section-heading {
-    color: var(--bo-text);
-  }
-
   .section-sub {
     font-family: var(--font-body);
     font-size: 13px;
     color: var(--muted);
     margin: -12px 0 20px 0;
+  }
+
+  /* Quick links */
+  .quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .quick-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .quick-link:hover {
+    border-color: var(--accent);
+    background: var(--bg2);
+  }
+
+  .quick-link-title {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .quick-link-desc {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
   }
 
   /* Profile */
@@ -369,7 +407,7 @@
 
   .avatar-placeholder {
     background: var(--accent);
-    color: #fff;
+    color: white;
     font-family: var(--font-display);
     font-size: 22px;
     font-weight: 600;
@@ -544,11 +582,6 @@
     border-color: var(--accent);
   }
 
-  :global(body.back-office) .key-input {
-    background: var(--d-card);
-    color: var(--d-text);
-  }
-
   .key-error {
     font-family: var(--font-body);
     font-size: 13px;
@@ -643,7 +676,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
-    color: #fff;
+    color: white;
     background: var(--accent);
     border: 1px solid var(--accent);
     border-radius: var(--radius-sm);
@@ -678,7 +711,7 @@
 
   .btn-copy:hover {
     background: var(--accent);
-    color: #fff;
+    color: white;
   }
 
   .btn-revoke {
@@ -698,7 +731,7 @@
 
   .btn-revoke:hover {
     background: var(--danger);
-    color: #fff;
+    color: white;
   }
 
   /* Danger Zone */
@@ -773,11 +806,6 @@
     width: 100%;
   }
 
-  :global(body.back-office) .delete-input {
-    background: var(--d-card);
-    color: var(--d-text);
-  }
-
   .delete-btns {
     display: flex;
     gap: 8px;
@@ -787,7 +815,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
-    color: #fff;
+    color: white;
     background: var(--danger);
     border: 1px solid var(--danger);
     border-radius: var(--radius-sm);

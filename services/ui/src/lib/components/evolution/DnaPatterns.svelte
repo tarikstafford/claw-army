@@ -146,7 +146,7 @@
         <div class="dna-card">
           <div class="dna-card-header">
             <span class="dna-title">{entry.title ?? entry.id.slice(0, 8)}</span>
-            <span class="dna-score" style="color: var(--bo-teal)">
+            <span class="dna-score" style="color: var(--accent-teal)">
               {formatScore(entry.compositeScore)}
             </span>
           </div>
@@ -209,18 +209,18 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
   .error-text {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .dna-grid {
@@ -230,8 +230,8 @@
   }
 
   .dna-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     display: flex;
@@ -250,7 +250,7 @@
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -266,7 +266,7 @@
   .dna-description {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -290,14 +290,14 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-transform: uppercase;
   }
 
   .meta-value {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .dna-footer {
@@ -306,22 +306,22 @@
     align-items: center;
     margin-top: auto;
     padding-top: var(--space-sm);
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
   }
 
   .dna-date {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .expand-btn {
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: var(--radius-sm);
     padding: 2px 8px;
     cursor: pointer;
@@ -334,7 +334,7 @@
 
   .dna-details {
     padding-top: var(--space-sm);
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
@@ -350,13 +350,13 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-transform: uppercase;
   }
 
   .detail-value {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-text);
+    color: var(--text);
   }
 </style>

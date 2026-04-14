@@ -1,9 +1,9 @@
 <script lang="ts">
   const CLASS_COLORS: Record<string, string> = {
-    Artisan: 'var(--bo-amber)',
-    Understudy: 'var(--bo-vb)',
-    Novice: 'var(--bo-muted)',
-    Retired: 'var(--bo-faint)',
+    Artisan: 'var(--karma)',
+    Understudy: 'var(--accent-m)',
+    Novice: 'var(--text-muted)',
+    Retired: 'var(--muted)',
   };
 
   let { botId, currentClass, archetypeName, taskCategory, isPioneer, compositeScore, status }: {
@@ -17,13 +17,13 @@
   } = $props();
 
   const classColor = $derived(
-    currentClass ? (CLASS_COLORS[currentClass] ?? 'var(--bo-muted)') : 'var(--bo-muted)'
+    currentClass ? (CLASS_COLORS[currentClass] ?? 'var(--text-muted)') : 'var(--text-muted)'
   );
 
   const statusDotColor = $derived(
-    status === 'active' || status === 'running' ? 'var(--bo-teal)' :
-    status === 'error' || status === 'failed' ? 'var(--bo-rose)' :
-    'var(--bo-faint)'
+    status === 'active' || status === 'running' ? 'var(--accent-teal)' :
+    status === 'error' || status === 'failed' ? 'var(--accent-rose)' :
+    'var(--muted)'
   );
 </script>
 
@@ -70,8 +70,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
     gap: var(--space-xl);
@@ -94,7 +94,7 @@
   .bot-name {
     font-family: var(--font-mono);
     font-size: 20px;
-    color: var(--bo-violet);
+    color: var(--accent);
     letter-spacing: 0.02em;
   }
 
@@ -113,7 +113,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-amber);
+    color: var(--karma);
     background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251, 191, 36, 0.32);
     padding: 3px 7px;
@@ -123,7 +123,7 @@
   .archetype-label {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .identity-right {
@@ -143,7 +143,7 @@
   .score-value {
     font-family: var(--font-label);
     font-size: 20px;
-    color: var(--bo-amber);
+    color: var(--karma);
     line-height: 1;
   }
 
@@ -151,7 +151,7 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .meta-block {
@@ -164,7 +164,7 @@
   .category-label {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .status-row {
@@ -184,7 +184,7 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     text-transform: uppercase;
   }
 </style>

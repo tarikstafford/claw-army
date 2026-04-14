@@ -46,10 +46,10 @@
   };
 
   const EVENT_COLORS: Record<EventType, string> = {
-    lifecycle: 'var(--bo-violet)',
-    task: 'var(--bo-teal)',
-    guardrail: 'var(--bo-amber)',
-    tool_call: 'var(--bo-rose)',
+    lifecycle: 'var(--accent)',
+    task: 'var(--accent-teal)',
+    guardrail: 'var(--karma)',
+    tool_call: 'var(--accent-rose)',
   };
 
   const filteredLogs = $derived(
@@ -74,9 +74,9 @@
   }
 
   function statusColor(rejected: boolean, status: string): string {
-    if (rejected) return 'var(--bo-rose)';
-    if (status === 'error') return 'var(--bo-rose)';
-    return 'var(--bo-teal)';
+    if (rejected) return 'var(--accent-rose)';
+    if (status === 'error') return 'var(--accent-rose)';
+    return 'var(--accent-teal)';
   }
 
   function toggleFilter(type: EventType) {
@@ -323,7 +323,7 @@
 
   .mode-toggle {
     display: flex;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     overflow: hidden;
   }
@@ -332,7 +332,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     background: none;
     border: none;
     padding: var(--space-sm) var(--space-md);
@@ -344,19 +344,19 @@
   }
 
   .mode-btn.active {
-    color: var(--bo-text);
-    background: var(--bo-card);
+    color: var(--text);
+    background: var(--card);
   }
 
   .mode-btn:hover:not(.active) {
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .live-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--bo-teal);
+    background: var(--accent-teal);
     animation: pulse 1.5s infinite;
   }
 
@@ -375,9 +375,9 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     background: none;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 3px 8px;
     cursor: pointer;
@@ -390,7 +390,7 @@
   }
 
   .filter-btn:hover:not(.active) {
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .logs-empty {
@@ -402,18 +402,18 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
   .error-text {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .logs-table-wrapper {
@@ -431,16 +431,16 @@
     font-size: 6px;
     letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-align: left;
     padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
   .logs-table td {
     font-size: 12px;
-    color: var(--bo-text);
+    color: var(--text);
     padding: var(--space-sm) var(--space-md);
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     font-family: var(--font-body);
@@ -457,7 +457,7 @@
   .cell-time {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     white-space: nowrap;
   }
 
@@ -470,17 +470,17 @@
   .cell-tool {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .cell-duration {
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .cell-tokens {
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .status-badge {
@@ -492,17 +492,17 @@
   .detail-row td {
     padding-top: 0;
     padding-bottom: var(--space-sm);
-    background: var(--bo-card);
-    border-bottom: 1px solid var(--bo-border);
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
   }
 
   .expand-toggle {
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: var(--radius-sm);
     padding: 2px 8px;
     cursor: pointer;
@@ -518,7 +518,7 @@
     flex-direction: column;
     gap: var(--space-sm);
     padding: var(--space-sm);
-    background: var(--bo-card);
+    background: var(--card);
     border-radius: var(--radius-sm);
   }
 
@@ -529,31 +529,31 @@
   }
 
   .detail-section.rejection .detail-label {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .detail-label {
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .detail-text {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     margin: 0;
   }
 
   .detail-pre {
     font-family: var(--font-mono, monospace);
     font-size: 10px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     white-space: pre-wrap;
     word-break: break-word;
     margin: 0;
-    background: var(--bo-border);
+    background: var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-sm);
   }

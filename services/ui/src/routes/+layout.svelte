@@ -12,19 +12,13 @@
   import Aurora from '$lib/components/ui/Aurora.svelte';
   import NavShell from '$lib/components/ui/NavShell.svelte';
   import { prefersReducedMotion } from '$lib/motion';
-  import { getAuroraVariant, getNavVariant, isBackOfficeRoute } from '$lib/route-mode';
   import '../app.css';
 
   let { children, data } = $props();
 
   const pathname = $derived(page.url.pathname);
-  const navVariant = $derived(getNavVariant(pathname));
-  const auroraVariant = $derived(getAuroraVariant(pathname));
-
-  $effect(() => {
-    if (typeof document === 'undefined') return;
-    document.body.classList.toggle('back-office', isBackOfficeRoute(pathname));
-  });
+  const navVariant = $derived(pathname === '/' ? 'marketing' as const : 'app' as const);
+  const auroraVariant = $derived(pathname === '/' ? 'marketing' as const : 'front-office' as const);
 
   onMount(() => {
     localStorage.removeItem('akasa-mode');
@@ -59,7 +53,7 @@
       z-index: 9999;
       padding: 12px 20px;
       background: var(--accent);
-      color: #fff;
+      color: white;
       border-radius: 0 0 8px 8px;
       font-family: var(--font-body);
       font-size: 13px;

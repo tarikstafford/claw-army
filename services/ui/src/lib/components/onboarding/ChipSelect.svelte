@@ -120,7 +120,7 @@
   .send-btn {
     padding: 8px 14px;
     background: var(--fo-plum, #3D3560);
-    color: #fff;
+    color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;

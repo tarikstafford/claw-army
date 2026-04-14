@@ -203,14 +203,14 @@
   .error-state {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
   }
 
   .tab-nav {
     display: flex;
     gap: var(--space-xs);
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     padding-bottom: 0;
   }
 
@@ -222,7 +222,7 @@
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 500;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     cursor: pointer;
     transition: color 0.15s ease;
     display: flex;
@@ -242,22 +242,22 @@
   }
 
   .tab-btn:hover {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .tab-btn.active {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .tab-btn.active::after {
-    background: var(--bo-violet);
+    background: var(--accent);
   }
 
   .tab-badge {
     font-family: var(--font-mono);
     font-size: 10px;
     background: rgba(124, 58, 237, 0.15);
-    color: var(--bo-vb);
+    color: var(--accent-m);
     padding: 1px 6px;
     border-radius: var(--radius-sm);
   }
@@ -272,7 +272,7 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
@@ -303,7 +303,7 @@
     gap: var(--space-sm);
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     cursor: pointer;
   }
 
@@ -316,9 +316,9 @@
   .btn-batch-confirm {
     min-height: 44px;
     padding: 0 var(--space-lg);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-violet);
-    color: var(--bo-violet);
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--accent);
     font-family: var(--font-body);
     font-size: 13px;
     border-radius: var(--radius-sm);
@@ -338,7 +338,7 @@
   .btn-batch-reject {
     min-height: 44px;
     padding: 0 var(--space-lg);
-    background: var(--bo-card);
+    background: var(--card);
     border: 1px solid var(--error);
     color: var(--error);
     font-family: var(--font-body);
@@ -360,7 +360,7 @@
   .batch-progress {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     padding: var(--space-sm) 0;
   }
 

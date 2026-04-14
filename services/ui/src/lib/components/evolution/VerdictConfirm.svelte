@@ -4,18 +4,18 @@
   import type { PendingVerdict } from '$lib/types.js';
 
   const VERDICT_COLORS: Record<string, string> = {
-    Promote: 'var(--bo-violet)',
-    Maintain: 'var(--bo-muted)',
-    Monitor: 'var(--bo-teal)',
-    Demote: 'var(--bo-rose)',
+    Promote: 'var(--accent)',
+    Maintain: 'var(--text-muted)',
+    Monitor: 'var(--accent-teal)',
+    Demote: 'var(--accent-rose)',
     Retire: 'var(--error)',
   };
 
   const CLASS_COLORS: Record<string, string> = {
-    Artisan: 'var(--bo-amber)',
-    Understudy: 'var(--bo-vb)',
-    Novice: 'var(--bo-muted)',
-    Retired: 'var(--bo-faint)',
+    Artisan: 'var(--karma)',
+    Understudy: 'var(--accent-m)',
+    Novice: 'var(--text-muted)',
+    Retired: 'var(--muted)',
   };
 
   let {
@@ -35,7 +35,7 @@
   let rejectModalOpen = $state(false);
   let fading = $state(false);
 
-  const verdictColor = $derived(VERDICT_COLORS[verdict.verdictType] ?? 'var(--bo-muted)');
+  const verdictColor = $derived(VERDICT_COLORS[verdict.verdictType] ?? 'var(--text-muted)');
   const confidenceDisplay = $derived(
     verdict.weightedConfidenceScore
       ? `${(parseFloat(verdict.weightedConfidenceScore) * 100).toFixed(0)}% confidence`
@@ -131,7 +131,7 @@
       {#if verdict.performanceJudgeOutput}
         <Accordion
           label="PERFORMANCE JUDGE"
-          color="var(--bo-violet)"
+          color="var(--accent)"
         >
           <pre class="evidence-json">{JSON.stringify(verdict.performanceJudgeOutput, null, 2)}</pre>
         </Accordion>
@@ -139,7 +139,7 @@
       {#if verdict.soulAnalystOutput}
         <Accordion
           label="SOUL ANALYST"
-          color="var(--bo-teal)"
+          color="var(--accent-teal)"
         >
           <pre class="evidence-json">{JSON.stringify(verdict.soulAnalystOutput, null, 2)}</pre>
         </Accordion>
@@ -147,7 +147,7 @@
       {#if verdict.devilsAdvocateOutput}
         <Accordion
           label="DEVIL'S ADVOCATE"
-          color="var(--bo-rose)"
+          color="var(--accent-rose)"
         >
           <pre class="evidence-json">{JSON.stringify(verdict.devilsAdvocateOutput, null, 2)}</pre>
         </Accordion>
@@ -182,8 +182,8 @@
   }
 
   .verdict-row {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-bhi);
+    background: var(--card);
+    border: 1px solid var(--accent-m);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
     display: flex;
@@ -197,7 +197,7 @@
   }
 
   .verdict-row.selected {
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
     background: rgba(124, 58, 237, 0.04);
   }
 
@@ -206,7 +206,7 @@
     height: 18px;
     flex-shrink: 0;
     cursor: pointer;
-    accent-color: var(--bo-violet);
+    accent-color: var(--accent);
     margin-top: 2px;
   }
 
@@ -234,7 +234,7 @@
   .bot-id {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .verdict-type-badge {
@@ -249,13 +249,13 @@
   .confidence {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .verdict-summary {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.5;
   }
@@ -270,9 +270,9 @@
   .btn-approve {
     min-height: 44px;
     padding: 0 var(--space-lg);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-violet);
-    color: var(--bo-violet);
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--accent);
     font-family: var(--font-body);
     font-size: 13px;
     border-radius: var(--radius-sm);
@@ -292,7 +292,7 @@
   .btn-reject {
     min-height: 44px;
     padding: 0 var(--space-lg);
-    background: var(--bo-card);
+    background: var(--card);
     border: 1px solid var(--error);
     color: var(--error);
     font-family: var(--font-body);
@@ -320,7 +320,7 @@
   .evidence-json {
     font-family: var(--font-mono, monospace);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     white-space: pre-wrap;
     word-break: break-all;
     margin: 0;
@@ -338,7 +338,7 @@
   .modal-body-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0 0 var(--space-lg);
     line-height: 1.6;
   }
@@ -353,8 +353,8 @@
     min-height: 44px;
     padding: 0 var(--space-lg);
     background: transparent;
-    border: 1px solid var(--bo-border);
-    color: var(--bo-muted);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
     font-family: var(--font-body);
     font-size: 13px;
     border-radius: var(--radius-sm);
@@ -363,7 +363,7 @@
   }
 
   .btn-modal-cancel:hover {
-    border-color: var(--bo-muted);
+    border-color: var(--text-muted);
   }
 
   .btn-modal-reject {

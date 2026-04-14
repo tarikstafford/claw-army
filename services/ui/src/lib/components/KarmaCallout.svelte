@@ -20,7 +20,7 @@
 	}
 
 	.karma-diamond {
-		color: var(--bo-amber);
+		color: var(--karma);
 		font-size: 12px;
 		line-height: 1.6;
 		flex-shrink: 0;
@@ -29,7 +29,7 @@
 	.karma-text {
 		font-family: var(--font-body);
 		font-size: 12px;
-		color: var(--bo-amber);
+		color: var(--karma);
 		line-height: 1.6;
 	}
 </style>

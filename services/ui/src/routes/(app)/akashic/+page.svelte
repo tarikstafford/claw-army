@@ -346,7 +346,7 @@
     font-family: var(--font-display);
     font-size: 28px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-xs);
     line-height: 1.1;
   }
@@ -354,7 +354,7 @@
   .page-subtitle {
     font-family: var(--font-body);
     font-size: 14px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
   }
 
@@ -367,8 +367,8 @@
 
   /* ── Filter sidebar ──────────────────────────── */
   .filter-sidebar {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
     display: flex;
@@ -386,15 +386,15 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .filter-select,
   .filter-input {
-    background: var(--bo-bg);
-    border: 1px solid var(--bo-border);
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-body);
     font-size: 13px;
     padding: var(--space-sm) var(--space-md);
@@ -405,13 +405,13 @@
 
   .filter-select:focus,
   .filter-input:focus {
-    border-color: var(--bo-vb);
+    border-color: var(--accent-m);
   }
 
   .filter-apply-btn {
     display: block;
     text-align: center;
-    background: var(--bo-violet);
+    background: var(--accent);
     color: white;
     font-family: var(--font-label);
     font-size: 6px;
@@ -423,7 +423,7 @@
   }
 
   .filter-apply-btn:hover {
-    background: var(--bo-vb);
+    background: var(--accent-m);
   }
 
   /* ── Soul grid ───────────────────────────────── */
@@ -440,8 +440,8 @@
   }
 
   .soul-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
     cursor: pointer;
@@ -454,12 +454,12 @@
   }
 
   .soul-card:hover {
-    border-color: var(--bo-vb);
-    box-shadow: 0 0 0 1px var(--bo-vb);
+    border-color: var(--accent-m);
+    box-shadow: 0 0 0 1px var(--accent-m);
   }
 
   .soul-card[aria-expanded="true"] {
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .soul-card-header {
@@ -473,7 +473,7 @@
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
     line-height: 1.3;
   }
@@ -481,14 +481,14 @@
   .soul-score {
     font-family: var(--font-mono);
     font-size: 13px;
-    color: var(--bo-amber);
+    color: var(--karma);
     flex-shrink: 0;
   }
 
   .soul-desc {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.6;
     display: -webkit-box;
@@ -508,29 +508,29 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.08em;
-    color: var(--bo-caption);
-    background: var(--bo-ghost);
+    color: var(--text-muted);
+    background: var(--fo-rule);
     padding: 3px 6px;
     border-radius: 3px;
   }
 
   .meta-chip.acquired {
-    color: var(--bo-teal);
+    color: var(--accent-teal);
   }
 
   .soul-category {
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.08em;
-    color: var(--bo-violet);
+    color: var(--accent);
     align-self: flex-start;
   }
 
   /* ── Empty state ─────────────────────────────── */
   .empty-state {
     padding: var(--space-3xl);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-align: center;
   }
@@ -539,13 +539,13 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -561,22 +561,22 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.08em;
-    color: var(--bo-vb);
+    color: var(--accent-m);
     text-decoration: none;
     padding: var(--space-xs) var(--space-sm);
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     transition: border-color 0.15s;
   }
 
   .page-btn:hover {
-    border-color: var(--bo-vb);
+    border-color: var(--accent-m);
   }
 
   .page-indicator {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   /* ── Soul rating summary (on card) ─────────── */
@@ -590,13 +590,13 @@
   .rating-count {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   /* ── Reviews panel ─────────────────────────── */
   .reviews-panel {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-xl);
     display: flex;
@@ -608,7 +608,7 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
@@ -621,14 +621,14 @@
   .reviews-avg {
     font-family: var(--font-mono);
     font-size: 16px;
-    color: var(--bo-amber);
+    color: var(--karma);
     font-weight: 600;
   }
 
   .reviews-count {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   /* ── Review form ───────────────────────────── */
@@ -636,7 +636,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
     padding-top: var(--space-lg);
   }
 
@@ -650,14 +650,14 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .review-textarea {
-    background: var(--bo-bg);
-    border: 1px solid var(--bo-border);
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-body);
     font-size: 13px;
     padding: var(--space-sm) var(--space-md);
@@ -667,7 +667,7 @@
   }
 
   .review-textarea:focus {
-    border-color: var(--bo-vb);
+    border-color: var(--accent-m);
   }
 
   .review-error {
@@ -679,7 +679,7 @@
 
   .review-submit-btn {
     align-self: flex-start;
-    background: var(--bo-violet);
+    background: var(--accent);
     color: white;
     font-family: var(--font-label);
     font-size: 6px;
@@ -692,7 +692,7 @@
   }
 
   .review-submit-btn:hover:not(:disabled) {
-    background: var(--bo-vb);
+    background: var(--accent-m);
   }
 
   .review-submit-btn:disabled {
@@ -711,12 +711,12 @@
   .reviews-empty {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
   .review-item {
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
     padding-top: var(--space-md);
     display: flex;
     flex-direction: column;
@@ -733,14 +733,14 @@
   .review-author {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-text);
+    color: var(--text);
     font-weight: 500;
   }
 
   .review-date {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .review-delete-btn {
@@ -763,7 +763,7 @@
   .review-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.6;
   }

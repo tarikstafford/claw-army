@@ -16,20 +16,20 @@
   let { rows, ondiff }: { rows: LedgerRow[]; ondiff?: (soulId: string, parentId: string, mutationType: MutationType) => void } = $props();
 
   const VERDICT_COLORS: Record<string, string> = {
-    Promote: 'var(--bo-violet)',
-    Maintain: 'var(--bo-muted)',
-    Monitor: 'var(--bo-teal)',
-    Demote: 'var(--bo-rose)',
+    Promote: 'var(--accent)',
+    Maintain: 'var(--text-muted)',
+    Monitor: 'var(--accent-teal)',
+    Demote: 'var(--accent-rose)',
     Retire: 'var(--error)',
   };
 
   function formatDelta(delta: string | null): { text: string; color: string } {
-    if (delta === null) return { text: '—', color: 'var(--bo-faint)' };
+    if (delta === null) return { text: '—', color: 'var(--muted)' };
     const val = parseFloat(delta);
-    if (isNaN(val)) return { text: '—', color: 'var(--bo-faint)' };
-    if (val > 0) return { text: `+${val.toFixed(2)}`, color: 'var(--bo-teal)' };
-    if (val < 0) return { text: val.toFixed(2), color: 'var(--bo-rose)' };
-    return { text: '—', color: 'var(--bo-faint)' };
+    if (isNaN(val)) return { text: '—', color: 'var(--muted)' };
+    if (val > 0) return { text: `+${val.toFixed(2)}`, color: 'var(--accent-teal)' };
+    if (val < 0) return { text: val.toFixed(2), color: 'var(--accent-rose)' };
+    return { text: '—', color: 'var(--muted)' };
   }
 
   function formatDate(dateStr: string): string {
@@ -41,9 +41,9 @@
   }
 
   function outcomeColor(keepDiscard: 'keep' | 'discard' | 'pending'): string {
-    if (keepDiscard === 'keep') return 'var(--bo-teal)';
-    if (keepDiscard === 'discard') return 'var(--bo-rose)';
-    return 'var(--bo-faint)';
+    if (keepDiscard === 'keep') return 'var(--accent-teal)';
+    if (keepDiscard === 'discard') return 'var(--accent-rose)';
+    return 'var(--muted)';
   }
 
   function outcomeLabel(keepDiscard: 'keep' | 'discard' | 'pending'): string {
@@ -100,7 +100,7 @@
             <td class="cell-verdict">
               <span
                 class="verdict-tag"
-                style="color: {VERDICT_COLORS[row.verdictType] ?? 'var(--bo-muted)'}"
+                style="color: {VERDICT_COLORS[row.verdictType] ?? 'var(--text-muted)'}"
               >
                 {row.verdictType.toUpperCase()}
               </span>
@@ -135,13 +135,13 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -160,23 +160,23 @@
     font-weight: 400;
     letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-align: left;
     padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
   .ledger-table td {
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     padding: var(--space-sm) var(--space-md);
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     font-family: var(--font-body);
   }
 
   .cell-date {
-    color: var(--bo-caption);
+    color: var(--text-muted);
     font-size: 11px;
     white-space: nowrap;
   }
@@ -188,16 +188,16 @@
   }
 
   .cell-mutation {
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .mutation-btn {
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: 3px;
     padding: 2px 6px;
     cursor: pointer;

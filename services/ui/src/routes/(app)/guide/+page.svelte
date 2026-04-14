@@ -490,7 +490,7 @@ min_agent_class: "Novice"</div>
       <div class="feature-card">
         <div class="feature-tag">Catalog</div>
         <h3>Tool Catalog</h3>
-        <p>Browse the available integrations in <a href="/tools/catalog">Tool Catalog</a>. Each tool shows its connection status, required OAuth scopes, and what agents can use it once connected.</p>
+        <p>Browse the available integrations in <a href="/settings/tools">Tool Catalog</a>. Each tool shows its connection status, required OAuth scopes, and what agents can use it once connected.</p>
       </div>
       <div class="feature-card">
         <div class="feature-tag">OAuth</div>
@@ -500,7 +500,7 @@ min_agent_class: "Novice"</div>
       <div class="feature-card">
         <div class="feature-tag">Belt</div>
         <h3>Tool Belt</h3>
-        <p>View and manage all active connections in <a href="/tools/belt">Tool Belt</a>. Disconnect any tool from here — removing a connection immediately revokes access for all agents.</p>
+        <p>View and manage all active connections in <a href="/settings/tools">Tool Belt</a>. Disconnect any tool from here — removing a connection immediately revokes access for all agents.</p>
       </div>
     </div>
 
@@ -630,7 +630,7 @@ min_agent_class: "Novice"</div>
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-family: var(--font-mono);
-    color: var(--bo-faint);
+    color: var(--muted);
     margin-bottom: 12px;
   }
 
@@ -701,7 +701,7 @@ min_agent_class: "Novice"</div>
     letter-spacing: 0.1em;
     text-transform: uppercase;
     font-family: var(--font-mono);
-    color: var(--bo-faint);
+    color: var(--muted);
     margin-bottom: 12px;
   }
 
@@ -781,7 +781,7 @@ min_agent_class: "Novice"</div>
 
   .step-arrow {
     font-size: 1.125rem;
-    color: var(--bo-faint);
+    color: var(--muted);
     padding-top: var(--space-2xl);
     flex-shrink: 0;
   }
@@ -865,9 +865,9 @@ min_agent_class: "Novice"</div>
   }
 
   .badge--good {
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     background: rgba(45, 212, 191, 0.10);
-    border: 1px solid var(--bo-teal);
+    border: 1px solid var(--accent-teal);
   }
 
   .badge--avoid {
@@ -897,7 +897,7 @@ min_agent_class: "Novice"</div>
     content: '✓';
     position: absolute;
     left: 0;
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     font-weight: 700;
   }
 
@@ -1113,7 +1113,7 @@ min_agent_class: "Novice"</div>
   }
 
   .code-comment {
-    color: var(--bo-faint);
+    color: var(--muted);
     display: block;
     margin-bottom: var(--space-xs);
   }
@@ -1176,7 +1176,7 @@ min_agent_class: "Novice"</div>
   }
 
   .tier-novice .tier-label { color: var(--text-muted); }
-  .tier-understudy .tier-label { color: var(--bo-teal); }
+  .tier-understudy .tier-label { color: var(--accent-teal); }
   .tier-artisan .tier-label { color: var(--karma); }
 
   .tier-artisan {
@@ -1192,7 +1192,7 @@ min_agent_class: "Novice"</div>
 
   .tier-arrow {
     font-size: 1.125rem;
-    color: var(--bo-faint);
+    color: var(--muted);
     padding-top: var(--space-2xl);
     flex-shrink: 0;
   }
@@ -1271,15 +1271,15 @@ min_agent_class: "Novice"</div>
   }
 
   .verdict-badge--promote {
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     background: rgba(45, 212, 191, 0.10);
-    border: 1px solid var(--bo-teal);
+    border: 1px solid var(--accent-teal);
   }
 
   .verdict-badge--retire {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     background: rgba(244, 114, 182, 0.08);
-    border: 1px solid var(--bo-rose);
+    border: 1px solid var(--accent-rose);
   }
 
   /* ── Numbered list ── */
@@ -1424,7 +1424,7 @@ min_agent_class: "Novice"</div>
     align-items: center;
     padding: 0.625rem 1.25rem;
     background: var(--accent);
-    color: #fff;
+    color: white;
     font-size: 0.875rem;
     font-weight: 600;
     border-radius: 4px;
@@ -1433,7 +1433,7 @@ min_agent_class: "Novice"</div>
 
   .btn-primary:hover {
     background: var(--accent-m);
-    color: #fff;
+    color: white;
   }
 
   .btn-ghost {

@@ -29,8 +29,8 @@
 
 <style>
 	.mcard {
-		background: var(--bo-card);
-		border: 1px solid var(--bo-border);
+		background: var(--card);
+		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
 		padding: 18px 20px;
 		cursor: pointer;
@@ -45,7 +45,7 @@
 	.mcard-tag {
 		font-family: var(--font-label);
 		font-size: 6px;
-		color: var(--bo-vb);
+		color: var(--accent-m);
 		letter-spacing: 0.10em;
 		display: block;
 		margin-bottom: 9px;
@@ -55,7 +55,7 @@
 		font-family: var(--font-display);
 		font-size: 18px;
 		font-weight: 600;
-		color: var(--bo-text);
+		color: var(--text);
 		margin-bottom: 6px;
 		line-height: 1.2;
 	}
@@ -71,7 +71,7 @@
 	.mcard-cta {
 		font-family: var(--font-label);
 		font-size: 5px;
-		color: var(--bo-vb);
+		color: var(--accent-m);
 		display: block;
 		margin-top: 10px;
 		opacity: 0.65;

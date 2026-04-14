@@ -26,10 +26,10 @@
   const FAILURE_TYPES = ['retirement', 'budget_overrun', 'guardrail_violation', 'quality_floor_breach'];
 
   const FAILURE_COLORS: Record<string, string> = {
-    retirement: 'var(--bo-rose)',
-    budget_overrun: 'var(--bo-amber)',
-    guardrail_violation: 'var(--bo-rose)',
-    quality_floor_breach: 'var(--bo-amber)',
+    retirement: 'var(--accent-rose)',
+    budget_overrun: 'var(--karma)',
+    guardrail_violation: 'var(--accent-rose)',
+    quality_floor_breach: 'var(--karma)',
   };
 
   const filteredSignals = $derived(
@@ -126,7 +126,7 @@
               <td class="cell-type">
                 <span
                   class="type-badge"
-                  style="color: {FAILURE_COLORS[signal.failureType] ?? 'var(--bo-muted)'}"
+                  style="color: {FAILURE_COLORS[signal.failureType] ?? 'var(--text-muted)'}"
                 >
                   {signal.failureType.replace('_', ' ').toUpperCase()}
                 </span>
@@ -171,9 +171,9 @@
   .filter-select {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-text);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
     cursor: pointer;
@@ -181,7 +181,7 @@
 
   .filter-select:focus {
     outline: none;
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .signals-empty {
@@ -193,18 +193,18 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
   .error-text {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .signals-table-wrapper {
@@ -222,16 +222,16 @@
     font-size: 6px;
     letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-align: left;
     padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
   .signals-table td {
     font-size: 12px;
-    color: var(--bo-text);
+    color: var(--text);
     padding: var(--space-sm) var(--space-md);
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     font-family: var(--font-body);
@@ -244,7 +244,7 @@
   .cell-time {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     white-space: nowrap;
   }
 
@@ -257,19 +257,19 @@
   .cell-category {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .cell-gen {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .cell-summary {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     max-width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -288,9 +288,9 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-lg);
     cursor: pointer;
@@ -309,6 +309,6 @@
   .load-more-info {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 </style>

@@ -189,10 +189,6 @@
     padding: 10px 12px;
   }
 
-  :global(body.back-office) .cap-item {
-    background: rgba(124, 58, 237, 0.06);
-  }
-
   .cap-label {
     font-family: var(--font-label);
     font-size: 5px;
@@ -218,19 +214,11 @@
     margin-bottom: 4px;
   }
 
-  :global(body.back-office) .cap-bar {
-    background: rgba(124, 58, 237, 0.15);
-  }
-
   .cap-fill {
     height: 100%;
     background: var(--fo-violet, #7C3AED);
     border-radius: 2px;
     transition: width 0.3s ease;
-  }
-
-  :global(body.back-office) .cap-fill {
-    background: var(--bo-violet, #7C3AED);
   }
 
   .cap-sub {
@@ -263,19 +251,10 @@
     color: var(--text);
   }
 
-  :global(body.back-office) .preset-btn:hover {
-    border-color: var(--bo-violet, #7C3AED);
-  }
-
   .preset-btn.active {
     background: var(--fo-violet, #7C3AED);
     border-color: var(--fo-violet, #7C3AED);
-    color: #ffffff;
-  }
-
-  :global(body.back-office) .preset-btn.active {
-    background: var(--bo-violet, #7C3AED);
-    border-color: var(--bo-violet, #7C3AED);
+    color: white;
   }
 
   .custom-inputs {
@@ -316,10 +295,6 @@
     border-color: var(--fo-violet, #7C3AED);
   }
 
-  :global(body.back-office) .input-group input:focus {
-    border-color: var(--bo-violet, #7C3AED);
-  }
-
   .error-msg {
     font-family: var(--font-body);
     font-size: 11px;
@@ -336,7 +311,7 @@
     border-radius: var(--radius-sm);
     border: none;
     background: var(--fo-violet, #7C3AED);
-    color: #ffffff;
+    color: white;
     cursor: pointer;
     transition: opacity 0.15s ease;
   }
@@ -348,9 +323,5 @@
   .update-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-
-  :global(body.back-office) .update-btn {
-    background: var(--bo-violet, #7C3AED);
   }
 </style>

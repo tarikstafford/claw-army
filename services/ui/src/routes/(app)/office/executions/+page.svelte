@@ -19,13 +19,13 @@
 
   function getStatusColor(status: string): string {
     switch (status) {
-      case 'running': return 'var(--bo-teal, #2DD4BF)';
+      case 'running': return 'var(--accent-teal)';
       case 'completed': return 'var(--success, #059669)';
       case 'failed': return 'var(--error, #f87171)';
-      case 'paused': return 'var(--bo-amber, #FBBF24)';
+      case 'paused': return 'var(--karma)';
       case 'stopped': return 'var(--text-muted)';
-      case 'pre_flight': return 'var(--bo-violet, #7C3AED)';
-      case 'queued': return 'var(--bo-vb, #A78BFA)';
+      case 'pre_flight': return 'var(--accent)';
+      case 'queued': return 'var(--accent-m)';
       default: return 'var(--text-muted)';
     }
   }

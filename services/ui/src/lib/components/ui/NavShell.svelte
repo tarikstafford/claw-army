@@ -14,14 +14,10 @@
   } = $props();
 
   const tabs = [
-    { href: '/indra', label: 'INDRA' },
-    { href: '/office', label: 'OFFICE' },
+    { href: '/', label: 'HOME' },
+    { href: '/team', label: 'TEAM' },
     { href: '/chat', label: 'CHAT' },
-    { href: '/sanctum', label: 'SANCTUM' },
-    { href: '/tools', label: 'TOOLS' },
-    { href: '/evolution', label: 'EVOLUTION' },
-    { href: '/akashic', label: 'AKASHIC' },
-    { href: '/skills', label: 'SKILLS' },
+    { href: '/settings', label: 'SETTINGS' },
   ] as const;
 
   const showTabs = $derived(variant === 'app' && !!session?.user && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding'));
@@ -29,6 +25,7 @@
   let mobileMenuOpen = $state(false);
 
   function isActive(href: string) {
+    if (href === '/') return pathname === '/';
     return pathname.startsWith(href);
   }
 
@@ -39,7 +36,7 @@
 
 <nav class={`nav-shell ${variant}`} class:menu-open={mobileMenuOpen}>
   <div class="nav-frame">
-    <a href={session?.user ? '/indra' : '/'} class="logo" aria-label="Akasa home" onclick={closeMobileMenu}>
+    <a href="/" class="logo" aria-label="Akasa home" onclick={closeMobileMenu}>
       <div class="logo-mark">
         <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g class="lm-outer">
@@ -89,7 +86,7 @@
     <div class="nav-actions">
       {#if variant === 'marketing'}
         {#if session?.user}
-          <Button href="/indra" variant="nav">Dashboard</Button>
+          <Button href="/" variant="nav">Dashboard</Button>
         {:else}
           <Button href="/auth" variant="ghost" class="nav-action">Login</Button>
           <Button href="/#access" variant="nav">Request access</Button>
@@ -208,7 +205,7 @@
 
   .nav-tab.active {
     background: var(--accent);
-    color: #fff;
+    color: white;
   }
 
   .hamburger {
@@ -392,7 +389,7 @@
 
     .nav-tab.active {
       background: var(--accent);
-      color: #fff;
+      color: white;
     }
 
     .mobile-overlay {

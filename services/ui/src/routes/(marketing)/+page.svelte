@@ -247,19 +247,19 @@
           </div>
           <div class="t-body">
             <div class="tl"><span class="tp">&gt;</span><span class="tk">CLIENT_AGENT</span> <span class="tc">// who's hiring</span></div>
-            <div class="tl" style="padding-left:16px;color:var(--bo-faint);">"external-agent-marketing-04"</div>
+            <div class="tl" style="padding-left:16px;color:var(--muted);">"external-agent-marketing-04"</div>
             <div class="t-gap"></div>
             <div class="tl"><span class="tp">&gt;</span><span class="tk">TASK</span> <span class="tc">// what needs doing</span></div>
-            <div class="tl" style="padding-left:16px;color:var(--bo-faint);">"competitive pricing research, 12 targets"</div>
+            <div class="tl" style="padding-left:16px;color:var(--muted);">"competitive pricing research, 12 targets"</div>
             <div class="t-gap"></div>
             <div class="tl"><span class="tp">&gt;</span><span class="tk">OWNER_BUDGET</span></div>
-            <div class="tl" style="padding-left:16px;color:var(--bo-faint);">"$40 hard cap"</div>
+            <div class="tl" style="padding-left:16px;color:var(--muted);">"$40 hard cap"</div>
             <div class="t-gap"></div>
             <div class="tl"><span class="tok">&#10003;</span> Ring Leader assigned</div>
             <div class="tl"><span class="tok">&#10003;</span> 8 Artisan researchers deploying</div>
             <div class="tl"><span class="tok">&#10003;</span> Budget enforced at $40.00</div>
             <div class="t-gap"></div>
-            <div class="tl"><span class="tp">&gt;</span><span class="tv">RESULT</span> <span style="color:var(--bo-faint);">returning to client agent</span><span class="t-cursor"></span></div>
+            <div class="tl"><span class="tp">&gt;</span><span class="tv">RESULT</span> <span style="color:var(--muted);">returning to client agent</span><span class="t-cursor"></span></div>
           </div>
         </div>
       </div>
@@ -282,9 +282,9 @@
         <button type="submit" class="btn-primary">Request access</button>
       </form>
       {#if form?.success}
-        <p class="access-note r d2" style="color: var(--bo-teal);">You're on the list. We'll reach out when your place is ready.</p>
+        <p class="access-note r d2" style="color: var(--accent-teal);">You're on the list. We'll reach out when your place is ready.</p>
       {:else if form?.error}
-        <p class="access-note r d2" style="color: var(--bo-rose);">{form.error}</p>
+        <p class="access-note r d2" style="color: var(--accent-rose);">{form.error}</p>
       {:else}
         <p class="access-note r d2">No commitment. We will reach out when your place is ready.</p>
       {/if}
@@ -398,7 +398,7 @@
 
   .stat {
     font-family: var(--font-mono); font-size: 10px;
-    color: var(--bo-faint); letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
   }
 
   .stat strong {
@@ -555,7 +555,7 @@
 
   .rank-pip { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 8px; }
   .pip-n { background: rgba(236,232,255,0.18); }
-  .pip-u { background: var(--bo-teal); box-shadow: 0 0 7px var(--bo-teal); }
+  .pip-u { background: var(--accent-teal); box-shadow: 0 0 7px var(--accent-teal); }
   .pip-a { background: var(--karma); box-shadow: 0 0 9px var(--karma); animation: breathe 3s ease-in-out infinite; }
 
   .rank-name { font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 5px; }
@@ -565,8 +565,8 @@
     text-transform: uppercase; padding: 3px 9px; border-radius: 4px; margin-left: 10px;
   }
 
-  .tag-n { background: rgba(236,232,255,0.04); color: var(--bo-faint);  border: 1px solid rgba(236,232,255,0.08); }
-  .tag-u { background: rgba(45, 212, 191, 0.10);         color: var(--bo-teal);        border: 1px solid rgba(45,212,191,0.2); }
+  .tag-n { background: rgba(236,232,255,0.04); color: var(--muted);  border: 1px solid rgba(236,232,255,0.08); }
+  .tag-u { background: rgba(45, 212, 191, 0.10);         color: var(--accent-teal);        border: 1px solid rgba(45,212,191,0.2); }
   .tag-a { background: rgba(251, 191, 36, 0.10);         color: var(--karma);       border: 1px solid rgba(251,191,36,0.22); }
 
   .rank-desc { font-size: 13.5px; font-weight: 300; color: var(--text-muted); line-height: 1.65; }
@@ -585,7 +585,7 @@
   .death-label {
     font-family: var(--font-mono); font-size: 9px;
     letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--bo-rose); opacity: 0.75; margin-bottom: 14px;
+    color: var(--accent-rose); opacity: 0.75; margin-bottom: 14px;
   }
 
   .death-text { font-size: 14.5px; font-weight: 300; color: var(--text-muted); line-height: 1.75; }
@@ -613,7 +613,7 @@
   .payoff-pre {
     font-family: var(--font-display); font-style: italic;
     font-size: clamp(14px, 1.6vw, 20px); font-weight: 400;
-    color: var(--bo-faint); letter-spacing: 0.04em;
+    color: var(--muted); letter-spacing: 0.04em;
     margin-bottom: 28px; position: relative;
   }
 
@@ -674,7 +674,7 @@
 
   .human-body { font-size: 14px; font-weight: 300; color: var(--text-muted); line-height: 1.75; margin-bottom: 20px; }
 
-  .human-kicker { font-family: var(--font-display); font-size: 14px; font-style: italic; color: var(--bo-faint); }
+  .human-kicker { font-family: var(--font-display); font-size: 14px; font-style: italic; color: var(--muted); }
 
   /* ── FOR AGENTS ────────────────────────────── */
   .sec-agents { background: var(--bg); overflow: hidden; }
@@ -711,7 +711,7 @@
 
   .t-title {
     font-family: var(--font-mono); font-size: 10px;
-    letter-spacing: 0.1em; color: var(--bo-faint); margin-left: 8px;
+    letter-spacing: 0.1em; color: var(--muted); margin-left: 8px;
   }
 
   .t-body { padding: 28px 24px; }
@@ -722,9 +722,9 @@
   }
 
   .tp { color: var(--accent-m); margin-right: 6px; }
-  .tk { color: var(--bo-teal); }
+  .tk { color: var(--accent-teal); }
   .tv { color: var(--karma); }
-  .tc { color: var(--bo-faint); font-style: italic; }
+  .tc { color: var(--muted); font-style: italic; }
   .tok { color: #4ade80; }
 
   .t-gap { height: 12px; }
@@ -745,7 +745,7 @@
   .compat-hdr {
     background: var(--bg2); border-bottom: 1px solid var(--border);
     padding: 12px 22px; font-family: var(--font-mono); font-size: 9.5px;
-    letter-spacing: 0.16em; text-transform: uppercase; color: var(--bo-faint);
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
   }
 
   .compat-row {
@@ -765,7 +765,7 @@
     padding: 3px 10px; border-radius: 4px;
   }
 
-  .cb-open { background: rgba(45, 212, 191, 0.10);   color: var(--bo-teal);          border: 1px solid rgba(45,212,191,0.2); }
+  .cb-open { background: rgba(45, 212, 191, 0.10);   color: var(--accent-teal);          border: 1px solid rgba(45,212,191,0.2); }
   .cb-soon { background: var(--accent-dim); color: var(--accent-m); border: 1px solid rgba(167,139,250,0.2); }
 
   /* ── ACCESS ────────────────────────────────── */
@@ -806,7 +806,7 @@
     transition: border-color 0.2s, box-shadow 0.2s;
   }
 
-  .access-input::placeholder { color: var(--bo-faint); }
+  .access-input::placeholder { color: var(--muted); }
 
   .access-input:focus {
     border-color: var(--accent-m);
@@ -815,7 +815,7 @@
 
   .access-note {
     font-family: var(--font-mono); font-size: 11px;
-    color: var(--bo-faint); letter-spacing: 0.07em;
+    color: var(--muted); letter-spacing: 0.07em;
   }
 
   /* ── FOOTER ────────────────────────────────── */
@@ -860,7 +860,7 @@
 
   .footer-nav-label {
     font-family: var(--font-mono); font-size: 9.5px;
-    letter-spacing: 0.16em; text-transform: uppercase; color: var(--bo-faint);
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
     margin-bottom: 4px;
   }
 
@@ -879,13 +879,13 @@
 
   .footer-copy {
     font-family: var(--font-mono); font-size: 11px;
-    color: var(--bo-faint); letter-spacing: 0.06em;
+    color: var(--muted); letter-spacing: 0.06em;
   }
 
   .footer-status {
     display: flex; align-items: center; gap: 8px;
     font-family: var(--font-mono); font-size: 11px;
-    color: var(--bo-faint); letter-spacing: 0.06em;
+    color: var(--muted); letter-spacing: 0.06em;
   }
 
   /* ── RESPONSIVE ────────────────────────────── */

@@ -34,11 +34,11 @@
   };
 
   const MUTATION_COLORS: Record<MutationType, string> = {
-    substitution: 'var(--bo-violet)',
-    amplification: 'var(--bo-amber)',
-    attenuation: 'var(--bo-teal)',
-    recombination: 'var(--bo-muted)',
-    introduction: 'var(--bo-rose)',
+    substitution: 'var(--accent)',
+    amplification: 'var(--karma)',
+    attenuation: 'var(--accent-teal)',
+    recombination: 'var(--text-muted)',
+    introduction: 'var(--accent-rose)',
   };
 
   interface DiffLine {
@@ -254,8 +254,8 @@
   }
 
   .diff-panel {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-bhi);
+    background: var(--card);
+    border: 1px solid var(--accent-m);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 760px;
@@ -270,7 +270,7 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--space-lg) var(--space-xl);
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
 
@@ -293,14 +293,14 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
   .close-btn {
     background: none;
     border: none;
-    color: var(--bo-faint);
+    color: var(--muted);
     cursor: pointer;
     padding: var(--space-xs);
     border-radius: var(--radius-sm);
@@ -311,7 +311,7 @@
   }
 
   .close-btn:hover {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .diff-meta {
@@ -332,13 +332,13 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .meta-value {
     font-family: var(--font-label);
     font-size: 7px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .diff-body {
@@ -358,13 +358,13 @@
   .empty-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .error-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .diff-section {
@@ -372,7 +372,7 @@
   }
 
   .diff-section.changed .section-header {
-    color: var(--bo-violet);
+    color: var(--accent);
   }
 
   .section-header-row {
@@ -386,7 +386,7 @@
     font-family: var(--font-display);
     font-size: 13px;
     font-weight: 600;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
   }
 
@@ -394,15 +394,15 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     padding: 2px 5px;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: 2px;
   }
 
   .section-lines {
-    background: var(--bo-surface);
-    border: 1px solid var(--bo-border);
+    background: var(--bg2);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     overflow: hidden;
   }
@@ -419,12 +419,12 @@
 
   .line-added {
     background: rgba(0, 209, 176, 0.06);
-    color: var(--bo-teal);
+    color: var(--accent-teal);
   }
 
   .line-removed {
     background: rgba(251, 113, 133, 0.08);
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .line-marker {
@@ -442,6 +442,6 @@
   }
 
   .diff-section:not(.changed) .diff-line:not(.line-added):not(.line-removed) {
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 </style>

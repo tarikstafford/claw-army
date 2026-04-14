@@ -19,16 +19,16 @@
   let { events }: { events: TimelineEvent[] } = $props();
 
   const EVENT_COLORS: Record<string, string> = {
-    verdict: 'var(--bo-violet)',
-    class_transition: 'var(--bo-amber)',
-    dna_capture: 'var(--bo-teal)',
+    verdict: 'var(--accent)',
+    class_transition: 'var(--karma)',
+    dna_capture: 'var(--accent-teal)',
   };
 
   const VERDICT_COLORS: Record<string, string> = {
-    Promote: 'var(--bo-violet)',
-    Maintain: 'var(--bo-muted)',
-    Monitor: 'var(--bo-teal)',
-    Demote: 'var(--bo-rose)',
+    Promote: 'var(--accent)',
+    Maintain: 'var(--text-muted)',
+    Monitor: 'var(--accent-teal)',
+    Demote: 'var(--accent-rose)',
     Retire: 'var(--error)',
   };
 
@@ -73,7 +73,7 @@
           <div class="timeline-track">
             <span
               class="event-dot"
-              style="background: {EVENT_COLORS[event.type] ?? 'var(--bo-faint)'}"
+              style="background: {EVENT_COLORS[event.type] ?? 'var(--muted)'}"
             ></span>
           </div>
           <div class="event-content">
@@ -82,7 +82,7 @@
               {#if event.type === 'verdict' && event.verdictType}
                 <span
                   class="verdict-badge"
-                  style="color: {VERDICT_COLORS[event.verdictType] ?? 'var(--bo-muted)'}"
+                  style="color: {VERDICT_COLORS[event.verdictType] ?? 'var(--text-muted)'}"
                 >
                   {event.verdictType.toUpperCase()}
                 </span>
@@ -101,23 +101,23 @@
                 {expandedId === event.id ? 'Hide' : 'Show'} Judge Detail
               </button>
               {#if expandedId === event.id}
-                <div class="verdict-detail" style="--card: var(--bo-card); --border: var(--bo-border); --text-muted: var(--bo-muted)">
+                <div class="verdict-detail" style="--card: var(--card); --border: var(--border); --text-muted: var(--text-muted)">
                   {#if event.performanceJudgeOutput}
-                    <Accordion label="PERFORMANCE JUDGE" color="var(--bo-violet)">
+                    <Accordion label="PERFORMANCE JUDGE" color="var(--accent)">
                       {#each renderJudgeOutput(event.performanceJudgeOutput) as part}
                         <p class="judge-output">{part}</p>
                       {/each}
                     </Accordion>
                   {/if}
                   {#if event.soulAnalystOutput}
-                    <Accordion label="SOUL ANALYST" color="var(--bo-teal)">
+                    <Accordion label="SOUL ANALYST" color="var(--accent-teal)">
                       {#each renderJudgeOutput(event.soulAnalystOutput) as part}
                         <p class="judge-output">{part}</p>
                       {/each}
                     </Accordion>
                   {/if}
                   {#if event.devilsAdvocateOutput}
-                    <Accordion label="DEVIL'S ADVOCATE" color="var(--bo-rose)">
+                    <Accordion label="DEVIL'S ADVOCATE" color="var(--accent-rose)">
                       {#each renderJudgeOutput(event.devilsAdvocateOutput) as part}
                         <p class="judge-output">{part}</p>
                       {/each}
@@ -143,13 +143,13 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -172,7 +172,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: var(--bo-border);
+    background: var(--border);
   }
 
   .timeline-item {
@@ -223,7 +223,7 @@
 
   .event-summary {
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-body);
   }
 
@@ -241,19 +241,19 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-amber);
+    color: var(--karma);
   }
 
   .dna-score {
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-teal);
+    color: var(--accent-teal);
   }
 
   .event-timestamp {
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     display: block;
   }
 
@@ -261,9 +261,9 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: var(--radius-sm);
     padding: 2px 8px;
     cursor: pointer;
@@ -284,7 +284,7 @@
   .judge-output {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: var(--bo-text);
+    color: var(--text);
     white-space: pre-wrap;
     word-break: break-word;
     margin: 0;

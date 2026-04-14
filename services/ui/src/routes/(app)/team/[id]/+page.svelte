@@ -227,7 +227,7 @@
     deleteError = '';
     try {
       await deleteAgent(data.agent.id);
-      goto('/office/agents');
+      goto('/team');
     } catch (err) {
       deleteError = (err as Error).message ?? 'Failed to delete agent';
       deleteLoading = false;
