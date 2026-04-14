@@ -1,6 +1,6 @@
 # Database Schema Documentation
 
-Akasa uses **PostgreSQL** with the **pgvector** extension for embedding similarity search. The ORM layer is **Drizzle ORM** with the `node-postgres` driver. Schema source files live in `packages/db/src/schema/`.
+Akasa uses **PostgreSQL** with the **pgvector** extension for embedding similarity search. The ORM layer is **Drizzle ORM** with the `node-postgres` driver. Schema source files live in `packages/db/src/schema/`. All tables live in a single database -- tables previously managed by Paperclip (companies, company_memberships, paperclip_agents, heartbeat_runs, chat_threads, chat_messages, projects, issues, instance_user_roles) have been migrated into `@claw/db`.
 
 ## Conventions
 
@@ -106,7 +106,7 @@ erDiagram
         integer default_runtime_limit_seconds
         text[] default_allowed_tools
         boolean is_archived
-        uuid project_id "logical FK to Paperclip"
+        uuid project_id "logical FK to projects"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -125,7 +125,7 @@ erDiagram
         varchar campaign_type
         uuid objective_id FK
         uuid ring_leader_run_id "logical FK"
-        uuid project_id "logical FK to Paperclip"
+        uuid project_id "logical FK to projects"
         uuid evolution_campaign_id "logical FK"
         timestamptz created_at
         timestamptz updated_at
@@ -147,7 +147,7 @@ erDiagram
         varchar tier
         text error_message
         uuid soul_id "logical FK to bot_souls"
-        uuid paperclip_agent_id "logical FK to Paperclip"
+        uuid paperclip_agent_id "logical FK to projects"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -326,7 +326,7 @@ erDiagram
     evolution_campaigns {
         uuid id PK
         text objective
-        uuid project_id "logical FK to Paperclip"
+        uuid project_id "logical FK to projects"
         integer max_iterations
         integer campaign_budget_cap_cents
         integer seed_max_bots
@@ -465,7 +465,7 @@ erDiagram
         uuid id PK
         uuid execution_id FK
         uuid bot_id "logical FK to bots"
-        uuid project_id "logical FK to Paperclip"
+        uuid project_id "logical FK to projects"
         billing_event_type event_type
         integer amount_cents
         integer token_count
@@ -565,7 +565,7 @@ erDiagram
         text tool_id
         text event_type
         text condition
-        text assign_to_agent_id "logical FK to Paperclip"
+        text assign_to_agent_id "logical FK to projects"
         boolean is_active
         timestamptz created_at
         timestamptz updated_at
@@ -594,7 +594,7 @@ erDiagram
 
 ### Auth Domain
 
-Tables shared with Paperclip's BetterAuth session store. Table names must match BetterAuth defaults exactly (`user`, `session`, `account`, `verification`).
+Tables for BetterAuth session management. Table names must match BetterAuth defaults exactly (`user`, `session`, `account`, `verification`).
 
 #### `user`
 Core user identity. Primary key is `text` (BetterAuth convention, not UUID).
@@ -705,7 +705,7 @@ Reusable execution templates with preset defaults.
 | `default_runtime_limit_seconds` | integer | nullable | Default runtime limit |
 | `default_allowed_tools` | text[] | NOT NULL, default `{}` | Default tool allowlist |
 | `is_archived` | boolean | NOT NULL, default `false` | Archive flag (hidden from new executions) |
-| `project_id` | uuid | nullable | Logical FK to Paperclip projects |
+| `project_id` | uuid | nullable | Logical FK to `projects.id` |
 | `created_at` | timestamptz | NOT NULL | Creation timestamp |
 | `updated_at` | timestamptz | NOT NULL | Last update timestamp |
 
@@ -727,7 +727,7 @@ A single run of an objective -- spawns bots, dispatches tasks, collects results.
 | `campaign_type` | varchar(20) | nullable | `ad_hoc` or `campaign` |
 | `objective_id` | uuid | FK -> `objectives.id` SET NULL | Source objective template |
 | `ring_leader_run_id` | uuid | nullable | Logical FK to `ring_leader_runs.id` |
-| `project_id` | uuid | nullable | Logical FK to Paperclip projects |
+| `project_id` | uuid | nullable | Logical FK to `projects.id` |
 | `evolution_campaign_id` | uuid | nullable | Logical FK to `evolution_campaigns.id` |
 | `created_at` | timestamptz | NOT NULL | Creation timestamp |
 | `updated_at` | timestamptz | NOT NULL | Last update timestamp |
@@ -752,7 +752,7 @@ AI agents running on GCE VMs with OpenClaw.
 | `tier` | varchar(10) | nullable | LLM tier assignment |
 | `error_message` | text | nullable | Last error message |
 | `soul_id` | uuid | nullable | Logical FK to `bot_souls.id` |
-| `paperclip_agent_id` | uuid | nullable | Logical FK to Paperclip `agents.id` |
+| `paperclip_agent_id` | uuid | nullable | Logical FK to `paperclip_agents.id` |
 | `created_at` | timestamptz | NOT NULL | Creation timestamp |
 | `updated_at` | timestamptz | NOT NULL | Last update timestamp |
 
@@ -965,7 +965,7 @@ Chains multiple executions against the same objective for autonomous improvement
 |--------|------|-------------|-------------|
 | `id` | uuid | PK | Campaign ID |
 | `objective` | text | NOT NULL | Objective text (snapshotted, identical across all iterations) |
-| `project_id` | uuid | nullable | Logical FK to Paperclip projects |
+| `project_id` | uuid | nullable | Logical FK to `projects.id` |
 | `max_iterations` | integer | NOT NULL, default `10` | Maximum iteration count |
 | `campaign_budget_cap_cents` | integer | nullable | Cumulative cost cap across all iterations |
 | `seed_max_bots` | integer | NOT NULL | Bot count per iteration |
@@ -1142,7 +1142,7 @@ Token consumption and cost tracking events.
 | `id` | uuid | PK | Event ID |
 | `execution_id` | uuid | NOT NULL, FK -> `executions.id` CASCADE | Parent execution |
 | `bot_id` | uuid | nullable | Logical FK to `bots.id` |
-| `project_id` | uuid | nullable | Logical FK to Paperclip projects |
+| `project_id` | uuid | nullable | Logical FK to `projects.id` |
 | `event_type` | billing_event_type | NOT NULL | `bot_started`, `bot_stopped`, `tool_invoked`, `execution_completed`, `budget_exceeded` |
 | `amount_cents` | integer | nullable | Cost in cents |
 | `token_count` | integer | nullable | Token consumption |
@@ -1261,7 +1261,7 @@ Rules for routing incoming webhooks to specific agents.
 | `tool_id` | text | NOT NULL | Source tool identifier |
 | `event_type` | text | NOT NULL | Event type filter (e.g., `deal.created`, `message`) |
 | `condition` | text | nullable | Optional JSON/text match condition |
-| `assign_to_agent_id` | text | nullable | Logical FK to Paperclip agents table |
+| `assign_to_agent_id` | text | nullable | Logical FK to `paperclip_agents.id` |
 | `is_active` | boolean | NOT NULL, default `true` | Rule is active |
 | `created_at` | timestamptz | NOT NULL | Creation timestamp |
 | `updated_at` | timestamptz | NOT NULL | Last update timestamp |
@@ -1288,6 +1288,41 @@ Reviews for Akashic Library (souls) and Skill Bazaar (skills) listings. Uses pol
 
 ---
 
+### Migrated Domain (formerly Paperclip)
+
+Tables migrated from the Paperclip service into `@claw/db`. These tables store company/org structure, agent records, chat threads, projects, and issues.
+
+#### `companies`
+Company/organization entities. Created during onboarding.
+
+#### `company_memberships`
+Maps users to companies with role assignments.
+
+#### `paperclip_agents`
+Agent records (previously managed by Paperclip). Links to bots via `bots.paperclip_agent_id`.
+
+#### `heartbeat_runs`
+Agent heartbeat/run records. Used by the evolution trigger to find completed runs needing council evaluation.
+
+#### `chat_threads`
+Chat conversation threads for the Command Channel.
+
+#### `chat_messages`
+Individual messages within chat threads.
+
+#### `projects`
+Project containers for grouping objectives and executions. Referenced by `objectives.project_id`, `executions.project_id`, `billing_events.project_id`, `evolution_campaigns.project_id`.
+
+#### `issues`
+Issue records for task tracking and agent communication.
+
+#### `instance_user_roles`
+Per-instance role assignments for access control.
+
+> **Note**: Full column-level documentation for these tables is pending. See `packages/db/src/schema/` for the authoritative Drizzle schema definitions.
+
+---
+
 ## Logical Foreign Key Summary
 
 The following columns are intentional logical foreign keys (no `references()` in Drizzle) to avoid circular TypeScript inference at module load time:
@@ -1295,12 +1330,12 @@ The following columns are intentional logical foreign keys (no `references()` in
 | Table | Column | References |
 |-------|--------|------------|
 | `bots` | `soul_id` | `bot_souls.id` |
-| `bots` | `paperclip_agent_id` | Paperclip `agents.id` |
+| `bots` | `paperclip_agent_id` | `paperclip_agents.id` |
 | `tasks` | `claimed_by_bot_id` | `bots.id` |
 | `executions` | `ring_leader_run_id` | `ring_leader_runs.id` |
 | `executions` | `evolution_campaign_id` | `evolution_campaigns.id` |
-| `executions` | `project_id` | Paperclip `projects` |
-| `objectives` | `project_id` | Paperclip `projects` |
+| `executions` | `project_id` | `projects.id` |
+| `objectives` | `project_id` | `projects.id` |
 | `bot_souls` | `bot_id` | `bots.id` |
 | `bot_souls` | `execution_id` | `executions.id` |
 | `council_verdicts` | `bot_id` | `bots.id` |
@@ -1318,15 +1353,15 @@ The following columns are intentional logical foreign keys (no `references()` in
 | `evolution_campaign_iterations` | `execution_id` | `executions.id` |
 | `learned_skills` | `soul_id` | `bot_souls.id` |
 | `billing_events` | `bot_id` | `bots.id` |
-| `billing_events` | `project_id` | Paperclip `projects` |
-| `evolution_campaigns` | `project_id` | Paperclip `projects` |
+| `billing_events` | `project_id` | `projects.id` |
+| `evolution_campaigns` | `project_id` | `projects.id` |
 | `tool_connections` | `user_id` | `user.id` |
 | `tool_invocation_logs` | `connection_id` | `tool_connections.id` |
 | `tool_invocation_logs` | `user_id` | `user.id` |
 | `tool_registry` | `user_id` | `user.id` |
 | `webhook_routing_rules` | `user_id` | `user.id` |
 | `webhook_routing_rules` | `connection_id` | `tool_connections.id` |
-| `webhook_routing_rules` | `assign_to_agent_id` | Paperclip `agents` |
+| `webhook_routing_rules` | `assign_to_agent_id` | `paperclip_agents.id` |
 | `marketplace_reviews` | `user_id` | `user.id` |
 | `marketplace_reviews` | `target_id` | `dna_store.id` or `skills.id` (polymorphic) |
 | `skill_activations` | `execution_id` | `executions.id` |

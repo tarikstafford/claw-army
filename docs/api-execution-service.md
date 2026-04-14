@@ -1162,7 +1162,7 @@ Prefix: `/onboarding`
 
 ### `GET /onboarding/status`
 
-Check if the current user has completed onboarding (has a company in Paperclip).
+Check if the current user has completed onboarding (has a company).
 
 **Auth:** Session cookie required
 
@@ -1177,7 +1177,7 @@ Check if the current user has completed onboarding (has a company in Paperclip).
 
 ### `POST /onboarding/summon`
 
-Create a company in Paperclip and spawn the initial agent team.
+Create a company and spawn the initial agent team.
 
 **Auth:** Session cookie required
 
@@ -1235,28 +1235,6 @@ Cost projection and forecasting based on burn rate.
   "dataPoints": 5
 }
 ```
-
----
-
-## Paperclip Proxy
-
-The execution service proxies several path prefixes to the Paperclip API server. The browser never talks directly to Paperclip; all requests go through this proxy which forwards session cookies for auth.
-
-**Proxied prefixes:**
-- `/companies` and `/companies/*`
-- `/agents` and `/agents/*`
-- `/issues` and `/issues/*`
-- `/goals` and `/goals/*`
-- `/projects` and `/projects/*`
-- `/chat` and `/chat/*`
-- `/costs` and `/costs/*`
-- `/approvals` and `/approvals/*`
-- `/activity` and `/activity/*`
-- `/dashboard` and `/dashboard/*`
-- `/sidebar-badges` and `/sidebar-badges/*`
-- `/secrets` and `/secrets/*`
-
-**Methods:** GET, POST, PATCH, PUT, DELETE
 
 ---
 
