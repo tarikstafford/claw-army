@@ -3,7 +3,7 @@ import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (locals.session) {
-    throw redirect(303, '/indra');
+    throw redirect(303, '/');
   }
   return {};
 };
