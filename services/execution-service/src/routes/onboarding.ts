@@ -127,7 +127,12 @@ export const onboardingRoutes: FastifyPluginAsync = async (app) => {
         budgetMonthlyCents: budgetCents,
       });
     } catch (err) {
-      console.error('[onboarding] Failed to create company:', (err as Error).message);
+      const message = (err as Error).message;
+      console.error('[onboarding] Failed to create company:', message);
+      // If the error is a missing table, give a helpful message
+      if (message.includes('relation') && message.includes('does not exist')) {
+        return reply.code(500).send({ error: 'Database tables not initialized. Run: pnpm db:migrate' });
+      }
       return reply.code(500).send({ error: 'Failed to create company' });
     }
 
