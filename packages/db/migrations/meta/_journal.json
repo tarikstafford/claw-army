@@ -141,6 +141,20 @@
       "when": 1773400000000,
       "tag": "0020_tool_registry",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1773500000000,
+      "tag": "0021_marketplace_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1773600000000,
+      "tag": "0022_paperclip_tables_inline",
+      "breakpoints": true
     }
   ]
 }
