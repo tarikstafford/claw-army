@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async ({ locals, fetch }) => {
     if (res.ok) {
       const data = await res.json();
       if (data.onboarded) {
-        throw redirect(303, '/indra');
+        throw redirect(303, '/');
       }
     }
   } catch (err) {

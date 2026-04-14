@@ -301,7 +301,7 @@
       step = 'complete';
 
       setTimeout(() => {
-        goto('/indra');
+        goto('/');
       }, hasQuickWins ? 4000 : 2000);
     } catch (e) {
       error = (e as Error).message || 'Failed to summon crew. Please try again.';

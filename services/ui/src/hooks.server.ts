@@ -28,6 +28,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.url.pathname.startsWith('/tools') ||
     event.url.pathname.startsWith('/evolution') ||
     event.url.pathname.startsWith('/settings') ||
+    event.url.pathname.startsWith('/team') ||
     event.url.pathname.startsWith('/onboarding');
 
   if (isProtected && !event.locals.session) {

@@ -51,6 +51,11 @@
   let mobileSidebarOpen = $state(false);
   let isMobile = $state(false);
 
+  /** Indra channel state — receives fleet.* events as formatted messages */
+  const INDRA_THREAD_ID = '__indra__';
+  let indraMessages = $state<ChatMessage[]>([]);
+  let expandedAgentThreads = $state<Set<string>>(new Set());
+
   onMount(() => {
     const checkMobile = () => {
       isMobile = window.innerWidth < 768;
@@ -192,6 +197,13 @@
     // Handle slash commands
     const parsed = parseCommand(messageText.trim());
     if (parsed) {
+      // /goal is handled directly via createGoal API
+      if (parsed.command === 'goal') {
+        messageText = '';
+        showCommandAutocomplete = false;
+        await handleGoalCommand(parsed.args);
+        return;
+      }
       const def = COMMANDS.find(c => c.name === parsed.command);
       if (def) {
         messageText = '';
@@ -368,6 +380,96 @@
     }
   }
 
+  function formatFleetEventAsIndraMessage(event: FleetEvent): string {
+    switch (event.type) {
+      case 'fleet.class.transition':
+        return `${event.botId?.slice(0, 8) ?? 'An agent'} was ${event.transitionType === 'promotion' ? 'promoted' : 'demoted'} to ${event.toClass ?? 'a new class'}.`;
+      case 'fleet.verdict.confirmed':
+        return `Verdict confirmed: ${event.verdictType ?? 'unknown'} for ${event.botId?.slice(0, 8) ?? 'agent'}.`;
+      case 'fleet.dna.captured':
+        return `DNA captured from ${event.botId?.slice(0, 8) ?? 'agent'} in ${event.taskCategory ?? 'task'}.`;
+      case 'fleet.pioneer.detected':
+        return `Pioneer detected: ${event.botId?.slice(0, 8) ?? 'agent'} achieved a new benchmark in ${event.taskCategory ?? 'category'}.`;
+      case 'fleet.budget.alert':
+        return `Budget alert: ${event.description}`;
+      case 'fleet.execution.completed':
+        return `Execution completed for ${event.executionId?.slice(0, 8) ?? 'run'}.`;
+      default:
+        return event.description;
+    }
+  }
+
+  function isAgentToAgentThread(thread: ChatThread): boolean {
+    return thread.title?.startsWith('[a2a]') ?? false;
+  }
+
+  function getAgentToAgentLabel(thread: ChatThread): string {
+    if (thread.title?.startsWith('[a2a]')) {
+      return thread.title.slice(5).trim();
+    }
+    return thread.title ?? `Thread ${thread.id.slice(0, 8)}`;
+  }
+
+  function selectIndra() {
+    selectedThreadId = INDRA_THREAD_ID;
+    sidebarView = 'threads';
+    messages = indraMessages;
+    closeMobileSidebar();
+  }
+
+  function toggleAgentThread(threadId: string) {
+    const next = new Set(expandedAgentThreads);
+    if (next.has(threadId)) {
+      next.delete(threadId);
+    } else {
+      next.add(threadId);
+    }
+    expandedAgentThreads = next;
+  }
+
+  async function handleGoalCommand(args: string[]) {
+    const goalName = args.join(' ').trim();
+    if (!goalName) {
+      messages = [...messages, {
+        id: crypto.randomUUID(),
+        threadId: selectedThreadId ?? '',
+        body: 'Usage: /goal <name>',
+        senderType: 'system',
+        senderId: null,
+        createdAt: new Date().toISOString(),
+      } as ChatMessage];
+      return;
+    }
+    try {
+      const goal = await createGoal(data.companyId, { title: goalName });
+      messages = [...messages, {
+        id: crypto.randomUUID(),
+        threadId: selectedThreadId ?? '',
+        body: `Goal "${goal.title}" created.`,
+        senderType: 'system',
+        senderId: null,
+        createdAt: new Date().toISOString(),
+        commandData: { id: goal.id, status: goal.status },
+      } as ChatMessage];
+      await scrollToBottom();
+    } catch (err) {
+      messages = [...messages, {
+        id: crypto.randomUUID(),
+        threadId: selectedThreadId ?? '',
+        body: `Failed to create goal: ${(err as Error).message}`,
+        senderType: 'system',
+        senderId: null,
+        createdAt: new Date().toISOString(),
+      } as ChatMessage];
+    }
+  }
+
+  let regularThreads = $derived(threads.filter(t => !isAgentToAgentThread(t)));
+  let agentToAgentThreads = $derived(threads.filter(t => isAgentToAgentThread(t)));
+  let pendingVerdicts = $derived(
+    fleetEvents.filter(e => e.type === 'fleet.verdict.pending')
+  );
+
   onMount(() => {
     if (threads.length > 0 && threads[0]) {
       selectThread(threads[0].id);
@@ -428,6 +530,21 @@
           timestamp: event.createdAt,
         };
         fleetEvents = [newEvent, ...fleetEvents].slice(0, 100);
+
+        // Push a formatted Indra message for this fleet event
+        const indraMsg: ChatMessage = {
+          id: `indra-${newEvent.id}`,
+          threadId: INDRA_THREAD_ID,
+          body: formatFleetEventAsIndraMessage(newEvent),
+          senderType: 'system',
+          senderId: 'indra',
+          createdAt: event.createdAt,
+        };
+        indraMessages = [...indraMessages, indraMsg];
+        if (selectedThreadId === INDRA_THREAD_ID) {
+          messages = [...messages, indraMsg];
+          scrollToBottom();
+        }
       }
     });
 
@@ -499,6 +616,23 @@
     </div>
 
     {#if sidebarView === 'threads'}
+      <!-- Indra channel — always pinned at top -->
+      <button
+        class="indra-channel"
+        class:active={selectedThreadId === INDRA_THREAD_ID}
+        onclick={selectIndra}
+        aria-label="Indra channel"
+      >
+        <span class="indra-avatar" aria-hidden="true">I</span>
+        <span class="thread-info">
+          <span class="indra-label">Indra</span>
+          <span class="thread-preview">Fleet intelligence feed</span>
+        </span>
+        {#if indraMessages.length > 0}
+          <span class="indra-badge">{indraMessages.length}</span>
+        {/if}
+      </button>
+
       {#if threads.length === 0}
         <div class="empty-threads">
           <p class="empty-threads-text">No threads yet.</p>
@@ -529,8 +663,9 @@
           {/if}
         </div>
       {:else}
+        <!-- Regular threads -->
         <ul class="thread-list">
-          {#each threads as thread (thread.id)}
+          {#each regularThreads as thread (thread.id)}
             <li>
               <button
                 class="thread-item"
@@ -551,6 +686,38 @@
             </li>
           {/each}
         </ul>
+
+        <!-- Agent-to-agent threads -->
+        {#if agentToAgentThreads.length > 0}
+          <div class="a2a-section-label">Agent Conversations</div>
+          <ul class="thread-list">
+            {#each agentToAgentThreads as thread (thread.id)}
+              <li>
+                <button
+                  class="thread-item a2a-thread"
+                  class:active={selectedThreadId === thread.id}
+                  onclick={() => { selectThread(thread.id); closeMobileSidebar(); }}
+                  aria-current={selectedThreadId === thread.id ? 'page' : undefined}
+                >
+                  <span class="a2a-avatar" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                  </span>
+                  <span class="thread-info">
+                    <span class="thread-title">{getAgentToAgentLabel(thread)}</span>
+                    {#if getLastPreview(thread)}
+                      <span class="thread-preview">{getLastPreview(thread)}</span>
+                    {/if}
+                  </span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
       {/if}
     {:else}
       <!-- Fleet events feed -->
