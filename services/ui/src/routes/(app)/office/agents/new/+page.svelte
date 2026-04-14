@@ -35,7 +35,7 @@
         const body = await res.text().catch(() => '');
         throw new Error(body || `Request failed (${res.status})`);
       }
-      goto('/office/agents');
+      goto('/team');
     } catch (err) {
       errorMsg = (err as Error).message ?? 'Something went wrong. Try refreshing - if this keeps happening, check your connection.';
       submitting = false;
