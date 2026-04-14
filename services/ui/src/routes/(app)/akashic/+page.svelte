@@ -54,7 +54,7 @@
         body: JSON.stringify({ agentId: '', companyId: '' }),
       });
       if (res.ok) {
-        window.location.href = '/office/agents';
+        window.location.href = '/team';
       }
     } catch {
       acquiringId = null;

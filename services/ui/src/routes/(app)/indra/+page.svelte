@@ -280,7 +280,7 @@
       <span class="qa-icon">&#9654;</span>
       Chat with Indra
     </button>
-    <button class="qa-btn" onclick={() => goto('/office/agents/new')}>
+    <button class="qa-btn" onclick={() => goto('/team/new')}>
       <span class="qa-icon">&#9670;</span>
       Add Agent
     </button>
