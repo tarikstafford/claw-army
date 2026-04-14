@@ -2,7 +2,7 @@
 
 The Akasa server handles evolution-specific product logic: council verdicts, God Layer, soul management, skill system, Tool Nexus connections, webhooks, Akashic Library marketplace, and the evolution dashboard.
 
-**Framework:** Express.js (mounted alongside Paperclip's Express server)
+**Framework:** Express.js
 
 **Base URL:** All routes are prefixed with `/api/akasa/`
 
@@ -118,7 +118,7 @@ Prefix: `/api/akasa/evolution`
 
 ### `POST /api/akasa/evolution/trigger`
 
-Manually trigger a council evaluation check cycle. Polls Paperclip's `heartbeat_runs` table for completed runs linked to Akasa bots that have no verdict yet.
+Manually trigger a council evaluation check cycle. Polls the `heartbeat_runs` table for completed runs linked to bots that have no verdict yet.
 
 **Response 200:**
 ```json
@@ -260,7 +260,7 @@ Run-by-run experiment ledger with score delta and keep/discard decision.
 
 ### `GET /api/akasa/evolution/bots/:botId/runtime`
 
-Token consumption, cost, and budget utilization from Paperclip shared DB.
+Token consumption, cost, and budget utilization.
 
 **Response 200:**
 ```json
@@ -279,7 +279,7 @@ Token consumption, cost, and budget utilization from Paperclip shared DB.
 }
 ```
 
-Returns `null` if no Paperclip agent is linked to this bot.
+Returns `null` if no agent is linked to this bot.
 
 ---
 
@@ -531,7 +531,7 @@ Generate a mutated child soul from a parent soul.
 
 ### `POST /api/akasa/souls/inject`
 
-Inject a soul into a Paperclip agent.
+Inject a soul into an agent.
 
 **Request Body:**
 ```json
@@ -1196,7 +1196,7 @@ Prefix: `/api/akasa/internal`
 
 ### `GET /api/akasa/internal/user-by-company/:companyId`
 
-Translate a Paperclip company ID to a BetterAuth user ID.
+Translate a company ID to a BetterAuth user ID.
 
 **Response 200:** `{ "userId": "string" }`
 **Response 404:** No user found

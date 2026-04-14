@@ -2,17 +2,15 @@
 
 Akasa is a D2C platform where anyone can acquire, deploy, and evolve AI agents to create compounding value.
 
-Users deploy fleets of AI bots against named objectives. The evolutionary learning engine compounds agent intelligence through council-evaluated mutation and a versioned DNA library -- the more you run, the smarter your agents get.
-
-Built on top of [Paperclip](https://github.com/paperclipai/paperclip), an open-source AI orchestration platform.
+Users build a team of AI agents, set goals, and interact primarily through Chat with Indra (the CEO agent). The evolutionary learning engine compounds agent intelligence through council-evaluated mutation and a versioned DNA library -- the more you run, the smarter your agents get.
 
 ## Quick Start
 
 ```bash
 # Prerequisites: Node.js 20+, pnpm 10+, Docker
 
-# Clone with submodule
-git clone --recurse-submodules https://github.com/tarikstafford/claw-army.git
+# Clone
+git clone https://github.com/tarikstafford/claw-army.git
 cd claw-army
 
 # Install dependencies
@@ -49,14 +47,11 @@ packages/
   tool-contracts/  Zod v4 schemas for tool gateway contracts
 
 services/
-  akasa-server/    Fastify v5: evolution routes, Tool Nexus, OAuth, webhooks
+  akasa-server/       Express: evolution routes, Tool Nexus, OAuth, webhooks, skills
   execution-service/  Fastify v5: bot lifecycle, task dispatch, Council, God Layer
-  ui/              SvelteKit v2 + Svelte 5: consumer UI (two-world design system)
-  tool-gateway/    HTTP proxy + Tool Nexus invocation gateway
-  telegram-bot/    Telegram <> Paperclip bridge (Command Channel)
-  stub-bot/        BullMQ worker for dev/testing
-
-paperclip/         Git submodule: agent orchestration, adapters, plugin SDK
+  ui/                 SvelteKit v2 + Svelte 5: consumer UI
+  tool-gateway/       HTTP proxy + Tool Nexus invocation gateway
+  stub-bot/           BullMQ worker for dev/testing
 
 scripts/           Utility scripts
 infra/             Terraform, Docker configs
@@ -66,14 +61,15 @@ docs/              Architecture, domain model, conventions, ADRs, runbooks
 
 ## Architecture
 
-**Two-repo model:**
+All code lives in this single repository. Database tables that previously lived in Paperclip (companies, agents, chat, projects, issues, etc.) have been migrated into `@claw/db`.
 
-| Repo | Role | Hosting |
-|------|------|---------|
-| `claw-army` (this repo) | Akasa product: evolution engine, skills, Tool Nexus, billing, UI | Railway (app) + GCP (database, bot VMs) |
-| `claw-paper-clip` (submodule) | Paperclip: agent orchestration, 7 runtime adapters, plugin SDK | Railway |
-
-Akasa's backend calls Paperclip's API. All product logic lives here. Paperclip is an upstream dependency -- never fork it.
+| Component | Hosting |
+|-----------|---------|
+| Akasa backend (execution-service, akasa-server) | Railway |
+| SvelteKit UI | Railway |
+| Tool gateway | Railway |
+| PostgreSQL + pgvector | GCP Cloud SQL |
+| Bot VMs | GCP Compute Engine |
 
 **Key decisions:**
 - Bot execution on GCE VMs with OpenClaw (not containers)
@@ -88,12 +84,15 @@ See [docs/architecture.md](docs/architecture.md) for the full system architectur
 
 | Service | Description |
 |---------|-------------|
-| **akasa-server** | Evolution routes, Tool Nexus management, OAuth connections, webhook receiver |
+| **akasa-server** | Evolution routes, Tool Nexus management, OAuth connections, webhook receiver, skills |
 | **execution-service** | Bot lifecycle management, task dispatch, Council evaluation, God Layer transitions |
-| **ui** | SvelteKit consumer UI with two visual worlds (Screenplay light + Director's Cut dark) |
+| **ui** | SvelteKit consumer UI with warm unified theme |
 | **tool-gateway** | HTTP forward proxy and Tool Nexus invocation gateway for bot internet access |
-| **telegram-bot** | Telegram bridge for the Command Channel (chat-first fleet management) |
 | **stub-bot** | BullMQ worker that simulates bot behavior for development and testing |
+
+## Navigation
+
+4 primary tabs: **Home**, **Team** (`/team`), **Chat**, **Settings** (`/settings/billing`, `/settings/tools`).
 
 ## Key Concepts
 
@@ -101,6 +100,7 @@ See [docs/architecture.md](docs/architecture.md) for the full system architectur
 |------|---------|
 | **Execution** | A run of an objective -- spawns bots, dispatches tasks, collects results |
 | **Bot** | An AI agent running on a GCE VM with OpenClaw |
+| **Goal** | Explicit measurable target -- Indra tracks progress and surfaces improvements |
 | **Soul / SOUL.md** | Behavioral constitution (system prompt) with 7 personality dimensions |
 | **Archetype** | One of 6 canonical seed souls (Cautious Verifier, Aggressive Executor, etc.) |
 | **Council** | 3 LLM judges (Performance Judge, Soul Analyst, Devil's Advocate) that evaluate agents |
@@ -110,7 +110,7 @@ See [docs/architecture.md](docs/architecture.md) for the full system architectur
 | **Skill** | Composable procedural knowledge unit (SKILL.md) equipped on agents |
 | **Karpathy Loop** | Autonomous feedback engine: mutate -> execute -> evaluate -> keep/discard -> capture DNA -> repeat |
 | **Ring Leader** | Orchestrator agent that plans task graphs and coordinates execution |
-| **Indra** | The CEO agent -- Chief of Staff that orchestrates the fleet |
+| **Indra** | The CEO agent -- Chief of Staff that orchestrates the fleet. The narrative thread users interact with |
 | **Tool Nexus** | Unified gateway for external tool invocations (HubSpot, Slack, Stripe, etc.) |
 | **Karma** | Compounding IP moat from accumulated agent evolution and learning |
 
@@ -124,7 +124,8 @@ Pure token arbitrage: users set a daily budget, agents consume LLM tokens, Akasa
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Fastify v5 + TypeBox |
+| Backend (execution-service) | Fastify v5 + TypeBox |
+| Backend (akasa-server) | Express.js |
 | Frontend | SvelteKit v2 + Svelte 5 runes |
 | ORM | Drizzle ORM + node-postgres |
 | Database | PostgreSQL + pgvector |
@@ -152,6 +153,9 @@ Tests are in `src/__tests__/` and `src/services/__tests__/`. E2E tests require r
 | [docs/architecture.md](docs/architecture.md) | System architecture and data flows |
 | [docs/domain-model.md](docs/domain-model.md) | Domain entities and relationships |
 | [docs/conventions.md](docs/conventions.md) | Coding conventions and standards |
+| [docs/database-schema.md](docs/database-schema.md) | Database ERD and table reference |
+| [docs/api-execution-service.md](docs/api-execution-service.md) | Execution service API reference |
+| [docs/api-akasa-server.md](docs/api-akasa-server.md) | Akasa server API reference |
 | [docs/adr/](docs/adr/) | Architecture Decision Records |
 | [docs/runbooks/](docs/runbooks/) | Operational runbooks |
 
