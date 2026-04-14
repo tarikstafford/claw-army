@@ -14,7 +14,7 @@
   } = $props();
 
   const tabs = [
-    { href: '/', label: 'HOME' },
+    { href: '/indra', label: 'HOME' },
     { href: '/team', label: 'TEAM' },
     { href: '/chat', label: 'CHAT' },
     { href: '/settings', label: 'SETTINGS' },
@@ -25,7 +25,7 @@
   let mobileMenuOpen = $state(false);
 
   function isActive(href: string) {
-    if (href === '/') return pathname === '/';
+    if (href === '/indra') return pathname === '/' || pathname.startsWith('/indra');
     return pathname.startsWith(href);
   }
 
@@ -86,7 +86,7 @@
     <div class="nav-actions">
       {#if variant === 'marketing'}
         {#if session?.user}
-          <Button href="/" variant="nav">Dashboard</Button>
+          <Button href="/indra" variant="nav">Dashboard</Button>
         {:else}
           <Button href="/auth" variant="ghost" class="nav-action">Login</Button>
           <Button href="/#access" variant="nav">Request access</Button>
