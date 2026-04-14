@@ -65,7 +65,7 @@
 
   .primary {
     background: var(--accent);
-    color: #fff;
+    color: white;
   }
 
   .primary:hover {

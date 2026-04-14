@@ -45,7 +45,7 @@
 
   .chat-bubble.user {
     background: var(--fo-plum);
-    color: #fff;
+    color: white;
     border: 1px solid transparent;
     align-self: flex-end;
   }
@@ -62,7 +62,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     line-height: 1.65;
-    color: #fff;
+    color: white;
     margin: 0;
   }
 

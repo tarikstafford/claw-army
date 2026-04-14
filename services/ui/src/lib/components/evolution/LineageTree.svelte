@@ -147,13 +147,13 @@
   }
 
   .tree-link {
-    stroke: var(--bo-border);
+    stroke: var(--border);
     stroke-width: 1px;
   }
 
   .tree-node circle {
-    fill: var(--bo-card);
-    stroke: var(--bo-vb);
+    fill: var(--card);
+    stroke: var(--accent-m);
     stroke-width: 1.5px;
     cursor: pointer;
     transition: stroke 0.15s;
@@ -161,7 +161,7 @@
 
   .tree-node:hover circle,
   .tree-node:focus circle {
-    stroke: var(--bo-violet);
+    stroke: var(--accent);
     outline: none;
   }
 
@@ -170,18 +170,18 @@
   }
 
   .tree-node.archetype circle {
-    stroke: var(--bo-amber);
+    stroke: var(--karma);
   }
 
   .tree-node.pioneer circle {
-    stroke: var(--bo-amber);
+    stroke: var(--karma);
     fill: rgba(251, 191, 36, 0.15);
   }
 
   .node-label {
     font-family: var(--font-label);
     font-size: 6px;
-    fill: var(--bo-caption);
+    fill: var(--text-muted);
     pointer-events: none;
   }
 
@@ -189,8 +189,8 @@
     position: absolute;
     top: 0;
     right: 0;
-    background: var(--bo-card);
-    border: 1px solid var(--bo-bhi);
+    background: var(--card);
+    border: 1px solid var(--accent-m);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     min-width: 140px;
@@ -200,14 +200,14 @@
 
   .tooltip-label {
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-xs);
     font-family: var(--font-body);
   }
 
   .tooltip-gen {
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     margin: 0 0 var(--space-sm);
     font-family: var(--font-body);
   }
@@ -223,13 +223,13 @@
   }
 
   .archetype-tag {
-    color: var(--bo-amber);
+    color: var(--karma);
     border: 1px solid rgba(251, 191, 36, 0.32);
     background: rgba(251, 191, 36, 0.10);
   }
 
   .pioneer-tag {
-    color: var(--bo-amber);
+    color: var(--karma);
     border: 1px solid rgba(251, 191, 36, 0.32);
     background: rgba(251, 191, 36, 0.10);
   }
@@ -238,9 +238,9 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: 3px;
     padding: 3px 8px;
     cursor: pointer;

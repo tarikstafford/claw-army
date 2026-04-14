@@ -2,10 +2,10 @@
   import SoulRadar from '$lib/components/evolution/SoulRadar.svelte';
 
   const CLASS_COLORS: Record<string, string> = {
-    Artisan: 'var(--bo-amber)',
-    Understudy: 'var(--bo-vb)',
-    Novice: 'var(--bo-muted)',
-    Retired: 'var(--bo-faint)',
+    Artisan: 'var(--karma)',
+    Understudy: 'var(--accent-m)',
+    Novice: 'var(--text-muted)',
+    Retired: 'var(--muted)',
   };
 
   let { dimensions, soulContent, constitutionDirectives, generation, classHistory, archetypeName }: {
@@ -115,11 +115,11 @@
           <div class="stepper-step">
             <div
               class="stepper-circle"
-              style="border-color: {CLASS_COLORS[entry.class] ?? 'var(--bo-faint)'}; background: {CLASS_COLORS[entry.class] ? `color-mix(in srgb, ${CLASS_COLORS[entry.class]} 12%, transparent)` : 'transparent'}"
+              style="border-color: {CLASS_COLORS[entry.class] ?? 'var(--muted)'}; background: {CLASS_COLORS[entry.class] ? `color-mix(in srgb, ${CLASS_COLORS[entry.class]} 12%, transparent)` : 'transparent'}"
             ></div>
             <span
               class="stepper-class"
-              style="color: {CLASS_COLORS[entry.class] ?? 'var(--bo-faint)'}"
+              style="color: {CLASS_COLORS[entry.class] ?? 'var(--muted)'}"
             >{entry.class.toUpperCase()}</span>
             <span class="stepper-date">{formatDate(entry.transitionAt)}</span>
           </div>
@@ -147,14 +147,14 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-md);
   }
 
   .placeholder-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -163,8 +163,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
   }
@@ -176,8 +176,8 @@
   }
 
   .soul-section-body {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
   }
@@ -186,14 +186,14 @@
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
-    color: var(--bo-violet);
+    color: var(--accent);
     margin: 0;
   }
 
   .soul-body-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     white-space: pre-wrap;
     margin: 0;
     line-height: 1.7;
@@ -210,7 +210,7 @@
   .directive-item {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     line-height: 1.6;
   }
 
@@ -248,14 +248,14 @@
   .stepper-date {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     text-align: center;
   }
 
   .stepper-connector {
     width: 24px;
     height: 2px;
-    background: var(--bo-border);
+    background: var(--border);
     margin-top: 9px;
     flex-shrink: 0;
   }
@@ -270,6 +270,6 @@
   .fallback-item {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 </style>

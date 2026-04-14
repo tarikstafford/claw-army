@@ -15,10 +15,10 @@
   const SCORE = $derived(parseFloat(benchmark.baselineCompositeScore) || 0);
 
   const THRESHOLD_TIERS = [
-    { label: 'Novice', min: 0, max: 0.4, color: 'var(--bo-faint)' },
-    { label: 'Understudy', min: 0.4, max: 0.7, color: 'var(--bo-violet)' },
-    { label: 'Artisan', min: 0.7, max: 0.9, color: 'var(--bo-amber)' },
-    { label: 'Master', min: 0.9, max: 1.0, color: 'var(--bo-teal)' },
+    { label: 'Novice', min: 0, max: 0.4, color: 'var(--muted)' },
+    { label: 'Understudy', min: 0.4, max: 0.7, color: 'var(--accent)' },
+    { label: 'Artisan', min: 0.7, max: 0.9, color: 'var(--karma)' },
+    { label: 'Master', min: 0.9, max: 1.0, color: 'var(--accent-teal)' },
   ];
 
   const currentTier = $derived(
@@ -105,9 +105,9 @@
 
 <style>
   .benchmark-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
-    border-left: 3px solid var(--bo-amber);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--karma);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
     display: flex;
@@ -130,7 +130,7 @@
 
   .category-name {
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-body);
     font-weight: 400;
   }
@@ -157,7 +157,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-amber);
+    color: var(--karma);
     background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251, 191, 36, 0.32);
     padding: 3px 7px;
@@ -167,7 +167,7 @@
 
   .pioneer-caption {
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     font-family: var(--font-body);
     text-align: right;
   }
@@ -188,14 +188,14 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-transform: uppercase;
   }
 
   .score-value {
     font-size: 20px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-display);
   }
 
@@ -236,7 +236,7 @@
     justify-content: space-between;
     font-family: var(--font-mono);
     font-size: 8px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .card-middle-row {
@@ -255,13 +255,13 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-transform: uppercase;
   }
 
   .runs-value {
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-body);
   }
 
@@ -281,20 +281,20 @@
   }
 
   .status-block.mature .status-tag {
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     background: rgba(45, 212, 191, 0.10);
     border: 1px solid rgba(45, 212, 191, 0.30);
   }
 
   .status-block.unverified .status-tag {
-    color: var(--bo-amber);
+    color: var(--karma);
     background: rgba(251, 191, 36, 0.10);
     border: 1px solid rgba(251, 191, 36, 0.30);
   }
 
   .status-caption {
     font-size: 10px;
-    color: var(--bo-faint);
+    color: var(--muted);
     font-family: var(--font-body);
   }
 
@@ -319,12 +319,12 @@
   .pioneer-link-text {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .pioneer-link-id {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--bo-vb);
+    color: var(--accent-m);
   }
 </style>

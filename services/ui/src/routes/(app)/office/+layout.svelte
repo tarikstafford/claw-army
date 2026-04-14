@@ -69,7 +69,7 @@
 
   .subnav-item.active {
     background: var(--accent);
-    color: #fff;
+    color: white;
   }
 
   .office-content {

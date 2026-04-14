@@ -6,7 +6,7 @@
   <h1 class="error-code">{$page.status}</h1>
   <p class="error-message">
     {#if $page.status === 404}
-      Nothing here. <a href="/indra">Head back to the briefing.</a>
+      Nothing here. <a href="/">Head back to the briefing.</a>
     {:else}
       Something went wrong. Try refreshing - if this keeps happening, check your connection.
     {/if}

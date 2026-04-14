@@ -28,13 +28,13 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-xl);
   }
 
   .org-container {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     overflow-x: auto;
@@ -42,8 +42,8 @@
 
   .org-empty {
     padding: var(--space-2xl);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-align: center;
   }
@@ -52,14 +52,14 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 </style>

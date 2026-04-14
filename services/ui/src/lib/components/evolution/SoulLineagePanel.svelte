@@ -149,12 +149,12 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-md);
   }
 
   .lineage-container {
-    background: var(--bo-card);
+    background: var(--card);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     overflow-x: auto;
@@ -184,13 +184,13 @@
   }
 
   .archetype-tag {
-    color: var(--bo-amber);
+    color: var(--karma);
     border: 1px solid rgba(251, 191, 36, 0.32);
     background: rgba(251, 191, 36, 0.10);
   }
 
   .pioneer-tag {
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     border: 1px solid rgba(45, 212, 191, 0.32);
     background: rgba(45, 212, 191, 0.10);
   }
@@ -203,7 +203,7 @@
   .loading-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -211,8 +211,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
   }
@@ -227,14 +227,14 @@
     font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
-    color: var(--bo-violet);
+    color: var(--accent);
     margin: 0;
   }
 
   .soul-body-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     white-space: pre-wrap;
     margin: 0;
     line-height: 1.7;
@@ -243,7 +243,7 @@
   .no-data-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     padding: var(--space-xl);
     text-align: center;
     margin: 0;

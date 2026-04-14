@@ -22,14 +22,14 @@
   };
 
   const CATEGORY_COLORS: Record<string, string> = {
-    communication: 'var(--bo-teal)',
-    analysis: 'var(--bo-violet)',
-    creation: 'var(--bo-amber)',
-    automation: 'var(--bo-rose)',
-    research: 'var(--bo-vb)',
-    coordination: 'var(--bo-teal)',
-    monitoring: 'var(--bo-amber)',
-    other: 'var(--bo-faint)',
+    communication: 'var(--accent-teal)',
+    analysis: 'var(--accent)',
+    creation: 'var(--karma)',
+    automation: 'var(--accent-rose)',
+    research: 'var(--accent-m)',
+    coordination: 'var(--accent-teal)',
+    monitoring: 'var(--karma)',
+    other: 'var(--muted)',
   };
 
   let { botId, userId, agentClass }: Props = $props();
@@ -143,7 +143,7 @@
               <div class="skill-info">
                 <span
                   class="skill-cat-dot"
-                  style="background: {CATEGORY_COLORS[skill.skillCategory] ?? 'var(--bo-faint)'}"
+                  style="background: {CATEGORY_COLORS[skill.skillCategory] ?? 'var(--muted)'}"
                 ></span>
                 <div class="skill-meta">
                   <span class="skill-name">{skill.skillName}</span>
@@ -203,7 +203,7 @@
                 <div class="skill-info">
                   <span
                     class="skill-cat-dot"
-                    style="background: {CATEGORY_COLORS[skill.category] ?? 'var(--bo-faint)'}"
+                    style="background: {CATEGORY_COLORS[skill.category] ?? 'var(--muted)'}"
                   ></span>
                   <div class="skill-meta">
                     <span class="skill-name">{skill.name}</span>
@@ -251,7 +251,7 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
@@ -265,7 +265,7 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .slot-bar {
@@ -277,20 +277,20 @@
     width: 8px;
     height: 8px;
     border-radius: 2px;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     background: transparent;
     transition: background 0.2s ease;
   }
 
   .slot-pip.filled {
-    background: var(--bo-violet);
-    border-color: var(--bo-violet);
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
   .slot-count {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   /* Loading / Error States */
@@ -306,7 +306,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--bo-violet);
+    background: var(--accent);
     animation: pulse 1s ease infinite;
   }
 
@@ -317,7 +317,7 @@
 
   .loading-text {
     font-size: 12px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .error-state {
@@ -327,7 +327,7 @@
 
   .error-text {
     font-size: 12px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     margin: 0 0 var(--space-sm);
   }
 
@@ -335,9 +335,9 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     padding: 4px 12px;
     border-radius: 3px;
     cursor: pointer;
@@ -364,14 +364,14 @@
     justify-content: space-between;
     gap: var(--space-md);
     padding: var(--space-sm) var(--space-md);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     transition: border-color 0.15s ease;
   }
 
   .equipped-card:hover, .available-card:hover {
-    border-color: var(--bo-bhi);
+    border-color: var(--accent-m);
   }
 
   .skill-info {
@@ -401,7 +401,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
-    color: var(--bo-text);
+    color: var(--text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -409,7 +409,7 @@
 
   .skill-desc {
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -418,7 +418,7 @@
   .skill-version {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--bo-faint);
+    color: var(--muted);
     flex-shrink: 0;
   }
 
@@ -426,8 +426,8 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
-    border: 1px solid var(--bo-border);
+    color: var(--muted);
+    border: 1px solid var(--border);
     padding: 1px 4px;
     border-radius: 2px;
     flex-shrink: 0;
@@ -446,25 +446,25 @@
   }
 
   .unequip-btn {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     background: transparent;
     border-color: rgba(244, 114, 182, 0.25);
   }
 
   .unequip-btn:hover:not(:disabled) {
     background: rgba(244, 114, 182, 0.1);
-    border-color: var(--bo-rose);
+    border-color: var(--accent-rose);
   }
 
   .equip-btn {
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     background: transparent;
     border-color: rgba(45, 212, 191, 0.25);
   }
 
   .equip-btn:hover:not(:disabled) {
     background: rgba(45, 212, 191, 0.1);
-    border-color: var(--bo-teal);
+    border-color: var(--accent-teal);
   }
 
   .equip-btn:disabled, .unequip-btn:disabled {
@@ -477,9 +477,9 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     padding: 6px 14px;
     border-radius: 4px;
     cursor: pointer;
@@ -491,7 +491,7 @@
   }
 
   .library-toggle:hover {
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
     background: rgba(124, 58, 237, 0.06);
   }
 
@@ -516,7 +516,7 @@
     gap: var(--space-md);
     padding: var(--space-md);
     background: rgba(124, 58, 237, 0.03);
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
   }
 
@@ -530,9 +530,9 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     background: transparent;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     padding: 3px 8px;
     border-radius: 3px;
     cursor: pointer;
@@ -540,19 +540,19 @@
   }
 
   .filter-chip:hover {
-    color: var(--bo-text);
-    border-color: var(--bo-bhi);
+    color: var(--text);
+    border-color: var(--accent-m);
   }
 
   .filter-chip.active {
-    color: var(--bo-text);
+    color: var(--text);
     background: rgba(124, 58, 237, 0.15);
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .empty-msg {
     font-size: 12px;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-align: center;
     padding: var(--space-lg);
     margin: 0;

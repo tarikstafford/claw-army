@@ -201,7 +201,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-decoration: none;
     display: inline-block;
     margin-bottom: var(--space-sm);
@@ -209,7 +209,7 @@
   }
 
   .back-link:hover {
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .identity-section {
@@ -225,7 +225,7 @@
     display: flex;
     align-items: center;
     gap: 0;
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     margin-bottom: var(--space-lg);
   }
 
@@ -233,7 +233,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
@@ -244,12 +244,12 @@
   }
 
   .tab-btn:hover {
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .tab-btn.active {
-    color: var(--bo-text);
-    border-bottom-color: var(--bo-violet);
+    color: var(--text);
+    border-bottom-color: var(--accent);
   }
 
   /* Tab content */
@@ -258,7 +258,7 @@
   }
 
   .lineage-container {
-    background: var(--bo-card);
+    background: var(--card);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     overflow-x: auto;
@@ -267,7 +267,7 @@
   .no-data-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     padding: var(--space-xl);
     text-align: center;
   }

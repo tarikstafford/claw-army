@@ -34,6 +34,9 @@ export interface Agent {
   description?: string | null;
   adapter?: string | null;
   status?: string | null;
+  agentClass?: string | null;
+  compositeScore?: string | null;
+  skillCount?: number | null;
   createdAt: string;
   updatedAt: string;
 }

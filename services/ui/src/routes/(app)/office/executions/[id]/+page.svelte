@@ -55,23 +55,23 @@
 
   function getStatusColor(status: string): string {
     switch (status) {
-      case 'running': return 'var(--bo-teal, #2DD4BF)';
+      case 'running': return 'var(--accent-teal)';
       case 'completed': return 'var(--success, #059669)';
       case 'failed': return 'var(--error, #f87171)';
-      case 'paused': return 'var(--bo-amber, #FBBF24)';
+      case 'paused': return 'var(--karma)';
       case 'stopped': return 'var(--text-muted)';
-      case 'pre_flight': return 'var(--bo-violet, #7C3AED)';
-      case 'queued': return 'var(--bo-vb, #A78BFA)';
+      case 'pre_flight': return 'var(--accent)';
+      case 'queued': return 'var(--accent-m)';
       default: return 'var(--text-muted)';
     }
   }
 
   function getBotStatusColor(status: string): string {
     switch (status) {
-      case 'working': return 'var(--bo-teal, #2DD4BF)';
-      case 'idle': return 'var(--bo-amber, #FBBF24)';
-      case 'spawning': return 'var(--bo-violet, #7C3AED)';
-      case 'stopping': return 'var(--bo-rose, #F472B6)';
+      case 'working': return 'var(--accent-teal)';
+      case 'idle': return 'var(--karma)';
+      case 'spawning': return 'var(--accent)';
+      case 'stopping': return 'var(--accent-rose)';
       case 'stopped': return 'var(--text-muted)';
       case 'failed': return 'var(--error, #f87171)';
       default: return 'var(--text-muted)';
@@ -424,13 +424,13 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-teal);
+    color: var(--accent-teal);
   }
 
   .live-dot {
     width: 6px;
     height: 6px;
-    background: var(--bo-teal);
+    background: var(--accent-teal);
     border-radius: 50%;
     animation: pulse 1.5s ease-in-out infinite;
   }
@@ -679,7 +679,7 @@
   }
 
   .task-card.active {
-    border-color: var(--bo-teal);
+    border-color: var(--accent-teal);
     background: rgba(45, 212, 191, 0.05);
   }
 
@@ -719,7 +719,7 @@
 
   .agents-count.active {
     background: rgba(45, 212, 191, 0.15);
-    color: var(--bo-teal);
+    color: var(--accent-teal);
   }
 
   .agents-count.complete {
@@ -827,7 +827,7 @@
   .summary-anomalies {
     font-family: var(--font-body);
     font-size: 10px;
-    color: var(--bo-amber);
+    color: var(--karma);
     margin-left: auto;
   }
 
@@ -854,7 +854,7 @@
   }
 
   .event-type {
-    color: var(--bo-violet);
+    color: var(--accent);
     flex-shrink: 0;
   }
 

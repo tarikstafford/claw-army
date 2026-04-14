@@ -100,7 +100,7 @@
     right: 0;
     z-index: 500;
     background: var(--fo-gold, #B8860B);
-    color: #ffffff;
+    color: white;
     font-family: var(--font-body, 'DM Sans', sans-serif);
     font-size: 13px;
     text-align: center;
@@ -163,19 +163,19 @@
 
   .toast-dismiss:hover { color: var(--text-muted, #6B6260); }
 
-  .toast-success { border-color: var(--bo-teal, #2DD4BF); }
+  .toast-success { border-color: var(--accent-teal); }
   .toast-error { border-color: var(--error, #DC2626); }
   .toast-warning { border-color: var(--fo-gold, #B8965A); }
-  .toast-info { border-color: var(--bo-violet, #8B5CF6); }
-  .toast-chat { border-color: var(--bo-teal, #2DD4BF); }
-  .toast-execution { border-color: var(--bo-amber, #F59E0B); }
+  .toast-info { border-color: var(--accent); }
+  .toast-chat { border-color: var(--accent-teal); }
+  .toast-execution { border-color: var(--karma); }
   .toast-danger { border-color: var(--error, #DC2626); }
 
-  .toast-success .toast-text { color: var(--bo-teal, #2DD4BF); }
+  .toast-success .toast-text { color: var(--accent-teal); }
   .toast-error .toast-text { color: var(--error, #DC2626); }
   .toast-warning .toast-text { color: var(--fo-gold, #B8965A); }
-  .toast-chat .toast-text { color: var(--bo-teal, #2DD4BF); }
-  .toast-execution .toast-text { color: var(--bo-amber, #F59E0B); }
+  .toast-chat .toast-text { color: var(--accent-teal); }
+  .toast-execution .toast-text { color: var(--karma); }
   .toast-danger .toast-text { color: var(--error, #DC2626); }
 
   .toast-retry {

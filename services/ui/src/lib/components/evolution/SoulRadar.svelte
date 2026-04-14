@@ -59,7 +59,7 @@
           y1={CENTER}
           x2={ep.x}
           y2={ep.y}
-          stroke="var(--bo-border)"
+          stroke="var(--border)"
           stroke-width="1"
         />
       {/each}
@@ -68,7 +68,7 @@
       <polygon
         points={outerPolygon}
         fill="none"
-        stroke="var(--bo-border)"
+        stroke="var(--border)"
         stroke-width="1"
       />
 
@@ -76,7 +76,7 @@
       <polygon
         points={polygonPoints}
         fill="rgba(124, 58, 237, 0.15)"
-        stroke="var(--bo-violet)"
+        stroke="var(--accent)"
         stroke-width="1.5"
       />
 
@@ -90,7 +90,7 @@
           dominant-baseline="middle"
           font-size="6"
           font-family="var(--font-label)"
-          fill="var(--bo-caption)"
+          fill="var(--text-muted)"
         >{DIMENSION_LABELS[i]}</text>
       {/each}
     {/if}

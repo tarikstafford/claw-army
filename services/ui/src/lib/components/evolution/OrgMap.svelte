@@ -18,10 +18,10 @@
   const WIDTH = 900;
   const NODE_R = 8;
   const CLASS_COLORS: Record<string, string> = {
-    Artisan: 'var(--bo-amber)',
-    Understudy: 'var(--bo-vb)',
-    Novice: 'var(--bo-muted)',
-    Retired: 'var(--bo-faint)',
+    Artisan: 'var(--karma)',
+    Understudy: 'var(--accent-m)',
+    Novice: 'var(--text-muted)',
+    Retired: 'var(--muted)',
   };
 
   const treeHeight = $derived.by(() => {
@@ -53,19 +53,19 @@
   }
 
   function getNodeFill(node: OrgNode): string {
-    if (node.type === 'category') return 'var(--bo-violet)';
-    return 'var(--bo-card)';
+    if (node.type === 'category') return 'var(--accent)';
+    return 'var(--card)';
   }
 
   function getNodeStroke(node: OrgNode): string {
-    if (node.type === 'category') return 'var(--bo-violet)';
+    if (node.type === 'category') return 'var(--accent)';
     if (node.type === 'class_tier') {
-      return CLASS_COLORS[node.label] ?? 'var(--bo-border)';
+      return CLASS_COLORS[node.label] ?? 'var(--border)';
     }
     if (node.type === 'agent') {
-      return CLASS_COLORS[node.currentClass ?? ''] ?? 'var(--bo-border)';
+      return CLASS_COLORS[node.currentClass ?? ''] ?? 'var(--border)';
     }
-    return 'var(--bo-border)';
+    return 'var(--border)';
   }
 
   function getNodeRadius(node: OrgNode): number {
@@ -197,7 +197,7 @@
 
   .org-link {
     fill: none;
-    stroke: var(--bo-border);
+    stroke: var(--border);
     stroke-width: 1;
   }
 
@@ -205,14 +205,14 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    fill: var(--bo-faint);
+    fill: var(--muted);
     pointer-events: none;
   }
 
   .category-label {
     font-family: var(--font-display);
     font-size: 14px;
-    fill: var(--bo-text);
+    fill: var(--text);
     pointer-events: none;
   }
 
@@ -220,7 +220,7 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    fill: var(--bo-caption);
+    fill: var(--text-muted);
     pointer-events: none;
   }
 
@@ -228,7 +228,7 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.08em;
-    fill: var(--bo-caption);
+    fill: var(--text-muted);
     pointer-events: none;
   }
 
@@ -253,7 +253,7 @@
   .org-empty-text {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 </style>

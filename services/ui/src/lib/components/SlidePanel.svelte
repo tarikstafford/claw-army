@@ -117,7 +117,7 @@
 
 	.panel-close:hover {
 		background: var(--accent);
-		color: #fff;
+		color: white;
 		border-color: var(--accent);
 	}
 

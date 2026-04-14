@@ -62,7 +62,7 @@
 
   function getExecutionStatusColor(status: string): string {
     switch (status) {
-      case 'completed': return 'var(--bo-teal)';
+      case 'completed': return 'var(--accent-teal)';
       case 'failed': return 'var(--error)';
       case 'running': return 'var(--fo-gold)';
       case 'queued': return 'var(--fo-plum-m)';
@@ -75,7 +75,7 @@
       case 'open': return 'var(--fo-plum-m)';
       case 'in_progress': return 'var(--fo-gold)';
       case 'blocked': return 'var(--error)';
-      case 'done': return 'var(--bo-teal)';
+      case 'done': return 'var(--accent-teal)';
       default: return 'var(--text-muted)';
     }
   }
@@ -243,7 +243,7 @@
           <span class="status-dot"></span>
           {getConnectionStatusLabel(data.githubConnection.status)}
         </span>
-        <a href="/tools/belt" class="manage-link">Manage connection</a>
+        <a href="/settings/tools" class="manage-link">Manage connection</a>
       </div>
 
       {#if data.githubConnection.status === 'connected'}

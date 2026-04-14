@@ -19,9 +19,9 @@
   let expandedExecution = $state<string | null>(null);
 
   const STATUS_COLORS: Record<string, string> = {
-    completed: 'var(--bo-teal)',
-    claimed: 'var(--bo-vb)',
-    pending: 'var(--bo-muted)',
+    completed: 'var(--accent-teal)',
+    claimed: 'var(--accent-m)',
+    pending: 'var(--text-muted)',
     failed: 'var(--error, #F87171)',
   };
 
@@ -153,7 +153,7 @@
             </div>
             <div class="chain-summary">
               <span class="chain-count">{totalCount} task{totalCount !== 1 ? 's' : ''}</span>
-              <span class="chain-rate" style="color: {chainRate >= 70 ? 'var(--bo-teal)' : chainRate >= 40 ? 'var(--bo-amber)' : 'var(--error, #F87171)'}">
+              <span class="chain-rate" style="color: {chainRate >= 70 ? 'var(--accent-teal)' : chainRate >= 40 ? 'var(--karma)' : 'var(--error, #F87171)'}">
                 {chainRate}% done
               </span>
               <span class="chain-chevron">{expandedExecution === chain.executionId ? '\u25B2' : '\u25BC'}</span>
@@ -166,13 +166,13 @@
                 {#each chain.delegations as d (d.taskId)}
                   <div class="delegation-row">
                     <div class="delegation-connector">
-                      <div class="connector-dot" style="background: {STATUS_COLORS[d.status] ?? 'var(--bo-muted)'}"></div>
+                      <div class="connector-dot" style="background: {STATUS_COLORS[d.status] ?? 'var(--text-muted)'}"></div>
                       <div class="connector-line"></div>
                     </div>
                     <div class="delegation-content">
                       <div class="delegation-main">
                         <span class="delegation-desc">{truncate(d.description, 120)}</span>
-                        <span class="delegation-status" style="color: {STATUS_COLORS[d.status] ?? 'var(--bo-muted)'}">
+                        <span class="delegation-status" style="color: {STATUS_COLORS[d.status] ?? 'var(--text-muted)'}">
                           {d.status.toUpperCase()}
                         </span>
                       </div>
@@ -217,8 +217,8 @@
   }
 
   .stat-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-lg) var(--space-md);
     display: flex;
@@ -231,18 +231,18 @@
     font-family: var(--font-display);
     font-size: 28px;
     font-weight: 700;
-    color: var(--bo-text);
+    color: var(--text);
   }
 
-  .stat-value.success { color: var(--bo-teal); }
-  .stat-value.warning { color: var(--bo-amber); }
+  .stat-value.success { color: var(--accent-teal); }
+  .stat-value.warning { color: var(--karma); }
   .stat-value.danger { color: var(--error, #F87171); }
 
   .stat-label {
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.04em;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   /* ── Filters ── */
@@ -265,16 +265,16 @@
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.04em;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     text-transform: uppercase;
   }
 
   .filter-input {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
-    color: var(--bo-text);
+    color: var(--text);
     font-family: var(--font-body);
     font-size: 13px;
     outline: none;
@@ -282,11 +282,11 @@
   }
 
   .filter-input::placeholder {
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .filter-input:focus {
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .filter-input::-webkit-calendar-picker-indicator {
@@ -310,9 +310,9 @@
   }
 
   .btn-filter {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-violet);
-    color: var(--bo-violet);
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--accent);
   }
 
   .btn-filter:hover:not(:disabled) {
@@ -321,13 +321,13 @@
 
   .btn-clear {
     background: transparent;
-    border: 1px solid var(--bo-border);
-    color: var(--bo-muted);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
   }
 
   .btn-clear:hover:not(:disabled) {
-    color: var(--bo-text);
-    border-color: var(--bo-bhi);
+    color: var(--text);
+    border-color: var(--accent-m);
   }
 
   .btn-filter:disabled,
@@ -346,14 +346,14 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-xs);
   }
 
   .empty-body {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     margin: 0;
   }
 
@@ -365,19 +365,19 @@
   }
 
   .chain-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
     transition: border-color 0.15s ease;
   }
 
   .chain-card:hover {
-    border-color: var(--bo-bhi);
+    border-color: var(--accent-m);
   }
 
   .chain-card.expanded {
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .chain-header {
@@ -405,7 +405,7 @@
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 500;
-    color: var(--bo-text);
+    color: var(--text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -414,7 +414,7 @@
   .chain-id {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .chain-summary {
@@ -427,7 +427,7 @@
   .chain-count {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .chain-rate {
@@ -438,12 +438,12 @@
 
   .chain-chevron {
     font-size: 10px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   /* ── Chain Body (expanded) ── */
   .chain-body {
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
     padding: var(--space-md) var(--space-lg) var(--space-lg);
   }
 
@@ -477,7 +477,7 @@
   .connector-line {
     width: 1px;
     flex: 1;
-    background: var(--bo-border);
+    background: var(--border);
     margin-top: 2px;
   }
 
@@ -504,7 +504,7 @@
   .delegation-desc {
     font-family: var(--font-body);
     font-size: 13px;
-    color: var(--bo-text);
+    color: var(--text);
     line-height: 1.5;
     flex: 1;
     min-width: 0;
@@ -531,28 +531,28 @@
     padding: 1px var(--space-sm);
     border-radius: var(--radius-sm);
     background: rgba(148, 110, 255, 0.08);
-    color: var(--bo-vb);
+    color: var(--accent-m);
   }
 
   .unassigned-tag {
     background: rgba(236, 232, 255, 0.06);
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .tier-tag {
     background: rgba(251, 191, 36, 0.10);
-    color: var(--bo-amber);
+    color: var(--karma);
   }
 
   .score-tag {
     background: rgba(45, 212, 191, 0.10);
-    color: var(--bo-teal);
+    color: var(--accent-teal);
   }
 
   .detail-time {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     margin-left: auto;
   }
 

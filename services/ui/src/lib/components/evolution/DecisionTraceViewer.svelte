@@ -25,9 +25,9 @@
 
   const DECISION_TYPES = ['tool_call', 'reasoning_branch', 'output_step'];
   const OUTCOME_COLORS: Record<string, string> = {
-    success: 'var(--bo-teal)',
-    failure: 'var(--bo-rose)',
-    partial: 'var(--bo-amber)',
+    success: 'var(--accent-teal)',
+    failure: 'var(--accent-rose)',
+    partial: 'var(--karma)',
   };
 
   const filteredBySearch = $derived(
@@ -157,7 +157,7 @@
             <tr class="trace-row">
               <td class="cell-time">{formatTimestamp(trace.decidedAt)}</td>
               <td class="cell-type">
-                <span class="type-badge" style="color: var(--bo-violet)">
+                <span class="type-badge" style="color: var(--accent)">
                   {trace.decisionType.replace('_', ' ').toUpperCase()}
                 </span>
               </td>
@@ -169,7 +169,7 @@
               </td>
               <td class="cell-outcome">
                 {#if trace.outcome}
-                  <span class="outcome-badge" style="color: {OUTCOME_COLORS[trace.outcome] ?? 'var(--bo-muted)'}">
+                  <span class="outcome-badge" style="color: {OUTCOME_COLORS[trace.outcome] ?? 'var(--text-muted)'}">
                     {trace.outcome.toUpperCase()}
                   </span>
                 {:else}
@@ -210,9 +210,9 @@
   .search-input {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-text);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
     min-width: 200px;
@@ -221,19 +221,19 @@
 
   .search-input:focus {
     outline: none;
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .search-input::placeholder {
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .filter-select {
     font-family: var(--font-body);
     font-size: 12px;
-    color: var(--bo-text);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
     cursor: pointer;
@@ -241,7 +241,7 @@
 
   .filter-select:focus {
     outline: none;
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .trace-empty {
@@ -253,18 +253,18 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
   .error-text {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .trace-table-wrapper {
@@ -282,16 +282,16 @@
     font-size: 6px;
     letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-align: left;
     padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--bo-border);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
   }
 
   .trace-table td {
     font-size: 12px;
-    color: var(--bo-text);
+    color: var(--text);
     padding: var(--space-sm) var(--space-md);
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     font-family: var(--font-body);
@@ -304,7 +304,7 @@
   .cell-time {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
     white-space: nowrap;
   }
 
@@ -317,7 +317,7 @@
   .cell-directive {
     font-family: var(--font-mono, monospace);
     font-size: 11px;
-    color: var(--bo-teal);
+    color: var(--accent-teal);
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -326,7 +326,7 @@
 
   .cell-confidence {
     font-size: 12px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .outcome-badge {
@@ -347,9 +347,9 @@
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-violet);
+    color: var(--accent);
     background: none;
-    border: 1px solid var(--bo-violet);
+    border: 1px solid var(--accent);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-lg);
     cursor: pointer;
@@ -368,6 +368,6 @@
   .load-more-info {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 </style>

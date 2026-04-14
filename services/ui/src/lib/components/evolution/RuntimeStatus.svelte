@@ -31,10 +31,10 @@
   }
 
   const budgetColor = $derived(
-    runtimeState?.budgetUtilization == null ? 'var(--bo-text)' :
-    runtimeState.budgetUtilization >= 100 ? 'var(--bo-rose)' :
-    runtimeState.budgetUtilization >= 80 ? 'var(--bo-amber)' :
-    'var(--bo-text)'
+    runtimeState?.budgetUtilization == null ? 'var(--text)' :
+    runtimeState.budgetUtilization >= 100 ? 'var(--accent-rose)' :
+    runtimeState.budgetUtilization >= 80 ? 'var(--karma)' :
+    'var(--text)'
   );
 
   onMount(() => {
@@ -110,8 +110,8 @@
 
 <style>
   .runtime-status {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: var(--space-sm) var(--space-md);
     min-height: 36px;
@@ -122,7 +122,7 @@
   .placeholder-text {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .status-row {
@@ -143,43 +143,43 @@
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .stat-value {
     font-family: var(--font-label);
     font-size: 7px;
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .stat-muted {
-    color: var(--bo-muted);
+    color: var(--text-muted);
   }
 
   .stat-amber {
-    color: var(--bo-amber);
+    color: var(--karma);
   }
 
   .stat-caption {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-caption);
+    color: var(--text-muted);
   }
 
   .error-label {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .stat-error {
     font-family: var(--font-body);
     font-size: 11px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .status-divider {
     width: 1px;
     height: 20px;
-    background: var(--bo-border);
+    background: var(--border);
     flex-shrink: 0;
   }
 </style>

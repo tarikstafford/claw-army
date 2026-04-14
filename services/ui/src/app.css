@@ -19,21 +19,9 @@
   --fo-gold-l:  #D4B47A;
   --fo-gold-p:  #F0E6D0;
 
-  /* ── BACK OFFICE ───────────────────────────── */
-  --bo-bg:      #06050E;
-  --bo-card:    #100F20;
-  --bo-border:  rgba(148, 110, 255, 0.13);
-  --bo-bhi:     rgba(148, 110, 255, 0.32);
-  --bo-text:    #ECE8FF;
-  --bo-muted:   rgba(236, 232, 255, 0.52);
-  --bo-caption: rgba(236, 232, 255, 0.42);
-  --bo-faint:   rgba(236, 232, 255, 0.24);
-  --bo-ghost:   rgba(236, 232, 255, 0.14);
-  --bo-violet:  #7C3AED;
-  --bo-vb:      #A78BFA;
-  --bo-amber:   #FBBF24;
-  --bo-teal:    #2DD4BF;
-  --bo-rose:    #F472B6;
+  /* ── ACCENT COLORS ──────────────────────────── */
+  --accent-teal: #2DD4BF;
+  --accent-rose: #F43F5E;
 
   /* ── SHARED — model tiers ─────────────────── */
   --tier-junior: #3B82F6;
@@ -87,24 +75,6 @@
   --karma:      var(--fo-gold);
   --success:    #059669;
   --rose:       #DB2777;
-}
-
-/* ── BACK OFFICE OVERRIDE ──────────────────────── */
-body.back-office {
-  --bg:         var(--bo-bg);
-  --bg2:        var(--bo-card);
-  --bg3:        var(--bo-card);
-  --card:       var(--bo-card);
-  --border:     var(--bo-border);
-  --rule:       var(--bo-border);
-  --text:       var(--bo-text);
-  --text-muted: var(--bo-muted);
-  --accent:     var(--bo-violet);
-  --accent-m:   var(--bo-vb);
-  --accent-dim: rgba(124, 58, 237, 0.10);
-  --karma:      var(--bo-amber);
-  --success:    var(--bo-teal);
-  --rose:       var(--bo-rose);
 }
 
 /* ── BASE ELEMENT STYLES ──────────────────────── */

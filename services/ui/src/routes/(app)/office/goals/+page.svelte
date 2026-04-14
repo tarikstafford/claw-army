@@ -62,10 +62,10 @@
     switch (status) {
       case 'pre_flight': return 'var(--fo-gold, #B8965A)';
       case 'queued': return 'var(--fo-gold, #B8965A)';
-      case 'running': return 'var(--bo-teal, #2DD4BF)';
+      case 'running': return 'var(--accent-teal)';
       case 'paused': return 'var(--text-muted)';
       case 'stopped': return 'var(--text-muted)';
-      case 'completed': return 'var(--bo-teal, #2DD4BF)';
+      case 'completed': return 'var(--accent-teal)';
       case 'failed': return 'var(--error, #DC2626)';
       default: return 'var(--text-muted)';
     }
@@ -626,7 +626,7 @@
     align-items: center;
     padding: 10px 18px;
     background: var(--fo-plum);
-    color: #fff;
+    color: white;
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
@@ -689,8 +689,8 @@
     display: inline-flex;
     align-items: center;
     padding: 8px 16px;
-    background: var(--bo-teal);
-    color: #fff;
+    background: var(--accent-teal);
+    color: white;
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
@@ -701,7 +701,7 @@
   }
 
   .btn-run:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--bo-teal) 85%, black);
+    background: color-mix(in srgb, var(--accent-teal) 85%, black);
     transform: translateY(-1px);
   }
 
@@ -740,7 +740,7 @@
     align-items: center;
     padding: 10px 18px;
     background: var(--error);
-    color: #fff;
+    color: white;
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;

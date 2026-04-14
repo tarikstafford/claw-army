@@ -88,7 +88,7 @@
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
@@ -97,8 +97,8 @@
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-md) var(--space-lg);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
   }
 
@@ -113,27 +113,27 @@
     font-family: var(--font-mono);
     font-size: 14px;
     font-weight: 500;
-    color: var(--bo-text);
+    color: var(--text);
   }
 
   .stat-label {
     font-family: var(--font-label);
     font-size: 5px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     text-transform: uppercase;
   }
 
   .stat-divider {
     width: 1px;
     height: 24px;
-    background: var(--bo-border);
+    background: var(--border);
   }
 
   .empty-state {
     padding: var(--space-2xl);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-align: center;
   }
@@ -142,13 +142,13 @@
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 

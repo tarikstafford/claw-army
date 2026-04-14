@@ -13,14 +13,14 @@
   ] as const;
 
   const CATEGORY_COLORS: Record<string, string> = {
-    communication: 'var(--bo-teal)',
-    analysis: 'var(--bo-violet)',
-    creation: 'var(--bo-amber)',
-    automation: 'var(--bo-rose)',
-    research: 'var(--bo-vb)',
-    coordination: 'var(--bo-teal)',
-    monitoring: 'var(--bo-amber)',
-    other: 'var(--bo-faint)',
+    communication: 'var(--accent-teal)',
+    analysis: 'var(--accent)',
+    creation: 'var(--karma)',
+    automation: 'var(--accent-rose)',
+    research: 'var(--accent-m)',
+    coordination: 'var(--accent-teal)',
+    monitoring: 'var(--karma)',
+    other: 'var(--muted)',
   };
 
   let skills = $state<Skill[]>(data.skills);
@@ -286,7 +286,7 @@ Step-by-step instructions for the agent.
             <div class="skill-card-left">
               <span
                 class="cat-dot"
-                style="background: {CATEGORY_COLORS[skill.category] ?? 'var(--bo-faint)'}"
+                style="background: {CATEGORY_COLORS[skill.category] ?? 'var(--muted)'}"
               ></span>
               <div class="skill-title-block">
                 <span class="skill-name">{skill.name}</span>
@@ -387,22 +387,22 @@ Step-by-step instructions for the agent.
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
   .skill-count {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .create-btn {
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-bg);
-    background: var(--bo-violet);
+    color: var(--bg);
+    background: var(--accent);
     border: none;
     padding: 6px 14px;
     border-radius: 4px;
@@ -434,9 +434,9 @@ Step-by-step instructions for the agent.
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     background: transparent;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     padding: 4px 10px;
     border-radius: 3px;
     cursor: pointer;
@@ -447,14 +447,14 @@ Step-by-step instructions for the agent.
   }
 
   .filter-chip:hover {
-    color: var(--bo-text);
-    border-color: var(--bo-bhi);
+    color: var(--text);
+    border-color: var(--accent-m);
   }
 
   .filter-chip.active {
-    color: var(--bo-text);
+    color: var(--text);
     background: rgba(124, 58, 237, 0.15);
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .chip-dot {
@@ -479,14 +479,14 @@ Step-by-step instructions for the agent.
     border: 1px solid rgba(244, 114, 182, 0.25);
     border-radius: var(--radius-md);
     font-size: 12px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
   }
 
   .dismiss-btn {
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     background: none;
     border: none;
     cursor: pointer;
@@ -499,8 +499,8 @@ Step-by-step instructions for the agent.
     flex-direction: column;
     gap: var(--space-md);
     padding: var(--space-lg);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
   }
 
@@ -514,7 +514,7 @@ Step-by-step instructions for the agent.
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0;
   }
 
@@ -522,17 +522,17 @@ Step-by-step instructions for the agent.
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     background: none;
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     padding: 4px 10px;
     border-radius: 3px;
     cursor: pointer;
   }
 
   .cancel-btn:hover {
-    color: var(--bo-text);
-    border-color: var(--bo-bhi);
+    color: var(--text);
+    border-color: var(--accent-m);
   }
 
   .form-errors {
@@ -544,7 +544,7 @@ Step-by-step instructions for the agent.
 
   .form-error {
     font-size: 11px;
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     margin: 2px 0;
   }
 
@@ -552,9 +552,9 @@ Step-by-step instructions for the agent.
     font-family: var(--font-mono);
     font-size: 12px;
     line-height: 1.6;
-    color: var(--bo-text);
-    background: var(--bo-bg);
-    border: 1px solid var(--bo-border);
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     resize: vertical;
@@ -562,12 +562,12 @@ Step-by-step instructions for the agent.
   }
 
   .content-editor::placeholder {
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .content-editor:focus {
     outline: none;
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .form-actions {
@@ -579,8 +579,8 @@ Step-by-step instructions for the agent.
     font-family: var(--font-label);
     font-size: 7px;
     letter-spacing: 0.10em;
-    color: var(--bo-bg);
-    background: var(--bo-violet);
+    color: var(--bg);
+    background: var(--accent);
     border: none;
     padding: 6px 18px;
     border-radius: 4px;
@@ -600,8 +600,8 @@ Step-by-step instructions for the agent.
   /* Empty state */
   .empty-state {
     padding: var(--space-2xl);
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-align: center;
     display: flex;
@@ -613,13 +613,13 @@ Step-by-step instructions for the agent.
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 600;
-    color: var(--bo-text);
+    color: var(--text);
     margin: 0 0 var(--space-sm);
   }
 
   .empty-body {
     font-size: 13px;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -631,19 +631,19 @@ Step-by-step instructions for the agent.
   }
 
   .skill-card {
-    background: var(--bo-card);
-    border: 1px solid var(--bo-border);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
     transition: border-color 0.15s ease;
   }
 
   .skill-card:hover {
-    border-color: var(--bo-bhi);
+    border-color: var(--accent-m);
   }
 
   .skill-card.expanded {
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .skill-card-header {
@@ -687,7 +687,7 @@ Step-by-step instructions for the agent.
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
-    color: var(--bo-text);
+    color: var(--text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -695,7 +695,7 @@ Step-by-step instructions for the agent.
 
   .skill-desc {
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -712,21 +712,21 @@ Step-by-step instructions for the agent.
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .skill-version {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .skill-class {
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
-    border: 1px solid var(--bo-border);
+    color: var(--muted);
+    border: 1px solid var(--border);
     padding: 1px 4px;
     border-radius: 2px;
   }
@@ -737,7 +737,7 @@ Step-by-step instructions for the agent.
     height: 0;
     border-left: 3px solid transparent;
     border-right: 3px solid transparent;
-    border-top: 4px solid var(--bo-faint);
+    border-top: 4px solid var(--muted);
     transition: transform 0.2s ease;
   }
 
@@ -748,7 +748,7 @@ Step-by-step instructions for the agent.
   /* Skill detail */
   .skill-detail {
     padding: 0 var(--space-md) var(--space-md);
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
@@ -771,7 +771,7 @@ Step-by-step instructions for the agent.
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-faint);
+    color: var(--muted);
     margin: 0;
   }
 
@@ -784,15 +784,15 @@ Step-by-step instructions for the agent.
   .tag {
     font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     background: rgba(124, 58, 237, 0.06);
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     padding: 2px 6px;
     border-radius: 2px;
   }
 
   .tag.tool {
-    color: var(--bo-amber);
+    color: var(--karma);
     background: rgba(251, 191, 36, 0.06);
     border-color: rgba(251, 191, 36, 0.2);
   }
@@ -801,23 +801,23 @@ Step-by-step instructions for the agent.
     font-family: var(--font-label);
     font-size: 6px;
     letter-spacing: 0.10em;
-    color: var(--bo-muted);
+    color: var(--text-muted);
     background: rgba(236, 232, 255, 0.04);
-    border: 1px solid var(--bo-border);
+    border: 1px solid var(--border);
     padding: 2px 6px;
     border-radius: 2px;
   }
 
   .created-at {
     font-size: 11px;
-    color: var(--bo-faint);
+    color: var(--muted);
   }
 
   .skill-actions {
     display: flex;
     gap: var(--space-sm);
     padding-top: var(--space-sm);
-    border-top: 1px solid var(--bo-border);
+    border-top: 1px solid var(--border);
   }
 
   .action-btn {
@@ -833,23 +833,23 @@ Step-by-step instructions for the agent.
   }
 
   .action-btn.edit {
-    color: var(--bo-violet);
+    color: var(--accent);
     border-color: rgba(124, 58, 237, 0.25);
   }
 
   .action-btn.edit:hover {
     background: rgba(124, 58, 237, 0.1);
-    border-color: var(--bo-violet);
+    border-color: var(--accent);
   }
 
   .action-btn.delete {
-    color: var(--bo-rose);
+    color: var(--accent-rose);
     border-color: rgba(244, 114, 182, 0.25);
   }
 
   .action-btn.delete:hover:not(:disabled) {
     background: rgba(244, 114, 182, 0.1);
-    border-color: var(--bo-rose);
+    border-color: var(--accent-rose);
   }
 
   .action-btn:disabled {

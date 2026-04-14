@@ -165,7 +165,7 @@
     align-items: center;
     padding: 10px 18px;
     background: var(--fo-plum);
-    color: #fff;
+    color: white;
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;

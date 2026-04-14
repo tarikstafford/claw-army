@@ -131,10 +131,6 @@
     line-height: 1.2;
   }
 
-  :global(body.back-office) .card-title {
-    color: var(--bo-text);
-  }
-
   .window-badge {
     font-family: var(--font-label);
     font-size: 5px;
@@ -212,10 +208,6 @@
     padding-top: 14px;
   }
 
-  :global(body.back-office) .breakdown {
-    border-top-color: var(--bo-border, rgba(124, 58, 237, 0.15));
-  }
-
   .breakdown-heading {
     font-family: var(--font-label);
     font-size: 5px;
@@ -232,10 +224,6 @@
     overflow: hidden;
     margin-bottom: 10px;
     background: var(--fo-bg2, #EBE8E0);
-  }
-
-  :global(body.back-office) .breakdown-bar {
-    background: rgba(124, 58, 237, 0.08);
   }
 
   .bar-segment {

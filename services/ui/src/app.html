@@ -7,18 +7,6 @@
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">
-    <script>
-      try {
-        const pathname = window.location.pathname;
-        if (
-          pathname.startsWith('/evolution') ||
-          pathname.startsWith('/tools') ||
-          pathname.startsWith('/akashic')
-        ) {
-          document.body.classList.add('back-office');
-        }
-      } catch (_) {}
-    </script>
     <div style="display: contents">%sveltekit.body%</div>
   </body>
 </html>

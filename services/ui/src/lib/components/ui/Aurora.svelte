@@ -7,14 +7,6 @@
     'rgba(151,124,123,',
   ];
 
-  const BACK_OFFICE_PARTICLE_COLS = [
-    'rgba(124,58,237,',
-    'rgba(167,139,250,',
-    'rgba(196,181,253,',
-    'rgba(251,191,36,',
-    'rgba(45,212,191,',
-  ];
-
   class Particle {
     x: number;
     y: number;
@@ -95,14 +87,10 @@
   let {
     variant = 'marketing',
   }: {
-    variant?: 'marketing' | 'front-office' | 'back-office';
+    variant?: 'marketing' | 'front-office';
   } = $props();
 
   let canvasEl: HTMLCanvasElement | null = null;
-
-  function getColors(surface: 'marketing' | 'front-office' | 'back-office') {
-    return surface === 'back-office' ? BACK_OFFICE_PARTICLE_COLS : FRONT_OFFICE_PARTICLE_COLS;
-  }
 
   onMount(() => {
     if (!canvasEl) return;
@@ -112,9 +100,7 @@
 
     let W = (canvasEl.width = window.innerWidth);
     let H = (canvasEl.height = window.innerHeight);
-    const particles = Array.from({ length: 130 }, (_, index) => new Particle(W, H, ctx, index < 80, getColors(variant)));
-    let currentVariant = variant;
-
+    const particles = Array.from({ length: 130 }, (_, index) => new Particle(W, H, ctx, index < 80, FRONT_OFFICE_PARTICLE_COLS));
     const onResize = () => {
       W = canvasEl ? (canvasEl.width = window.innerWidth) : W;
       H = canvasEl ? (canvasEl.height = window.innerHeight) : H;
@@ -124,12 +110,6 @@
     let raf = 0;
 
     const loop = () => {
-      if (currentVariant !== variant) {
-        currentVariant = variant;
-        const colors = getColors(currentVariant);
-        particles.forEach((particle) => particle.setColors(colors));
-      }
-
       ctx.clearRect(0, 0, W, H);
       particles.forEach((particle) => {
         particle.tick();
@@ -235,25 +215,6 @@
     background-image:
       linear-gradient(rgba(61, 53, 96, 0.05) 1px, transparent 1px),
       linear-gradient(90deg, rgba(61, 53, 96, 0.05) 1px, transparent 1px);
-    background-size: 80px 80px;
-  }
-
-  .back-office .a1 {
-    background: radial-gradient(ellipse, rgba(124, 58, 237, 0.12) 0%, transparent 65%);
-  }
-
-  .back-office .a2 {
-    background: radial-gradient(ellipse, rgba(45, 212, 191, 0.08) 0%, transparent 65%);
-  }
-
-  .back-office .a3 {
-    background: radial-gradient(ellipse, rgba(251, 191, 36, 0.06) 0%, transparent 65%);
-  }
-
-  .back-office .grid {
-    background-image:
-      linear-gradient(rgba(124, 58, 237, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
     background-size: 80px 80px;
   }
 

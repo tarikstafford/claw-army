@@ -570,7 +570,7 @@
 
   .msg.user .bubble {
     background: var(--fo-plum, #3D3560);
-    color: #fff;
+    color: white;
     border-color: transparent;
   }
 
@@ -589,7 +589,7 @@
     width: 100%;
     padding: 18px 24px;
     background: var(--fo-plum, #3D3560);
-    color: #fff;
+    color: white;
     border: 2px solid var(--fo-plum, #3D3560);
     border-radius: 8px;
     font-family: 'DM Sans', sans-serif;
@@ -711,7 +711,7 @@
     width: 100%;
     padding: 14px 24px;
     background: var(--fo-plum, #3D3560);
-    color: #fff;
+    color: white;
     border: none;
     border-radius: 6px;
     font-family: 'DM Sans', sans-serif;

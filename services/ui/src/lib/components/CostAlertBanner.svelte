@@ -94,20 +94,7 @@
     border: 1px solid #dc2626;
   }
 
-  :global(body.back-office) .alert-warning {
-    background: rgba(245, 158, 11, 0.08);
-    border-color: var(--bo-amber, #F59E0B);
-  }
 
-  :global(body.back-office) .alert-danger {
-    background: rgba(244, 63, 94, 0.08);
-    border-color: var(--bo-rose, #F43F5E);
-  }
-
-  :global(body.back-office) .alert-critical {
-    background: rgba(220, 38, 38, 0.08);
-    border-color: #dc2626;
-  }
 
   .alert-icon {
     font-size: 16px;

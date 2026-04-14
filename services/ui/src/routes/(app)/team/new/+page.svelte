@@ -35,9 +35,14 @@
         const body = await res.text().catch(() => '');
         throw new Error(body || `Request failed (${res.status})`);
       }
-      goto('/office/agents');
+      const created = await res.json();
+      if (created?.id) {
+        goto(`/team/${created.id}`);
+      } else {
+        goto('/team');
+      }
     } catch (err) {
-      errorMsg = (err as Error).message ?? 'Something went wrong. Try refreshing - if this keeps happening, check your connection.';
+      errorMsg = (err as Error).message ?? 'Something went wrong. Try refreshing.';
       submitting = false;
     }
   }
@@ -45,7 +50,7 @@
 
 <div class="create-agent">
   <div class="back-row">
-    <a href="/team" class="back-link">&larr; Agents</a>
+    <a href="/team" class="back-link">&larr; Team</a>
   </div>
 
   <h1 class="page-title">Add agent</h1>
@@ -116,7 +121,7 @@
   }
 
   .back-link:hover {
-    color: var(--fo-plum);
+    color: var(--accent, var(--fo-plum));
   }
 
   .page-title {
@@ -124,7 +129,7 @@
     font-size: clamp(26px, 3.5vw, 38px);
     font-weight: 600;
     line-height: 1.1;
-    color: var(--fo-plum);
+    color: var(--text);
     margin: 0 0 var(--space-xl);
   }
 
@@ -150,8 +155,8 @@
     font-family: var(--font-body);
     font-size: 16px;
     padding: 10px 14px;
-    background: var(--fo-card);
-    border: 1px solid var(--fo-border);
+    background: var(--card, var(--fo-card));
+    border: 1px solid var(--border, var(--fo-border));
     border-radius: var(--radius-md);
     color: inherit;
     outline: none;
@@ -161,8 +166,8 @@
   }
 
   .field-input:focus {
-    border-color: var(--fo-plum-m);
-    outline: 2px solid var(--fo-plum-p);
+    border-color: var(--accent, var(--fo-plum-m));
+    outline: 2px solid var(--accent-dim, var(--fo-plum-p));
     outline-offset: 1px;
   }
 
@@ -193,7 +198,7 @@
     display: inline-flex;
     align-items: center;
     padding: 10px 18px;
-    background: var(--fo-plum);
+    background: var(--accent, var(--fo-plum));
     color: white;
     font-family: var(--font-body);
     font-size: 13px;
@@ -206,7 +211,7 @@
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: var(--fo-plum-m);
+    background: var(--accent-m, var(--fo-plum-m));
   }
 
   .btn-primary:disabled {
@@ -223,7 +228,7 @@
     font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
-    border: 1px solid var(--fo-border);
+    border: 1px solid var(--border, var(--fo-border));
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: background 0.15s;
@@ -231,36 +236,6 @@
   }
 
   .btn-secondary:hover {
-    background: var(--fo-bg2);
-  }
-
-  .page-title {
-    color: var(--text);
-  }
-
-  .field-input {
-    background: var(--card);
-    border-color: var(--border);
-  }
-
-  .field-input:focus {
-    border-color: var(--accent);
-    outline-color: var(--accent-dim);
-  }
-
-  .btn-primary {
-    background: var(--accent);
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: var(--accent-m);
-  }
-
-  .btn-secondary {
-    border-color: var(--border);
-  }
-
-  .btn-secondary:hover {
-    background: var(--bg2);
+    background: var(--bg2, var(--fo-bg2));
   }
 </style>
